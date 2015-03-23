@@ -6,11 +6,11 @@
   !
   !! <html>
   !! <head>
-  !!  <title> Lennard-Jones hcp-fcc interactions Documentation </title>
+  !!  <title> Lennard-Jones interactions Documentation </title>
   !! </head>
   !! <body>
   !! 
-  !! <h1> Lennard-Jones hcp-fcc <code>interactions</code> Documentation </h1>
+  !! <h1> Lennard-Jones <code>interactions</code> Documentation </h1>
   !!
   !! <h2> Author </h2>
   !! <p> Tom Underwood </p>
@@ -23,15 +23,7 @@
   !! <code>include</code>d in the <code>monteswitch_mod</code> module.
   !! </p>
   !! <p>
-  !! This version of the file corresponds to Lennard-Jones interactions in hcp (lattice 1) and fcc (lattice 2).
-  !! The interactions are not your typical Lennard-Jones interactions. Usually one truncates the interactions at
-  !! a predetermined distance, or uses a predetermined 'list' of interacting pairs of particles. However, this
-  !! gives errors in the ground state energies (see 'Structural Phase Behaviour Via Monte Carlo Techniques', 
-  !! Andrew N. Jackson, PhD Thesis, University of Edinburgh, 2002). A more accurate approach is to evaluate the 
-  !! <i>difference</i> of the energy of the lattice under consideration relative to the ground state, and apply 
-  !! the usual truncations to this difference. This is what is done here. Of course, this approach necessitates 
-  !! a, say, fcc-specific Fortran procedure to treat the fcc lattice; while in the conventional approach the 
-  !! Lennard-Jones procedure can be applied to any crystal.
+  !! This version of the file corresponds to Lennard-Jones interactions.
   !! </p>
   !! <p>
   !! The format of the file to import the interactions parameters is as follows. On the first line
@@ -68,7 +60,10 @@
   !! <tr>
   !!  <td> <code>lj_cutoff<code> </td>
   !!  <td> <code>real(rk)</code> </td>
-  !!  <td> Cut-off distance for the Lennard-Jones potential. </td>
+  !!  <td> 
+  !!  Cut-off distance for the Lennard-Jones potential. Note that the potential is shifted so that there is no
+  !!  discontinuity in the potential at the cut-off distance.
+  !!  </td>
   !! </tr>
   !! <tr>
   !!  <td> <code>list_cutoff<code> </td>
@@ -366,38 +361,12 @@ contains
     real(rk), intent(in) :: Lz_in
     real(rk), intent(in), dimension(:,:) :: r
     real(rk) :: calc_energy_scratch
-    ! Constants for calculating the exact ground state for the hcp and fcc lattices
-    ! at a given density (see Table 6.1 of Andrew Jackson's thesis mentioned above)
-    real(rk), parameter :: A12_hcp=12.132293768
-    real(rk), parameter :: A6_hcp=14.454897093
-    real(rk), parameter :: A12_fcc=12.131880196
-    real(rk), parameter :: A6_fcc=14.453920885
-    real(rk) :: E_gs
-    ! A scalefactor (explained below)
-    real(rk) :: scale
 
     select case(lattice)
     case(1)
-       ! Calculate the ground state energy (for 0 particle displacements) for the volume of the input system (corresponding to Lx_in,
-       ! Ly_in, Lz_in, r) (hcp)
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**4*A12_hcp &
-            -(lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**2*A6_hcp )
-       ! Calculate the difference relative to this ground state using truncation (1st 2 terms), and add it to the
-       ! ground state for the input volume. Note that the 2nd term is the energy of the ground state with a truncated
-       ! potential, and that to get this we need to rescale R_1, Lx_in, Ly_in and Lz_in such that the underlying
-       ! undistorted lattice corresponds to the INPUT volume to this function, not the CURRENT volume which R_1, Lx(1), Ly(1)
-       ! and Lz(1) correspond to.
-       scale=(Lx_in*Ly_in*Lz_in/(Lx(1)*Ly(1)*Lz(1)))**(1.0_rk/3.0_rk)
-       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_1,r) &
-         -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx(1)*scale,Ly(1)*scale,Lz(1)*scale,list_1,R_1*scale) + E_gs
+       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_1,r)
     case(2)
-       ! As above, but for fcc
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**4*A12_fcc &
-            -(lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**2*A6_fcc )
-       !
-       scale=(Lx_in*Ly_in*Lz_in/(Lx(2)*Ly(2)*Lz(2)))**(1.0_rk/3.0_rk)
-       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_2,r) &
-         -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx(2)*scale,Ly(2)*scale,Lz(2)*scale,list_2,R_2*scale) + E_gs
+       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_2,r)
     case default
        write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
        stop 1

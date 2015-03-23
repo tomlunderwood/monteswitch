@@ -68,7 +68,8 @@
   !! <tr>
   !!  <td> <code>lj_cutoff<code> </td>
   !!  <td> <code>real(rk)</code> </td>
-  !!  <td> Cut-off distance for the Lennard-Jones potential. </td>
+  !!  <td> Cut-off distance for the Lennard-Jones potential.  Note that the potential is shifted so that there is no
+  !!  discontinuity in the potential at the cut-off distance. </td>
   !! </tr>
   !! <tr>
   !!  <td> <code>list_cutoff<code> </td>
