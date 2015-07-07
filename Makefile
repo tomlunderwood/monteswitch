@@ -1,24 +1,23 @@
-# Makefile for monteswitch
+# Makefile for the 'monteswitch' package
+# Author: Tom L Underwood
 
-# 
+
+# README: * Adjust the variables 'FC', 'FC_MPI', 'FC_FLAGS', and 'FC_MPI_FLAGS' to suit your
+#           requirements before 'make' is invoked.
+#         * The 'BINS' variable is the list of binaries to be compiled. Delete 'monteswitch_mpi'
+#           if you do not have MPI, and hence will be unable to compile 'monteswitch_mpi'
+#         * Type 'make help' for a list of callable targets.
+
+
+
+
 # A note on .mod file rules:
 #
 # The rules pertaining to .mod files 'touch' the .mod file once it has been
-# created or updated. This is to address the fact that gfortran only updates the
-# timestamp on .mod files if they have been modified. However, gfortran started
+# created or updated. This is to address the fact that gfortran - which I primarily used -
+# only updates the timestamp on .mod files if they have been modified. However, gfortran started
 # doing this to address a bug, but for me it makes sense to update the timestamp,
 # otherwise make will remake things which it doesn't need to.
-
-# A note on static compilation:
-#
-# I had trouble compiling the mpi programs statically. It worked if one compiled, using the 'bare' command (obtained
-# using the mpifort wrapper with --showme at the end), but with -ldl at the end. Hence there is a stand-alone make
-# rule for 'monteswitch_mpi' which works, but isn't transferable to other compilers or situations probably. The fact that
-# I needed to add -ldl means that the mpifort wrapper isn't quite correct. I possibly didn't configure OpenMPI perfectly
-# when installing it: you have to configure it manually to allow it to build static MPI programs, hence the difficulty
-# I have had with building static MPI programs.
-
-
 
 
 #
@@ -31,14 +30,8 @@ FC = gfortran
 FC_MPI = mpif90
 # Extra flags to be used in the compiling using the mpi compiler (consider -O3, -static, -pg, -g -fcheck=all -fbounds-check)
 FC_FLAGS =   -Wall -fbounds-check -O3
-# Extra flags to be used in the compiling using the mpi fortran compiler. (-ldl is necessary)
+# Extra flags to be used in the compiling using the mpi fortran compiler
 FC_MPI_FLAGS =  -Wall -fbounds-check
-# Variables for making distributions
-# Stem of the name of the distribution
-PACKAGE      = monteswitch
-VERSION      = `date "+%y.%m.%d"`
-# Directory the .tar.gz file containing the distribution will be created in
-RELEASE_DIR  = .
 
 
 
@@ -62,7 +55,7 @@ lattices_in_hcp_fcc_docs.html
 # Utility targets
 #
 
-.PHONY: all help clean dist-src dist-bin
+.PHONY: all help clean
 
 # Default target
 # target: all - Makes all binaries and docs (default target).
@@ -75,14 +68,6 @@ help:
 # target: clean - Removes all binaries, object files, module files, and html documents
 clean:
 	rm -f *.o *.mod $(BINS) $(DOCS)
-
-# target: dist-src - Make a distribution containing only source code, shell scripts, Examples_and_tests and Makefile.
-dist-src:
-	tar -zcf $(RELEASE_DIR)/$(PACKAGE)-src-$(VERSION).tar.gz *.f* *.sh Makefile Examples_and_tests
-
-# target: dist-bin - Make a distribution containing only binaries, shell scripts and Examples_and_tests
-dist-bin: 
-	tar -zcf  $(RELEASE_DIR)/$(PACKAGE)-bin-$(VERSION).tar.gz $(BINS) *.sh
 
 
 
@@ -103,23 +88,6 @@ lattices_in_hcp_fcc: lattices_in_hcp_fcc.o kinds_mod.o
 
 # target: lattices_in_hcp_fcc.o
 lattices_in_hcp_fcc.o: lattices_in_hcp_fcc.f95 kinds_mod.mod
-	$(FC) $(FC_FLAGS) -c $<
-
-
-# monteswitch_npt_coexistence
-
-# target: monteswitch_npt_coexistence_docs.html
-monteswitch_npt_coexistence_docs.html: monteswitch_npt_coexistence.f95
-	./tomdocs.sh '\!\! ?' $< > $@
-
-# target: monteswitch_npt_coexistence
-monteswitch_npt_coexistence: monteswitch_npt_coexistence.o monteswitch_mod.o kinds_mod.o rng_mod.o mersenne_twister.o \
-metropolis_mod.o
-	$(FC) $(FC_FLAGS) -o $@ $^
-
-# target: monteswitch_npt_coexistence.o
-monteswitch_npt_coexistence.o: monteswitch_npt_coexistence.f95 monteswitch_mod.mod kinds_mod.mod rng_mod.mod \
-mersenne_twister.mod metropolis_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 
 
