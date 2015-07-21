@@ -41,12 +41,13 @@ FC_MPI_FLAGS =  -Wall -fbounds-check
 #
 
 # List of binaries to be compiled
-BINS = monteswitch monteswitch_post monteswitch_mpi lattices_in_hcp_fcc
+BINS = monteswitch monteswitch_post monteswitch_mpi \
+lattices_in_hcp_fcc lattices_in_bcc_fcc
 # List of html documents to be compiled
 DOCS = kinds_mod_docs.html metropolis_mod_docs.html rng_mod_docs.html \
 monteswitch_mod_docs.html interactions_docs.html monteswitch_docs.html \
 monteswitch_post_docs.html monteswitch_mpi_docs.html \
-lattices_in_hcp_fcc_docs.html
+lattices_in_hcp_fcc_docs.html lattices_in_bcc_fcc_docs.html
 
 
 
@@ -75,6 +76,21 @@ clean:
 #
 # Real targets
 #
+
+# lattices_in_bcc_fcc
+
+# target: lattices_in_bcc_fcc_docs.html
+lattices_in_bcc_fcc_docs.html: lattices_in_bcc_fcc.f95
+	./tomdocs.sh '\!\! ?' $< > $@
+
+# target: lattices_in_bcc_fcc
+lattices_in_bcc_fcc: lattices_in_bcc_fcc.o kinds_mod.o
+	$(FC) $(FC_FLAGS) -o $@ $^
+
+# target: lattices_in_bcc_fcc.o
+lattices_in_bcc_fcc.o: lattices_in_bcc_fcc.f95 kinds_mod.mod
+	$(FC) $(FC_FLAGS) -c $<
+
 
 # lattices_in_hcp_fcc
 
