@@ -149,7 +149,7 @@ program lattices_in_bcc_hcp
   end do
 
   ! Construct and output the hcp supercell
-  b=2.0_rk**(1.0_rk/6.0_rk)
+  b=2.0_rk**(1.0_rk/6.0_rk)/rho**(1.0_rk/3.0_rk)
   a=sqrt(3.0_rk)*b
   c=(2.0_rk*sqrt(6.0_rk)/3.0_rk)*b
   Lx=nx*a
