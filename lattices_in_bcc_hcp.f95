@@ -139,7 +139,7 @@ program lattices_in_bcc_hcp
   do i=1,nx
      do j=1,ny
         do k=1,nz
-           cell_origin=(/(i-1)*nx*a,(j-1)*ny*b,(k-1)*nz*c/)
+           cell_origin=(/(i-1)*a,(j-1)*b,(k-1)*c/)
            write(*,*)  cell_origin(1)/Lx,            cell_origin(2)/Ly,            cell_origin(3)/Lz
            write(*,*) (cell_origin(1)+a/2.0_rk)/Lx, (cell_origin(2)+b/2.0_rk)/Ly,  cell_origin(3)/Lz
            write(*,*) (cell_origin(1)+a/2.0_rk)/Lx,  cell_origin(2)/Ly,           (cell_origin(3)+c/2.0_rk)/Lz
@@ -161,7 +161,7 @@ program lattices_in_bcc_hcp
   do i=1,nx
      do j=1,ny
         do k=1,nz
-           cell_origin=(/(i-1)*nx*a,(j-1)*ny*b,(k-1)*nz*c/)
+           cell_origin=(/(i-1)*a,(j-1)*b,(k-1)*c/)
            write(*,*)  cell_origin(1)/Lx,                   cell_origin(2)/Ly,            cell_origin(3)/Lz
            write(*,*) (cell_origin(1)+a/2.0_rk)/Lx,        (cell_origin(2)+b/2.0_rk)/Ly,  cell_origin(3)/Lz
            write(*,*) (cell_origin(1)+a/3.0_rk)/Lx,         cell_origin(2)/Ly,           (cell_origin(3)+c/2.0_rk)/Lz
