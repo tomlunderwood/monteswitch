@@ -5608,15 +5608,12 @@ module monteswitch_mod
 
     close(unit=10)
 
-    ! Check the volumes of both supercells match, and rescale supercell 2.
+    ! Check the volumes of both supercells match
     scalefactor=Lx(2)*Ly(2)*Lz(2)/(Lx(1)*Ly(1)*Lz(1))
     if(scalefactor > 1.000001_rk .or. scalefactor < 0.999999_rk) then
        write(0,*) "Error: the volumes of the supercells specified in the file ",filename," do not sufficiently match."
        stop 1
     end if
-    Lx(2)=Lx(1)*scalefactor**(1.0_rk/3.0_rk)
-    Ly(2)=Ly(1)*scalefactor**(1.0_rk/3.0_rk)
-    Lz(2)=Lz(1)*scalefactor**(1.0_rk/3.0_rk)
   end subroutine initialise_lattices
 
 
