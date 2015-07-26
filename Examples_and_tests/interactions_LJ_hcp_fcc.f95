@@ -313,6 +313,19 @@ contains
 
 
 
+  !! <h3> <code> subroutine after_accepted_interactions() </code> </h3>
+  !! <p>
+  !! This procedure is called after a particle or volume move (but not a lattice move) has been
+  !! accepted. It can be used to update, say, neighbour lists, which require knowledge of the
+  !! current microstate - or in this case, the current microstate pertaining to both lattices.
+  !! </p>
+  subroutine after_accepted_interactions()
+   
+  end subroutine after_accepted_interactions
+
+
+
+
   !! <h3> <code> function calc_energy_scratch(lattice,Lx,Ly,Lz,r) </code> </h3>
   !! <p>
   !! This function calculates the energy of a given system 'from scratch'.

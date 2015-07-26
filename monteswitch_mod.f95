@@ -5146,6 +5146,8 @@ module monteswitch_mod
           end if
           ! Ammend accepted counters
           accepted_moves_part=accepted_moves_part+1
+          ! Perform 'interactions'-specific tasks after an accepted move
+          call after_accepted_interactions()
        end if
     end if
     ! Ammend counter
@@ -5242,6 +5244,8 @@ module monteswitch_mod
           M=M_trial
           ! Ammend accepted counters
           accepted_moves_vol=accepted_moves_vol+1
+          ! Perform 'interactions'-specific tasks after an accepted move
+          call after_accepted_interactions()
        end if
     end if
     ! Ammend counters

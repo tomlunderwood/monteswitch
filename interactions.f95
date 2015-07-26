@@ -35,7 +35,19 @@
   !! correspond to the embedding function, density function, and pair potential (multiplied by separation) read
   !! from the input file.
   !! </p>
-
+  !! <p>
+  !! NB: It seems that 'setfl' format files often have cut-offs which are very slightly
+  !! higher than that suggested by the values of <code>Nr</code> and
+  !! <code>dr</code>. The aforementioned LAMMPS documentation specifies that
+  !! elements <code>i</code> of <code>rho</code> and <code>rphi</code>
+  !! correspond to a separation of <code>r=(i-1)*dr</code> - as opposed to
+  !! <code>r=i*dr</code>. Hence the maximum supported separation is
+  !! <code>(Nr-1)*dr</code>, as opposed to <code>Nr*dr</code>. However, people
+  !! often set the cut-off to the latter value, as opposed to the former. Here,
+  !! to account for this, if the cut-off is greater than <code>(Nr-1)*dr</code>, 
+  !! then it is ammeded at initialisation to be <code>(Nr-1)*dr</code>.
+  !! </p>
+  
   !! <h2> 'Interation variables' which are required for initialisation of the particle interactions. </h3>
   !! The following variables are read from the <code>filename_params</code> file by 
   !! <code>initialise_from_files(filename_params,filename_lattice)</code> in <code>monteswitch_mod</code>.
@@ -120,11 +132,35 @@
   !!  the separation, for inter-particle separation <code>(i-1)*dr</code>.
   !!  </td>
   !! </tr>
+  !! <tr>
+  !!  <td> <code>part_rho<code> </td>
+  !!  <td> <code>real(rk), dimension(:,:), allocatable</code> </td>
+  !!  <td>
+  !!  Array defining containing the density - with regards to the embedding function - associated with
+  !!  each particle in the current microstate of the system for each latice. 
+  !!  <code>part_rho(lattice,i)</code> is the density for particle <code>i</code> in lattice <cdoe>lattice</code>. 
+  !!  This is used to speed up the calculation of the change in embedding energy as a result of a particle move. 
+  !!  </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <code>part_rho_buffer<code> </td>
+  !!  <td> <code>real(rk), dimension(:,:), allocatable</code> </td>
+  !!  <td>
+  !!  Like <code>part_rho</code>, but a 'buffer' value. Every particle or volume move, the energy of the trial
+  !!  microstate is evaluated by calling the <code>calc_energy_scratch</code> or <code>calc_energy_part_move</code>
+  !!  procedure. In each of these procedures, the densities for the trial state are stored in <code>part_rho_buffer<code>.
+  !!  If the move is accepted, i.e., the trial microstate becomes the actual microstate of the system, 
+  !!  <code>part_rho_buffer<code> is copied to <code>part_rho</code>. If the move is rejected, then 
+  !!  <code>part_rho_buffer<code> is not copied to <code>part_rho</code>.  Thus <code>part_rho</code> always reflects the 
+  !!  actual microstate.
+  !!  </td>
+  !! </tr>
   !! </table>
   real(rk), dimension(:), allocatable :: F
   real(rk), dimension(:), allocatable :: rho
   real(rk), dimension(:), allocatable :: rphi
-
+  real(rk), dimension(:,:), allocatable :: part_rho
+  real(rk), dimension(:,:), allocatable :: part_rho_buffer
 
 contains
 
@@ -166,7 +202,7 @@ contains
        write(0,*) "interactions: Error. Problem opening file '",filename,"'"
        stop 1
     end if
-    
+
     ! Read 3 comment lines
     read(10,*,iostat=error) line
     if(error/=0) then
@@ -241,7 +277,7 @@ contains
           end if
 
           if(j>Nrho) exit
-          
+
           prev_indx=indx
 
        end do
@@ -281,7 +317,7 @@ contains
           end if
 
           if(j>Nr) exit
-          
+
           prev_indx=indx
 
        end do
@@ -289,7 +325,7 @@ contains
        if(j>Nr) exit
 
     end do
-    
+
     ! Initialise and read the pair potential function. Note that the values in the file are actually r*phi(r),
     ! not phi(r). This is stored in the variable rphi.
     allocate(rphi(Nr))
@@ -322,7 +358,7 @@ contains
           end if
 
           if(j>Nr) exit
-          
+
           prev_indx=indx
 
        end do
@@ -330,6 +366,15 @@ contains
        if(j>Nr) exit
 
     end do
+
+    ! Set cutoff to the maximum supported value if it is greater than (Nr-1)*dr
+    if(cutoff>(Nr-1)*dr) cutoff=(Nr-1)*dr
+
+    ! Initialise part_rho, and allocate - but not set any values to - part_rho_buffer
+    allocate(part_rho(2,n_part))
+    allocate(part_rho_buffer(2,n_part))
+    call set_part_rho(1,Lx(1),Ly(1),Lz(1),R_1)
+    call set_part_rho(2,Lx(2),Ly(2),Lz(2),R_2)
 
     ! Output the functions to files
     open(unit=10,file="F.dat")
@@ -367,6 +412,8 @@ contains
     write(unit,*) "F= ",F
     write(unit,*) "rho= ",rho
     write(unit,*) "rphi= ",rphi
+    write(unit,*) "part_rho= ",part_rho
+    write(unit,*) "part_rho_buffer= ",part_rho_buffer
   end subroutine export_interactions_state
 
 
@@ -380,7 +427,7 @@ contains
     integer(ik), intent(in) :: unit
     character(len=20) string
     integer(ik) :: error
-    
+
     read(unit,*,iostat=error) string, Nrho
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'Nrho' from unit ",unit
@@ -419,6 +466,8 @@ contains
     allocate(F(Nrho))
     allocate(rho(Nr))
     allocate(rphi(Nr))
+    allocate(part_rho(2,n_part))
+    allocate(part_rho_buffer(2,n_part))
 
     read(unit,*,iostat=error) string, F
     if(error/=0) then
@@ -435,8 +484,31 @@ contains
        write(0,*) "interactions: Error. Problem reading 'rphi' from unit ",unit
        stop 1
     end if
+    read(unit,*,iostat=error) string, part_rho
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'part_rho' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, part_rho_buffer
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'part_rho_buffer' from unit ",unit
+       stop 1
+    end if
 
   end subroutine import_interactions_state
+
+
+
+  
+  !! <h3> <code> subroutine after_accepted_interactions() </code> </h3>
+  !! <p>
+  !! This procedure is called after a particle or volume move (but not a lattice move) has been
+  !! accepted. It can be used to update, say, neighbour lists, which require knowledge of the
+  !! current microstate - or in this case, the current microstate pertaining to both lattices.
+  !! </p>
+  subroutine after_accepted_interactions()
+    part_rho=part_rho_buffer
+  end subroutine after_accepted_interactions
 
 
 
@@ -495,11 +567,30 @@ contains
     real(rk), intent(in) :: Lz_in
     real(rk), intent(in), dimension(:,:) :: r
     real(rk) :: calc_energy_scratch
-    integer(ik) :: i
-    calc_energy_scratch=0.0_rk
-    do i=1,ubound(r,1)
-       calc_energy_scratch=calc_energy_scratch+particle_energy(Lx_in,Ly_in,Lz_in,r,i)
+    integer(ik) :: i,j
+    real(rk) :: sep
+    real(rk) :: pair_energy
+    real(rk) :: embedding_energy
+    pair_energy=0.0_rk
+    embedding_energy=0.0_rk
+    do i=1,n_part
+       ! Calculate the density associated with particle i, and store it in part_rho_buffer(lattice,i).
+       ! At the same time we are resetting part_rho_buffer for 'lattice' to correspond to the 
+       ! microstate in the argument
+       part_rho_buffer(lattice,i)=0.0_rk
+       do j=1,n_part
+          if(j/=i) then
+             sep=min_image_distance(r(i,:),r(j,:),Lx_in,Ly_in,Lz_in)
+             if(sep<cutoff) then
+                pair_energy=pair_energy+0.5_rk*phi_func(sep)
+                part_rho_buffer(lattice,i)=part_rho_buffer(lattice,i)+rho_func(sep)
+             end if
+          end if
+       end do
+       embedding_energy=embedding_energy+F_func(part_rho_buffer(lattice,i))
     end do
+
+    calc_energy_scratch = pair_energy + embedding_energy
   end function calc_energy_scratch
 
 
@@ -577,13 +668,87 @@ contains
     real(rk), intent(in), dimension(:,:) :: r_new
     integer(ik), intent(in) :: i
     real(rk) :: calc_energy_part_move
-    calc_energy_part_move=particle_energy(Lx,Ly,Lz,r_new,i)-particle_energy(Lx,Ly,Lz,r,i)
+    integer(ik) :: j
+    real(rk) :: sep
+    real(rk) :: sep_new
+    real(rk) :: delta_pair_energy
+    real(rk) :: delta_embedding_energy
+    ! The change in density for microstate with r_new relative to the current microstate (r)
+    real(rk), dimension(n_part) :: delta_rho    
+
+    ! Calculate the change in the pair energy
+    delta_pair_energy=0.0_rk
+    do j=1,n_part
+       if(j/=i) then
+          sep=min_image_distance(r(j,:),r(i,:),Lx,Ly,Lz)
+          sep_new=min_image_distance(r_new(j,:),r_new(i,:),Lx,Ly,Lz)
+          if(sep_new<cutoff) delta_pair_energy=delta_pair_energy+phi_func(sep_new)
+          if(sep<cutoff) delta_pair_energy=delta_pair_energy-phi_func(sep)
+       end if
+    end do
+
+    ! Calculate the change in the embedding energy
+
+    ! Calculate the changes in all particles' densities for  r_new relative to r_ref
+    delta_rho=0.0_rk
+    do j=1,n_part
+       if(j/=i) then
+          sep=min_image_distance(r(j,:),r(i,:),Lx,Ly,Lz)
+          sep_new=min_image_distance(r_new(j,:),r_new(i,:),Lx,Ly,Lz)
+          if(sep_new<cutoff) then
+             delta_rho(j)=delta_rho(j)+rho_func(sep_new)
+             delta_rho(i)=delta_rho(i)+rho_func(sep_new)
+          end if
+          if(sep<cutoff) then
+             delta_rho(j)=delta_rho(j)-rho_func(sep)
+             delta_rho(i)=delta_rho(i)-rho_func(sep)
+          end if
+       end if
+    end do
+
+    ! Use the change to calculate the current densities, and store it in part_rho_buffer
+    part_rho_buffer(lattice,:) = part_rho(lattice,:) + delta_rho
+
+    ! Calculate the chage in embedding energy from the changes in densities
+    delta_embedding_energy=0.0_rk
+    do j=1,n_part
+       delta_embedding_energy = delta_embedding_energy + &
+            F_func(part_rho_buffer(lattice,j)) - F_func(part_rho(lattice,j))
+    end do
+
+    calc_energy_part_move = delta_pair_energy + delta_embedding_energy
+
   end function calc_energy_part_move
 
 
 
 
   !! <h2>Procedures used internally </h2>
+
+
+  ! Set the part of part_rho for 'lattice' to correspond to the microstate
+  ! in the argument
+  subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
+    integer(ik), intent(in) :: lattice
+    real(rk), intent(in) :: Lx
+    real(rk), intent(in) :: Ly
+    real(rk), intent(in) :: Lz
+    real(rk), intent(in), dimension(:,:) :: r
+    integer(ik) :: i,j
+    real(rk) :: sep
+    do i=1,n_part
+       part_rho(lattice,i)=0.0_rk
+       do j=1,n_part
+          if(j/=i) then
+             sep=min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
+             if(sep<cutoff) then
+                part_rho(lattice,i)=part_rho(lattice,i)+rho_func(sep)
+             end if
+          end if
+       end do
+    end do
+  end subroutine set_part_rho
+
 
 
 
@@ -692,7 +857,7 @@ contains
 
 
 
- 
+
   !! <h3> <code> function rho_func(rho) </code> </h3>
   !! <p>
   !! <code>rho_func(r) </code> returns the density corresponding to a given separation,
@@ -732,7 +897,7 @@ contains
 
 
 
- 
+
   !! <h3> <code> function phi_func(rho) </code> </h3>
   !! <p>
   !! <code>phi_func(r) </code> returns the value of the pair-potential corresponding to a given separation,
@@ -771,78 +936,3 @@ contains
     phi_func=phi_func/r
   end function phi_func
 
-
-
-
-  !! <h3> <code> function particle_energy(Lx,Ly,Lz,r,i) </code> </h3>
-  !! <p>
-  !! <code>particle_energy(Lx,Ly,Lz,r,i) </code> returns the total EAM energy associated
-  !! with particle <code>i</code>, given the specified particle positions and supercell 
-  !! dimensions.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle positions. These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code>i </code> </td>
-  !!   <td> <code> integer(ik) </code> </td>
-  !!   <td> The particle whose energy is to be calculated. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function particle_energy(Lx,Ly,Lz,r,i)
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    real(rk), intent(in), dimension(:,:) :: r
-    integer(ik), intent(in) :: i
-    real(rk) :: particle_energy
-    integer(ik) :: j
-    real(rk) :: sep
-    real(rk) :: rho_sum
-    real(rk) :: phi_sum
-    rho_sum=0.0_rk
-    phi_sum=0.0_rk
-    do j=1,ubound(r,1)
-       if(j/=i) then
-          sep=min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
-          if(sep<cutoff) then
-             rho_sum=rho_sum+rho_func(sep)
-             phi_sum=phi_sum+phi_func(sep)
-          end if
-       end if
-    end do
-    particle_energy=F_func(rho_sum)+0.5_rk*phi_sum    
-  end function particle_energy
-  
