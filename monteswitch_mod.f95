@@ -465,12 +465,15 @@ module monteswitch_mod
   !! <h3> Variables determining the nature of the output </h3>
   !! <p>
   !! The flags <code>output_file_X</code>, where <code>X</code> is the name of a simulation variable, when set to <code>.true</code>,
-  !! will result in a line consisting of "<code>X: </code>" followed by the number of completed sweeps followed by the current value of
+  !! will result in a line consisting of "<code>X: </code>" followed by the number of completed sweeps, followed by the current value of
   !! <code>X</code> being printed to a specified file (<code>datafile</code> in the <code>run</code> subroutine) every 
   !! <code>output_file_period</code> sweeps (at the beginning of the sweep) - where the file is an argument of the <code>run</code> 
   !! subroutine. However, if <code>output_file_period=0</code>, then instead the output is <i>after every move</i>; and if 
   !! <code>output_file_period<0</code> then there is no output to the file. Similar applies to <code>output_stdout_X</code>, but for 
-  !! stdout during a simulation. 
+  !! stdout during a simulation. Furthermore, some variables (those corresponding to 'observables', e.g., the energy, volume, order
+  !! parameter) additionally have the current value of the weight function output to the file. For such a variable <code>X</code>, 
+  !! the format of the line is "<code>X: </code>", followed by the number of completed sweeps, followed by the current value of
+  !! <code>X</code>, followed by the current value of the weight function.
   !! </p>
   !! <p>
   !! The variable <code>checkpoint_period</code> determines how often (in sweeps) the simulation is checkpointed, i.e., how often the 
@@ -4037,25 +4040,25 @@ module monteswitch_mod
     ! This nested subroutine outputs the required data to the file 'datafile'
     subroutine output_file()
       if(output_file_V) then
-         write(11,*) "V: ",sweeps,V
+         write(11,*) "V: ",sweeps,V,eval_weightfn(M)
       end if
       if(output_file_R_1) then
-         write(11,*) "R_1: ",sweeps,R_1
+         write(11,*) "R_1: ",sweeps,R_1,eval_weightfn(M)
       end if
       if(output_file_R_2) then
-         write(11,*) "R_2: ",sweeps,R_2
+         write(11,*) "R_2: ",sweeps,R_2,eval_weightfn(M)
       end if
       if(output_file_u) then
-         write(11,*) "u: ",sweeps,u
+         write(11,*) "u: ",sweeps,u,eval_weightfn(M)
       end if
       if(output_file_lattice) then
-         write(11,*) "lattice: ",sweeps,lattice
+         write(11,*) "lattice: ",sweeps,lattice,eval_weightfn(M)
       end if
       if(output_file_E) then
-         write(11,*) "E: ",sweeps,E
+         write(11,*) "E: ",sweeps,E,eval_weightfn(M)
       end if
       if(output_file_M) then
-         write(11,*) "M: ",sweeps,M
+         write(11,*) "M: ",sweeps,M,eval_weightfn(M)
       end if      
       if(output_file_moves_lattice) then
          write(11,*) "moves_lattice: ",sweeps,moves_lattice
