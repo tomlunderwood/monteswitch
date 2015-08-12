@@ -5347,7 +5347,7 @@ module monteswitch_mod
   !! number of macrostates is <code>M_grid_size_in</code>; <code>M_OOB_low</code> and <code>M_OOB_high</code> 
   !! to be <code>M_grid_min</code> and <code>M_grid_max</code> respectively; <code>trans</code> to be of 
   !! size <code>M_grid_size_in</code> along both dimensions, with all elements set to 0; <code>eta_grid</code>
-  !! to be of size <code>M_grid_size_in</code> with all elements set to 1. Note that if <code>M_grid</code>, 
+  !! to be of size <code>M_grid_size_in</code> with all elements set to 0. Note that if <code>M_grid</code>, 
   !! <code>trans</code> or <code>eta_grid</code> is already allocated then this
   !! subroutine deallocates it before initialising it according to the arguments.
   !! </p>
@@ -5397,7 +5397,7 @@ module monteswitch_mod
        deallocate(eta_grid)
     end if
     allocate(eta_grid(M_grid_size))
-    eta_grid=1.0_rk
+    eta_grid=0.0_rk
   end subroutine initialise_M_variables
 
 
