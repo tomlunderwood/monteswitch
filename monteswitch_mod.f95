@@ -5408,6 +5408,14 @@ module monteswitch_mod
          stop 1
       end if
 
+      ! Set the trial state vectors to the current state initially
+      Lx_trial=Lx
+      Ly_trial=Ly
+      Lz_trial=Lz
+      R_1_trial=R_1
+      R_2_trial=R_2
+      u_trial=u
+
       ! Determine the scaling factor for the volume
       S=exp(top_hat_rand(vol_step))
 
