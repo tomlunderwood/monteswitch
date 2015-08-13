@@ -488,6 +488,9 @@ module monteswitch_mod
   !!  <td> <b> Type </b> </td>
   !! </tr>
   !! <tr> <td> <code>output_file_period</code> </td> <td> <code>integer(ik)</code> </td> </tr>
+  !! <tr> <td> <code>output_file_Lx </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_Ly </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_Lz </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_V </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_R_1 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_R_2 </code> </td> <td> <code>logical</code> </td> </tr>
@@ -523,6 +526,9 @@ module monteswitch_mod
   !! <tr> <td> <code>output_file_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_sigma_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_period</code> </td> <td> <code>integer(ik)</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_Lx </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_Ly </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_Lz </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_V </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_R_1 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_R_2 </code> </td> <td> <code>logical</code> </td> </tr>
@@ -557,6 +563,9 @@ module monteswitch_mod
   !! <tr> <td> <code>checkpoint_period </code> </td> <td> <code>integer(ik)</code> </td> </tr>
   !! </table>
   integer(ik) :: output_file_period
+  logical :: output_file_Lx
+  logical :: output_file_Ly
+  logical :: output_file_Lz
   logical :: output_file_V
   logical :: output_file_R_1
   logical :: output_file_R_2
@@ -593,6 +602,9 @@ module monteswitch_mod
   logical :: output_file_equil_umsd_2
   logical :: output_file_sigma_equil_umsd_2
   integer(ik) :: output_stdout_period
+  logical :: output_stdout_Lx
+  logical :: output_stdout_Ly
+  logical :: output_stdout_Lz
   logical :: output_stdout_V
   logical :: output_stdout_R_1
   logical :: output_stdout_R_2
@@ -1767,6 +1779,24 @@ module monteswitch_mod
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_period' from file '",filename_params,"'"
          stop 1
       end if
+      !init_params output_file_Lx= logical
+      read(10,*,iostat=error) string, output_file_Lx
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Lx' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_file_Ly= logical
+      read(10,*,iostat=error) string, output_file_Ly
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Ly' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_file_Lz= logical
+      read(10,*,iostat=error) string, output_file_Lz
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Lz' from file '",filename_params,"'"
+         stop 1
+      end if
       !init_params output_file_V= logical
       read(10,*,iostat=error) string, output_file_V
       if(error/=0) then
@@ -1981,6 +2011,24 @@ module monteswitch_mod
       read(10,*,iostat=error) string, output_stdout_period
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_period' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_Lx= logical
+      read(10,*,iostat=error) string, output_stdout_Lx
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Lx' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_Ly= logical
+      read(10,*,iostat=error) string, output_stdout_Ly
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Ly' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_Lz= logical
+      read(10,*,iostat=error) string, output_stdout_Lz
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Lz' from file '",filename_params,"'"
          stop 1
       end if
       !init_params output_stdout_V= logical
@@ -2313,6 +2361,9 @@ module monteswitch_mod
        write(10,*) "divergence_sweeps= ",divergence_sweeps
        write(10,*) "divergence_tol= ",divergence_tol
        write(10,*) "output_file_period= ",output_file_period
+       write(10,*) "output_file_Lx= ",output_file_Lx
+       write(10,*) "output_file_Ly= ",output_file_Ly
+       write(10,*) "output_file_Lz= ",output_file_Lz
        write(10,*) "output_file_V= ",output_file_V
        write(10,*) "output_file_R_1= ",output_file_R_1
        write(10,*) "output_file_R_2= ",output_file_R_2
@@ -2349,6 +2400,9 @@ module monteswitch_mod
        write(10,*) "output_file_equil_umsd_2= ",output_file_equil_umsd_2
        write(10,*) "output_file_sigma_equil_umsd_2= ",output_file_sigma_equil_umsd_2
        write(10,*) "output_stdout_period= ",output_stdout_period
+       write(10,*) "output_stdout_Lx= ",output_stdout_Lx
+       write(10,*) "output_stdout_Ly= ",output_stdout_Ly
+       write(10,*) "output_stdout_Lz= ",output_stdout_Lz
        write(10,*) "output_stdout_V= ",output_stdout_V
        write(10,*) "output_stdout_R_1= ",output_stdout_R_1
        write(10,*) "output_stdout_R_2= ",output_stdout_R_2
@@ -2626,6 +2680,21 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_period' from file '",trim(filename)
        stop 1
     end if
+    read(10,*,iostat=error) string, output_file_Lx
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Lx' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_file_Ly
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Ly' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_file_Lz
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_Lz' from file '",trim(filename)
+       stop 1
+    end if
     read(10,*,iostat=error) string, output_file_V
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_V' from file '",trim(filename)
@@ -2804,6 +2873,21 @@ module monteswitch_mod
     read(10,*,iostat=error) string, output_stdout_period
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_period' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_Lx
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Lx' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_Ly
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Ly' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_Lz
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_Lz' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, output_stdout_V
@@ -4039,6 +4123,15 @@ module monteswitch_mod
 
     ! This nested subroutine outputs the required data to the file 'datafile'
     subroutine output_file()
+      if(output_file_Lx) then
+         write(11,*) "Lx: ",sweeps,Lx,eval_weightfn(M)
+      end if 
+      if(output_file_Ly) then
+         write(11,*) "Ly: ",sweeps,Ly,eval_weightfn(M)
+      end if 
+      if(output_file_Lz) then
+         write(11,*) "Lz: ",sweeps,Lz,eval_weightfn(M)
+      end if
       if(output_file_V) then
          write(11,*) "V: ",sweeps,V,eval_weightfn(M)
       end if
@@ -4161,6 +4254,15 @@ module monteswitch_mod
       write(6,*)
       write(6,*) "Current information:"
 
+      if(output_stdout_Lx) then
+         write(6,*) "Lx: ",Lx
+      end if
+      if(output_stdout_Ly) then
+         write(6,*) "Ly: ",Ly
+      end if
+      if(output_stdout_Lz) then
+         write(6,*) "Lz: ",Lz
+      end if
       if(output_stdout_V) then
          write(6,*) "V: ",V
       end if
