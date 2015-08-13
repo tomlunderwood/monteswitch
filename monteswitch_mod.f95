@@ -5297,41 +5297,46 @@ module monteswitch_mod
     end subroutine vol_trial_FVM
 
     ! This nested subroutine sets the variables 'Lx_trial', 'Ly_trial', 'Lz_trial', 'V_trial',
-    ! 'R_1_trial', 'R_2_trial' and 'u_trial' to reflect the following: each dimension of the
-    ! supercell is increased/decreased by a separate random walk with a maximum possible step
-    ! size of 'vol_step'. (UVM=unconstrained aspect ratio volume moves)
-    !
-    ! NB: This subroutine has no checks to prevent, say, 'Lx_trial' from becoming less than 0. This
-    ! could occur if 'vol_step' is too large compared to the current values of 'Lx','Ly' and 'Lz'.
-    !
-    ! THIS IS UNSUPPORTED
+    ! 'R_1_trial', 'R_2_trial' and 'u_trial' to reflect the following: a random dimension (x,y or z)
+    ! is selected, and the supercell is stretched/compressed in that dimension such that
+    ! ln(V) is increased/decreased by a random amount uniformly drawn from -vol_step to vol_step.
+    ! (UVM=unconstrained aspect ratio volume moves)
     subroutine vol_trial_UVM()
-      write(0,*) "Error: unconstrained aspect ratio volume moves are not supported"
-      stop 1
+      real(rk) :: rand
+      ! Scaling factor for the volume
+      real(rk) :: S
 
-      ! OLD CODE
-      !
-      !    real(rk) :: toadd
-      !    ! x
-      !    toadd=top_hat_rand(vol_step)
-      !    Lx_trial=Lx+toadd
-      !    R_1_trial(:,1)=R_1(:,1)*Lx_trial/Lx
-      !    R_2_trial(:,1)=R_2(:,1)*Lx_trial/Lx
-      !    u_trial(:,1)=u(:,1)*Lx_trial/Lx
-      !    ! y
-      !    toadd=top_hat_rand(vol_step)
-      !    Ly_trial=Ly+toadd
-      !    R_1_trial(:,2)=R_1(:,2)*Ly_trial/Ly
-      !    R_2_trial(:,2)=R_2(:,2)*Ly_trial/Ly
-      !    u_trial(:,2)=u(:,2)*Ly_trial/Ly
-      !    ! z
-      !    toadd=top_hat_rand(vol_step)
-      !    Lz_trial=Lz+toadd
-      !    R_1_trial(:,3)=R_1(:,3)*Lz_trial/Lz
-      !    R_2_trial(:,3)=R_2(:,3)*Lz_trial/Lz
-      !    u_trial(:,3)=u(:,3)*Lz_trial/Lz 
-      !    ! Set V_trial
-      !    V_trial=Lx_trial*Ly_trial*Lz_trial
+      ! Determine the scaling factor for the volume
+      S=exp(top_hat_rand(vol_step))
+
+      ! Select a random dimension: x, y or z, and multiply that dimension by S
+      rand=get_random_number()
+      if(rand<1.0_rk/3.0_rk) then
+         ! Move x
+         V_trial=V*S
+         Lx_trial(1)=Lx(1)*S
+         Lx_trial(2)=Lx(2)*S
+         R_1_trial(:,1)=R_1(:,1)*S
+         R_2_trial(:,1)=R_2(:,1)*S
+         u_trial(:,1)=u(:,1)*S
+      else if(rand<2.0_rk/3.0_rk) then
+         ! Move y
+         V_trial=V*S
+         Ly_trial(1)=Ly(1)*S
+         Ly_trial(2)=Ly(2)*S
+         R_1_trial(:,2)=R_1(:,2)*S
+         R_2_trial(:,2)=R_2(:,2)*S
+         u_trial(:,2)=u(:,2)*S
+      else
+         ! Move z
+         V_trial=V*S
+         Lz_trial(1)=Lz(1)*S
+         Lz_trial(2)=Lz(2)*S
+         R_1_trial(:,3)=R_1(:,3)*S
+         R_2_trial(:,3)=R_2(:,3)*S
+         u_trial(:,3)=u(:,3)*S
+      end if
+
     end subroutine vol_trial_UVM
 
   end subroutine move_volume
