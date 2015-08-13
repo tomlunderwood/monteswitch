@@ -5365,11 +5365,6 @@ module monteswitch_mod
     ! by a random amount uniformly drawn from -vol_step to vol_step, where an equal scaling factor is
     ! applied to the x, y and z dimensions.
     ! (FVM=fixed aspect ratio volume moves)
-    ! 
-    ! NB: This subroutine has no checks to ensure that the random walk in the volume creates a
-    ! 'trial volume' which is less than zero. This could therefore occur if 'vol_step' is too large
-    ! compared to the current volume.
-    !
     subroutine vol_trial_FVM()
       ! Scaling factor for the volume
       real(rk) :: S_vol
@@ -5407,6 +5402,11 @@ module monteswitch_mod
       real(rk) :: rand
       ! Scaling factor for the volume
       real(rk) :: S
+
+      if(enable_lattice_moves) then
+         write(0,*) "monteswitch_mod: Error. UVM moves are not allowed in conjunction with lattice moves."
+         stop 1
+      end if
 
       ! Determine the scaling factor for the volume
       S=exp(top_hat_rand(vol_step))
