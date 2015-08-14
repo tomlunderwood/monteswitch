@@ -342,3 +342,22 @@ Checks to perform:
    stored in the 'sigma_equil_DeltaF' variable.
 
 
+
+
+*************************************************************************************************************
+Tests for interactions files
+
+The above tests are designed for the inner workings of monteswitch. The following test the various 'interactions'
+files.
+
+
+*****************************
+
+test_LJ_1
+
+This test calculates the difference in the ground state energies per particle between the fcc and hcp phases for
+various densities, using a Lennard-Jones potential with sigma=2, epsilon=0.5, and a cut-off of 5.
+
+Checks to perform:
+1) The graph 'Ediff_vs_rho.dat' should exactly match the solid (but not bold) curve in Fig. 6.5 of 'Structural Phase 
+Behaviour via Monte Carlo Techniques', Andrew N. Jackson, PhD Thesis, University of Edinburgh, 2002. 
