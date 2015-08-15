@@ -471,7 +471,7 @@ module monteswitch_mod
   !! subroutine. However, if <code>output_file_period=0</code>, then instead the output is <i>after every move</i>; and if 
   !! <code>output_file_period<0</code> then there is no output to the file. Similar applies to <code>output_stdout_X</code>, but for 
   !! stdout during a simulation. Additional flags, which correspond to the weight function - which is not stored by the program (but 
-  !! is calculated when needed on the fly), are <code>output_file_eta</code> and <code>output_stdout_eta</code>. The corresponding 
+  !! is calculated when needed on the fly) - are <code>output_file_eta</code> and <code>output_stdout_eta</code>. The corresponding 
   !! keyword in the output is "<code>eta: </code>".
   !! </p>
   !! <p>
