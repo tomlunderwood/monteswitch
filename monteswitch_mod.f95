@@ -470,10 +470,9 @@ module monteswitch_mod
   !! <code>output_file_period</code> sweeps (at the beginning of the sweep) - where the file is an argument of the <code>run</code> 
   !! subroutine. However, if <code>output_file_period=0</code>, then instead the output is <i>after every move</i>; and if 
   !! <code>output_file_period<0</code> then there is no output to the file. Similar applies to <code>output_stdout_X</code>, but for 
-  !! stdout during a simulation. Furthermore, some variables (those corresponding to 'observables', e.g., the energy, volume, order
-  !! parameter) additionally have the current value of the weight function output to the file. For such a variable <code>X</code>, 
-  !! the format of the line is "<code>X: </code>", followed by the number of completed sweeps, followed by the current value of
-  !! <code>X</code>, followed by the current value of the weight function.
+  !! stdout during a simulation. Additional flags, which correspond to the weight function - which is not stored by the program (but 
+  !! is calculated when needed on the fly), are <code>output_file_eta</code> and <code>output_stdout_eta</code>. The corresponding 
+  !! keyword in the output is "<code>eta: </code>".
   !! </p>
   !! <p>
   !! The variable <code>checkpoint_period</code> determines how often (in sweeps) the simulation is checkpointed, i.e., how often the 
@@ -487,7 +486,7 @@ module monteswitch_mod
   !!  <td> <b> Variable </b> </td>
   !!  <td> <b> Type </b> </td>
   !! </tr>
-  !! <tr> <td> <code>output_file_period</code> </td> <td> <code>integer(ik)</code> </td> </tr>
+  !! <tr> <td> <code>output_file_period</code> </td> <td> <code>integer(ik)</code> </td> </tr>  
   !! <tr> <td> <code>output_file_Lx </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_Ly </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_Lz </code> </td> <td> <code>logical</code> </td> </tr>
@@ -498,6 +497,7 @@ module monteswitch_mod
   !! <tr> <td> <code>output_file_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_E </code> </td> <td> <code>logical</code> </td>  </tr>
   !! <tr> <td> <code>output_file_M </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_eta </code> </td> <td> <code>logical</code> </td> </tr>  
   !! <tr> <td> <code>output_file_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_accepted_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_moves_part </code> </td> <td> <code>logical</code> </td> </tr>
@@ -536,6 +536,7 @@ module monteswitch_mod
   !! <tr> <td> <code>output_stdout_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_E </code> </td> <td> <code>logical</code> </td>  </tr>
   !! <tr> <td> <code>output_stdout_M </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_eta </code> </td> <td> <code>logical</code> </td> </tr>  
   !! <tr> <td> <code>output_stdout_accepted_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_accepted_moves_part </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_accepted_moves_vol </code> </td> <td> <code>logical</code> </td> </tr>
@@ -573,6 +574,7 @@ module monteswitch_mod
   logical :: output_file_lattice
   logical :: output_file_E
   logical :: output_file_M
+  logical :: output_file_eta
   logical :: output_file_moves_lattice
   logical :: output_file_accepted_moves_lattice
   logical :: output_file_moves_part
@@ -612,6 +614,7 @@ module monteswitch_mod
   logical :: output_stdout_lattice
   logical :: output_stdout_E
   logical :: output_stdout_M
+  logical :: output_stdout_eta
   logical :: output_stdout_moves_lattice
   logical :: output_stdout_accepted_moves_lattice
   logical :: output_stdout_moves_part
@@ -1839,6 +1842,12 @@ module monteswitch_mod
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_M' from file '",filename_params,"'"
          stop 1
       end if
+      !init_params output_file_eta= logical
+      read(10,*,iostat=error) string, output_file_eta
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_eta' from file '",filename_params,"'"
+         stop 1
+      end if
       !init_params output_file_moves_lattice= logical
       read(10,*,iostat=error) string, output_file_moves_lattice
       if(error/=0) then
@@ -2071,6 +2080,12 @@ module monteswitch_mod
       read(10,*,iostat=error) string, output_stdout_M
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_M' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_eta= logical
+      read(10,*,iostat=error) string, output_stdout_eta
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_eta' from file '",filename_params,"'"
          stop 1
       end if
       !init_params output_stdout_moves_lattice= logical
@@ -2371,6 +2386,7 @@ module monteswitch_mod
        write(10,*) "output_file_lattice= ",output_file_lattice
        write(10,*) "output_file_E= ",output_file_E
        write(10,*) "output_file_M= ",output_file_M
+       write(10,*) "output_file_eta= ",output_file_eta
        write(10,*) "output_file_moves_lattice= ",output_file_moves_lattice
        write(10,*) "output_file_accepted_moves_lattice= ",output_file_accepted_moves_lattice
        write(10,*) "output_file_moves_part= ",output_file_moves_part
@@ -2410,6 +2426,7 @@ module monteswitch_mod
        write(10,*) "output_stdout_lattice= ",output_stdout_lattice
        write(10,*) "output_stdout_E= ",output_stdout_E
        write(10,*) "output_stdout_M= ",output_stdout_M
+       write(10,*) "output_stdout_eta= ",output_stdout_eta
        write(10,*) "output_stdout_moves_lattice= ",output_stdout_moves_lattice
        write(10,*) "output_stdout_accepted_moves_lattice= ",output_stdout_accepted_moves_lattice
        write(10,*) "output_stdout_moves_part= ",output_stdout_moves_part
@@ -2730,6 +2747,11 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_M' from file '",trim(filename)
        stop 1
     end if
+    read(10,*,iostat=error) string, output_file_eta
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_eta' from file '",trim(filename)
+       stop 1
+    end if
     read(10,*,iostat=error) string, output_file_moves_lattice
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_moves_lattice' from file '",trim(filename)
@@ -2925,6 +2947,11 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_M' from file '",trim(filename)
        stop 1
     end if
+    read(10,*,iostat=error) string, output_stdout_eta
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_eta' from file '",trim(filename)
+       stop 1
+    end if 
     read(10,*,iostat=error) string, output_stdout_moves_lattice
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_moves_lattice' from file '",trim(filename)
@@ -4124,35 +4151,38 @@ module monteswitch_mod
     ! This nested subroutine outputs the required data to the file 'datafile'
     subroutine output_file()
       if(output_file_Lx) then
-         write(11,*) "Lx: ",sweeps,Lx,eval_weightfn(M)
+         write(11,*) "Lx: ",sweeps,Lx
       end if 
       if(output_file_Ly) then
-         write(11,*) "Ly: ",sweeps,Ly,eval_weightfn(M)
+         write(11,*) "Ly: ",sweeps,Ly
       end if 
       if(output_file_Lz) then
-         write(11,*) "Lz: ",sweeps,Lz,eval_weightfn(M)
+         write(11,*) "Lz: ",sweeps,Lz
       end if
       if(output_file_V) then
-         write(11,*) "V: ",sweeps,V,eval_weightfn(M)
+         write(11,*) "V: ",sweeps,V
       end if
       if(output_file_R_1) then
-         write(11,*) "R_1: ",sweeps,R_1,eval_weightfn(M)
+         write(11,*) "R_1: ",sweeps,R_1
       end if
       if(output_file_R_2) then
-         write(11,*) "R_2: ",sweeps,R_2,eval_weightfn(M)
+         write(11,*) "R_2: ",sweeps,R_2
       end if
       if(output_file_u) then
-         write(11,*) "u: ",sweeps,u,eval_weightfn(M)
+         write(11,*) "u: ",sweeps,u
       end if
       if(output_file_lattice) then
-         write(11,*) "lattice: ",sweeps,lattice,eval_weightfn(M)
+         write(11,*) "lattice: ",sweeps
       end if
       if(output_file_E) then
-         write(11,*) "E: ",sweeps,E,eval_weightfn(M)
+         write(11,*) "E: ",sweeps,E
       end if
       if(output_file_M) then
-         write(11,*) "M: ",sweeps,M,eval_weightfn(M)
-      end if      
+         write(11,*) "M: ",sweeps,M
+      end if  
+      if(output_file_eta) then
+         write(11,*) "eta: ",sweeps,eval_weightfn(M)
+      end if  
       if(output_file_moves_lattice) then
          write(11,*) "moves_lattice: ",sweeps,moves_lattice
       end if
@@ -4283,6 +4313,9 @@ module monteswitch_mod
       end if
       if(output_stdout_M) then
          write(6,*) "M: ",M
+      end if
+      if(output_stdout_eta) then
+         write(6,*) "eta: ",eval_weightfn(M)
       end if
       if(output_stdout_moves_lattice) then
          write(6,*) "moves_lattice: ",moves_lattice
