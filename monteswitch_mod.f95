@@ -4172,7 +4172,7 @@ module monteswitch_mod
          write(11,*) "u: ",sweeps,u
       end if
       if(output_file_lattice) then
-         write(11,*) "lattice: ",sweeps
+         write(11,*) "lattice: ",sweeps,lattice
       end if
       if(output_file_E) then
          write(11,*) "E: ",sweeps,E
