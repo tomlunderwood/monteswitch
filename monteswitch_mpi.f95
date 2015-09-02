@@ -109,9 +109,20 @@ program monteswitch_mpi
   write(char_int,*) task_id
   filename_data='data_'//trim(adjustl(char_int))
   filename_state='state_'//trim(adjustl(char_int))
+
   ! Set the seed (different values for each task)
+  ! Note that different MPI threads may be called at exactly the same time on the system clock,
+  ! yielding identical values for 'seed' immediately after the next line. Add task_id*100000 to
+  ! set different seeds for each thread even if this occurs; it is extremely unlikely, though
+  ! theoretically possible, that any two threads will have the same seed after this (it would
+  ! require an unrealistically large delay between calling the next line between different
+  ! threads)
   call system_clock(count=seed)
-  seed=seed+task_id
+  if(seed < huge(seed) - (num_tasks-1)*100000) then
+      seed = seed + task_id*100000
+  else
+      seed = seed - task_id*100000
+  end if
 
   ! Read the first command line argument 
   call getarg(1,char)
