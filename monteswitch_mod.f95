@@ -1650,7 +1650,7 @@ module monteswitch_mod
          write(0,*) "monteswitch_mod: Error. Problem reading 'M_grid_max' from file '",filename_params,"'"
          stop 1
       end if
-      !init_params enable_multicanonical= character
+      !init_params enable_multicanonical= logical
       read(10,*,iostat=error) string, enable_multicanonical
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'enable_multicanonical' from file '",filename_params,"'"
@@ -3653,7 +3653,7 @@ module monteswitch_mod
 
 
 
-  !! <h4> <code>  subroutine run(datafile,statefile,appenddata) </code> </h4>
+  !! <h4> <code>  subroutine run(datafile,statefile,appenddata,seed) </code> </h4>
   !! <p>
   !! This subroutine runs the lattice switch Monte Carlo simulation using the current simulation variables.
   !! Data is output to the file 'datafile'; if the file already exists then is replaced or appended according
