@@ -1,0 +1,3713 @@
+
+ ****************************************************************
+
+ Starting lattice switch Monte Carlo loop
+
+
+ ****************************************************************
+
+ Completed           10  sweeps of         1000  for this simulation
+ (Completed           10  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    2.6246009    
+ Average time per sweep so far (s) this simulation =   0.26246008    
+
+ Current information:
+ Lx:    20.483922775296104        22.350492297545042     
+ Ly:    21.726481049570161        19.356094116762431     
+ Lz:    20.483922775296104        21.072246221935728     
+ V:    9116.2379146486383     
+ lattice:            2
+ E:   -2442.6135199861428     
+ M:    18.296752679859765     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:         3840
+ accepted_moves_part:          876
+ moves_vol:           11
+ accepted_moves_vol:            1
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           20  sweeps of         1000  for this simulation
+ (Completed           20  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    5.3471880    
+ Average time per sweep so far (s) this simulation =   0.26735941    
+
+ Current information:
+ Lx:    20.481919913959139        22.348306928200703     
+ Ly:    21.724356694320445        19.354201531393581     
+ Lz:    20.481919913959139        21.070185835958689     
+ V:    9113.5640944856677     
+ lattice:            2
+ E:   -2426.1724009093659     
+ M:    17.351292007284883     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:         7680
+ accepted_moves_part:         1924
+ moves_vol:           24
+ accepted_moves_vol:            3
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           30  sweeps of         1000  for this simulation
+ (Completed           30  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    7.7478228    
+ Average time per sweep so far (s) this simulation =   0.25826076    
+
+ Current information:
+ Lx:    20.504022549363576        22.372423636107751     
+ Ly:    21.747800079385303        19.375087213096734     
+ Lz:    20.504022549363576        21.092923286226647     
+ V:    9143.1000808348344     
+ lattice:            2
+ E:   -2422.7863656772220     
+ M:    20.017743583278843     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        11520
+ accepted_moves_part:         3132
+ moves_vol:           30
+ accepted_moves_vol:            4
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           40  sweeps of         1000  for this simulation
+ (Completed           40  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    10.333430    
+ Average time per sweep so far (s) this simulation =   0.25833577    
+
+ Current information:
+ Lx:    20.521608591882174        22.391612182762998     
+ Ly:    21.766452894264006        19.391704981961880     
+ Lz:    20.521608591882174        21.111014421508031     
+ V:    9166.6460305412584     
+ lattice:            2
+ E:   -2421.3874179675076     
+ M:    25.075704293918534     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        15360
+ accepted_moves_part:         4353
+ moves_vol:           40
+ accepted_moves_vol:            5
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           50  sweeps of         1000  for this simulation
+ (Completed           50  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    12.918037    
+ Average time per sweep so far (s) this simulation =   0.25836074    
+
+ Current information:
+ Lx:    20.486094302321327        22.352861702008415     
+ Ly:    21.728784301797759        19.358146081219552     
+ Lz:    20.486094302321327        21.074480117886960     
+ V:    9119.1374943689061     
+ lattice:            2
+ E:   -2423.8123825016746     
+ M:    22.666909165265679     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        19200
+ accepted_moves_part:         5507
+ moves_vol:           50
+ accepted_moves_vol:            9
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           60  sweeps of         1000  for this simulation
+ (Completed           60  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    15.827595    
+ Average time per sweep so far (s) this simulation =   0.26379326    
+
+ Current information:
+ Lx:    20.472295028598772        22.337804988290490     
+ Ly:    21.714147961760752        19.345106584642320     
+ Lz:    20.472295028598772        21.060284512057187     
+ V:    9100.7221641799060     
+ lattice:            2
+ E:   -2420.1122886032363     
+ M:    20.014018022715845     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        23040
+ accepted_moves_part:         6716
+ moves_vol:           67
+ accepted_moves_vol:           11
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           70  sweeps of         1000  for this simulation
+ (Completed           70  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    18.089251    
+ Average time per sweep so far (s) this simulation =   0.25841787    
+
+ Current information:
+ Lx:    20.438112730208129        22.300507874584618     
+ Ly:    21.677892159277903        19.312806336685199     
+ Lz:    20.438112730208129        21.025120456030379     
+ V:    9055.2121990202795     
+ lattice:            2
+ E:   -2422.2359479750553     
+ M:    20.380472960549014     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        26880
+ accepted_moves_part:         7913
+ moves_vol:           70
+ accepted_moves_vol:           12
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           80  sweeps of         1000  for this simulation
+ (Completed           80  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    20.673859    
+ Average time per sweep so far (s) this simulation =   0.25842324    
+
+ Current information:
+ Lx:    20.513132172810067        22.382363361565016     
+ Ly:    21.757462294154898        19.383695267849369     
+ Lz:    20.513132172810067        21.102294549258605     
+ V:    9155.2919142241499     
+ lattice:            2
+ E:   -2416.5398919555255     
+ M:    23.221640521504469     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        30720
+ accepted_moves_part:         9071
+ moves_vol:           80
+ accepted_moves_vol:           16
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed           90  sweeps of         1000  for this simulation
+ (Completed           90  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    23.349451    
+ Average time per sweep so far (s) this simulation =   0.25943834    
+
+ Current information:
+ Lx:    20.518208124696027        22.387901852642845     
+ Ly:    21.762846154154207        19.388491741821401     
+ Lz:    20.518208124696027        21.107516288723502     
+ V:    9162.0899967231417     
+ lattice:            2
+ E:   -2417.2641715137029     
+ M:    24.532413462157820     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        34560
+ accepted_moves_part:        10280
+ moves_vol:           92
+ accepted_moves_vol:           18
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          100  sweeps of         1000  for this simulation
+ (Completed          100  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    26.348995    
+ Average time per sweep so far (s) this simulation =   0.26348996    
+
+ Current information:
+ Lx:    20.475523505416305        22.341327655654283     
+ Ly:    21.717572278536622        19.348157304068447     
+ Lz:    20.475523505416305        21.063605714698262     
+ V:    9105.0283893761043     
+ lattice:            2
+ E:   -2416.4495285676967     
+ M:    21.277510551967680     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        38400
+ accepted_moves_part:        11554
+ moves_vol:          110
+ accepted_moves_vol:           22
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          110  sweeps of         1000  for this simulation
+ (Completed          110  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    28.748631    
+ Average time per sweep so far (s) this simulation =   0.26135120    
+
+ Current information:
+ Lx:    20.503141011799453        22.371461769635538     
+ Ly:    21.746865067601099        19.374254212296748     
+ Lz:    20.503141011799453        21.092016429819854     
+ V:    9141.9208527638602     
+ lattice:            2
+ E:   -2420.0541697568447     
+ M:    23.047052157902726     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        42240
+ accepted_moves_part:        12755
+ moves_vol:          116
+ accepted_moves_vol:           24
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          120  sweeps of         1000  for this simulation
+ (Completed          120  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    31.241251    
+ Average time per sweep so far (s) this simulation =   0.26034376    
+
+ Current information:
+ Lx:    20.462728362236881        22.327366572505571     
+ Ly:    21.704000979773987        19.336066651397314     
+ Lz:    20.462728362236881        21.050443079275375     
+ V:    9087.9698722414960     
+ lattice:            2
+ E:   -2421.1279659730949     
+ M:    21.696320615755667     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        46080
+ accepted_moves_part:        13943
+ moves_vol:          124
+ accepted_moves_vol:           26
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          130  sweeps of         1000  for this simulation
+ (Completed          130  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    33.688877    
+ Average time per sweep so far (s) this simulation =   0.25914520    
+
+ Current information:
+ Lx:    20.482568550703824        22.349014671083989     
+ Ly:    21.725044677481481        19.354814454709850     
+ Lz:    20.482568550703824        21.070853102348167     
+ V:    9114.4299673793939     
+ lattice:            2
+ E:   -2418.6437765291116     
+ M:    22.025355987225794     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        49920
+ accepted_moves_part:        15202
+ moves_vol:          131
+ accepted_moves_vol:           28
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          140  sweeps of         1000  for this simulation
+ (Completed          140  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    35.995525    
+ Average time per sweep so far (s) this simulation =   0.25711089    
+
+ Current information:
+ Lx:    20.506729005337853        22.375376714190999     
+ Ly:    21.750670709443888        19.377644653736183     
+ Lz:    20.506729005337853        21.095707474944035     
+ V:    9146.7211260550921     
+ lattice:            2
+ E:   -2422.7495860506847     
+ M:    21.588585366122970     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        53760
+ accepted_moves_part:        16379
+ moves_vol:          135
+ accepted_moves_vol:           30
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          150  sweeps of         1000  for this simulation
+ (Completed          150  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    38.626125    
+ Average time per sweep so far (s) this simulation =   0.25750750    
+
+ Current information:
+ Lx:    20.491097774806118        22.358321109098497     
+ Ly:    21.734091285782966        19.362874066449162     
+ Lz:    20.491097774806118        21.079627296253172     
+ V:    9125.8208324931911     
+ lattice:            2
+ E:   -2417.0593804381292     
+ M:    30.482805733799069     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        57600
+ accepted_moves_part:        17580
+ moves_vol:          146
+ accepted_moves_vol:           33
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          160  sweeps of         1000  for this simulation
+ (Completed          160  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    41.071754    
+ Average time per sweep so far (s) this simulation =   0.25669846    
+
+ Current information:
+ Lx:    20.488400849485004        22.355378430136181     
+ Ly:    21.731230764508595        19.360325631712616     
+ Lz:    20.488400849485004        21.076852911921026     
+ V:    9122.2180360338189     
+ lattice:            2
+ E:   -2418.6406375987931     
+ M:    23.080289955829357     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        61440
+ accepted_moves_part:        18762
+ moves_vol:          153
+ accepted_moves_vol:           34
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          170  sweeps of         1000  for this simulation
+ (Completed          170  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    43.656361    
+ Average time per sweep so far (s) this simulation =   0.25680211    
+
+ Current information:
+ Lx:    20.488400849485004        22.355378430136181     
+ Ly:    21.731230764508595        19.360325631712616     
+ Lz:    20.488400849485004        21.076852911921026     
+ V:    9122.2180360338189     
+ lattice:            2
+ E:   -2420.0287182402258     
+ M:    21.503757595042771     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        65280
+ accepted_moves_part:        19972
+ moves_vol:          163
+ accepted_moves_vol:           34
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          180  sweeps of         1000  for this simulation
+ (Completed          180  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    46.239971    
+ Average time per sweep so far (s) this simulation =   0.25688872    
+
+ Current information:
+ Lx:    20.485108223377324        22.351785767965673     
+ Ly:    21.727738407135618        19.357214295005740     
+ Lz:    20.485108223377324        21.073465717543325     
+ V:    9117.8207343490121     
+ lattice:            2
+ E:   -2422.6015069127702     
+ M:    18.326384225905258     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        69120
+ accepted_moves_part:        21178
+ moves_vol:          173
+ accepted_moves_vol:           38
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          190  sweeps of         1000  for this simulation
+ (Completed          190  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    48.822575    
+ Average time per sweep so far (s) this simulation =   0.25696093    
+
+ Current information:
+ Lx:    20.453299969525514        22.317079030368973     
+ Ly:    21.694000659141143        19.327157378564522     
+ Lz:    20.453299969525514        21.040743891533342     
+ V:    9075.4135591271897     
+ lattice:            2
+ E:   -2422.8002196335588     
+ M:    21.980266038595346     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        72960
+ accepted_moves_part:        22395
+ moves_vol:          183
+ accepted_moves_vol:           42
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          200  sweeps of         1000  for this simulation
+ (Completed          200  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    51.729134    
+ Average time per sweep so far (s) this simulation =   0.25864565    
+
+ Current information:
+ Lx:    20.560685212284419        22.434249606897779     
+ Ly:    21.807899909172427        19.428630074414539     
+ Lz:    20.560685212284419        21.151213370492083     
+ V:    9219.1103471275255     
+ lattice:            2
+ E:   -2423.1800530037535     
+ M:    21.498273601936944     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        76800
+ accepted_moves_part:        23621
+ moves_vol:          199
+ accepted_moves_vol:           46
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          210  sweeps of         1000  for this simulation
+ (Completed          210  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    53.987793    
+ Average time per sweep so far (s) this simulation =   0.25708473    
+
+ Current information:
+ Lx:    20.522715767665105        22.392820248428926     
+ Ly:    21.767627231520123        19.392751197518020     
+ Lz:    20.522715767665105        21.112153396740702     
+ V:    9168.1297791500529     
+ lattice:            2
+ E:   -2418.3060084984222     
+ M:    22.181520707220898     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        80640
+ accepted_moves_part:        24820
+ moves_vol:          202
+ accepted_moves_vol:           47
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          220  sweeps of         1000  for this simulation
+ (Completed          220  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    56.524406    
+ Average time per sweep so far (s) this simulation =   0.25692913    
+
+ Current information:
+ Lx:    20.523452152419342        22.393623735239444     
+ Ly:    21.768408285500051        19.393447037507535     
+ Lz:    20.523452152419342        21.112910931370450     
+ V:    9169.1167118716694     
+ lattice:            2
+ E:   -2419.8299420817229     
+ M:    21.085475942255925     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        84480
+ accepted_moves_part:        26034
+ moves_vol:          211
+ accepted_moves_vol:           49
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          230  sweeps of         1000  for this simulation
+ (Completed          230  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    58.970036    
+ Average time per sweep so far (s) this simulation =   0.25639147    
+
+ Current information:
+ Lx:    20.523452152419342        22.393623735239444     
+ Ly:    21.768408285500051        19.393447037507535     
+ Lz:    20.523452152419342        21.112910931370450     
+ V:    9169.1167118716694     
+ lattice:            2
+ E:   -2414.6052123947538     
+ M:    22.387851076553488     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        88320
+ accepted_moves_part:        27297
+ moves_vol:          218
+ accepted_moves_vol:           49
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          240  sweeps of         1000  for this simulation
+ (Completed          240  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    61.600636    
+ Average time per sweep so far (s) this simulation =   0.25666931    
+
+ Current information:
+ Lx:    20.488883499357300        22.355905060819744     
+ Ly:    21.731742692005067        19.360781707262998     
+ Lz:    20.488883499357300        21.077349424091068     
+ V:    9122.8627336539848     
+ lattice:            2
+ E:   -2417.5813942649797     
+ M:    21.278948916932222     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        92160
+ accepted_moves_part:        28614
+ moves_vol:          229
+ accepted_moves_vol:           51
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          250  sweeps of         1000  for this simulation
+ (Completed          250  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    64.000275    
+ Average time per sweep so far (s) this simulation =   0.25600109    
+
+ Current information:
+ Lx:    20.485582749056441        22.352303534150035     
+ Ly:    21.728241717623956        19.357662693674623     
+ Lz:    20.485582749056441        21.073953872183367     
+ V:    9118.4543761516816     
+ lattice:            2
+ E:   -2418.4792202167737     
+ M:    24.099075406222710     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        96000
+ accepted_moves_part:        29837
+ moves_vol:          235
+ accepted_moves_vol:           52
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          260  sweeps of         1000  for this simulation
+ (Completed          260  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    66.585876    
+ Average time per sweep so far (s) this simulation =   0.25609952    
+
+ Current information:
+ Lx:    20.542723448645361        22.414651102047465     
+ Ly:    21.788848581865558        19.411657271337972     
+ Lz:    20.542723448645361        21.132735722917715     
+ V:    9194.9700724537579     
+ lattice:            2
+ E:   -2423.4390345093389     
+ M:    21.956414539977686     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:        99840
+ accepted_moves_part:        31039
+ moves_vol:          245
+ accepted_moves_vol:           56
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          270  sweeps of         1000  for this simulation
+ (Completed          270  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    69.402451    
+ Average time per sweep so far (s) this simulation =   0.25704610    
+
+ Current information:
+ Lx:    20.520457480351503        22.390356177764236     
+ Ly:    21.765231956110146        19.390617249725679     
+ Lz:    20.520457480351503        21.109830248638939     
+ V:    9165.1035724985086     
+ lattice:            2
+ E:   -2418.2594599892072     
+ M:    18.043172373745165     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       103680
+ accepted_moves_part:        32286
+ moves_vol:          260
+ accepted_moves_vol:           59
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          280  sweeps of         1000  for this simulation
+ (Completed          280  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    71.848083    
+ Average time per sweep so far (s) this simulation =   0.25660029    
+
+ Current information:
+ Lx:    20.513039579617413        22.382262330943977     
+ Ly:    21.757364084243278        19.383607772764993     
+ Lz:    20.513039579617413        21.102199296675622     
+ V:    9155.1679379525867     
+ lattice:            2
+ E:   -2418.1049638949848     
+ M:    19.053056255744650     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       107520
+ accepted_moves_part:        33535
+ moves_vol:          267
+ accepted_moves_vol:           61
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          290  sweeps of         1000  for this simulation
+ (Completed          290  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    74.247719    
+ Average time per sweep so far (s) this simulation =   0.25602663    
+
+ Current information:
+ Lx:    20.513039579617413        22.382262330943977     
+ Ly:    21.757364084243278        19.383607772764993     
+ Lz:    20.513039579617413        21.102199296675622     
+ V:    9155.1679379525867     
+ lattice:            2
+ E:   -2417.0443515988300     
+ M:    17.904159637118937     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       111360
+ accepted_moves_part:        34759
+ moves_vol:          273
+ accepted_moves_vol:           61
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          300  sweeps of         1000  for this simulation
+ (Completed          300  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    76.600357    
+ Average time per sweep so far (s) this simulation =   0.25533453    
+
+ Current information:
+ Lx:    20.574319572797961        22.449126379915459     
+ Ly:    21.822361332336826        19.441513737774184     
+ Lz:    20.574319572797961        21.165239326602720     
+ V:    9237.4628549592690     
+ lattice:            2
+ E:   -2412.7291311524341     
+ M:    17.569978492179416     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       115200
+ accepted_moves_part:        35977
+ moves_vol:          277
+ accepted_moves_vol:           62
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          310  sweeps of         1000  for this simulation
+ (Completed          310  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    78.950996    
+ Average time per sweep so far (s) this simulation =   0.25468063    
+
+ Current information:
+ Lx:    20.528731059467482        22.399383675491762     
+ Ly:    21.774007411956536        19.398435292090323     
+ Lz:    20.528731059467482        21.118341455119314     
+ V:    9176.1937911206060     
+ lattice:            2
+ E:   -2416.2217008980233     
+ M:    16.864826962488223     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       119040
+ accepted_moves_part:        37201
+ moves_vol:          282
+ accepted_moves_vol:           63
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          320  sweeps of         1000  for this simulation
+ (Completed          320  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    81.536606    
+ Average time per sweep so far (s) this simulation =   0.25480190    
+
+ Current information:
+ Lx:    20.565621518933135        22.439635727756588     
+ Ly:    21.813135653030411        19.433294591906126     
+ Lz:    20.565621518933135        21.156291453936827     
+ V:    9225.7520444203401     
+ lattice:            2
+ E:   -2413.4153996777122     
+ M:    20.763931725080056     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       122880
+ accepted_moves_part:        38432
+ moves_vol:          292
+ accepted_moves_vol:           66
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          330  sweeps of         1000  for this simulation
+ (Completed          330  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    84.491158    
+ Average time per sweep so far (s) this simulation =   0.25603381    
+
+ Current information:
+ Lx:    20.574724202713710        22.449567881180350     
+ Ly:    21.822790507172769        19.441896089085390     
+ Lz:    20.574724202713710        21.165655577987131     
+ V:    9238.0078781830252     
+ lattice:            2
+ E:   -2414.2521627699352     
+ M:    19.556939776037325     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       126720
+ accepted_moves_part:        39641
+ moves_vol:          310
+ accepted_moves_vol:           74
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          340  sweeps of         1000  for this simulation
+ (Completed          340  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    87.029770    
+ Average time per sweep so far (s) this simulation =   0.25596991    
+
+ Current information:
+ Lx:    20.525397513026277        22.395746364178152     
+ Ly:    21.770471652015569        19.395285288091269     
+ Lz:    20.525397513026277        21.114912165125794     
+ V:    9171.7243037788885     
+ lattice:            2
+ E:   -2418.7537279638973     
+ M:    21.259557565119849     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       130560
+ accepted_moves_part:        40880
+ moves_vol:          319
+ accepted_moves_vol:           76
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          350  sweeps of         1000  for this simulation
+ (Completed          350  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    89.336418    
+ Average time per sweep so far (s) this simulation =   0.25524691    
+
+ Current information:
+ Lx:    20.562078458679007        22.435769810969639     
+ Ly:    21.809377670132637        19.429946609759710     
+ Lz:    20.562078458679007        21.152646632636085     
+ V:    9220.9846080068946     
+ lattice:            2
+ E:   -2416.9767788714639     
+ M:    25.503948732909521     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       134400
+ accepted_moves_part:        42087
+ moves_vol:          323
+ accepted_moves_vol:           78
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          360  sweeps of         1000  for this simulation
+ (Completed          360  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    92.060005    
+ Average time per sweep so far (s) this simulation =   0.25572222    
+
+ Current information:
+ Lx:    20.494432799018583        22.361960032843253     
+ Ly:    21.737628613137055        19.366025466854570     
+ Lz:    20.494432799018583        21.083058106461358     
+ V:    9130.2773707596589     
+ lattice:            2
+ E:   -2417.6677755468381     
+ M:    25.243322199693921     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       138240
+ accepted_moves_part:        43367
+ moves_vol:          336
+ accepted_moves_vol:           83
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          370  sweeps of         1000  for this simulation
+ (Completed          370  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    94.599625    
+ Average time per sweep so far (s) this simulation =   0.25567466    
+
+ Current information:
+ Lx:    20.522244797668773        22.392306361934086     
+ Ly:    21.767127692402905        19.392306158758835     
+ Lz:    20.522244797668773        21.111668899907023     
+ V:    9167.4986031876397     
+ lattice:            2
+ E:   -2414.4248122835493     
+ M:    22.619041109963291     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       142080
+ accepted_moves_part:        44590
+ moves_vol:          345
+ accepted_moves_vol:           86
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          380  sweeps of         1000  for this simulation
+ (Completed          380  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    97.230225    
+ Average time per sweep so far (s) this simulation =   0.25586900    
+
+ Current information:
+ Lx:    20.494125761361264        22.361625016798218     
+ Ly:    21.737302950522704        19.365735334448896     
+ Lz:    20.494125761361264        21.082742250305028     
+ V:    9129.8670207386494     
+ lattice:            2
+ E:   -2416.3100362191185     
+ M:    20.179769921653588     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       145920
+ accepted_moves_part:        45816
+ moves_vol:          356
+ accepted_moves_vol:           88
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          390  sweeps of         1000  for this simulation
+ (Completed          390  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    99.677849    
+ Average time per sweep so far (s) this simulation =   0.25558424    
+
+ Current information:
+ Lx:    20.470220078546191        22.335540961244654     
+ Ly:    21.711947144881556        19.343145879705784     
+ Lz:    20.470220078546191        21.058149966887996     
+ V:    9097.9552594365359     
+ lattice:            2
+ E:   -2417.7925971549230     
+ M:    16.874456309693869     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       149760
+ accepted_moves_part:        47004
+ moves_vol:          363
+ accepted_moves_vol:           89
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          400  sweeps of         1000  for this simulation
+ (Completed          400  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    102.40044    
+ Average time per sweep so far (s) this simulation =   0.25600109    
+
+ Current information:
+ Lx:    20.544819787605416        22.416938467035784     
+ Ly:    21.791072085107036        19.413638187525596     
+ Lz:    20.544819787605416        21.134892271310097     
+ V:    9197.7853380874694     
+ lattice:            2
+ E:   -2420.5355686876173     
+ M:    19.610318549593103     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       153600
+ accepted_moves_part:        48238
+ moves_vol:          375
+ accepted_moves_vol:           93
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          410  sweeps of         1000  for this simulation
+ (Completed          410  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    105.03104    
+ Average time per sweep so far (s) this simulation =   0.25617325    
+
+ Current information:
+ Lx:    20.481367300033060        22.347703958084388     
+ Ly:    21.723770558738682        19.353679343955143     
+ Lz:    20.481367300033060        21.069617350281224     
+ V:    9112.8264468565994     
+ lattice:            2
+ E:   -2423.4293748626210     
+ M:    23.330394393196002     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       157440
+ accepted_moves_part:        49450
+ moves_vol:          386
+ accepted_moves_vol:           95
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          420  sweeps of         1000  for this simulation
+ (Completed          420  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    107.66164    
+ Average time per sweep so far (s) this simulation =   0.25633723    
+
+ Current information:
+ Lx:    20.491281029170732        22.358521062267126     
+ Ly:    21.734285656388824        19.363047230972775     
+ Lz:    20.491281029170732        21.079815813908443     
+ V:    9126.0656746396544     
+ lattice:            2
+ E:   -2423.6354487084836     
+ M:    17.560786913123138     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       161280
+ accepted_moves_part:        50630
+ moves_vol:          397
+ accepted_moves_vol:           96
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          430  sweeps of         1000  for this simulation
+ (Completed          430  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    110.29324    
+ Average time per sweep so far (s) this simulation =   0.25649589    
+
+ Current information:
+ Lx:    20.482982925705809        22.349466805442805     
+ Ly:    21.725484188542268        19.355206014550532     
+ Lz:    20.482982925705809        21.071279378709669     
+ V:    9114.9831501992721     
+ lattice:            2
+ E:   -2420.2677621677949     
+ M:    18.177323174585126     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       165120
+ accepted_moves_part:        51863
+ moves_vol:          408
+ accepted_moves_vol:          101
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          440  sweeps of         1000  for this simulation
+ (Completed          440  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    113.20279    
+ Average time per sweep so far (s) this simulation =   0.25727907    
+
+ Current information:
+ Lx:    20.502817333600195        22.371108596701870     
+ Ly:    21.746521755026684        19.373948355564291     
+ Lz:    20.502817333600195        21.091683455184750     
+ V:    9141.4878956236407     
+ lattice:            2
+ E:   -2417.4790902602372     
+ M:    17.029131662546661     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       168960
+ accepted_moves_part:        53079
+ moves_vol:          425
+ accepted_moves_vol:          109
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          450  sweeps of         1000  for this simulation
+ (Completed          450  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    116.24933    
+ Average time per sweep so far (s) this simulation =   0.25833184    
+
+ Current information:
+ Lx:    20.520480291451079        22.390381067494147     
+ Ly:    21.765256150934945        19.390638804864096     
+ Lz:    20.520480291451079        21.109853714901334     
+ V:    9165.1341370689333     
+ lattice:            2
+ E:   -2419.2452383772702     
+ M:    19.738086096925144     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       172800
+ accepted_moves_part:        54295
+ moves_vol:          445
+ accepted_moves_vol:          111
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          460  sweeps of         1000  for this simulation
+ (Completed          460  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    118.87993    
+ Average time per sweep so far (s) this simulation =   0.25843462    
+
+ Current information:
+ Lx:    20.486457285832657        22.353257761897087     
+ Ly:    21.729169303951242        19.358489079144586     
+ Lz:    20.486457285832657        21.074853526731008     
+ V:    9119.6222361380496     
+ lattice:            2
+ E:   -2415.9191496212948     
+ M:    18.508139088052303     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       176640
+ accepted_moves_part:        55482
+ moves_vol:          456
+ accepted_moves_vol:          116
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          470  sweeps of         1000  for this simulation
+ (Completed          470  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    121.60352    
+ Average time per sweep so far (s) this simulation =   0.25873089    
+
+ Current information:
+ Lx:    20.461850862447580        22.326409111744901     
+ Ly:    21.703070250696740        19.335237466055474     
+ Lz:    20.461850862447580        21.049540376613255     
+ V:    9086.8007686594501     
+ lattice:            2
+ E:   -2421.5270313294641     
+ M:    18.413043560229198     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       180480
+ accepted_moves_part:        56689
+ moves_vol:          469
+ accepted_moves_vol:          122
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          480  sweeps of         1000  for this simulation
+ (Completed          480  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    124.23312    
+ Average time per sweep so far (s) this simulation =   0.25881898    
+
+ Current information:
+ Lx:    20.590128410708914        22.466375776617348     
+ Ly:    21.839129137071101        19.456452153517994     
+ Lz:    20.590128410708914        21.181502213775079     
+ V:    9258.7727879643226     
+ lattice:            2
+ E:   -2413.9176807907502     
+ M:    17.763213001850545     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       184320
+ accepted_moves_part:        57843
+ moves_vol:          480
+ accepted_moves_vol:          125
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          490  sweeps of         1000  for this simulation
+ (Completed          490  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    126.81773    
+ Average time per sweep so far (s) this simulation =   0.25881168    
+
+ Current information:
+ Lx:    20.486521448002566        22.353327770757218     
+ Ly:    21.729237358209410        19.358549708595945     
+ Lz:    20.486521448002566        21.074919531717320     
+ V:    9119.7079224882018     
+ lattice:            2
+ E:   -2419.0269668836954     
+ M:    25.382570736558137     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       188160
+ accepted_moves_part:        59064
+ moves_vol:          490
+ accepted_moves_vol:          131
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          500  sweeps of         1000  for this simulation
+ (Completed          500  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    129.26535    
+ Average time per sweep so far (s) this simulation =   0.25853071    
+
+ Current information:
+ Lx:    20.509676790819334        22.378593112603621     
+ Ly:    21.753797308099067        19.380430136470228     
+ Lz:    20.509676790819334        21.098739924448772     
+ V:    9150.6661405494579     
+ lattice:            2
+ E:   -2415.1460530095565     
+ M:    18.431689175424253     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       192000
+ accepted_moves_part:        60331
+ moves_vol:          496
+ accepted_moves_vol:          133
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          510  sweeps of         1000  for this simulation
+ (Completed          510  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    131.57300    
+ Average time per sweep so far (s) this simulation =   0.25798628    
+
+ Current information:
+ Lx:    20.533350288326318        22.404423825279611     
+ Ly:    21.778906844031454        19.402800189845490     
+ Lz:    20.533350288326318        21.123093353910203     
+ V:    9182.3894703431761     
+ lattice:            2
+ E:   -2417.0833713310462     
+ M:    20.056452825443557     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       195840
+ accepted_moves_part:        61574
+ moves_vol:          500
+ accepted_moves_vol:          134
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          520  sweeps of         1000  for this simulation
+ (Completed          520  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    134.15561    
+ Average time per sweep so far (s) this simulation =   0.25799155    
+
+ Current information:
+ Lx:    20.516526956155964        22.386067489912733     
+ Ly:    21.761063005641734        19.386903137097388     
+ Lz:    20.516526956155964        21.105786834956000     
+ V:    9159.8380814460361     
+ lattice:            2
+ E:   -2414.6148872448866     
+ M:    24.964868246589049     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       199680
+ accepted_moves_part:        62775
+ moves_vol:          510
+ accepted_moves_vol:          135
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          530  sweeps of         1000  for this simulation
+ (Completed          530  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    136.60223    
+ Average time per sweep so far (s) this simulation =   0.25774005    
+
+ Current information:
+ Lx:    20.497276667612610        22.365063045083804     
+ Ly:    21.740644991288530        19.368712754283145     
+ Lz:    20.497276667612610        21.085983654457873     
+ V:    9134.0787317216273     
+ lattice:            2
+ E:   -2418.8057713250914     
+ M:    22.508194107033887     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       203520
+ accepted_moves_part:        63969
+ moves_vol:          517
+ accepted_moves_vol:          137
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          540  sweeps of         1000  for this simulation
+ (Completed          540  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    139.23483    
+ Average time per sweep so far (s) this simulation =   0.25784227    
+
+ Current information:
+ Lx:    20.541680734406679        22.413513371896080     
+ Ly:    21.787742616402049        19.410671968124234     
+ Lz:    20.541680734406679        21.131663060644094     
+ V:    9193.5699796772697     
+ lattice:            2
+ E:   -2416.5570401430409     
+ M:    18.508911440116208     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       207360
+ accepted_moves_part:        65163
+ moves_vol:          528
+ accepted_moves_vol:          138
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          550  sweeps of         1000  for this simulation
+ (Completed          550  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    141.77245    
+ Average time per sweep so far (s) this simulation =   0.25776809    
+
+ Current information:
+ Lx:    20.526151422099723        22.396568972187573     
+ Ly:    21.771271293342931        19.395997687524790     
+ Lz:    20.526151422099723        21.115687727394732     
+ V:    9172.7349882466642     
+ lattice:            2
+ E:   -2419.0207476818373     
+ M:    20.917246374644037     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       211200
+ accepted_moves_part:        66341
+ moves_vol:          537
+ accepted_moves_vol:          139
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          560  sweeps of         1000  for this simulation
+ (Completed          560  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    144.35806    
+ Average time per sweep so far (s) this simulation =   0.25778225    
+
+ Current information:
+ Lx:    20.488625228603869        22.355623255496194     
+ Ly:    21.731468754503375        19.360537656693900     
+ Lz:    20.488625228603869        21.077083735484045     
+ V:    9122.5177457587779     
+ lattice:            2
+ E:   -2419.8456100412254     
+ M:    20.765296132642106     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       215040
+ accepted_moves_part:        67585
+ moves_vol:          547
+ accepted_moves_vol:          142
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          570  sweeps of         1000  for this simulation
+ (Completed          570  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    147.08165    
+ Average time per sweep so far (s) this simulation =   0.25803798    
+
+ Current information:
+ Lx:    20.555650682646259        22.428756312613583     
+ Ly:    21.802559984101595        19.423872742013977     
+ Lz:    20.555650682646259        21.146034242972853     
+ V:    9212.3397770224055     
+ lattice:            2
+ E:   -2420.0108513491477     
+ M:    17.150557147932432     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       218880
+ accepted_moves_part:        68780
+ moves_vol:          560
+ accepted_moves_vol:          148
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          580  sweeps of         1000  for this simulation
+ (Completed          580  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    149.66525    
+ Average time per sweep so far (s) this simulation =   0.25804353    
+
+ Current information:
+ Lx:    20.525831503615784        22.396219901568166     
+ Ly:    21.770931968548801        19.395695383500669     
+ Lz:    20.525831503615784        21.115358620458597     
+ V:    9172.3060990203721     
+ lattice:            2
+ E:   -2418.4375559931705     
+ M:    19.280379833431198     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       222720
+ accepted_moves_part:        69999
+ moves_vol:          570
+ accepted_moves_vol:          151
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          590  sweeps of         1000  for this simulation
+ (Completed          590  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    152.48082    
+ Average time per sweep so far (s) this simulation =   0.25844207    
+
+ Current information:
+ Lx:    20.466064996640021        22.331007253167446     
+ Ly:    21.707540014993210        19.339219573337580     
+ Lz:    20.466064996640021        21.053875545920885     
+ V:    9092.4162261893180     
+ lattice:            2
+ E:   -2421.9171379243617     
+ M:    23.753145269630750     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       226560
+ accepted_moves_part:        71201
+ moves_vol:          585
+ accepted_moves_vol:          157
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          600  sweeps of         1000  for this simulation
+ (Completed          600  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    155.20341    
+ Average time per sweep so far (s) this simulation =   0.25867236    
+
+ Current information:
+ Lx:    20.461317120418517        22.325826733201488     
+ Ly:    21.702504131784512        19.334733111442247     
+ Lz:    20.461317120418517        21.048991304856887     
+ V:    9086.0897067419792     
+ lattice:            2
+ E:   -2420.3585361347864     
+ M:    24.014845445663468     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       230400
+ accepted_moves_part:        72398
+ moves_vol:          597
+ accepted_moves_vol:          162
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          610  sweeps of         1000  for this simulation
+ (Completed          610  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    157.83501    
+ Average time per sweep so far (s) this simulation =   0.25874591    
+
+ Current information:
+ Lx:    20.485386254799373        22.352089134621821     
+ Ly:    21.728033303991499        19.357477018236636     
+ Lz:    20.485386254799373        21.073751734369630     
+ V:    9118.1919906358398     
+ lattice:            2
+ E:   -2422.5347522966103     
+ M:    21.414881053166937     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       234240
+ accepted_moves_part:        73567
+ moves_vol:          608
+ accepted_moves_vol:          166
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          620  sweeps of         1000  for this simulation
+ (Completed          620  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    160.65057    
+ Average time per sweep so far (s) this simulation =   0.25911382    
+
+ Current information:
+ Lx:    20.525473138194620        22.395828880586819     
+ Ly:    21.770551864619623        19.395356749397404     
+ Lz:    20.525473138194620        21.114989962341930     
+ V:    9171.8256829238908     
+ lattice:            2
+ E:   -2427.6839902699735     
+ M:    20.848782184279116     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       238080
+ accepted_moves_part:        74772
+ moves_vol:          623
+ accepted_moves_vol:          173
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          630  sweeps of         1000  for this simulation
+ (Completed          630  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    163.32718    
+ Average time per sweep so far (s) this simulation =   0.25924948    
+
+ Current information:
+ Lx:    20.486484607695058        22.353287573426943     
+ Ly:    21.729198283162514        19.358514896686753     
+ Lz:    20.486484607695058        21.074881633310881     
+ V:    9119.6587234710569     
+ lattice:            2
+ E:   -2420.9809082386419     
+ M:    22.794888873673244     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       241920
+ accepted_moves_part:        75961
+ moves_vol:          635
+ accepted_moves_vol:          178
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          640  sweeps of         1000  for this simulation
+ (Completed          640  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    166.05077    
+ Average time per sweep so far (s) this simulation =   0.25945431    
+
+ Current information:
+ Lx:    20.508830295327680        22.377669481364940     
+ Ly:    21.752899464045470        19.379630248353788     
+ Lz:    20.508830295327680        21.097869116565843     
+ V:    9149.5331615147443     
+ lattice:            2
+ E:   -2424.9738826343109     
+ M:    20.189810608598236     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       245760
+ accepted_moves_part:        77150
+ moves_vol:          648
+ accepted_moves_vol:          180
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          650  sweeps of         1000  for this simulation
+ (Completed          650  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    168.58838    
+ Average time per sweep so far (s) this simulation =   0.25936675    
+
+ Current information:
+ Lx:    20.495980046852221        22.363648271525257     
+ Ly:    21.739269717290075        19.367487524440829     
+ Lz:    20.495980046852221        21.084649793155069     
+ V:    9132.3454253233140     
+ lattice:            2
+ E:   -2418.2914174566258     
+ M:    20.582739298153228     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       249600
+ accepted_moves_part:        78355
+ moves_vol:          657
+ accepted_moves_vol:          181
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          660  sweeps of         1000  for this simulation
+ (Completed          660  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    171.12698    
+ Average time per sweep so far (s) this simulation =   0.25928330    
+
+ Current information:
+ Lx:    20.495980046852221        22.363648271525257     
+ Ly:    21.739269717290075        19.367487524440829     
+ Lz:    20.495980046852221        21.084649793155069     
+ V:    9132.3454253233140     
+ lattice:            2
+ E:   -2412.6209014337460     
+ M:    22.944997717524075     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       253440
+ accepted_moves_part:        79534
+ moves_vol:          666
+ accepted_moves_vol:          181
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          670  sweeps of         1000  for this simulation
+ (Completed          670  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    173.61861    
+ Average time per sweep so far (s) this simulation =   0.25913224    
+
+ Current information:
+ Lx:    20.495980046852221        22.363648271525257     
+ Ly:    21.739269717290075        19.367487524440829     
+ Lz:    20.495980046852221        21.084649793155069     
+ V:    9132.3454253233140     
+ lattice:            2
+ E:   -2420.8510470742794     
+ M:    23.683338291073142     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       257280
+ accepted_moves_part:        80708
+ moves_vol:          674
+ accepted_moves_vol:          181
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          680  sweeps of         1000  for this simulation
+ (Completed          680  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    176.52716    
+ Average time per sweep so far (s) this simulation =   0.25959876    
+
+ Current information:
+ Lx:    20.553320546777272        22.426213846291919     
+ Ly:    21.800088501790523        19.421670901591131     
+ Lz:    20.553320546777272        21.143637182736857     
+ V:    9209.2072704755774     
+ lattice:            2
+ E:   -2415.6637319407546     
+ M:    19.361736018900046     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       261120
+ accepted_moves_part:        81935
+ moves_vol:          691
+ accepted_moves_vol:          183
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          690  sweeps of         1000  for this simulation
+ (Completed          690  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    179.11177    
+ Average time per sweep so far (s) this simulation =   0.25958228    
+
+ Current information:
+ Lx:    20.499838862705374        22.367858716709499     
+ Ly:    21.743362609575751        19.371133876931623     
+ Lz:    20.499838862705374        21.088619438943859     
+ V:    9137.5044869070753     
+ lattice:            2
+ E:   -2419.2778254188602     
+ M:    20.095246202913586     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       264960
+ accepted_moves_part:        83112
+ moves_vol:          701
+ accepted_moves_vol:          185
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          700  sweeps of         1000  for this simulation
+ (Completed          700  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    181.83636    
+ Average time per sweep so far (s) this simulation =   0.25976622    
+
+ Current information:
+ Lx:    20.458754862260580        22.323030992763911     
+ Ly:    21.699786446606574        19.332311929200909     
+ Lz:    20.458754862260580        21.046355455494414     
+ V:    9082.6767311080675     
+ lattice:            2
+ E:   -2418.3046324869692     
+ M:    25.067817309144630     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       268800
+ accepted_moves_part:        84267
+ moves_vol:          713
+ accepted_moves_vol:          187
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          710  sweeps of         1000  for this simulation
+ (Completed          710  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    184.55995    
+ Average time per sweep so far (s) this simulation =   0.25994360    
+
+ Current information:
+ Lx:    20.564656384394247        22.438582646649337     
+ Ly:    21.812111973264614        19.432382596914998     
+ Lz:    20.564656384394247        21.155298599547354     
+ V:    9224.4532253092129     
+ lattice:            2
+ E:   -2421.9774556978559     
+ M:    18.971013461448365     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       272640
+ accepted_moves_part:        85445
+ moves_vol:          726
+ accepted_moves_vol:          193
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          720  sweeps of         1000  for this simulation
+ (Completed          720  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    187.14455    
+ Average time per sweep so far (s) this simulation =   0.25992298    
+
+ Current information:
+ Lx:    20.532331088295457        22.403311752036160     
+ Ly:    21.777825819151637        19.401837106165782     
+ Lz:    20.532331088295457        21.122044881201365     
+ V:    9181.0221980310434     
+ lattice:            2
+ E:   -2419.0567470126830     
+ M:    18.306642995138645     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       276480
+ accepted_moves_part:        86676
+ moves_vol:          736
+ accepted_moves_vol:          194
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          730  sweeps of         1000  for this simulation
+ (Completed          730  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    189.68217    
+ Average time per sweep so far (s) this simulation =   0.25983858    
+
+ Current information:
+ Lx:    20.532331088295457        22.403311752036160     
+ Ly:    21.777825819151637        19.401837106165782     
+ Lz:    20.532331088295457        21.122044881201365     
+ V:    9181.0221980310434     
+ lattice:            2
+ E:   -2420.8034490171617     
+ M:    21.026395438535474     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       280320
+ accepted_moves_part:        87888
+ moves_vol:          745
+ accepted_moves_vol:          194
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          740  sweeps of         1000  for this simulation
+ (Completed          740  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    192.08180    
+ Average time per sweep so far (s) this simulation =   0.25957000    
+
+ Current information:
+ Lx:    20.564183373280194        22.438066533042715     
+ Ly:    21.811610269215130        19.431935629420426     
+ Lz:    20.564183373280194        21.154812002972552     
+ V:    9223.8167203578651     
+ lattice:            2
+ E:   -2418.8948387669761     
+ M:    20.133158880187239     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       284160
+ accepted_moves_part:        89133
+ moves_vol:          751
+ accepted_moves_vol:          197
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          750  sweeps of         1000  for this simulation
+ (Completed          750  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    194.57343    
+ Average time per sweep so far (s) this simulation =   0.25943124    
+
+ Current information:
+ Lx:    20.509882081569636        22.378817110193527     
+ Ly:    21.754015051821543        19.380624124073464     
+ Lz:    20.509882081569636        21.098951111401821     
+ V:    9150.9409229275843     
+ lattice:            2
+ E:   -2419.9081318853896     
+ M:    17.967609168240870     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       288000
+ accepted_moves_part:        90354
+ moves_vol:          759
+ accepted_moves_vol:          198
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          760  sweeps of         1000  for this simulation
+ (Completed          760  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    196.97305    
+ Average time per sweep so far (s) this simulation =   0.25917506    
+
+ Current information:
+ Lx:    20.555672148376207        22.428779734378903     
+ Ly:    21.802582751946410        19.423893025857733     
+ Lz:    20.555672148376207        21.146056325224954     
+ V:    9212.3686376711030     
+ lattice:            2
+ E:   -2415.4122482856797     
+ M:    22.504326322151428     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       291840
+ accepted_moves_part:        91540
+ moves_vol:          765
+ accepted_moves_vol:          200
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          770  sweeps of         1000  for this simulation
+ (Completed          770  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    200.02060    
+ Average time per sweep so far (s) this simulation =   0.25976703    
+
+ Current information:
+ Lx:    20.498049684808468        22.365906502417229     
+ Ly:    21.741464899840278        19.369443209760888     
+ Lz:    20.498049684808468        21.086778873657998     
+ V:    9135.1121957760333     
+ lattice:            2
+ E:   -2419.0846495784958     
+ M:    20.394074889702551     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       295680
+ accepted_moves_part:        92758
+ moves_vol:          785
+ accepted_moves_vol:          203
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          780  sweeps of         1000  for this simulation
+ (Completed          780  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    202.46622    
+ Average time per sweep so far (s) this simulation =   0.25957206    
+
+ Current information:
+ Lx:    20.470869564930592        22.336249631189933     
+ Ly:    21.712636029221613        19.343759605881285     
+ Lz:    20.470869564930592        21.058818107319869     
+ V:    9098.8212763424272     
+ lattice:            2
+ E:   -2419.5770253550268     
+ M:    20.414648187664170     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       299520
+ accepted_moves_part:        93982
+ moves_vol:          792
+ accepted_moves_vol:          204
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          790  sweeps of         1000  for this simulation
+ (Completed          790  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    204.91286    
+ Average time per sweep so far (s) this simulation =   0.25938335    
+
+ Current information:
+ Lx:    20.476791498669019        22.342711193062591     
+ Ly:    21.718917188477885        19.349355482611131     
+ Lz:    20.476791498669019        21.064910126276150     
+ V:    9106.7200427591451     
+ lattice:            2
+ E:   -2423.0468587484106     
+ M:    18.180486018157808     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       303360
+ accepted_moves_part:        95198
+ moves_vol:          799
+ accepted_moves_vol:          206
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          800  sweeps of         1000  for this simulation
+ (Completed          800  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    207.54445    
+ Average time per sweep so far (s) this simulation =   0.25943056    
+
+ Current information:
+ Lx:    20.466838386041555        22.331851116623273     
+ Ly:    21.708360318328694        19.339950380527640     
+ Lz:    20.466838386041555        21.054671148016890     
+ V:    9093.4470414552743     
+ lattice:            2
+ E:   -2420.6748596746415     
+ M:    23.326671144455304     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       307200
+ accepted_moves_part:        96387
+ moves_vol:          809
+ accepted_moves_vol:          209
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          810  sweeps of         1000  for this simulation
+ (Completed          810  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    210.40701    
+ Average time per sweep so far (s) this simulation =   0.25976175    
+
+ Current information:
+ Lx:    20.472880034072123        22.338443301589653     
+ Ly:    21.714768453766631        19.345659380174972     
+ Lz:    20.472880034072123        21.060886319606972     
+ V:    9101.5023587413762     
+ lattice:            2
+ E:   -2424.3231703955989     
+ M:    24.072122916596527     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       311040
+ accepted_moves_part:        97604
+ moves_vol:          825
+ accepted_moves_vol:          213
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          820  sweeps of         1000  for this simulation
+ (Completed          820  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    213.22459    
+ Average time per sweep so far (s) this simulation =   0.26003000    
+
+ Current information:
+ Lx:    20.504704866454407        22.373168128412804     
+ Ly:    21.748523785948091        19.375731962345835     
+ Lz:    20.504704866454407        21.093625200303208     
+ V:    9144.0128823646937     
+ lattice:            2
+ E:   -2418.5700784318378     
+ M:    18.188126126127372     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       314880
+ accepted_moves_part:        98794
+ moves_vol:          840
+ accepted_moves_vol:          215
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          830  sweeps of         1000  for this simulation
+ (Completed          830  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    215.76320    
+ Average time per sweep so far (s) this simulation =   0.25995567    
+
+ Current information:
+ Lx:    20.500081457310468        22.368123417417088     
+ Ly:    21.743619920011277        19.371363114468792     
+ Lz:    20.500081457310468        21.088869001164277     
+ V:    9137.8288897777493     
+ lattice:            2
+ E:   -2418.7356086496252     
+ M:    19.750205944721074     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       318720
+ accepted_moves_part:       100000
+ moves_vol:          849
+ accepted_moves_vol:          218
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          840  sweeps of         1000  for this simulation
+ (Completed          840  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    218.39481    
+ Average time per sweep so far (s) this simulation =   0.25999382    
+
+ Current information:
+ Lx:    20.529089854977315        22.399775165753049     
+ Ly:    21.774387972063650        19.398774332601928     
+ Lz:    20.529089854977315        21.118710555677300     
+ V:    9176.6749364964016     
+ lattice:            2
+ E:   -2419.2909713801555     
+ M:    22.518378338169896     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       322560
+ accepted_moves_part:       101276
+ moves_vol:          860
+ accepted_moves_vol:          221
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          850  sweeps of         1000  for this simulation
+ (Completed          850  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    221.02541    
+ Average time per sweep so far (s) this simulation =   0.26002988    
+
+ Current information:
+ Lx:    20.528865405916953        22.399530264078216     
+ Ly:    21.774149907884730        19.398562241530090     
+ Lz:    20.528865405916953        21.118479660163967     
+ V:    9176.3739479632095     
+ lattice:            2
+ E:   -2419.3707251133324     
+ M:    19.575312087014481     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       326400
+ accepted_moves_part:       102484
+ moves_vol:          871
+ accepted_moves_vol:          225
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          860  sweeps of         1000  for this simulation
+ (Completed          860  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    223.84198    
+ Average time per sweep so far (s) this simulation =   0.26028138    
+
+ Current information:
+ Lx:    20.487654970065819        22.354564583472349     
+ Ly:    21.730439639915744        19.359620819826951     
+ Lz:    20.487654970065819        21.076085609927862     
+ V:    9121.2217903471119     
+ lattice:            2
+ E:   -2419.9549300239150     
+ M:    22.995658253099009     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       330240
+ accepted_moves_part:       103685
+ moves_vol:          886
+ accepted_moves_vol:          229
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          870  sweeps of         1000  for this simulation
+ (Completed          870  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    226.33459    
+ Average time per sweep so far (s) this simulation =   0.26015469    
+
+ Current information:
+ Lx:    20.542897485408400        22.414840997673171     
+ Ly:    21.789033175728555        19.411821725773894     
+ Lz:    20.542897485408400        21.132914758230541     
+ V:    9195.2037721950528     
+ lattice:            2
+ E:   -2418.2646599821833     
+ M:    20.112579748596090     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       334080
+ accepted_moves_part:       104942
+ moves_vol:          894
+ accepted_moves_vol:          230
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          880  sweeps of         1000  for this simulation
+ (Completed          880  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    228.96519    
+ Average time per sweep so far (s) this simulation =   0.26018772    
+
+ Current information:
+ Lx:    20.497242263643169        22.365025506099595     
+ Ly:    21.740608500368399        19.368680244569170     
+ Lz:    20.497242263643169        21.085948262364120     
+ V:    9134.0327380938033     
+ lattice:            2
+ E:   -2417.1394953697786     
+ M:    24.847993637757099     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       337920
+ accepted_moves_part:       106131
+ moves_vol:          905
+ accepted_moves_vol:          231
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          890  sweeps of         1000  for this simulation
+ (Completed          890  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    231.54980    
+ Average time per sweep so far (s) this simulation =   0.26016831    
+
+ Current information:
+ Lx:    20.481883777791214        22.348267499173790     
+ Ly:    21.724318366126390        19.354167384854627     
+ Lz:    20.481883777791214        21.070148661915578     
+ V:    9113.5158574986781     
+ lattice:            2
+ E:   -2418.9180083364586     
+ M:    18.790328969650091     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       341760
+ accepted_moves_part:       107349
+ moves_vol:          915
+ accepted_moves_vol:          232
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          900  sweeps of         1000  for this simulation
+ (Completed          900  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    234.18140    
+ Average time per sweep so far (s) this simulation =   0.26020154    
+
+ Current information:
+ Lx:    20.550431683790386        22.423061739605849     
+ Ly:    21.797024399878616        19.418941097125550     
+ Lz:    20.550431683790386        21.140665348053187     
+ V:    9205.3246279404357     
+ lattice:            2
+ E:   -2414.5359757760907     
+ M:    22.888712075923650     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       345600
+ accepted_moves_part:       108592
+ moves_vol:          925
+ accepted_moves_vol:          236
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          910  sweeps of         1000  for this simulation
+ (Completed          910  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    236.48904    
+ Average time per sweep so far (s) this simulation =   0.25987807    
+
+ Current information:
+ Lx:    20.490109342165692        22.357242606881989     
+ Ly:    21.733042894648808        19.361940056131626     
+ Lz:    20.490109342165692        21.078610474612042     
+ V:    9124.5002847837804     
+ lattice:            2
+ E:   -2416.8210576384340     
+ M:    27.051995130550040     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       349440
+ accepted_moves_part:       109837
+ moves_vol:          929
+ accepted_moves_vol:          237
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          920  sweeps of         1000  for this simulation
+ (Completed          920  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    239.07466    
+ Average time per sweep so far (s) this simulation =   0.25986376    
+
+ Current information:
+ Lx:    20.482280949518341        22.348700862632803     
+ Ly:    21.724739630358709        19.354542688619198     
+ Lz:    20.482280949518341        21.070557240903025     
+ V:    9114.0460383740319     
+ lattice:            2
+ E:   -2421.7550139324489     
+ M:    19.478127430463246     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       353280
+ accepted_moves_part:       111077
+ moves_vol:          939
+ accepted_moves_vol:          240
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          930  sweeps of         1000  for this simulation
+ (Completed          930  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    241.98322    
+ Average time per sweep so far (s) this simulation =   0.26019701    
+
+ Current information:
+ Lx:    20.503702425825796        22.372074341749276     
+ Ly:    21.747460537098753        19.374784715308888     
+ Lz:    20.503702425825796        21.092593968347266     
+ V:    9142.6718415700616     
+ lattice:            2
+ E:   -2416.6341622839127     
+ M:    20.323097491127101     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       357120
+ accepted_moves_part:       112277
+ moves_vol:          956
+ accepted_moves_vol:          247
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          940  sweeps of         1000  for this simulation
+ (Completed          940  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    244.42984    
+ Average time per sweep so far (s) this simulation =   0.26003173    
+
+ Current information:
+ Lx:    20.503702425825796        22.372074341749276     
+ Ly:    21.747460537098753        19.374784715308888     
+ Lz:    20.503702425825796        21.092593968347266     
+ V:    9142.6718415700616     
+ lattice:            2
+ E:   -2421.3818644820158     
+ M:    24.294972940823300     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       360960
+ accepted_moves_part:       113492
+ moves_vol:          963
+ accepted_moves_vol:          247
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          950  sweeps of         1000  for this simulation
+ (Completed          950  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    246.92146    
+ Average time per sweep so far (s) this simulation =   0.25991732    
+
+ Current information:
+ Lx:    20.503702425825796        22.372074341749276     
+ Ly:    21.747460537098753        19.374784715308888     
+ Lz:    20.503702425825796        21.092593968347266     
+ V:    9142.6718415700616     
+ lattice:            2
+ E:   -2420.6901020356540     
+ M:    21.141993730818285     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       364800
+ accepted_moves_part:       114668
+ moves_vol:          971
+ accepted_moves_vol:          247
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          960  sweeps of         1000  for this simulation
+ (Completed          960  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    249.32111    
+ Average time per sweep so far (s) this simulation =   0.25970948    
+
+ Current information:
+ Lx:    20.503702425825796        22.372074341749276     
+ Ly:    21.747460537098753        19.374784715308888     
+ Lz:    20.503702425825796        21.092593968347266     
+ V:    9142.6718415700616     
+ lattice:            2
+ E:   -2425.5838911556648     
+ M:    22.213510270211373     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       368640
+ accepted_moves_part:       115880
+ moves_vol:          977
+ accepted_moves_vol:          247
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          970  sweeps of         1000  for this simulation
+ (Completed          970  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    252.13766    
+ Average time per sweep so far (s) this simulation =   0.25993574    
+
+ Current information:
+ Lx:    20.473540313141054        22.339163747688112     
+ Ly:    21.715468785477313        19.346283304798277     
+ Lz:    20.473540313141054        21.061565562702562     
+ V:    9102.3829957564703     
+ lattice:            2
+ E:   -2417.5482912595203     
+ M:    19.091777181131874     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       372480
+ accepted_moves_part:       117108
+ moves_vol:          992
+ accepted_moves_vol:          250
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          980  sweeps of         1000  for this simulation
+ (Completed          980  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    254.67729    
+ Average time per sweep so far (s) this simulation =   0.25987479    
+
+ Current information:
+ Lx:    20.515704182101164        22.385169741694504     
+ Ly:    21.760190321971447        19.386125664334166     
+ Lz:    20.515704182101164        21.104940429818761     
+ V:    9158.7361149819499     
+ lattice:            2
+ E:   -2417.8614090494916     
+ M:    19.347887617572724     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       376320
+ accepted_moves_part:       118387
+ moves_vol:         1001
+ accepted_moves_vol:          254
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed          990  sweeps of         1000  for this simulation
+ (Completed          990  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    257.35385    
+ Average time per sweep so far (s) this simulation =   0.25995338    
+
+ Current information:
+ Lx:    20.488875359843473        22.355896179603853     
+ Ly:    21.731734058746955        19.360774015904397     
+ Lz:    20.488875359843473        21.077341050800378     
+ V:    9122.8518610794345     
+ lattice:            2
+ E:   -2421.1470504494132     
+ M:    19.975189459044941     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       380160
+ accepted_moves_part:       119623
+ moves_vol:         1013
+ accepted_moves_vol:          256
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Completed         1000  sweeps of         1000  for this simulation
+ (Completed         1000  sweeps over all simulations)
+
+ CPU time elapsed this simulation (s) =    259.89148    
+ Average time per sweep so far (s) this simulation =   0.25989148    
+
+ Current information:
+ Lx:    20.488875359843473        22.355896179603853     
+ Ly:    21.731734058746955        19.360774015904397     
+ Lz:    20.488875359843473        21.077341050800378     
+ V:    9122.8518610794345     
+ lattice:            2
+ E:   -2421.4719031345553     
+ M:    24.315350118190054     
+ eta:    0.0000000000000000     
+ moves_lattice:            0
+ accepted_moves_lattice:            0
+ moves_part:       384000
+ accepted_moves_part:       120826
+ moves_vol:         1021
+ accepted_moves_vol:          256
+ rejected_moves_M_OOB:            0
+ M_OOB_high:   1.00000000000000002E+100
+ M_OOB_low:  -1.00000000000000002E+100
+ melts:            0
+ equil_DeltaF:    0.0000000000000000     
+ sigma_equil_DeltaF:    0.0000000000000000     
+ equil_H_1:    0.0000000000000000     
+ sigma_equil_H_1:    0.0000000000000000     
+ equil_H_2:    0.0000000000000000     
+ sigma_equil_H_2:    0.0000000000000000     
+ equil_V_1:    0.0000000000000000     
+ sigma_equil_V_1:    0.0000000000000000     
+ equil_V_2:    0.0000000000000000     
+ sigma_equil_V_2:    0.0000000000000000     
+ ****************************************************************
+
+ Finished lattice switch Monte Carlo loop
+
+ CPU time elapsed this simulation (s) =    259.89148    
+ Average time per sweep =   0.25989148    
+
