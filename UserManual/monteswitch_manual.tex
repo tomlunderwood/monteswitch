@@ -1,0 +1,1528 @@
+\documentclass{report}
+
+\usepackage[english]{babel}
+
+\usepackage{graphicx}% Needed for figure files
+\usepackage{hyperref}% Gives hyperlinks
+\usepackage{amsmath,amsthm,amssymb}% Extra maths stuff
+\usepackage{enumitem} % For a,b,c,... bullet points 
+\usepackage{longtable} % Split long tables over many pages
+\usepackage{lscape} % For rotating certain pages to landscape
+
+\usepackage{nomencl} % Needed for abbreviations
+\makenomenclature
+
+
+\begin{document}
+
+
+\title{The \emph{monteswitch} user manual}
+\author{Tom L. Underwood}
+\date{\today}
+\maketitle
+
+
+\addcontentsline{toc}{chapter}{Contents}
+\tableofcontents
+
+
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\chapter*{Acknowledgements}
+The development of \emph{monteswitch} was supported by funding from the Engineering and Physical Sciences Research Council (EPSRC).
+
+\addcontentsline{toc}{chapter}{Disclaimer}
+\chapter*{Disclaimer}
+While we have endeavoured to ensure \emph{monteswitch} is free from error, we cannot guarantee this. Hence you use \emph{monteswitch}
+at your own risk.
+
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\renewcommand{\nomname}{List of Abbreviations}
+\printnomenclature
+
+\addcontentsline{toc}{chapter}{Conventions used in this manual}
+\chapter*{Conventions used in this manual}
+Throughout this manual we use:
+\begin{itemize}
+\item \emph{italics} to signify file names and directories, including the \emph{monteswitch} package itself;
+\item \texttt{typewriter font} to signify program names, and shell commands and output, including command-line arguments to programs;
+\item and \textbf{bold font} to signify the names of variables within a program.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}
+\emph{monteswitch} is a package whose primary purpose is to enable lattice-switch Monte Carlo (LSMC) \cite{Bruce_1997,Bruce_2000}
+simulations to be performed. 
+\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
+It can be used to evaluate free energy differences between pairs of solid phases in NVT and NPT 
+ensembles to a high precision. It can treat single-component atomic (i.e., non-molecular) systems, and pairs of `phases' which can be represented
+by an orthorhombic unit cell. Note that the two `phases' need not be homogeneous crystals, though we expect that this
+will be the main use for \emph{monteswitch}; possible applications for \emph{monteswitch} include, evaluating the free energy cost of creating
+point defects and interfaces, as well as evaluating the free energy difference between a crystalline and amorphous solid phase.
+
+The core of \emph{monteswitch} is written in Fortran 95, and there is a version of the main program which is parallelised using MPI 
+for HPC applications. All of the source code pertaining to the calculation of the system's potential energy contained within a single file 
+\emph{interactions.f95} in the main directory. The nature of this file determines which interatomic potential will be used in the main programs,
+once they are compiled. By default \emph{interactions.f95} pertains to EAM interatomic potentials, though versions of the file are included 
+within the package corresponding to some commonly-used pair potentials. Users are encouraged to create versions of \emph{interactions.f95} 
+which suit their own needs, and hence create bespoke versions of the main programs in which the users' interatomic potentials are `hard coded'.
+This approach allows considerable flexibility with regards to the potentials, including their algorithmic efficiency. Of course, the 
+\texttt{interactions.f95} file could wrap to external procedures or programs. In this way \emph{monteswitch} can easily be interfaced with 
+other code or programs.
+
+This document describes how to use \emph{monteswitch}, including how to incorporate user-defined interatomic potentials via customisation
+of the file \emph{interactions.f95}.
+It is assumed that the user is competent with the unix shell, including the utilities \texttt{grep}, \texttt{sed} and \texttt{awk}.
+Often we provide examples of commands which utilise the shell and the aforementioned utilities to perform useful \emph{monteswitch}-related tasks.
+However we never describe why these commands work for the sake of brevity; interested users are referred to the relevant documentation online
+or elsewhere. In a similar vein, expertise in Fortran 95 is assumed when we describe Fortran-related issues, including how to customise
+\emph{interactions.f95}. It is also assumed that the user is familiar with the Monte Carlo method (in the sense of computational
+chemistry), but not necessarily with LSMC. Accordingly in Chapter \ref{chapter:background} we describe the theory behind LSMC to a depth 
+which enables the user to competently perform LSMC simulations. The rest of this document petains to \emph{monteswitch} itself. Chapter
+\ref{chapter:preliminaries} describes how to compile \emph{monteswitch}. It also provides an overview of the package. Then in Chapters
+\ref{chapter:simulation_programs} and \ref{chapter:utility_programs} detailed usage of the programs within \emph{monteswitch} is provided.
+Chapter \ref{chapter:example} is more pedagocial. In this chapter we [WHAT DO WE DO IN THIS CHAPTER]
+Finally, in Chapter \ref{chapter:interactions} we describe how to customise \emph{interactions.f95}.
+
+Note that this document does not provide details regarding the structure of the source code. In a similar vein, 
+this document does not provide thorough details of how the LSMC method is implemented in \emph{monteswitch}. We direct parties 
+interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
+\ref{chapter:preliminaries}) -- or failing that the source code itself.
+Regarding the LSMC method itself, further information can be found in the references. For further 
+information regarding Monte Carlo simulations in condensed matter physics, see, e.g., [FRENKLE BOOK].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Background Theory}\label{chapter:background}
+
+\section{Calculating free energy differences}
+The primary aim of \emph{monteswitch} is two calculate the free energy difference between two solid phases. At this point we should
+clarify that by `solid' here we mean that 
+Consider a system which is free to visit two phases 1 and 2 (and only phases 1 and 2) within the NVT ensemble. We consider only
+the NVT ensemble for now for the sake of simplicity; what follows can easily be adapted to apply to the NPT ensemble.
+Now, the equilibrium phase is that with the lower Helmholtz free energy $F$; it is the free energy difference between the phases $\Delta F\equiv F_1-F_2$ 
+which we wish to evaluate, where $F_1$ and $F_2$ denote the free energies of phases 1 and 2. 
+From knowledge of the relative time the system spends in phase 1 and phase 2, which we denote as $t_1$ and $t_2$ respectively, one can calculate $\Delta F$ 
+using the following equation:
+\begin{equation}\label{DeltaG_stat_mech}
+\Delta F=\beta^{-1}\ln\biggl(\frac{t_2}{t_1}\biggr),
+\end{equation}
+where $\beta\equiv 1/k_bT$, and $k_B$ denotes Boltzmann's constant. Therefore, in principle, one can calculate $\Delta F$ from, e.g. a 
+molecular dynamics simulation, as follows: measure the relative time $t_1$ and $t_2$ which the system spends in each phase 1 and 2 during the
+simulation, and substitute these quantities into the above equation. However, this method is often intractable in practice for two solid phases, 
+because the time taken for the system to transition between the two phases is too long to allow a reasonable estimate of $t_2/t_1$ to be deduced 
+in a reasonable simulation time; it may be the case that, regardless of the phase in which the simulation is initialised, the system \emph{never} 
+transitions to the `other' phase during the course of the simulation.
+The problem is that, while the regions of phase space corresponding to phase 1 and phase 2 both correspond to probable states of the system
+at thermodynamic equilibrium, these regions are separated by an \emph{entropic barrier} -- a region of phase space associated
+with states which are very improbable at thermodynamic equilibrium. This entropic barrier inhibits transitions between the `islands of
+stability' in phase space associated with phase 1 and phase 2.
+
+This problem can in principle be circumvented within the Monte Carlo method.
+In the original incarnation of Monte Carlo, which we refer to as \emph{Metropolis Monte Carlo}\cite{Metropolis_1953} (which we contrast later to 
+\emph{multicanonical Monte Carlo}), the system is evolved throughout the simulation as follows. Each time step we generate a trial state of the system 
+$\sigma'$, and attempt to change the system from its current state $\sigma$, to the trial state. We change the state from $\sigma$ to $\sigma'$ with 
+probability
+\begin{equation}\label{p_Metropolis}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr],
+\end{equation}
+where $E_{\sigma}$ denotes the energy of state $\sigma$. The end result is that each state $\sigma$ is sampled with a probability
+corresponding to the NVT ensemble:
+\begin{equation}\label{MC_prob}
+p_{\sigma}=\frac{1}{Z}e^{-\beta E_{\sigma}}; \quad Z\equiv\sum_{\sigma}e^{-\beta E_{\sigma}}
+\end{equation}
+Hence the equilibrium value of any physical quantity $X$ can be obtained by evaluating the average of $X$ over all timesteps in a sufficiently long 
+simulation. In this manner $t_1$ and $t_2$, and hence $\Delta F$ (via Eqn. \eqref{DeltaG_stat_mech}) can be calculated; 
+$t_{\alpha}$ is the time average of the quantity $\theta_{\alpha}$, where $\theta_{\alpha}=1$ if the system is in phase $\alpha$ and 0 otherwise.
+The traditional approach for NVT ensmbles is to perform a `particle move' to generate a trial state. In this, the trial state differs from the
+current state in that one of the particle's positions differs. In NPT ensembles particle moves are supplemented by `volume moves', in which the 
+shape of the entire system is altered, along with a commensurate rescaling of the particle positions.
+Crucially however, the important properties of the Metropolis algorithm do not rely upon the choice of mechanism used to generate trial states. 
+One has considerable freedom in this regard, and is by no means limited to the aforementioned `traditional' move set. The prospect therefore exists 
+of generating trial states in a manner which results in the system traversing a path in phase space which allows $\Delta F$ to be calculated 
+relatively quickly. Such a path would involve frequent transitions between both phases 1 and 2 by `jumping over' the entropic barrier. 
+
+\section{Lattice switch Monte Carlo moves}\label{sec:lattice_switch}
+In LSMC a new type of move, a \emph{lattice switch}, is introduced to supplement the traditional move set mentioned above. Let $\mathbf{r}_i$ 
+denote the position of particle $i$. Now, in an NVT emsemble, the set of particle positions $\lbrace\mathbf{r}_i\rbrace$ amounts to a specification 
+of the state of the system. We are interested in evaluating free energy differences between pairs of crystalline solid phases. Accordingly, it 
+makes sense to characterise a given state of the system as belonging to a solid phase $\alpha$ if the positions of the particles `approximately' 
+form a crystal lattice characteristic of $\alpha$. In this case one can express the position $\mathbf{r}_i$ of particle $i$ as follows:
+\begin{equation}
+\mathbf{r}_i=\mathbf{R}^{\alpha}_i+\mathbf{u}_i,
+\end{equation}
+where $\mathbf{R}^{\alpha}_i$ denotes the position of the site in the analogous $\alpha$ crystal lattice which is closest to $i$, and $\mathbf{u}_i$ denotes 
+the displacement of $i$ from that lattice site. Note that the displacements $\lbrace\mathbf{u}_i\rbrace$ are necessarily small since the particle
+positions form an approximate $\alpha$ crystal lattice. In a lattice switch from phase $\alpha$ to the `other' phase $\alpha'$ we transform the 
+underlying lattice $\lbrace\mathbf{R}^{\alpha}_i\rbrace$ to $\lbrace\mathbf{R}^{\alpha'}_i\rbrace$, \emph{while keeping the particle displacements 
+$\lbrace\mathbf{u}_i\rbrace$ unchanged}.
+\footnote{One could in principle alter the particle displacements during a lattice switch. It is conceivable that this would lead to a more efficient
+exploration of both phases for some systems. However, this is not implemented in \emph{monteswitch}: in \emph{monteswitch} lattice switches always
+keep the particle displacements unchanged.}
+The effect is that the trial state belongs to phase $\alpha'$: the positions of the particles in the trial state form an approximate $\alpha'$ crystal 
+lattice. Hence every time a lattice switch is accepted, the system transitions to the `other' phase. 
+
+\section{Multicanonical Monte Carlo}
+One might expect that by regularly making lattice switches, the system will regularly transition between phases, allowing $\Delta F$ to be efficiently 
+evaluated as described earlier. Unfortunately, if one does this in Metropolis Monte Carlo, one finds that lattice switches are too rarely accepted for 
+this approach to be useful. 
+The problem is that the trial state $\sigma'$ generated by a lattice switch is almost always of much higher energy than the current state $\sigma$, 
+and hence will almost always be rejected by the Metropolis algorithm (Eqn. \eqref{p_Metropolis}). 
+The solution to this problem is to use \emph{multicanonical Monte Carlo}\cite{Berg_1991,Berg_1992,Smith_1995} instead of Metropolis Monte Carlo. 
+The former is a straightforward generalisation of the latter in which, instead of Eqn. \eqref{p_Metropolis}, one has
+\begin{equation}\label{p_multicanonical}
+\tilde{p}_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}e^{(\eta_{\sigma'}-\eta_{\sigma})}\Bigr],
+\end{equation}
+where $\eta_{\sigma}$, known as the \emph{weight function}, is chosen according to the aims of the simulation. In this case each state $\sigma$ is 
+sampled with probability
+\begin{equation}\label{MCMC_prob}
+\tilde{p}_{\sigma}=\frac{1}{\tilde{Z}}e^{-\beta E_{\sigma}}e^{\eta_{\sigma}}; \quad \tilde{Z}\equiv\sum_{\sigma}e^{-\beta E_{\sigma}}e^{\eta_{\sigma}}
+\end{equation}
+Using Eqn. \eqref{MC_prob}, it can be shown that
+\begin{equation}\label{MCMC_prob_2}
+\tilde{p}_{\sigma}=\frac{1}{\tilde{Z}'}p_{\sigma}e^{\eta_{\sigma}}; \quad \tilde{Z}'=\sum_{\sigma}p_{\sigma}e^{\eta_{\sigma}},
+\end{equation}
+where recall that $p_{\sigma}$ is the probability of observing state $\sigma$ in the NVT ensemble. From this it can be seen that if 
+$\eta_{\sigma}>0$ then state $\sigma$ is \emph{over-sampled} relative to Metropolis Monte Carlo. On the other hand if $\eta_{\sigma}<0$ then 
+$\sigma$ is \emph{under-sampled}. 
+The strength of this approach is that, through judicious choice of the weight function, one can `choose' the path the system traverses 
+through phase space. [This can be seen by noting that] [CLUMSY] a multicanonical Monte Carlo simulation can be regarded as a Metropolis Monte Carlo 
+simulation, but if the energy for each state $\sigma$ were 
+\begin{equation}
+\tilde{E}_{\sigma}=E_{\sigma}-\eta_{\sigma}/\beta
+\end{equation}
+instead of $E_{\sigma}$. Hence a multicanonical Monte Carlo simulation samples states with probabilities corresponding to, say, an NVT ensemble,
+but if energy were $\tilde{E}_{\sigma}$ instead of $E_{\sigma}$. Noting that the modification to the `true' energy function, $-\eta_{\sigma}/\beta$, is
+proportional to the weight function, it can be seen that the weight function defines an additional `force' on the system which affects its
+trajectory through phase space. Therefore by choosing $\eta_{\sigma}$, one can choose the system's path through phase space. 
+
+Of course, in a multicanonical simulation the states are not longer sampled with probabilities corresponding to the `true' NVT ensemble -- 
+which \emph{is} the case for Metropolis Monte Carlo. Accordingly the time average of $X$ throughout a long multicanonical Monte Carlo simulation is 
+not equivalent to the equilibrium value. Nevertheless one can obtain the equilibrium value of any physical quantity $X$ in a multicanonical 
+simulation by exploiting the fact that, since the weight function is known, then so is the degree of over- or under-sampling of each state. To 
+elaborate, to evaluate the equilibrium value of $X$ in a Metropolis Monte Carlo simulation, we use the following expression:
+\begin{equation}
+\langle X\rangle\approx\frac{1}{\tau}\sum_{t=1}^{\tau}X(t),
+\end{equation}
+where $X(t)$ denotes the value of the physical quantity $X$ at timestep $t$ during the simulation, and $\tau$ denotes the total number of timesteps
+considered. For reasons which will become clear in a moment, $\langle X\rangle$ could equivalently be expressed as
+\begin{equation}
+\langle X\rangle\approx\frac{\displaystyle\sum_{t=1}^{\tau}w(t)X(t)}{\displaystyle\sum_{t=1}^{\tau}w(t)}
+\end{equation}
+with $w(t)$ taking the same constant value for all $t$, where $w(t)$ is the \emph{weight} (not to be confused with the weight function) associated 
+with the state at timestep $t$.
+Now, Eqn. \eqref{MCMC_prob_2} reveals that state $\sigma$ is sampled in a multicanonical Monte Carlo simulation a factor of
+$e^{\eta_{\sigma}}/\tilde{Z}'$ more often than for the true NVT ensemble. Associating a weight $(e^{\eta_{\sigma}}/\tilde{Z}')^{-1}$ to $\sigma$ corrects for
+this; the effect is that states which are over-sampled are counted less, and under-sampled states are counted more, in the evaluation of $\langle X\rangle$.
+Hence the expression for $\langle X\rangle$ pertaining to a multicanonical simulation is the same as above, but with $w(t)=(e^{\eta(t)}/\tilde{Z}')^{-1}$:
+\begin{equation}\label{equilX_MCMC}
+\langle X\rangle\approx\frac{\displaystyle\sum_{t=1}^{\tau}e^{-\eta(t)}X(t)}{\displaystyle\sum_{t=1}^{\tau}e^{-\eta(t)}},
+\end{equation}
+where we have canceled the factors of $\tilde{Z}'^{-1}$ from the numerator and denominator.
+
+Why is this helpful to us? As mentioned above, most states are such that lattice switches will be almost certainly be rejected from them. There 
+are, however, a small number of states from which a lattice switch yields a trial state which is of comparable energy to $\sigma$. From such 
+states a lattice switch has a good chance of being accepted. (Note that the same is also true for the trial state corresponding to a lattice switch:
+a lattice switch from the trial state, which brings us back to the current state, would also have a good chance of success). We refer to 
+such states as \emph{gateway states}, since they provide the key to jumping between both phases. It is these states which we wish to over-sample,
+and we set the weight function accordingly. The result is that lattice switches are accepted reasonably often, encouraging switching between the 
+two phases. Thus the multicanonical simulation samples both phases in a reasonable simulation time, which enables us to obtain 
+$t_1$ and $t_2$ (which recall are the time averages of $\theta_1$ and $\theta_2$ defined earlier, i.e. $t_1=\langle\theta_1\rangle$ and 
+$t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC}, enabling us to obtain $\Delta F$ via Eqn. \eqref{DeltaG_stat_mech}.
+
+How should the weight function be engineered such that gateway states are over-sampled? Let us define the quantity
+\begin{equation}
+M(\lbrace\mathbf{u}_i\rbrace)=E(\lbrace\mathbf{R}^{1}_i+\mathbf{u}_i\rbrace)
+-E(\lbrace\mathbf{R}^{2}_i+\mathbf{u}_i\rbrace),
+\end{equation}
+where $E(\lbrace\mathbf{r}_i\rbrace)$ denotes the energy of the state with positions $\lbrace\mathbf{r}_i\rbrace$. The first term on the right-hand side
+is the energy associated with the state in phase 1 where the displacements are $\lbrace\mathbf{u}_i\rbrace$ for phase 1, and the second term is the 
+analogous quantity for phase 2. Note that the states $\lbrace\mathbf{r}_i\rbrace=\lbrace\mathbf{R}^{1}_i+\mathbf{u}_i\rbrace$ and 
+$\lbrace\mathbf{r}_i\rbrace=\lbrace\mathbf{R}^{2}_i+\mathbf{u}_i\rbrace$ differ by a lattice switch: performing a lattice switch from the former yields 
+the latter and \emph{vice versa}. Note also that $M(\lbrace\mathbf{u}_i\rbrace)=0$ if the energies of both these states are identical. In this
+case the energy cost of a lattice switch is zero, an attempted lattice switch from either state would be successful, and hence both states are gateway 
+states. By contrast, if $|M(\lbrace\mathbf{u}_i\rbrace)|\gg 0$, then the two states have significanly different energies. In this case, while
+switching from the higher-energy state to the lower-energy state is guaranteed, the converse is not: the two states are not concordant with switching
+\emph{to and from} both phases.
+$|M(\lbrace\mathbf{u}_i\rbrace)|$ therefore provides a measure of how `un-gateway-like' a state with displacements $\lbrace\mathbf{u}_i\rbrace$ 
+is, with zero corresponding to a gateway state. With this in mind, if we choose the weight function $\eta_{\sigma}$ to take the same value $\eta_{M}$ 
+for all states with the same $M$, and also choose $\eta_{M}$ to be peaked at $M=0$ and to decay monotonically with 
+$|M|$, then the weight function corresponds to a `force' which drives the system towards gateway states.
+This is, of course, just a \emph{qualitative} description of a form for $\eta_{M}$ which is sufficient for our purposes. As one might expect, 
+the quantitative details of the weight function $\eta_{M}$ strongly affect the efficiency of the path traversed though phase space with regards 
+to calculating $\Delta F$; a `bad' weight function might result in the system getting stuck in one phase, or an unimportant region of phase space, for
+a long time. Furthermore, it is not obvious \emph{a priori} what a suitable weight function for a given system should be. Hence one must 
+\emph{generate} a weight function which leads to an efficient sampling of phase space. After this \emph{weight function generation simulation},
+the resulting weight function can be used in a \emph{production simulation} to calculate $\Delta F$ as described above.
+
+Given that we are constraining the weight function to take the same value for all states with the same $M$, it is convenient to define a
+macrostate, which we also denote as $M$, which is comprised of all such states. Thus in implementing multicanonical Monte Carlo
+in the computer, it is sufficient to store the value of the weight function for each $M$ considered, instead of for each state - which is
+intractable. Of course, it is impossible to treat $M$ as a continuous variable in the computer; in reality the considered range of $M$ will
+be split into $N_{\text{macro}}$ bins each corresponding to a range of $M$. Each bin itself corresponds to a macrostate: the macrostate is the
+collection of states corresponding to the range of $M$ covered by the bin. We will henceforth explicitly take the discretisation of $M$ into
+account. Let $\mathcal{M}$ denote the macrostate corresponding to the $\mathcal{M}$th bin, where $\mathcal{M}=1,2,\dotsc,N_{\text{macro}}$.
+Accordingly let $\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$.
+
+\section{Weight function generation}
+We will now describe how weight functions can be generated for use in a production simulation.
+All methods for generating a weight function share the same notion of the `ideal' weight function, which we denote as $\eta_{\mathcal{M}}^*$: 
+it is such that all macrostates within an `allowed range' are sampled with equal probability in the multicanonical Monte Carlo simulation. 
+Let $\tilde{p}_{\mathcal{M}}$ denote the probability that the multicanonical Monte Carlo simulation is in macrostate $\mathcal{M}$; formally,
+\begin{equation}
+\tilde{p}_{\mathcal{M}}=\sum_{\sigma\in\mathcal{M}}\tilde{p}_{\sigma}.
+\end{equation}
+Thus an ideal weight function would yield $\tilde{p}_{\mathcal{M}}=C$ for all $\mathcal{M}$ within the allowed range, where $C$ is some constant.
+The ideal weight function, or at least a close estimate of it, can be determined in various ways; below we describe the methods supported by 
+\emph{monteswitch}. 
+
+We emphasise that it is unnecessary to use an `exact' ideal weight function, which samples all macrostates with exactly equal probablility, during the
+production simulation. The choice of weight function affects the accuracy of physical quantities determined during the production simulation
+(evaluated using Eqn. \eqref{equilX_MCMC}) only in that it determines the efficiency with which phase space is explored. A weight function close
+to the ideal is desirable because it enables gateway states to be visited often, hence allowing both phases to be explored regularly. On the
+other hand a weight function which is `far from ideal' may not result in gateway states being visited often enough to enable useful estimates
+of $t_1$ and $t_2$ to be obtained. However, using the latter weight function would enable useful estimates for $t_1$ and $t_2$ to be obtained
+\emph{eventually}.
+
+\subsection{Visited states method}
+The \emph{visited states method} is an iterative method for generating the weight function. In this method, the simulation consists of a number of
+`blocks', which themselves consist of a large number of Monte Carlo sweeps. Multicanonical Monte Carlo is used, and the weight function is updated at
+the end of each block. The weight function is different -- closer to the ideal -- in each subsequent block, and information
+collected during each block is used to inform the weight function to be used in the next block. Eventually the weight function converges on the 
+ideal: it provides a `flat' macrostate histogram; the weight function is such that all macrostates are sampled with equal probability.
+
+Let $H^{(n)}_{\mathcal{M}}$ denote the number of states belonging to macrostate $\mathcal{M}$ which were visited during block $n$.
+The specific equation used to obtain the weight function for the next block $n+1$ is
+\begin{equation}
+\eta^{(n+1)}_{\mathcal{M}}=\eta^{(n)}_{\mathcal{M}}-\ln\Biggl\lbrace
+\frac{H^{(n)}_{\mathcal{M}}+1}{\sum_{\mathcal{M}'}\bigl(H^{(n)}_{\mathcal{M}'}+1\bigr)}
+\Biggr\rbrace
++k,
+\end{equation}
+where $\eta^{(n)}_{\mathcal{M}}$ denotes the weight function for block $n$; the summation over $\mathcal{M}'$ on the denominator of the fraction is
+over all macrostates $1,2,\dotsc,N_{\text{macro}}$; and $k$ is an inconsequential arbitrary constant,
+\footnote{Only differences in the values of the weight function between states are `physically significant'; the absolute values 
+of the weight function are not. See, e.g., Eqn. \eqref{p_multicanonical}.}
+which we choose such that the minimum value of $\eta^{(n+1)}_{\mathcal{M}}$ over all $\mathcal{M}$ is 0.
+The above equation acts to enhance the value of the weight function for macrostates which have not been visited often during the previous block, and
+diminish the weight function for macrostates which have been visited. Eventually the weight function is such that all macrostates are visited equally
+often. 
+With regards to the choice of initial weight function for the simulation, i.e., $\eta^{(0)}_{\mathcal{M}}$, we use $\eta^{(0)}_{\mathcal{M}}=1$
+for all $\mathcal{M}$.
+
+The visited states method converges to the ideal weight function very slowly. For this reason we do not recommend that it is the sole method used to 
+generate weight function with \emph{monteswitch}, but primarily, or perhaps entirely, use the other methods for generating weight functions described 
+in a moment. These other methods are much more efficient at obtaining a weight function close to the ideal. However, these methods, as implemented in 
+\emph{monteswitch}, can never converge on the ideal, while the visited states method can. This limitation of the other methods is in practice probably
+unimportant; as mentioned earlier, it is unnecessary to use the `exact' ideal weight function, just a weight function `close' to the ideal, which
+these methods provide. Nevertheless the visited states method is included within \emph{monteswitch} in order that the exact ideal weight function can
+be calculated if required, possibly after a weight function close to the ideal has already been obtained using the aforementioned faster methods.
+
+\subsection{Transition matrix method}
+It can be shown that the ideal weight function obeys [REFERENCE: BRUCE PAPER]
+\begin{equation}\label{ideal_wf}
+\eta_{\mathcal{M}}^*=C'-\ln(p_{\mathcal{M}}),
+\end{equation}
+where $p_{\mathcal{M}}$ denotes the probability of the system being in macrostate $\mathcal{M}$ in the true NVT ensemble (sampled from by Metropolis
+Monte Carlo, but not necessarily multicanonical Monte Carlo), and $C'$ is a constant. 
+Hence the ideal weight function can be determined from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
+in turn can be determined from the \emph{macrostate transition probability matrix} $\mathcal{T}_{\mathcal{MM}'}$, which describes the probability that
+the system, currently in macrostate $\mathcal{M}$, transitions to macrostate $\mathcal{M}'$. 
+In the transition matrix method we keep track of the transitions between all pairs of macrostates, use that information to calculate 
+$\mathcal{T}_{\mathcal{MM}'}$, then $p_{\mathcal{M}}$, and finally $\eta_{\mathcal{M}}^*$ via the above equation.
+
+The first step is to calculate $\mathcal{T}_{\mathcal{MM}'}$. To do this, we keep a histogram of the number of \emph{supposed} transitions between 
+each pair of macrostates -- where the meaning of `inferred' will become clear in a moment. Let $H_{\mathcal{M}\mathcal{M}'}$ denote the number of inferred 
+transitions between macrostates $\mathcal{M}$ and $\mathcal{M}'$. Again, note that the aforementioned transitions pertain to the true ensemble, 
+\emph{not to the multicanonical one}. We update $H_{\mathcal{M}\mathcal{M}'}$ and $H_{\mathcal{M}\mathcal{M}}$ every time a trial state is generated which, if 
+accepted, would take the system from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$. The update scheme is as follows
+\begin{equation}
+\begin{split}
+H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\text{Metro}}, \\
+H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\text{Metro}},
+\end{split}
+\end{equation}
+where $p_{\text{Metro}}$ is the probability of the move being accepted according to the \emph{Metropolis algorithm} (Eqn. \eqref{p_Metropolis}) --
+\emph{not} the analogous algorithm for multicanonical Monte Carlo (Eqn. \eqref{p_multicanonical}). To restate, for every trial move, we determine the
+probability of the move being accepted according to the Metropolis algorithm, and update the histogram $H_{\mathcal{M}\mathcal{M}'}$, not with
+the number of \emph{observed} transitions, but with the number of transitions \emph{supposed} to occur given the probability given by the
+Metropolis algorithm. 
+The benefit of this approach is that $H_{\mathcal{M}\mathcal{M}}$ can be obtained even if Metropolis sampling is not used, i.e.
+if multicanonical sampling is used. To elaborate, note that in the above equation while the Metropolis probability $p_{\text{Metro}}$ is used to update 
+$H_{\mathcal{M}\mathcal{M}'}$, the actual algorithm used to determine whether the move is accepted or not does not necessarily have to be the Metropolis
+algorithm -- the multicanonical algorithm could be used. This is useful because Metropolis sampling alone would not explore the full range of
+macrostates $\mathcal{M}$, which is necessary to `fill up' the matrix $H_{\mathcal{M}\mathcal{M}'}$. We discuss methods for exploring the phase space
+in a transition matrix simulation in a moment.
+From the matrix $H_{\mathcal{M}\mathcal{M}'}$ we obtain an estimate for $\mathcal{T}_{\mathcal{MM}'}$ using the following equation:
+\begin{equation}\label{T_estimate}
+\mathcal{T}_{\mathcal{M}\mathcal{M}'}\approx \frac{H_{\mathcal{M}\mathcal{M}'}+1}
+{\displaystyle\sum_{\mathcal{M}^{\prime\prime}}\bigl(H_{\mathcal{M}\mathcal{M}^{\prime\prime}}+1\bigr)}.
+\end{equation}
+
+The second step is to use our estimate of $\mathcal{T}_{\mathcal{MM}'}$ to calculate $p_{\mathcal{M}}$. It can be shown that the macrostates obey a
+detailed balance condition
+\begin{equation}
+\mathcal{T}_{\mathcal{M}'\mathcal{M}}p_{\mathcal{M}'}=\mathcal{T}_{\mathcal{MM}'}p_{\mathcal{M}}.
+\end{equation}
+Setting $\mathcal{M}'=\mathcal{M}+1$ and rearranging gives
+\begin{equation}\label{shooting}
+p_{(\mathcal{M}+1)}=\frac{\mathcal{T}_{\mathcal{M}(\mathcal{M}+1)}}{\mathcal{T}_{(\mathcal{M}+1)\mathcal{M}}}p_{\mathcal{M}}.
+\end{equation}
+Using this equation, $p_{\mathcal{M}}$ can be obtained from the matrix $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ using the following procedure.
+Firstly, one chooses some arbitrary value for $p_1$. With this $p_2$ can be obtained from the above equation ($\mathcal{M}=1$ in Eqn. \eqref{shooting}). 
+This in turn can be used to obtain $p_3$ ($\mathcal{M}=2$ in Eqn. \eqref{shooting}), which in turn can be used to obtain $p_4$, etc., until
+$p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting function $p_{\mathcal{M}}$ such that
+\begin{equation}
+\sum_{\mathcal{M}=1}^{N_{\text{macro}}}p_{\mathcal{M}}=1,
+\end{equation}
+as is required. The final step is to use $p_{\mathcal{M}}$ to obtain an estimate for the ideal weight function. This is done simply by substituting 
+$p_{\mathcal{M}}$ into Eqn. \eqref{ideal_wf}. The accuracy of the resulting ideal weight function depends on how good our statistics are with regards to
+the matrix $H_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diagonals immediately above and below the main diagonal), which is used to
+estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta_{\mathcal{M}}$. 
+
+
+\subsubsection{Methods for exploring phase space}
+As alluded to above, since the updates to $H_{\mathcal{M}\mathcal{M}'}$ always use the Metropolis probabilities, with the transition matrix method one
+can \emph{choose} how phase space is explored. Effectively the only constraint is that there is fast local equilibration within each macrostate. We will now
+describe the various methods which can be implemented in \emph{monteswitch}.
+
+The first method is to use multicanonical sampling to explore phase space with an evolving weight function, where the weight function
+at a given time is the current estimate for the ideal weight function derived from the current $H_{\mathcal{M}\mathcal{M}'}$ as described above.
+This is the `natural' way of applying the transition state method.
+
+The second method is to use \emph{macrostate barriers} to force the system to explore all macrostates in a reasonable amount of time. In this
+method, the system is first locked into a macrostate for a certain period of time. After that period of time has elapsed, the `barrier' preventing
+the system from moving into an adjacent macrostate is moved such that the system is free to transition into the adjacent macrostate. Once this occurs,
+the system is locked into this new macrostate, and the procedure starts again. There is of course the question of which adjacent macrostate to `open'
+to the system. Assuming we are not in macrostate $\mathcal{M}=1$ or $N_{\text{macro}}$, then there are two options: $(\mathcal{M}+1)$ and $(\mathcal{M}-1)$.
+In \emph{monteswitch} one can specify whether to select the new macrostate at random, or whether to sweep through the macrostates systematically, e.g.,
+to explore macrostates $3,4,5,\dotsc,(N_{\text{macro}}-1),N_{\text{macro}},(N_{\text{macro}}-1),\dotsc,3,2,1,2,3,\dotsc$. This method is faster than that
+just described because one does not have to `wait' for the weight function to evolve such that it pushes the system to explore macrostates which
+are unlikely in the true NVT ensemble.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Preliminaries}\label{chapter:preliminaries}
+
+\section{Compiling \emph{monteswitch}}
+\emph{monteswitch} is provided as an archive. This should be extracted to create a directory which consitutes the \emph{monteswitch} package. The 
+package should then be compiled using the Make utility: see the 'README' section in the file \emph{Makefile}, which contains details regarding how to
+specify the Fortran and MPI compiler and any flags used during compilation, as well as how to compile only the serial (i.e., non-MPI) programs
+if the user's platform does not contain MPI.
+The default paths to the Fortran and MPI compilers in \emph{Makefile} are \texttt{gfortran} and \texttt{mpif90} respectively; for platforms in which
+these paths apply \emph{monteswitch} can be compiled `out of the box' by invoking the command \texttt{make serial} (to compile only serial executables)
+or \texttt{make mpi} (to compile \emph{all} executables).
+
+
+\section{Differences in \emph{monteswitch} between platforms}
+\emph{monteswitch} has not yet been tested on many platforms, and hence there may be unforeseen problems when implementing \emph{monteswitch} on
+the user's platform. We have overwhelmingly used GFortran and Open MPI compilers with \emph{monteswitch}; hence these compilers can be considered 
+to be the most `safe'. [ALSO USED CRAY?]
+
+One issue we have found with regards to using \emph{monteswitch} on different platforms stems from the fact that \emph{monteswitch} uses Fortran's 
+list-directed input and output. This means the nature of the output from \emph{monteswitch} programs is noticeably compiler-dependent. This in itself
+is not a problem, though the post-processing commands given in forthcoming chapters may need to be subtly modified to work with programs compiled using 
+something other than GFortran. For example, [INSERT EXAMPLE: CRAY VS. GFORTRAN]
+
+
+\section{Package overview}
+After compilation, the \emph{monteswitch} directory will contain the following programs:
+\begin{itemize}
+\item\texttt{monteswitch}
+\item\texttt{monteswitch\_mpi}
+\item\texttt{monteswitch\_post}
+\item\texttt{lattices\_in\_hcp\_fcc}
+\item\texttt{lattices\_in\_bcc\_fcc}
+\item\texttt{lattices\_in\_bcc\_hcp}
+\end{itemize}
+\texttt{monteswitch} and \texttt{monteswitch\_mpi} are the key programs of the package: they perform Monte Carlo simulations. 
+By contrast \texttt{monteswitch\_post}, \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and 
+\texttt{lattices\_in\_bcc\_hcp} are utility programs: \texttt{monteswitch\_post} is for post-processing one of the output files created 
+by the main programs; and \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} are for generating 
+one of the input files for the main programs. We will elaborate upon the function of each of these programs later.
+
+\subsection{Test cases and examples}
+There are a number of subdirectories within the package. The directory \emph{Tests} contains a number of test cases for the main programs. The file
+\emph{GUIDE\_TO\_TESTS.txt} within this directory contains a detailed description of the tests, including how to run each test and what results 
+to expect. We recommend that the tests be performed by the user to ensure that the Monte Carlo programs, as compiled by their system, work
+correctly. Furthermore, these tests are also instructive, providing examples of how to perform various tasks which the typical user would be 
+interested in performing. Finally, the tests serve to validate the Monte Carlo programs by illustrating that they reproduce known results.
+
+While the test cases serve as examples, more pedagogical examples can be found in the directory \emph{Examples}. [GUIDE IN THIS DIRECTORY?]
+
+\subsection{Modules for various interatomic potentials}
+The files beginning with \emph{interactions\_} (and ending with \emph{.f95}) are the Fortran modules
+\footnote{Strictly speaking these files are not actually modules: the file \emph{interactions.f95} is inserted into the module 
+\emph{monteswitch\_mod.f95} using the Fortran command INCLUDE.}
+corresponding to various interatomic potentials. However, only one of these can be implemented by \emph{monteswitch} at a time. The module
+which is implemented is stored in the file \emph{interactions.f95} (note that there is no '\_' in the file name); it is only the contents of
+this file which is used in the package -- after compilation. Hence to implement a specific interatomic potential one must copy
+the desired `\emph{interactions\_} file' to \emph{interactions.f95}, and then (re-)compile the package.
+
+Note that by default the \emph{interactions.f95} is identical to the file \emph{interactions\_EAM.f95}, and hence compiling \emph{monteswitch}
+out-of-the-box yields a version which pertains to EAM potentials.
+
+\section{Source code documentation}
+HTML documentation for the source code can be generated from `marked-up' comments in the source code files. Invoking the command \texttt{make srcdocs}
+generates this documentation: each HTML file corresponds to a particular source code file.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Monte Carlo simulation programs}\label{chapter:simulation_programs}
+The key programs in the package are \texttt{monteswitch} and \texttt{monteswitch\_mpi}, which run (LSMC) Monte Carlo simulations. 
+The latter is the MPI-parallelised analogue of the former, and the two programs are almost identical in terms of usage.
+In this chapter we describe the usage of \texttt{monteswitch} in detail. Unless otherwise stated, the following information
+is also pertinent to \texttt{monteswitch\_mpi}. Information specific to \texttt{monteswitch\_mpi} can be found in 
+the final section of this chapter.
+
+\section{Starting a new simulation: the argument \texttt{-new}}
+There are three allowed command-line arguments to \texttt{monteswitch}: 
+\begin{itemize}
+\item\texttt{-new}
+\item\texttt{-resume}
+\item\texttt{-reset}
+\end{itemize}
+The command-line argument \texttt{-new} (Example usage: \texttt{monteswitch -new}) runs a new simulation. 
+The simulation is initialized using information contained in the input files \emph{params\_in}, \emph{lattices\_in} and \emph{interactions\_in} in
+the current directory. The file \emph{lattices\_in} contains specifications of two microstates. This file determines the two phases which will be 
+considered, and defines the lattice switch which will be used in the simulation. The file \emph{interactions\_in} contains variables pertaining to 
+the interatomic potential. All other variables which determine the nature of the simulation are contained within the file \emph{params\_in}.
+We will now describe the format of these files.
+
+\section{Input file: \emph{lattices\_in}}
+The input file \emph{lattices\_in} contains specifications of two microstates (i.e., supercell dimensions and particle positions), one for
+each phase. The format of this file is as follows. The 1st line is a comment line, and is ignored by the main programs. The 2nd line contains
+the number of particles $N$ in both phases (and must be the same for both phases). The 3rd, 4th and 5th lines contain the dimensions of the
+supercell for phase 1 in the x-, y- and z-directions respectively. The next $N$ lines contain the positions of the particles within the supercell
+for phase 1 \emph{in fractional coordinates}. The remaining lines similarly specify the supercell for phase 2: the next 3 lines contains the 
+dimensions of the supercell for phase 2 in the x-, y- and z-directions respectively; and the next $N$ lines contain the positions of the 
+particles within the supercell for phase 2. Here is an example of a \emph{lattices\_in} file corresponding to phase 1 being an 8-atom bcc
+supercell and phase 2 being (an 8-atom) fcc supercell:
+\footnote{This example was created using the \texttt{lattices\_in\_bcc\_hcp} program}
+\begin{verbatim}
+ bcc-hcp, rho =   0.50000000000000000      , nx,ny,nz =            1           1           2
+           8
+   2.2449240966187456     
+   1.5874010519681991     
+   4.4898481932374912     
+   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  0.50000000000000000       0.50000000000000000        0.0000000000000000     
+  0.50000000000000000        0.0000000000000000       0.25000000000000000     
+   0.0000000000000000       0.50000000000000000       0.25000000000000000     
+   0.0000000000000000        0.0000000000000000       0.50000000000000000     
+  0.50000000000000000       0.50000000000000000       0.50000000000000000     
+  0.50000000000000000        0.0000000000000000       0.75000000000000000     
+   0.0000000000000000       0.50000000000000000       0.75000000000000000     
+   2.4494897427831779     
+   1.4142135623730949     
+   4.6188021535170050     
+   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  0.50000000000000000       0.50000000000000000        0.0000000000000000     
+  0.33333333333333331        0.0000000000000000       0.25000000000000000     
+  0.83333333333333348       0.50000000000000000       0.25000000000000000     
+   0.0000000000000000        0.0000000000000000       0.50000000000000000     
+  0.50000000000000000       0.50000000000000000       0.50000000000000000     
+  0.33333333333333331        0.0000000000000000       0.75000000000000000     
+  0.83333333333333348       0.50000000000000000       0.75000000000000000     
+\end{verbatim}
+
+The two microstates in \emph{lattices\_in} are used in two ways by \textbf{monteswitch}. Firstly, they serve as the initial microstate: if the 
+simulation is to be initialised in phase 1, then it will be initialised in the phase 1 microstate specified in \emph{lattices\_in}; and 
+similarly for phase 2. Secondly, they define the lattice switch. Let $\tilde{\mathbf{R}}^{\alpha}_i$ denote the position of the lattice site $i$
+for phase $\alpha$ in fractional coordinates. (Recall our earlier discussion of lattice sites in Sec. \ref{sec:lattice_switch}). To elaborate,
+the position of the lattice site in `real' coordinates is 
+\begin{equation}
+\mathbf{R}^{\alpha}_i=(L_x^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,x},L_y^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,y},L_z^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,z}),
+\end{equation}
+where $L_x^{\alpha}$ denotes the current x-dimension of the supercell for phase $\alpha$ -- the current phase the system is in -- and similarly for
+$L_y^{\alpha}$ and $L_z^{\alpha}$. Now, the vectors $\tilde{\mathbf{R}}^{\alpha}_i$ used by the main program are the fractional positions specified in 
+\emph{lattices\_in}: $\tilde{\mathbf{R}}^{\alpha}_i$ is taken to be the $i$th specified fractional coordinates pertaining to phase $\alpha$.
+With this in mind, the lattice switch from phase 1 to 2 in a simulation consists of:
+\begin{itemize}
+\item A scaling of the x-dimension of the supercell of which reflects the relative sizes of the x-dimensions of both lattices specified in 
+\emph{lattices\_in}. E.g., in the above example the x-dimension would be scaled by a factor of $2.2449/2.2449=1$, i.e., not at all.
+\item A similar scaling for the y-dimension of the supercell. E.g., in the above example the y-dimension would be scaled by a factor of
+$1.414/1.587=0.891$.
+\item A similar scaling for the z-dimension of the supercell. E.g., in the above example the y-dimension would be scaled by a factor of
+$4.619/4.490=1.029$.
+\item A change in the fractional position of each lattice site $i$ from $\tilde{\mathbf{R}}^{1}_i$ to $\tilde{\mathbf{R}}^{2}_i$.
+\end{itemize}
+The lattice switch from phase 2 to 1 is the reverse of the above.
+
+Note that in a \texttt{monteswitch} LSMC simulation, the vectors $\tilde{\mathbf{R}}^{\alpha}_i$ do not change. This means that
+if the volume of the system is expanded in an NPT simulation, then there is a commensurate scaling of the lattice sites 
+$\mathbf{R}^{\alpha}_i$. Furthermore, \texttt{monteswitch} only supports lattice-switches which preserve the volume of the system.
+Accordingly an error is returned by \texttt{monteswitch} if one specifies two microstates in \emph{lattices\_in} which have different
+volumes.
+
+\section{Input file: \emph{interactions\_in}}
+The file \emph{interactions\_in} contains variables which parametrise the interatomic potential. The format of this file depends on
+the specific \emph{interactions.f95} file used when compiling \emph{monteswitch}. [WE DISCUSS THE FORMAT FOR PARTICULAR INTERACTIONS
+FILES IN SECTION...]
+
+\section{Input file: \emph{params\_in}}
+The input file \emph{params\_in} contains the variables which determine the nature of the simulation. Each variable corresponds to a
+specific single line in the file, and each line must consist of a string (we recommend the name of the variable followed immediately
+by an `=' character with no spaces), followed by whitespace, followed by the value of the variable. The variables which must appear
+in a \emph{params\_in}, as well as a description of their function, are given in Table \ref{table:params_in_variables}. 
+\emph{Note that the variables must appear in params\_in in the order that they appear in the table}. E.g., the first 
+variable must be \textbf{init\_lattice}, the second must be \textbf{M\_grid\_size}, etc. Examples of \emph{params\_in} files can
+be found in \emph{Tests} and \emph{Examples} directories, which can serve as templates for the user.
+%
+Note that by `move' we mean one of either a: particle move, in which one particle is moved to generate a trial microsate; a lattice move, in 
+which the lattice is switched; and a volume move, in which the unit cell itself is altered. Furthermore if the move is rejected then it is 
+still deemed to have taken place. For an NVT ensemble with lattice moves enabled the following move `cycle' is performed: particle move, 
+lattice move. For an NPT ensemble with lattice moves enabled the move cycle is: particle move, lattice move, (volume move, lattice move), 
+where the set of moves in the brackets occur on average \textbf{vol\_freq} times per sweep, where a `sweep' consists of $N$ move cycles,
+where $N$ is the number of particles in the system.
+
+\begin{landscape}
+\begin{center}\label{table:params_in_variables}
+\begin{longtable}{l l l p{8cm}}
+\caption{Control variables for \texttt{monteswitch}, and descriptions of their functions. These variables must be specified in the \emph{params\_in} file, 
+one per line, in the order specified in the table. `Line' refers to the line number in \emph{params\_in} on which the corresponding variable must appear.}
+\\
+
+Line & Variable & Type & Description \\
+\hline
+1 & \textbf{init\_lattice}  &  INTEGER  & Starting phase for the simulation (1 or 2). \\
+2 & \textbf{M\_grid\_size}  &  INTEGER  & Number of macrostates to divide the considered order parameter range (\textbf{M\_grid\_min} to \textbf{M\_grid\_max})
+into. \\
+3 & \textbf{M\_grid\_min}  &  REAL  & Minimum of considered order parameter range. Note that moves which take the system outwith the considered range are
+automatically rejected. In other words, the system is constrained to have an order parameter between \textbf{M\_grid\_min} and \textbf{M\_grid\_max}. Hence
+if one wants to perform a simulation in which the order parameter is unconstrained, one should set \textbf{M\_grid\_min} and \textbf{M\_grid\_max} to
+values which would never be realised by the system, e.g., $-1\times 10^{100}$ and $1\times 10^{100}$ respectively. This would be the case if one wishes
+to use \texttt{monteswitch} to perform a conventional Monte Carlo simulation. \\
+4 & \textbf{M\_grid\_max}  &  REAL  & Maximum of considered order parameter range. (See also comments for \textbf{M\_grid\_min})  \\
+5 & \textbf{enable\_multicanonical}  &  LOGICAL  & `T' enables multicanonical sampling using the current weight function; `F' enables canonical sampling \\
+6 & \textbf{beta}  &  REAL  & Thermodynamic beta.  \\
+7 & \textbf{P}  &  REAL  & Pressure (only relevant in NPT ensemble simulations)  \\
+8 & \textbf{enable\_lattice\_moves}  &  LOGICAL  & `T' enables lattice-switch moves (performed after evey particle and volume move). \\
+9 & \textbf{enable\_part\_moves}  &  LOGICAL  & `T' enables particle moves. Of course this should be set to `T'; however disabling particle moves and 
+enabling volume moves may be useful for `relaxing' the volume of the system before simulations with particle moves are performed. \\
+10 & \textbf{enable\_vol\_moves}  &  LOGICAL  & `T' enables volume moves and selects the NPT ensemble; `F' selects the NVT ensemble. A volume move will be
+attempted on average \textbf{vol\_freq} times per sweep. We recommend that this be set to 1. \\
+11 & \textbf{part\_select}  &  CHARACTER(30)  & Flag determining how the next particle to move is selected: `cycle' selects particles sequentially, `rand' selects
+particles at random.  \\
+12 & \textbf{part\_step}  &  REAL  & Particle move maximum size; particles are moved according to a random walk, with a maximum move size of \textbf{part\_step}
+in any Cartesian direction.  \\
+13 & \textbf{enable\_COM\_frame}  &  LOGICAL  & `T' performs the simulation in the center-of-momentum reference frame; `F' uses the lab frame. Using the 
+centre-of-momentum frame prevents `drift' in the centre-of-momentum. This is especially important for lattice-switch simulations. Hence this should be set 
+to `T' unless the user has a very good reason not to. \\
+14 & \textbf{vol\_dynamics}  &  CHARACTER(30)  & Flag determining which type of volume moves are performed: `FVM' (fixed volume move) keeps the supercell 
+shape unchanged during a volume move; `UVM' (unconstrained volume move) allows the x-, y- and z-dimensions to move independently. Note that currently
+lattice moves are forbidden in conjunction with unconstrained volume moves, though this may be relaxed in the future. \\
+15 & \textbf{vol\_freq}  &  INTEGER  & Number of volume moves performed per sweep on average.  \\
+16 & \textbf{vol\_step}  &  REAL  & Volume move maximum step size; the volume is moved according to a random walk in `$\ln(V)$-space', with a maximum move size 
+of \textbf{vol\_step}.  \\
+17 & \textbf{stop\_sweeps}  &  INTEGER  & Total number of sweeps to perform in the simulation. If this is set to 0 then no Monte Carlo moves are performed,
+but tasks performed periodically during the Monte Carlo loop (i.e, updating the weight function, checking whether or not the system has melted, checking for
+`divergences' in the energy, calculating equilibrium quantities and their uncertainties) are performed. \\
+18 & \textbf{equil\_sweeps}  &  INTEGER  & Number of sweeps to disregard before the system is considered to be equilibrated; statistics are not gathered during
+these sweeps. \\
+19 & \textbf{enable\_melt\_checks}  &  LOGICAL  & `T' enables periodic checks of whether the system has `melted', i.e., if one or more of the particles has
+moved more than a distance of \textbf{melt\_threshold} from its lattice site in any Cartesian direction then the system is considered to have `melted'.
+We recommend that this feature is used, since the LSMC method relies upon the fact that the two phases under consideration are metastable,
+and that particles will not move too far from their lattice sites on the timescale of the simulation. \\
+20 & \textbf{melt\_sweeps}  &  INTEGER  & Period (sweeps) to check for melting.  \\
+21 & \textbf{melt\_threshold}  &  REAL  & See \textbf{enable\_melt\_checks}.  \\
+22 & \textbf{melt\_option}  &  CHARACTER(30)  & Flag determining what the simulation does if the system has `melted': `zero\_1' and `zero\_2' move the system 
+to the zero-displacement microstates in phases 1 and 2, respectively; `zero\_current' does the same but for the current phase; `stop' stops the simulation
+with an exit status of 2. For `zero\_1', `zero\_2', `zero\_current' the system is allowed to re-equilibrate before statistics are gathered. Also, the
+current block with regards to the calculation of equilibrium quantities is disregarded. \\
+23 & \textbf{enable\_divergence\_checks}  &  LOGICAL  & `T' enables periodic checks of whether the energy of the system is correct. To elaborate, for particle 
+moves, the energy of the trial microstate is not calculated exactly because it is very computationally expensive and unnecessary. Instead the energy 
+\emph{change} with respect to the current microstate is calculated. This is far less demanding to calculate. If the move is accepted this change is 
+\emph{ammended} to the total energy. However, over time it is possible that this `running total' approach will yield incorrect energies due to the finite 
+precision of the computer. Hence one should periodically recalculate the energy exactly. This is done during volume moves. If 
+\textbf{enable\_divergence\_checks} is set to `T', then this is also done every \textbf{divergence\_sweeps} sweeps, after which the recalculated energy 
+is compared to the 'current' energy, and the simulation is stopped with an exit status of 3 if they are different -- outwith a tolerence of 
+\textbf{divergence\_tol}. Note that the order parameter is also ammended after the energy (for phases 1 and 2) is recalculated. We recommend that this 
+feature is used in NVT simulations, since it forces the energy of the system to be recalculated from scratch every so often. For NPT simulations this 
+should not an issue since the energy is calculated from scratch every accepted volume move. \\
+24 & \textbf{divergence\_sweeps}  &  INTEGER  & Period (sweeps) to check for `energy divergences' as just mentioned. Note that checking entails re-calculating
+the energy from scratch.  \\
+25 & \textbf{divergence\_tol}  &  REAL  & See \textbf{enable\_divergence\_checks}.  \\
+26 & \textbf{output\_file\_period}  &  INTEGER  & Period (sweeps) at which information is output to the file \emph{data}. See Section \ref{sec:output}. \\
+27 & \textbf{output\_file\_Lx}  &  LOGICAL  & See Section \ref{sec:output}. \\
+28 & \textbf{output\_file\_Ly}  &  LOGICAL  & See Section \ref{sec:output}. \\
+29 & \textbf{output\_file\_Lz}  &  LOGICAL  & See Section \ref{sec:output}. \\
+30 & \textbf{output\_file\_V}  &  LOGICAL  & See Section \ref{sec:output}. \\
+31 & \textbf{output\_file\_R\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+32 & \textbf{output\_file\_R\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+33 & \textbf{output\_file\_u}  &  LOGICAL  & See Section \ref{sec:output}. \\
+34 & \textbf{output\_file\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+35 & \textbf{output\_file\_E}  &  LOGICAL  & See Section \ref{sec:output}. \\
+36 & \textbf{output\_file\_M}  &  LOGICAL  & See Section \ref{sec:output}. \\
+37 & \textbf{output\_file\_eta}  &  LOGICAL  & See Section \ref{sec:output}. \\
+38 & \textbf{output\_file\_moves\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+39 & \textbf{output\_file\_accepted\_moves\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+40 & \textbf{output\_file\_moves\_part}  &  LOGICAL  & See Section \ref{sec:output}. \\
+41 & \textbf{output\_file\_accepted\_moves\_part}  &  LOGICAL  & See Section \ref{sec:output}. \\
+42 & \textbf{output\_file\_moves\_vol}  &  LOGICAL  & See Section \ref{sec:output}. \\
+43 & \textbf{output\_file\_accepted\_moves\_vol}  &  LOGICAL  & See Section \ref{sec:output}. \\
+44 & \textbf{output\_file\_rejected\_moves\_M\_OOB}  &  LOGICAL  & See Section \ref{sec:output}. \\
+45 & \textbf{output\_file\_M\_OOB\_high}  &  LOGICAL  & See Section \ref{sec:output}. \\
+46 & \textbf{output\_file\_M\_OOB\_low}  &  LOGICAL  & See Section \ref{sec:output}. \\
+47 & \textbf{output\_file\_barrier\_macro\_low}  &  LOGICAL  & See Section \ref{sec:output}. \\
+48 & \textbf{output\_file\_barrier\_macro\_high}  &  LOGICAL  & See Section \ref{sec:output}. \\
+49 & \textbf{output\_file\_rejected\_moves\_M\_barrier}  &  LOGICAL  & See Section \ref{sec:output}. \\
+50 & \textbf{output\_file\_moves\_since\_lock}  &  LOGICAL  & See Section \ref{sec:output}. \\
+51 & \textbf{output\_file\_melts}  &  LOGICAL  & See Section \ref{sec:output}. \\
+52 & \textbf{output\_file\_equil\_DeltaF}  &  LOGICAL  & See Section \ref{sec:output}. \\
+53 & \textbf{output\_file\_sigma\_equil\_DeltaF}  &  LOGICAL  & See Section \ref{sec:output}. \\
+54 & \textbf{output\_file\_equil\_H\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+55 & \textbf{output\_file\_sigma\_equil\_H\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+56 & \textbf{output\_file\_equil\_H\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+57 & \textbf{output\_file\_sigma\_equil\_H\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+58 & \textbf{output\_file\_equil\_V\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+59 & \textbf{output\_file\_sigma\_equil\_V\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+60 & \textbf{output\_file\_equil\_V\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+61 & \textbf{output\_file\_sigma\_equil\_V\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+62 & \textbf{output\_file\_equil\_umsd\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+63 & \textbf{output\_file\_sigma\_equil\_umsd\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+64 & \textbf{output\_file\_equil\_umsd\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+65 & \textbf{output\_file\_sigma\_equil\_umsd\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+66 & \textbf{output\_stdout\_period}  &  INTEGER  & Period (sweeps) at which information is output to stdout. See Section \ref{sec:output}. \\
+67 & \textbf{output\_stdout\_Lx}  &  LOGICAL  & See Section \ref{sec:output}. \\
+68 & \textbf{output\_stdout\_Ly}  &  LOGICAL  & See Section \ref{sec:output}. \\
+69 & \textbf{output\_stdout\_Lz}  &  LOGICAL  & See Section \ref{sec:output}. \\
+70 & \textbf{output\_stdout\_V}  &  LOGICAL  & See Section \ref{sec:output}. \\
+71 & \textbf{output\_stdout\_R\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+72 & \textbf{output\_stdout\_R\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+73 & \textbf{output\_stdout\_u}  &  LOGICAL  & See Section \ref{sec:output}. \\
+74 & \textbf{output\_stdout\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+75 & \textbf{output\_stdout\_E}  &  LOGICAL  & See Section \ref{sec:output}. \\
+76 & \textbf{output\_stdout\_M}  &  LOGICAL  & See Section \ref{sec:output}. \\
+77 & \textbf{output\_stdout\_eta}  &  LOGICAL  & See Section \ref{sec:output}. \\
+78 & \textbf{output\_stdout\_moves\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+79 & \textbf{output\_stdout\_accepted\_moves\_lattice}  &  LOGICAL  & See Section \ref{sec:output}. \\
+80 & \textbf{output\_stdout\_moves\_part}  &  LOGICAL  & See Section \ref{sec:output}. \\
+81 & \textbf{output\_stdout\_accepted\_moves\_part}  &  LOGICAL  & See Section \ref{sec:output}. \\
+82 & \textbf{output\_stdout\_moves\_vol}  &  LOGICAL  & See Section \ref{sec:output}. \\
+83 & \textbf{output\_stdout\_accepted\_moves\_vol}  &  LOGICAL  & See Section \ref{sec:output}. \\
+84 & \textbf{output\_stdout\_rejected\_moves\_M\_OOB}  &  LOGICAL  & See Section \ref{sec:output}. \\
+85 & \textbf{output\_stdout\_M\_OOB\_high}  &  LOGICAL  & See Section \ref{sec:output}. \\
+86 & \textbf{output\_stdout\_M\_OOB\_low}  &  LOGICAL  & See Section \ref{sec:output}. \\
+87 & \textbf{output\_stdout\_barrier\_macro\_low}  &  LOGICAL  & See Section \ref{sec:output}. \\
+88 & \textbf{output\_stdout\_barrier\_macro\_high}  &  LOGICAL  & See Section \ref{sec:output}. \\
+89 & \textbf{output\_stdout\_rejected\_moves\_M\_barrier}  &  LOGICAL  & See Section \ref{sec:output}. \\
+90 & \textbf{output\_stdout\_moves\_since\_lock}  &  LOGICAL  & See Section \ref{sec:output}. \\
+91 & \textbf{output\_stdout\_melts}  &  LOGICAL  & See Section \ref{sec:output}. \\
+92 & \textbf{output\_stdout\_equil\_DeltaF}  &  LOGICAL  & See Section \ref{sec:output}. \\
+93 & \textbf{output\_stdout\_sigma\_equil\_DeltaF}  &  LOGICAL  & See Section \ref{sec:output}. \\
+94 & \textbf{output\_stdout\_equil\_H\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+95 & \textbf{output\_stdout\_sigma\_equil\_H\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+96 & \textbf{output\_stdout\_equil\_H\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+97 & \textbf{output\_stdout\_sigma\_equil\_H\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+98 & \textbf{output\_stdout\_equil\_V\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+99 & \textbf{output\_stdout\_sigma\_equil\_V\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+100 & \textbf{output\_stdout\_equil\_V\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+101 & \textbf{output\_stdout\_sigma\_equil\_V\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+102 & \textbf{output\_stdout\_equil\_umsd\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+103 & \textbf{output\_stdout\_sigma\_equil\_umsd\_1}  &  LOGICAL  & See Section \ref{sec:output}. \\
+104 & \textbf{output\_stdout\_equil\_umsd\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+105 & \textbf{output\_stdout\_sigma\_equil\_umsd\_2}  &  LOGICAL  & See Section \ref{sec:output}. \\
+106 & \textbf{checkpoint\_period}  &  INTEGER  & Period (sweeps) at which the simulation is checkpointed, i.e., how often all simulation variables are
+output to the file \emph{state}. If \textbf{checkpoint\_period} is $\leq 0$ then \emph{state} will be an empty file. See Section \ref{sec:output}. \\
+107 & \textbf{update\_eta}  &  LOGICAL  & `T' results in the weight function being periodically updated every \textbf{update\_eta\_sweeps} sweeps, according
+to the method specified in \textbf{update\_eta\_method}; `F' results in the weight function not being updated -- it remains frozen at its current state.  \\
+108 & \textbf{update\_eta\_sweeps}  &  INTEGER  & Period (seeps) at which the weight function is updated. \\
+109 & \textbf{update\_trans}  &  LOGICAL  & `T' results in the transition matrix being updated; `F' results in it not being updated.  \\
+110 & \textbf{update\_eta\_method}  &  CHARACTER(30)  & Method used to update the weight function: `VS' uses the visited states method; `shooting' uses the
+shooting method (using the current transition matrix). ELABORATE.  \\
+111 & \textbf{enable\_barriers}  &  LOGICAL  & `T' enables macrostate barriers; for `F' the system is free to explore any macrostate, but is constrained to
+reside within the considered order parameter range (\textbf{M\_grid\_min} to \textbf{M\_grid\_max}).  \\
+112 & \textbf{barrier\_dynamics}  &  CHARACTER(30)  & Flag determining how the macrostate barriers will evolve. All methods lock the system into a single
+macrostate for \textbf{lock\_moves} moves, before unlocking an adjacent macrostate. Once the system has moved into the adjacent macrostate, the system
+is then locked into that macrostate, and the procedure starts again. `random' evolves the macrostate the system is locked into via a random walk: the
+next macrostate is decided with equal probability to be that above or that below the current macrostate. `pong\_up' moves to increasingly higher 
+macrostates until the upper limit of the supported order parameter range is encountered, at which point it reverses direction and proceeds to 
+increasingly lower macrostates until it reaches the lower limit of the order parameter range, at which point it reverses direction, etc. `pong\_down'
+instead moves initially to increasingly lower macrostates.  \\
+113 & \textbf{lock\_moves}  &  INTEGER  & The number of moves to lock the system into one macrostate for if macrostate barriers are used. 
+This should be greater than 0. \\
+114 & \textbf{calc\_equil\_properties}  &  LOGICAL  & `T' enables calculation of equilibrium quantities using block analysis. ELABORATE.  \\
+115 & \textbf{block\_sweeps}  &  INTEGER  & The number of sweeps which comprise a 'block' which will be used to evaluate equilibrium properties and
+their uncertainties as just described. This should be greater than 0. \\
+\end{longtable}
+\end{center}
+\end{landscape}
+
+\section{Output: stdout, \emph{state} and \emph{data}}\label{sec:output}
+[TIDY UP; NOTE CASE SENSITIVE KEY WORDS]
+
+During a simulation, information is periodically output to stdout and the file \emph{data}. The variables with names beginning with 
+\textbf{output\_file\_} and \textbf{output\_stdout\_} determine which variables are output to \emph{data} and stdout respectively.
+The variable \textbf{output\_file\_X}, where \textbf{X} is the name of a simulation variable (a list is given below), when set to `T', 
+will result in a line consisting of \texttt{X: } followed by the number of completed sweeps, followed by the current value of \textbf{X} 
+being printed to \emph{data} every \textbf{output\_file\_period} sweeps. However, if \textbf{output\_file\_period} is set to 0, then instead 
+the output is after every move; and if \textbf{output\_file\_period} is a negative integer, then there is no output to the file, i.e., the
+output is suppressed. The above also applies to \textbf{output\_stdout\_X}, but for the output to stdout. 
+[eta is not an internal variable, only eta\_grid is]
+The only exceptions to all of this are \textbf{output\_file\_eta} and \textbf{output\_stdout\_eta}, for which \textbf{eta} does means the 
+value of the weight function for the current microstate as opposed to the entire weight function. This point is reiterated below.
+
+The file \emph{data} can be used to deduce how the system evolves with time during the simulation. For instance, one can use the information contained 
+within \emph{data} to check whether or not the system has equilibrated within a certain number of Monte Carlo sweeps. In a production simulation it
+can also be used to store the `observations' performed on the system, which could be used in subsequent analysis.
+
+In addition to \emph{data}, a file \emph{state} is also created by the program periodically throughout a simulation. This file contains all of the 
+simulation variables, and can be used to `resume' the simulation by running \texttt{monteswitch} with the \texttt{-resume} or \texttt{-reset} argument
+(see Sections \ref{sec:resume} and \ref{sec:reset}), or to extract the `results' of the simulation, e.g., equilibrium quantities, the current weight 
+function, the number of accepted vs. rejected Monte Carlo moves of a certain type -- perhaps using the \texttt{monteswitch\_post} program 
+(see Section \ref{sec:monteswitch_post}).
+The variable \textbf{checkpoint\_period} determines how often the simulation is checkpointed: a file \emph{state} is created every 
+\textbf{checkpoint\_period} sweeps. It is also \emph{always} created at the completion of the program. Note that if \textbf{checkpoint\_period} is $\leq 0$, 
+then there is no output to \emph{state}, i.e., the file will be empty.
+In the \emph{state} file, similarly to \emph{params\_in}, each line corresponds to a particular variable: for variable $X$ the corresponding line contains
+\texttt{X=} followed by the value of that variable. The relevant line can be extracted from \emph{state} using the utility \texttt{grep}. E.g. the command
+\texttt{grep ``E='' state} can be used to extract the current energy of the system from \emph{state}.
+Note that \emph{state} contains \emph{all} the simulation variables, including those
+pertaining to the interatomic potential. Hence the format of \emph{state} depends on the details of the \emph{interactions.f95} file. However,
+all variables pertaining to the interatomic potential are stored at the end of \emph{state}. Hence the format of \emph{state} files down to the
+point where the variables pertaining to the interatomic potential are stored is universal. 
+
+Table \ref{table:state_variables} contains a list of \texttt{monteswitch} internal variables, not already covered by Table \ref{table:params_in_variables},
+which have corresponding \textbf{output\_file\_} or \textbf{output\_stdout\_} flags, or can be found in \emph{state} and could possibly be of interest
+to the user. Note that there are other variables in \emph{state} which are not mentioned in Tables \ref{table:params_in_variables} or 
+\ref{table:state_variables} -- aside from those stemming from \emph{interactions.f95}. We do not mention them because these are not likely to be of
+interest to the user; for more information see the HTML documentation for \emph{monteswitch\_mod.f95}.
+
+\begin{landscape}
+\begin{center}\label{table:state_variables}
+\begin{longtable}{ l l p{8cm}}
+\caption{Useful variables found in .}
+\\
+
+Variable & Type & Description \\
+\hline
+\textbf{n\_part} & INTEGER & Number of particles in the system. \\
+\textbf{Lx} & REAL(2) & Dimension of supercells in x-direction: the first value pertains to phase 1 while the second pertains to phase 2.\\
+\textbf{Ly} & REAL(2) & Dimension of supercells in y-direction: the first value pertains to phase 1 while the second pertains to phase 2.\\
+\textbf{Lz} & REAL(2) & Dimension of supercells in z-direction: the first value pertains to phase 1 while the second pertains to phase 2.\\
+\textbf{V} & REAL & Current volume of the system.\\
+\textbf{lattice} & INTEGER & Current phase of the system (1 or 2).\\
+\textbf{E\_1} & REAL & Energy of phase 1 for the current displacements. \\
+\textbf{E\_2} & REAL & Energy of phase 2 for the current displacements. \\
+\textbf{E} & REAL & Current energy of the system. This is \textbf{E\_1} if we are in phase 1 and \textbf{E\_2} if we are in phase 2.\\
+\textbf{M} & REAL & Current order parameter of the system. This is \textbf{E\_1} minus \textbf{E\_2}.\\
+\textbf{sweeps} & INTEGER & Number of sweeps performed so far, including over previous simulations if we have used the \texttt{-resume} argument.\\
+\textbf{moves} & INTEGER & Total number of moves performed so far in total, including over previous simulations if we have used the \texttt{-resume} 
+argument.\\
+\textbf{moves\_lattice} & INTEGER & Number of lattice moves performed so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{accepted\_moves\_lattice} & INTEGER & Number of accepted lattice moves so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{moves\_part} & INTEGER & Number of particle moves performed so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{accepted\_moves\_part} & INTEGER & Number of accepted particle moves so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{moves\_vol} &INTEGER & Number of volume moves performed so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{accepted\_moves\_vol} & INTEGER & Number of accepted volume moves so far, including over previous simulations if we have used the 
+ \texttt{-resume} argument.\\
+\textbf{rejected\_moves\_M\_OOB} & INTEGER & Number of moves rejected because the order parameter of the trial state was outwith the considered range 
+(`OOB' means `out of bounds'), i.e., \textbf{M\_grid\_min} to \textbf{M\_grid\_max}.\\
+\textbf{M\_OOB\_high} & INTEGER & The highest order parameter value to be rejected because the order parameter of the trial state was outwith the 
+considered range.\\
+\textbf{M\_OOB\_low} & INTEGER & The lowest order parameter value to be rejected because the order parameter of the trial state was outwith the considered 
+range.\\
+\textbf{melts} & INTEGER & The number of times the system has melted. \\
+\textbf{barrier\_macro\_low} & INTEGER & The macrostate number corresponding to the lowest currently allowed macrostate (relevant only when macrostate
+barriers are enabled). \\
+\textbf{barrier\_macro\_high} & INTEGER & The macrostate number corresponding to the highest currently allowed macrostate (relevant only when macrostate
+barriers are enabled). \\
+\textbf{rejected\_moves\_M\_barrier} & INTEGER & The number of moves rejected because the order parameter of the trial state was outwith the range
+corresponding to the macrostate barriers (relevant only when macrostate barriers are enabled).\\
+\textbf{block\_counts} & INTEGER & The total number of `blocks' considered so far for evaluating equilibrium quantities and their uncertainties.  \\
+\textbf{equil\_DeltaF} & REAL & The free energy difference between the phases ($F_1-F_2$; extensive) evaluated using block analysis.\\
+\textbf{sigma\_equil\_DeltaF} & REAL & The uncertainty in \textbf{equil\_DeltaF}.\\
+\textbf{block\_counts\_DeltaF} & INTEGER & The number of blocks used in evaluating \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF}. Note that
+blocks are disregarded if during the block the system melts, or if the system does not visit both phases. \\
+\textbf{equil\_H\_1} & REAL & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 1 evaluated using block analysis.\\
+\textbf{equil\_H\_2} & REAL & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 2 evaluated using block analysis.\\
+\textbf{sigma\_equil\_H\_1} & REAL & The uncertainty in \textbf{equil\_H\_1}.\\
+\textbf{sigma\_equil\_H\_2} & REAL & The uncertainty in \textbf{equil\_H\_2}.\\
+\textbf{block\_counts\_H\_1} & INTEGER & The number of blocks used in evaluating \textbf{equil\_H\_1} and \textbf{sigma\_equil\_H\_1}. Note that blocks are
+disregarded if during the block the system melts. \\
+\textbf{block\_counts\_H\_2} & INTEGER &  The number of blocks used in evaluating \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2}. Note that blocks are
+disregarded if during the block the system melts. \\
+\textbf{equil\_V\_1} & REAL & The volume of phase 1 evaluated using block analysis.\\
+\textbf{equil\_V\_2} & REAL & The volume of phase 2 evaluated using block analysis.\\
+\textbf{sigma\_equil\_V\_1} & REAL &  The uncertainty in \textbf{equil\_V\_1}.\\
+\textbf{sigma\_equil\_V\_2} & REAL &  The uncertainty in \textbf{equil\_V\_2}.\\
+\textbf{block\_counts\_V\_1} & INTEGER & The number of blocks used in evaluating \textbf{equil\_V\_1} and \textbf{sigma\_equil\_V\_1}. Note that blocks are
+disregarded if during the block the system melts. \\
+\textbf{block\_counts\_V\_2} & INTEGER &  The number of blocks used in evaluating \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2}. Note that blocks are
+disregarded if during the block the system melts. \\
+\textbf{block\_counts\_umsd\_1} & INTEGER & The number of blocks used in evaluating \textbf{equil\_umsd\_1} and \textbf{sigma\_equil\_umsd\_1}. 
+Note that blocks are disregarded if during the block the system melts. \\
+\textbf{block\_counts\_umsd\_2} & INTEGER & The number of blocks used in evaluating \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2}. 
+Note that blocks are disregarded if during the block the system melts. \\
+\textbf{R\_1} & REAL(\textbf{n\_part},3) & The current lattice vectors for phase 1. \\
+\textbf{R\_2} & REAL(\textbf{n\_part},3) & The current lattice vectors for phase 2.\\
+\textbf{u} & REAL(\textbf{n\_part},3) & The current displacement vectors.\\
+\textbf{M\_grid} & REAL(\textbf{M\_grid\_size}) & Array containing the minimum order parameter for each macrostate: macrostate $n$ corresponds to 
+order parameters between \textbf{M\_grid}$(n)$ and \textbf{M\_grid}$(n+1)$.\\
+\textbf{M\_counts\_1} & INTEGER(\textbf{M\_grid\_size}) & \textbf{M\_counts\_1}($n$) is the number of times macrostate $n$ has been visited while the
+system was in phase 1 so far, including over previous simulations if we have used the \texttt{-resume} argument.\\
+\textbf{M\_counts\_2} & INTEGER(\textbf{M\_grid\_size}) & \textbf{M\_counts\_2}($n$) is the number of times macrostate $n$ has been visited while the
+system was in phase 2 so far, including over previous simulations if we have used the \texttt{-resume} argument. \\
+\textbf{eta\_grid} & REAL(\textbf{M\_grid\_size}) & \textbf{eta\_grid}($n$) is the value o the weight function for macrostate $n$. \\
+\textbf{trans} & REAL(\textbf{M\_grid\_size},\textbf{M\_grid\_size}) & \textbf{eta\_grid}($m,n$) is the number of inferred transitions from macrostate
+$m$ to macrostate $n$; it is the transition matrix mentioned in Section [INSERT SECTION NUMBER]. \\
+\textbf{equil\_umsd\_1} & REAL(\textbf{n\_part}) & \textbf{equil\_umsd\_1}($n$) is the mean-squared displacement of particle $n$ from its lattice site
+in phase 1, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
+\textbf{equil\_umsd\_2} & REAL(\textbf{n\_part}) & \textbf{equil\_umsd\_2}($n$) is the mean-squared displacement of particle $n$ from its lattice site
+in phase 2, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
+\textbf{sigma\_equil\_umsd\_1} & REAL(\textbf{n\_part}) & \textbf{sigma\_equil\_umsd\_1}($n$) is the uncertainty in \textbf{equil\_umsd\_1}($n$). \\
+\textbf{sigma\_equil\_umsd\_2} & REAL(\textbf{n\_part}) & \textbf{sigma\_equil\_umsd\_2}($n$) is the uncertainty in \textbf{equil\_umsd\_2}($n$). \\
+\end{longtable}
+\end{center}
+\end{landscape}
+
+
+\section{Resuming a simulation: the argument \texttt{-resume}}\label{sec:resume}
+The command-line argument \texttt{-resume} continues an `old' simulation, whose variables are contained in the file \emph{state} in the current 
+directory. The `resumed' simulation is run for the number of Monte Carlo sweeps specified in the variable \textbf{stop\_sweeps} in \emph{state}.
+By default this is the number of sweeps which were performed in the old simulation, though one of course this can be manually altered if one wants
+the resumed simulation to be of a different length to the old simulation.
+
+For a simulation invoked using the argument \texttt{-resume}, the file \emph{data} is ammended: the resumed simulation does not overwrite the
+\emph{data} file; all information from the old simulation is retained in it.
+
+\section{`Resetting' a simulation: the argument \texttt{-reset}}\label{sec:reset}
+The command-line argument \texttt{-reset} invokes a simulation from an old \emph{state} file similarly to \texttt{-resume}, except that it
+resets all `counter variables' to zero. This has the effect of starting a `new' simulation whose nature corresponds to the old simulation, 
+but instead uses the microstate of the system specified in \emph{state}. By contrast, the command-line argument \texttt{-new} initialises the 
+microstate to be such that the particles form a perfect crystal lattice, which usually does not correspond to an equilibrated microstate.
+By `counter variables' we mean those such as variables describing the number of moves performed for each move type, the number of accepted moves 
+for each move type, and variables pertaining to equilibrium quantities. However, note that the weight function (\textbf{eta\_grid}) and the
+collection transition matrix (\textbf{trans}) are \emph{not} regarded as counter variables, and are as such retained from the old simulation
+if one uses the \texttt{-reset} argument.
+
+Note that for a simulation invoked using the argument \texttt{-reset}, the file \emph{data} is overwritten, i.e., the information from the `old'
+simulation is not retained.
+
+\section{Exit statuses}
+\texttt{monteswitch} exits with a non-zero exit status of 1 for most errors. However, if the system has melted, and \textbf{melt\_option} is set to
+`stop', then the exit status is 2, and if the energy has diverged from its true value then the exit status is 3. 
+Note though that exit statuses are not part of the Fortran standard, and may not work for all operating systems or compilers. 
+
+\section{MPI simulations: \texttt{monteswitch\_mpi}}
+As mentioned at the beginning of this chapter, the program \texttt{monteswitch\_mpi} is the MPI-parallelised analogue of \texttt{monteswitch}. 
+It is identical to the program \texttt{monteswitch}, except that instead of a single simulation for \textbf{stop\_sweeps} Monte Carlo sweeps, 
+\texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, each being approximately \textbf{stop\_sweeps}$/n$ sweeps in 
+length. Accordingly, during the simulation multiple \emph{data}- and \emph{state}-format files are created -- one for each replica. These 
+are named \emph{state\_0}, \emph{state\_1}, \emph{state\_2}, etc., and similarly for the \emph{data}-format files. At the completion of 
+all replicas, the statistics from all are combined, and the results are stored in the file \emph{state}. The microstate stored in state
+corresponds to the microstate in \emph{state\_0}. 
+Note that, since \emph{state}-format files can be large, by default the files \emph{state\_0}, \emph{state\_1}, 
+\emph{state\_2}, etc. created by \textbf{monteswitch\_mpi} are empty. This can be disabled if \texttt{-explicit} is used as the second command line 
+argument to \texttt{monteswitch\_mpi}, e.g., \texttt{mpiexec -n 4 monteswitch\_mpi -new -explicit}. Similar applies to the arguments \texttt{-resume} and 
+\texttt{-reset}.
+
+Further details of the parallelisation are as follows. All replicas are always initialised to be in the same microstate. For a new simulation this is 
+determined by the \textbf{init\_lattice} variable in \emph{params\_in} similarly to \texttt{monteswitch}. For a resumed simulation this is the microstate 
+contained in the \emph{state} file from which the simulation is to be resumed. We emphasise that \emph{all replicas of the system are initialised with 
+the same microstate} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. In future we hope to allow `true' checkpointing 
+whereby a simulation picks up exactly where it left off , i.e., by having the $n$th replica initialised from the file \emph{state\_}$n$ instead of having
+all replicas initialised from \emph{state}, and to ammend \emph{data\_}$n$ with information pertaining to replica $n$ during the resumed
+simulation. Note that the files \emph{data\_}$n$ are thus always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
+invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The excpetion is replica `0',
+whose microstate is always stored in the file \emph{state}, as well as \emph{state\_0}.
+
+To expand upon what was just said, in a resumed simulation, only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
+simulation via the file \emph{state}. All other replicas have counter variables initialised to zero at the start of the resumed simulation.
+During the simulation, the counter variables for each replica are of course ammended according to the evolution of the replica. Once all replicas have
+completed their allocated number of sweeps, the variables for the $n$th replica are exported to the file \emph{state\_}$n$. Then 
+the counter variables of all replicas, other than replica 0, are summed and ammended to replica 0. At the end of the simulation replica 0 thus has
+variables which corresponding to an evolution of, if there are $N$ tasks, approximately \textbf{stop\_sweeps}$/N$ sweeps from the starting state, 
+but with counter variables which correspond to \textbf{stop\_sweeps} sweeps worth of information. The variables in replica 0 are then updated to reflect 
+its new counters, e.g., the weight function is recalculated using the information from the new counters. Finally, the variables are
+exported to the file \emph{state}. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Utility programs}\label{chapter:utility_programs}
+In this chapter we describe the utility programs included in the package, which assist with post-processing of the data and the construction
+of input files.
+
+\section{Programs for generating \emph{lattices\_in} files}
+The programs \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} generate \emph{lattices\_in} 
+files corresponding to, respectively, hcp--fcc, bcc--fcc and bcc--hcp pairs of phases.
+Each program takes four arguments. The first is the density, i.e., the number of atoms per unit volume, of the pair of microstates to
+construct. The second, third and fourth arguments are the integers which correspond
+to the number of unit cells (described in a moment) which will be tiled in the x-, y- and z-directions respectively to construct the
+supercell for each phase. The program outputs the text for the \emph{lattices\_in} file to stdout. Hence one must redirect the output
+to create the required \emph{lattices\_in} file.
+For example, to generate a \emph{lattices\_in} file for hcp--fcc corresponding to a density of 0.25, consisting
+of 2, 3 and 5 unit cells tiled in the z-, y-, and z-directions, the command is \texttt{lattices\_in\_hcp\_fcc 0.5 2 3 5 > lattices\_in}.
+
+What follows is a description of the unit cells for each pair of phases for each program. More specific information regarding the unit
+cells can be obtained by invoking the programs with `1' for the second, third and fourth arguments. 
+
+\subsection{\texttt{lattices\_in\_hcp\_fcc}}
+The unit cell here contains 12 atoms. The atoms are spread over 6 planes in the z-direction; each plane contains two atoms. The positions
+of the atoms corresponds to a stacking sequence for the planes of ABCABC for the fcc unit cell, and  ABABAB for the hcp unit cell. 
+Note that the unit cell is far longer in the z-directon than the x- and y-directions. Hence one should normally use more unit cells in 
+the x- and y-directions than the z-direction to construct the supercells. In the output of this program lattice 1 corresponds to hcp and
+lattice 2 corresponds to fcc.
+
+\subsection{\texttt{lattices\_in\_bcc\_fcc}}
+The unit cell here is the conventional 2-atom body-centred tetragonal (bct) unit cell; for the bcc(fcc) lattice the relative dimensions of 
+the bct unit cell in each Cartesian direction correspond to the bct representation of the bcc(fcc) lattice. In the output of this program
+lattice 1 corresponds to bcc and lattice 2 corresponds to fcc.
+
+\subsection{\texttt{lattices\_in\_bcc\_hcp}}
+The unit cell here contains 4 atoms. The bcc unit cell is the 4-atom face-centred tetragonal (fct) corresponding to the fct representation of 
+the bcc lattice. The hcp unit cell is the `fct-like' representation of the hcp lattice. In the output of this program
+lattice 1 corresponds to bcc and lattice 2 corresponds to hcp.
+
+
+\section{Post-processing \texttt{state} files: \texttt{monteswitch\_post}}\label{sec:monteswitch_post}
+\texttt{monteswitch\_post} is for post-processing a file \emph{state} generated by \texttt{monteswitch} or \texttt{monteswitch\_mpi}, and can
+be used to extract useful information from that file. The \emph{state} file which the program operates on is that in the current directory.
+The command-line arguments determine the task performed by the program, and are as follows.
+
+\subsection{\texttt{-extract\_wf}}
+Extract the weight function from \emph{state} and output it to stdout. In the output the first token on each line is the order parameter, 
+and the second is the corresponding value of the weight function.
+
+\subsection{\texttt{-extract\_M\_counts}}
+Extract order parameter histograms from \emph{state} and output them to stdout. In the output the first token on each line is the order 
+parameter, the second is the corresponding number of counts for lattice type 1, and the third is the corresponding number of counts for 
+lattice type 2. 
+
+\subsection{\texttt{-extract\_pos}}
+Extract the current positions of the particles, and output them to stdout. In the output the first, second and third tokens on each line 
+are the x-, y- and z-coordinates respectively for a particle. 
+
+\subsection{\texttt{-extract\_R\_1}}
+Extract the current positions of the lattice sites for lattice type 1, and output them to stdout. In the output the first, second and third 
+tokens on each line are the x-, y- and z-coordinates respectively for a particle. 
+
+\subsection{\texttt{-extract\_R\_2}}
+Extract the current positions of the lattice sites for lattice type 2, and output them to stdout. In the output the first, second and third 
+tokens on each line are the x-, y- and z-coordinates respectively for a particle.
+
+\subsection{\texttt{-extract\_u}}
+Extract the displacements of the particles, and output them to stdout. In the output the first, second and third tokens on each line are 
+the x-, y- and z-displacements respectively for a particle. 
+
+\subsection{\texttt{-calc\_rad\_dist bins}}
+Calculate the radial distribution function, based on the current microstate, and output it to stdout. In the output, each line corresponds 
+to a distance, which is the first token, and the second token contains the average number of particles at this distance from a particle. The 
+output is like a histogram, with each line corresponding to a bin, the first token corresponding to the minimum of the range covered by the 
+bin, and the second token corresponding to the number of counts for that bin. The range of the bin is inclusive at its minimum, and 
+exclusive at its maximum. The upper distance considered for the radial distribution function is the lowest of $L_x/2$, $L_y/2$ and $L_z/2$,
+where $L_x$ denotes the length of the current supercell in the x-direction, and similarly for $L_y$ and $L_z$; and the number of bins for 
+the histogram is specified in the second argument \texttt{bins}. Note that the upper distance corresponds to the 'limit of periodicity' for the system. 
+
+\subsection{\texttt{-merge\_trans} \texttt{state\_in\_1}  \texttt{state\_in\_2} \texttt{state\_out}}
+Combine the \textbf{trans} matrices from the files \emph{state\_in\_1} and \emph{state\_in\_2}, and store the result in the 
+file \emph{state\_out}, where all variables in \emph{state\_out} other than the matrix \textbf{trans} are inherited from 
+\emph{state\_in\_1}. Note that \textbf{M\_grid} must be the same for both input files (in which case the matrices \textbf{trans} for
+each are of the same size). This argument can be used for pooling the results of multiple simulations which utilise the same underlying
+`order parameter grid' \textbf{M\_grid}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Worked example}\label{chapter:example}
+We now provide a worked example to elucidate how the \emph{monteswitch} package as a whole can be used to solve a `real' problem.
+Specifically, we use \emph{monteswitch} to calculate the free energy difference between the bcc and hcp
+phases of Zr, modeled using the EAM potential found in [INSERT PAPER], at 1234K and 0 pressure. 
+In our calculation we use mobile macrostate barriers to quickly determine a reasonable weight function, and \texttt{monteswitch\_mpi} to
+parallelise the calculations. Below we go through the entire procedure we used to obtain the free energy
+difference. Of course, the procedure we used will not be applicable to all problems. For this reason we anticipate problems
+that the user may encounter more generally, and provide advice accordingly.
+
+The example can be found in the \emph{Examples/EAM\_Zr\_bcc\_hcp} directory of the \emph{monteswitch} package. Within 
+\emph{Examples/EAM\_Zr\_bcc\_hcp} there are a number of subdirectories which correspond to different simulations, all of which are 
+necessary to obtain the free energy difference. The aforementioned directories are \emph{bcc\_preliminary}, \emph{hcp\_preliminary},
+\emph{weight\_function\_generation}, \emph{weight\_function\_verification} and \emph{production\_simulation}. We will describe each
+of these simulations in turn in a moment. For now we wish to elaborate upon the contents of the subdirectories. Firstly, each 
+subdirectory contains the input and output files for the corresponding simulation. Recall that the input files for 'new' 
+\texttt{monteswitch} and \texttt{monteswitch\_mpi} simulations (i.e., using the \texttt{-new} argument)
+are \emph{params\_in}, \emph{interactions\_in} and \emph{lattices\_in}, and that the output files are \emph{state} and \emph{data} 
+for serial simulations (using the \texttt{monteswitch} program), and \emph{data\_0}, \emph{state\_0}, \emph{data\_1}, \emph{state\_1},
+\emph{data\_2}, \emph{state\_2}, etc. and \emph{state} for MPI simulations (using the \texttt{monteswitch\_mpi} program). Regarding the input
+files, those for new simulations differ only in the \emph{params\_in} files: the \emph{interactions\_in} and \emph{lattices\_in} files,
+which define, respectively, the interatomic potential, and the phases and lattice switch, for a simulation, 
+are the same for all simulations. Hence we have annotated the \emph{params\_in} file corresponding to each simulation
+to highlight the important variable choices. Recall that for resumed simulations (which use the \texttt{-resume} or \texttt{-reset} arguments)
+an existing \emph{state} file is the input file. To distinguish the input input state file from the state file output
+by such simulations, we name the input file \emph{state\_start}. To restate, in directories corresponding to resumed simulations,
+\emph{state\_start} is the input state file for the simulation, while \emph{state} is the output state file.
+Finally, recall also that \texttt{monteswitch} and \texttt{monteswitch\_mpi} output information to stdout. 
+In each subdirectory the file 'stdout' contains a copy of the output to stdout -- if there is any. Furthermore, the 
+subdirectories may contain other files (\emph{.dat} files) which correspond to data obtained from post-processing. These files,
+and how they were created, will be described at the correct time.
+
+\section{The \texttt{interactions\_in} and \texttt{lattices\_in} files}
+Before performing any simulations, we must first construct the input files \emph{interactions\_in} and \emph{lattices\_in}
+which specify, respectively, the interatomic potential, and pair of supercells we will use in all simulations. 
+For the EAM version of monteswitch (which uses \emph{interactions\_EAM.f95} as \emph{interactions.f95} - which is the case by
+default) the \emph{interactions\_in} file must be a 'setfl'-format description of the EAM potential of interest.
+We wish to use the aforementioned Zr potential. It can be seen by inspecting the file that the 
+\emph{interactions\_in} in the current directory (and the \emph{interactions\_in} files in all subdirectories - they 
+are all identical) correspond to a 'setfl'-format description of the aforementioned Zr potential - as required.
+
+Consider now the \emph{lattices\_in} file. Recall that this contains specifications of the supercells for both phases;
+the atomic positions specified in \emph{lattices\_in} define the crystal lattices which define each phase.
+Given that we are considering the bcc and hcp phases, we can use the \texttt{lattices\_in\_bcc\_hcp} program to generate
+a \emph{lattices\_in} file, as opposed to creating it from scratch. We know the density of both phases is about
+0.043\AA$^{-3}$ at the temperature under consideration. Hence we use this as the first argument to \texttt{lattices\_in\_bcc\_hcp}.
+We generated the file using the command.
+\begin{verbatim}
+$ ../../lattices_in_bcc_hcp 0.042710367 4 6 4 > lattices_in
+\end{verbatim}
+Recall that the second, third and fourth arguments to \emph{lattices\_in\_bcc\_hcp} give how many unit cells to tile in the
+x-, y- and z-directions. As can be seen from inspection of the resulting \emph{lattices\_in} file, a copy of which can be found in
+the current directory, the above command yields a supercell of reasonable size (384 atoms), and supercell
+dimensions which are greater than twice the cut-off of the EAM potential (which is 7.6\AA - the last value on the second
+line of \emph{interactions\_in}) as is required to avoid finite size effects associated with 'missing' neighbours.
+
+\section{Preliminary simulations}
+Now we turn to simulations. Before performing lattice-switch Monte Carlo simulations, it is necessary to first perform
+preliminary conventional Monte Carlo simulations for each phase, bcc and hcp. The directories \emph{bcc\_preliminary}
+and \emph{hcp\_preliminary} correspond to these simulations. The aim of these simulations is to determine:
+\begin{enumerate}
+\item the appropriate Monte Carlo maximum particle and volume move sizes;
+\item an estimate for the equilibration time;
+\item the appropriate range of order parameter to use in subsequent simulations.
+\end{enumerate}
+
+\subsection{\texttt{params\_in} files}
+The salient features of the \emph{params\_in} files for these simulations are as follows:
+\begin{itemize}
+\item \textbf{init\_lattice} = 1 for the bcc simulation and 2 for the hcp simulation, since in the \textbf{lattices\_in} file phase 1 corresponds to
+  bcc and phase 2 corresponds to hcp.
+\item \textbf{M\_grid\_min} and \textbf{M\_grid\_max} are set to extremely low and extremely high values respectively. This is necessary because
+  the simulation automatically constrains the system such that its order parameter lies between \textbf{M\_grid\_min} and \textbf{M\_grid\_max};
+  setting them to very low and high values respectively allows the system to have total freedom in order-parameter space --
+  which is what we desire for a single phase conventional Monte Carlo simulation. This should always be done if one wishes
+  to perform a conventional Monte Carlo simulation using monteswitch.
+\item \textbf{enable\_multicanonical} and \textbf{enable\_lattice\_moves} are set to false for a conventional Monte Carlo simulation. Note that by
+  disabling lattice switch moves the system is 'locked in' to the phase in which it is initialised.
+\item \textbf{enable\_vol\_moves} is set to true, in which case the simulation corresponds to the NPT ensemble. 
+\item \textbf{part\_step} and \textbf{vol\_step} are the maximum particle and volume move sizes. One of the aims of the preliminary simulations is
+  to determine a reasonable value for these variables. The values in the \emph{params\_in} files are 0.3 and 0.03 respectively. These
+  were obtained by trial and error. To elaborate, we started the simulation with a guess for these values, and examined the 
+  information output to stdout as the simulation was running, specifically the total and accepted number of particle and 
+  volume moves. If \textbf{part\_step} or \textbf{vol\_step} are too high then the number of accepted particle or volume moves will be very low 
+  relative to the total number of moves; if they are too low then the number of accepted particle or volume moves will be close
+  to the total number of moves. If either is the case we simply stopped the simulation, and restarted with a new informed guess for
+  \textbf{part\_step} or \textbf{vol\_step}. The whole process does not take very long since it becomes obvious very quickly whether the acceptance
+  rates are reasonable. In principle of course one could automate the process of determining the appropriate values of \textbf{part\_step}
+  and \textbf{vol\_step}.
+\item \textbf{stop\_sweeps} is set to 1000; the simulation will consist of 1000 sweeps, which is very short, though sufficient (in this system, though
+  not in general) to obtain an estimate of 1), 2) and 3) described above. 
+\item \textbf{output\_file\_period} is set to 1, which means information is output to the \emph{data} file every sweep. Normally outputing information
+  so frequently might be considered excessive, but we need such high resolution information regarding the time evolution of the simulation to 
+  determine the equilibration time.
+\item \textbf{output\_file\_V}, \textbf{output\_file\_E} and \textbf{output\_file\_V} are set to true: the system's volume, energy and order parameter 
+  are periodically output 
+  to the \emph{data} file. We will use the first three quantities to determine the equilibration time; we will examine how the order parameter
+  varies with time to obtain an idea of the range of order parameters exhibited by each phase at equilibrium, which in turn will inform the
+  values of \textbf{M\_grid\_min} and \textbf{M\_grid\_max} to be used in subsequent simulations.
+\item \textbf{output\_stdout\_period} is set to 10; information is output to stdout every 10 sweeps. The information we are interested in while the simulation
+  is running, for reasons mentioned above, is the acceptance rates of the particle and volume moves for the chosen values of \textbf{part\_step} and 
+  \textbf{vol\_step}.
+  Accordingly we set \textbf{output\_stdout\_moves\_part}, \textbf{output\_stdout\_accepted\_moves\_part}, \textbf{output\_stdout\_moves\_vol} and 
+  \textbf{output\_moves\_accepted\_moves\_vol} to `T'; with the corresponding variables one can calculate the acceptance rate for the chosen
+  \textbf{part\_step} and \textbf{vol\_step} (acceptance rate = number of
+  accepted moves / total moves)
+\item Finally, \textbf{enable\_barriers} is set to false; otherwise the system will be locked into a certain macrostate - which we don't want.
+\end{itemize}
+
+
+\subsection{Running the simulations}
+The simulation is run using the \texttt{-new} argument. Given that the simulation is short, it is unnecessary to use MPI; the \texttt{monteswitch} executable
+should be used. The following command invokes the executable (from within the \emph{Examples/EAM\_Zr\_bcc\_hcp/bcc\_preliminary} or 
+\emph{Examples/EAM\_Zr\_hcp\_preliminary} directories within the \emph{monteswitch} package itself):
+\begin{verbatim}
+$ ../../../monteswitch -new
+\end{verbatim}
+
+\subsection{Estimating the (one-phase canonical) equilibration time}
+The simulation is run using the \texttt{-new} argument. Given that the simulation is short, it is unnecessary to use MPI; the \texttt{monteswitch} executable
+should be used. The following command invokes the executable (from within the \emph{Examples/EAM\_Zr\_bcc\_hcp/bcc\_preliminary} or 
+\emph{Examples/EAM\_Zr\_bcc\_hcphcp\_preliminary} directories within the monteswitch package itself):
+\begin{verbatim}
+$ ../../../monteswitch -new
+\end{verbatim}
+
+\subsection{Extracting the appropriate order parameter range}
+One can create a plot of the order parameter $M$ vs. number of sweeps similarly to above:
+\begin{verbatim}
+$ grep 'M:' data | awk '{print $2,$3}' > M_vs_t.dat
+\end{verbatim}
+Plotting this file immediately gives an idea of the range of order parameters exhibitted at equilibrium for each phase. We see that for
+bcc the exhibitted range is -62 to 20, and for hcp the range is 14 to 32. Hence the appropriate range of order parameters which encompasses
+both phases is -62 to 32. We will use this in subsequent simulations. 
+
+[NOTE ABOUT THE RANGE OBTAINED IN THIS WAY - IT IS PERHAPS BIGGER IN REALITY]
+One could argue that...
+
+\subsection{Troubleshooting}
+MELTING; COULD THE PHASE HAVE 'MELTED' INTO A NEARBY SOLID PHASE
+
+
+\section{Weight function generation simulations}
+The preliminary simulations have provided us with appropriate values for the maximum particle and volume move sizes, an estimate for
+the equilibration time, and the range of order parameters which encompass both phases at equilibrium. With this information we can
+now proceed to lattice-switch Monte Carlo simulations. The first such simulation is to generate the weight function. The directory
+\emph{weight\_function\_generation} corresponds to this simulation. We use the mobile barrier method. Furthermore, we use \texttt{monteswitch\_mpi}
+to perform a parallelised calculation. Specifically we used 4 threads on a 4-core desktop machine. The following command was used
+to invoke the simulation (from within the \emph{Examples/weight\_function\_generation} within the \emph{monteswitch} package itself):
+\begin{verbatim}
+$ nohup mpiexec -n 4 ../../../monteswitch_mpi -new -explicit < /dev/null &
+\end{verbatim}
+This command is, of course, specific to our system; one would have to ascertain the analogous command for other systems. Note, however,
+that we have used the \texttt{-explicit} argument to \texttt{monteswitch\_mpi}, which is necessary for storing the \emph{data} and \emph{state} 
+files pertaining to each MPI thread.
+
+\subsection{The \texttt{params\_in} file}
+The salient features of the \emph{params\_in} files for this simulation is as follows:
+\begin{itemize}
+\item \textbf{init\_lattice} is set to 1, which means the simulation is initialised in the bcc phase. However, the choice of initial phase is 
+  unimportant since both phases will be explored during the simulation.
+\item \textbf{M\_grid\_size}, \textbf{M\_grid\_min} and \textbf{M\_grid\_max} define the macrostates. We set \textbf{M\_grid\_min} and \textbf{M\_grid\_max}
+  to -62 and 32, which corresponds to the
+  range determined in our preliminary simulations. Furthermore, we set \textbf{M\_grid\_size} to 100: the order parameter range will be divided into
+  100 macrostates. The choice of 100 is based upon our previous experience of LSMC simulations (and may not be appropriate for all systems). 
+  If the number of macrostates is too high, then the weight function will take longer to generate. On the other hand if the number of macrostates
+  is too low, then the system is unable to explore the whole range of order-parameter space in a reasonable simulation time - regardless
+  of the weight function. This occurs because the order-parameter grid is too coarse to be able to guide the system over any free energy barriers.
+  Often it will be more efficient to use more macrostates (see below).
+\item \textbf{enable\_multicanonical} is set to true, which means that the continually updated weight function is used to bias the dynamics of the system.
+  This is actually unnecessary here since we elect to use mobile barriers to guide the system through order-parameter space. The method would
+  work well with canonical sampling. However, using multicanonical sampling in theory should slightly help the system transition between 
+  macrostates with a high free energy difference between them.
+\item \textbf{enable\_lattice\_moves} is set to true: the system can explore both phases using lattice moves.
+\item \textbf{part\_step} and \textbf{vol\_step} are informed by our preliminary simulations
+\item \textbf{stop\_sweeps} is set to 160000. Note that since we are using 4 MPI threads, each thread will perform 40000 sweeps.
+\item \textbf{output\_file\_period} is set to 250. We do this mainly to avoid creating massive output files. At this point we do not need to know 
+  information regarding
+  the time-evolution of the system during the simulation on the scale of less than 250 sweeps - given that the equilibration time is at least
+  ~100 sweeps. Note that since we are using \texttt{monteswitch\_mpi} there is one output file for each thread; within each thread n, every 250 sweeps 
+  information is output to the file \emph{data\_n}.
+\item \textbf{output\_stdout\_period} is set to -1, which suppresses all output to stdout. This is normally desirable for MPI simulations, since each thread 
+  will itself output to stdout every output\_stdout\_period sweeps, which can result in an overwhelming amount of (and confusing) information to stdout. 
+  Furthermore, for long simulations we have no interest in watching the simulation variables during the running of the simulation - which is the primary
+  purpose of the simulation outputting information to stdout. Instead we let the simulation run, say, overnight, and extract the information we require
+  from the \emph{data} and \emph{state} files once it is completed - no information is output to stdout which cannot be obtained from these files.
+\item \textbf{checkpoint\_period} is set to 2000; every 2000 sweeps the state of each MPI thread n is output to the file state\_n.
+\item \textbf{update\_eta is set} to true, which means that the simulation periodically updates/generates the weight function
+\item \textbf{update\_eta\_sweeps} is set to 2000; we update the weight function (in this case using the transition matrix method, see below) every 2000 
+  sweeps.
+\item \textbf{update\_eta\_method} is set to "shooting", which means that the weight function is determined from the transition matrix via the shooting 
+  method.
+  This obviously requires the transition collection matrix to be updated during the simulation. Accordingly we set update\_trans to true; otherwise
+  the transition matrix is not updated during the simulation and updating the weight function using the shooting method will not work.
+\item \textbf{enable\_barriers} is set to true since we wish to use macrostate barriers to force the system to explore order-parameter space in an 
+  artificial manner.
+  Specifically, we elect to have the system sweep through the macrostates sequentially, proceeding first towards macrostate 1, then from there to
+  macrostate 100, thenback to macrostate 1, etc. Accordingly we set \textbf{barrier\_dynamics} to "pong\_down".
+\item \textbf{lock\_moves} controls how long the system is locked into each macrostate by the macrostate barriers, before the 'next' macrostate is 
+  opened to the
+  system. This should be long enough that the system has enough time to equilibrate within the macrostate, but not so long that the system never proceeds
+  to explore all macrostates during the simulation. Our choice of 38400 (=100 sweeps) seems to do the job. Note that while the equilibration time in our 
+  preliminary simulations was ~100 sweeps, the time to equilibrate within one macrostate is expected to be far shorter. Furthermore, the time spent in
+  each macrostate if macrostate barriers are enabled will be longer than \textbf{lock\_moves}: \textbf{lock\_moves} is the number of moves before a 
+  new macrostate becomes
+  available to the system - the system still must move into that new macrostate from the 'old' macrostate by its own accord. As expected, it takes
+  longer for the system to move from old macrostates into new macrostates if the free energy difference difference between the macrostates is high.
+\end{itemize}
+
+\subsection{Results}
+At the completion of the simulation the file \emph{state} (not \emph{state\_0}, \emph{state\_1}, \emph{state\_2} or \emph{state\_3}) 
+contains the final results of the simulation -
+pooled from all 4 MPI threads. We are obviously interested in the weight function. This can be obtained from the \emph{state} file using 
+\texttt{monteswitch\_post}.
+After the following command, \emph{wf.dat} contains the weight function vs. order parameter:
+\begin{verbatim}
+$ ../../../monteswitch_post -extract_wf > wf.dat
+\end{verbatim}
+Plotting the file \emph{wf.dat} reveals a smooth curve with two minima separated by a high peak near 0. This is the perfect form for a weight function. If the
+curve were not smooth, or was constant for lare regions of order-parameter space, then it is probable that the weight function has not properly been
+generated. This is perhaps an indication that more time is needed to generate a reasonable weight function. Hence one possible solution is to continue
+the simulation with \texttt{monteswitch\_mpi} using the \texttt{-resume} flag, e.g.
+\begin{verbatim}
+$ nohup mpiexec -n 4 ../../../monteswitch_mpi -resum -explicit < /dev/null &
+\end{verbatim}
+
+Of course, just because the weight function has the aforementioned 'perfect form', does not guarantee that it is very good. The ideal weight function
+leads to the whole considered range of order-parameter space being sampled uniformly. A weight function with the 'perfect form' could easily lead to
+certain regions of order-parameter space being significantly over- or under-sampled. In principle this is not a problem because the final results - given
+a long enough production simulation - do not depend on the weight function used. However the quality of the weight function affects how efficiently 
+phase space is explored in the production simulation. Using a weight function of high quality samples order-parameter space almost uniformly, resulting
+in many accepted lattice switches, and both phases being explored over short timescales. On the other hand if a lower quality weight function is used the
+system will spend more time in certain regions of order-parameter space than others, and the time between lattice-switches will be less. Hence it is prudent
+to perform a short simulation using the weight function to verify that it is of good quality.
+
+\subsection{Double-checking the chosen order parameter range}
+The ideal weight function is related to the canonical macrostate probability distribution via Eqn. [INSERT EQUATION]. Hence one can obtain a probability
+distribution from the weight function. Of course, this will only be the 'real' probability distribution if the weight function is ideal, which it
+will not be exactly after our weight function simulation. Nevertheless we can obtain an approximate probability distribution from the weight
+function from our simulation. This is useful for double checking that our chosen range of order parameters to consider is appropriate. We use the
+following command to obtain the probability distribution from the weight function, and output it to the file \emph{prob.dat}:
+\begin{verbatim}
+$ awk 'FNR==NR {sum=sum+exp(-$2); next}  {print $1,exp(-$2)/sum}' wf.dat wf.dat > prob.dat
+\end{verbatim}
+Examining \emph{prob.dat}, we see two peaks in the probability distribution in order-parameter space, each corresponding to one phase. The order parameter
+range is suitable only if the probability distribution is effectively zero at the maximum and minimum order parameters considered. If this is not the
+case, then our constraint on the order parameter range results in some states which are significantly likely at equilibrium being 'cut out' of the
+calculation. As can be seen from \emph{prob.dat}, the probability distribution decays to zero within the chosen range as required. If this were not the
+case then we would have to re-run the weight function generation simulation using a larger order parameter range.
+
+\subsection{Estimating of $\Delta F$ from the weight function}
+ith the macrostate probabilty distribution one can in fact obtain an estimate of the free energy difference between the phases. Recall that the
+(extensive?) free energy difference is related to the time spent in each phase via Eqn. [INSERT EQN NUMBER]. The time spent in each phase can be deduced by
+integrating the aforementioned peaks in the macrostate probability distribution. It turns out that the peak for negative order parameters corresponds
+to phase 1, and the peak in the positive region corresponds to phase 2 [JUSTIFY]. Hence the time spent in phase 1(2) is proportional to the area under
+the peak in the negative(positive) region. With this in mind the following command applies Eqn. [INSERT EQN. NUMBER] to obtain the free energy difference
+from the weight function:
+\begin{verbatim}
+$ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print -log(sum1/sum2)/9.403 }'
+\end{verbatim}
+Recall that 9.403 is the $\beta$ we are considering. The analogous intensive value is obtained by dividing by the number of atoms in the system (384):
+\begin{verbatim}
+$ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print -log(sum1/sum2)/(9.403*384) }'
+\end{verbatim}
+In the above commands we have assumed that macrostates with order parameters less than 0 'belong' to phase 1, and those with order parameters greater
+than zero belong to phase 2. 0 seems a sensible choice of 'cut-off' between the two peaks; note that the exact choice of cut-off doesn't really matter
+since the probability distribution is essentially 0 near 0 order parameter.
+[NOTE THAT THE ESTIMATE IS NOT ACCURATE; THERE IS NO UNCERTAINTY ASSOCIATED WITH IT HOWEVER, ONE COULD USE MANY WEIGHT FUNCTION SIMULATIONS TO 'SWEEP'
+THE TEMPERATURE RANGE FIRST...]
+
+\subsection{Configuring \emph{params\_in} for other weight function generation methods}
+In the above example we used mobile macrostate barriers in generating the weight function. This gives a reasonable weight function very quickly.
+However, monteswitch supports other methods for generating weight functions. [THE BARRIER METHOD SCALES WELL WITH SYSTEM SIZE. HOWEVER IT IS NOT PERFECT.
+IT MIGHT BE FIDDLY? IF IT DOESN'T WORK BECAUSE THE BIN WIDTH IS TOO SMALL, THE LOCK IN TIME IS TOO LONG/SHORT - IT CAN BE FIDDLY. THE SHOOTING METHOD
+WITHOUT BARRIERS IS APPEALING BECAUSE IT ISN'T AS FIDDLY - JUST KEEP RUNNING IT UNTIL YOU GET A GOOD WEIGHT FUNCTION. THE WORST METHOD IS THE VISITED
+STATES METHOD; HOWEVER, IT CAN BE USED TO REFINE A WEIGHT FUNCTION. BELOW WE DESCRIBE HOW TO CONFIGURE THE params\_in FILE TO PERFORM VARIOUS METHODS.]
+
+HAVE A TABLE WITH THE VARIOUS FLAGS
+
+       	     	      	      barriers         without barriers           visited states
+
+\textbf{enable\_multicanonical}
+\textbf{update\_eta}
+\textbf{update\_eta\_sweeps}
+\textbf{update\_trans}
+\textbf{update\_eta\_method}
+\textbf{enable\_barriers}
+\textbf{barrier\_dynamics}
+\textbf{lock\_moves}
+
+
+
+TROUBLESHOOTING
+
+If when using the barrier method the system takes a very long time to move between macrostates - far longer than the lock time, then increase the
+number of bins. This reduces the bin size.
+
+
+\section{Weight function verification simulation}
+
+Assuming that we have a good weight function, one thing remains to know before we perform our production simulation: the correlation time for the
+multicanonical simulation, using this weight function (and the chosen maximum particle and volume move step sizes [PERHAPS USING DIFFERENT SIZES WOULD
+BE MORE APPROPRIATE?]). Recall that we obtained an estimate for the equilibration time earlier; however, this pertained only to a one-phase simulation,
+in a canonical ensemble. As we will see in a moment, the equilibration times in a two-phase lattice switch multicanonical simulation are far longer. 
+We need to know this equilibration time because it determines how large the blocks should be in block analysis for determining equilibrium quantities - 
+in particular for the free energy difference. To determine this we perform a short simulation, using the weight function. This simulation also acts to
+verify that the weight function is indeed sensible: i.e., that it leads to the entire range of order-parameter space being explored approximately 
+uniformly as expected.
+
+The directory \emph{weight\_function\_verification} corresponds to the weight function verification simulation.
+Recall that we can 'resume' a simulation whose variables are stored in the \emph{state} file by invoking monteswitch with the \texttt{-resume} argument. 
+Furthermore
+we can resume a simulation from \emph{state}, with all counter variables reset to zero, by invoking the \texttt{-reset} argument. With this in mind, we
+use the \emph{state} file from our previous simulation as a starting point. This file contains the weight function we wish to verify. We will modify this
+file to suit our needs, and then run the simulation using the command
+\begin{verbatim}
+$ ../../../monteswitch -reset
+\end{verbatim}
+Note that the file \emph{state\_start} in the directory \emph{weight\_function\_verification} contains the \emph{state} file from the directory 
+\emph{weight\_function\_generation}
+after it has been modified for the weight function verification simulation; and the file \emph{state} in the directory \emph{weight\_function\_verification}
+corresponds to the output of the weight function verification simulation.
+
+\subsection{Creating the input \texttt{state} file}
+The modifications to the state file can be seen before the weight function verification simulation is run can be seen by invoking the following command
+in the weight\_function\_verification directory:
+\begin{verbatim}
+$ diff state_in ../weight_function_generation/state
+\end{verbatim}
+The key changes are as follows:
+\begin{itemize}
+\item We have changed \textbf{stop\_sweeps} to be 10000 - which corresponds to a short simulation
+\item We have set \textbf{update\_eta} to false, so that the weight function is fixed throughout the simulation.
+\item We have set \textbf{enable\_barriers} to false, since we want 'natural' dynamics for the weight function verification simulation.
+\item We have set \textbf{output\_file\_period} to 10 so we have high-resolution information about how order-parameter space is explored.
+\item We have set \textbf{output\_stdout\_period} to 10 so we can keep track of the progress of the simulation.
+\end{itemize}
+
+\subsection{Results}
+After the simulation is complete, as before, we can use \emph{data} to generate a plot of the order parameter vs. time in the simulation using the
+following command:
+\begin{verbatim}
+$ grep 'M:' data | awk '{print $2,$3}' > M_vs_t.dat
+\end{verbatim}
+From this we see that the entire range of order-parameter space (-62 to 32) was explored within the simulation. Note that, having realised that the
+10000 sweep simulation was too perhaps short, we ran the simulation for another 10000 sweeps by using the command
+\begin{verbatim}
+$ ../../../monteswitch -resume
+\end{verbatim}
+Hence the output files \emph{state} and \emph{data}, and \emph{M\_vs\_t.dat} created by the above command, correspond to after 20000 sweeps, not 10000 
+sweeps; a copy of the 
+output \emph{state} file after the first 10000 sweep simulation can be found in the file \emph{state\_after\_10000\_sweeps}.
+
+Plotting \emph{M\_vs\_t.dat} reveals that the simulation explores the entire range of order-parameter space (-62 to 32) within 20000 sweeps. Note that this
+in practice means that both phases are explored within 20000 sweeps, since high order parameters correspond to phase 2 and low order parameters correspond
+to phase 1 (see above). Hence the correlation time - the time taken for both phases to be explored - is ~10000 sweeps. The block size we use in the
+forthcoming production simulation must therefore be greater than this. Note that after the production run one can retrospectively check that the
+block size was appropriate. We will do this later. Furthermore, one can use the 'observations' in the \emph{data} files output by the production simulation to
+analyse the data - once the production simulation is complete - for a variety of block sizes, though software to do this is not currently included in
+monteswitch.
+
+It is instructive to plot of how often each macrostate was visited during the weight function verification simulation. \texttt{monteswitch\_post}
+provides an easy way of extracting this information; the following command creates a file \emph{counts.dat} which is a plot of macrostate index vs. the
+number of times the  macrostate was visited during the entire simulation:
+\begin{verbatim}
+$ ../../../monteswitch_post -extract_M_counts | awk '{print NR,$2+$3}' > macro_vs_counts.dat
+\end{verbatim}
+From this file we see that all macrostates are visited a reasonable number of times during the simulation. While it is far from the case that the
+histogram is flat - which an ideal weight function would yield - it is sufficiently flat for our purposes: for our purposes it is acceptable that
+all macrostates are visited uniformly to within, say, half an order of magnitude. [NOTE THAT WE WOULDN'T NECESSARILY EXPECT A FLAT HISTOGRAM EVEN
+WITH AN IDEAL WEIGHT FUNCTION FOR SUCH A SHORT SIMULATION - IT IS OF THE ORDER OF THE CORRELATION TIME].
+
+
+\section{Production simulation}
+We are now ready to perform the production simulation. The corresponding directory is \emph{production\_simulation}.
+As with the weight function simulation, we use the \emph{state} file output from the weight function generation simulation as the starting point
+for the production simulation. We will modify this file to suit our needs, and then run the simulation, using four MPI threads with \texttt{monteswitch\_mpi},
+using the command
+\begin{verbatim}
+$ nohup mpiexec -n 4 ../../../monteswitch_mpi -reset -explicit </dev/null &
+\end{verbatim}
+Note that again we have used the \texttt{-reset} flag to reset the counter variables at initialisation, and that we have also used the \texttt{-explicit}
+flag to keep the data from all threads.
+
+\subsection{Creating the input \texttt{state} file}
+The modifications to the state file can be seen before the weight function verification simulation is run can be seen by invoking the following command
+in the \emph{weight\_function\_verification} directory:
+\begin{verbatim}
+$ diff state_start ../weight_function_generation/state
+\end{verbatim}
+The key changes are as follows:
+\begin{itemize}
+\item We have changed \textbf{stop\_sweeps} to be 700000, which corresponds to 175000 sweeps to be performed for each MPI thread.
+\item We have set \textbf{equil\_sweeps} to 20000, which is larger than the correlation time we determined for the multicanonical simulation using our 
+weight function.
+\item We have set \textbf{update\_eta} to false, so that the weight function is fixed throughout the simulation.
+\item We have set \textbf{enable\_barriers} to false, since we want 'natural' dynamics for the production simulation.
+\item \textbf{calc\_equil\_properties} is set to true. This is required for the simulation to calculate equilibrium quantities (the enthalpy, volume and 
+mean-squared displacements of each particle) and their uncertainties using block analysis.
+\item \textbf{block\_sweeps}, the number of sweeps which constitute a block in the block analysis is set to 155000, which is far larger than the 
+correlation time of
+  ~10000 sweeps determined earlier. Note that, since each MPI thread performs 175000 sweeps, and since each thread will be given 20000 sweeps to 
+  equilibrate - during which time the microstates visited by the system are not used in evaluating equilibrium quantities - setting the block size to 
+  155000 sweeps corresponds to each MPI thread performing exactly 1 block. Hence the simulation in total considers 4 blocks.
+\end{itemize}
+
+\subsection{Results}
+[HOW MEANINGFUL IS THE INTENSIVE FREE ENERGY DIFFERENCE? UNCERTAINTY IN THE TRANSITION TEMPERATURE IS MORE IMPORTANT]
+
+At the completion of the simulation the \emph{state} file contains the equilibrium quantities, evaluated using block analysis. It is these quantities we
+are interested in, primarily the (Gibbs) free energy difference between the phases. The variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF}
+in \emph{state} contain
+the free energy difference and its uncertainty evaluated using block analysis. Hence the following command extracts the free energy difference and its
+uncertainty from the \emph{state} file:
+\begin{verbatim}
+$ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state
+\end{verbatim}
+Recall that all quantities in the \emph{state} file are extensive; to get the intensive values we must divide them by the number of atoms in the system, which
+in this case is 384. Hence the following command gives the intensive free energy difference between the phases:
+\begin{verbatim}
+$ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state | awk '{print $1,$2/384}'
+\end{verbatim}
+The final value is therefore 0.00004(4)eV, where the units are derived from the convention used in the 'setfl' format used in the \emph{interactions\_in}
+file -- the units used in monteswitch are derived entirely from the \emph{interactions.f95} it is used in conjunction with, in this case 
+\emph{interactions\_EAM.f95}.
+The convention used in \emph{monteswitch} is that the free energy difference is the free energy of phase 1 minus that of phase 2. Hence a positive free energy
+difference, which is the case here, suggests that phase 2 (hcp here as opposed to bcc) is stable at the considered temperature and pressure. 
+However, the uncertainty in our value is of the same magnitude as the value; hence the prefered phase cannot be discerned. This is a moot point though:
+our free energy difference of 0.04(4)meV can be considered zero for all intents and purposes; this temperature and pressure can be considered to be
+a coexistence point. Thus our results agree with Ref. [INSERT REFERENCE]
+
+Using similar commands to the above, one can extract the volume and enthalpy per atom for each phase.
+\begin{verbatim}
+$ grep -E '( equil_V_1| sigma_equil_V_1)' state | awk '{print $1,$2/384}'
+\end{verbatim}
+gives the volume per atom for phase 1;
+\begin{verbatim}
+$ grep -E '( equil_V_2| sigma_equil_V_2)' state | awk '{print $1,$2/384}'
+\end{verbatim}
+gives the volume per atom for phase 2;
+\begin{verbatim}
+$ grep -E '( equil_H_1| sigma_equil_H_1)' state | awk '{print $1,$2/384}'
+\end{verbatim}
+gives the enthalpy per atom for phase 1;
+\begin{verbatim}
+$ grep -E '( equil_H_2| sigma_equil_H_2)' state | awk '{print $1,$2/384}'
+\end{verbatim}
+gives the enthalpy per atom for phase 2. One can also obtain the mean-squared displacements for all atoms in phase 1: the following command extracts
+these quantities from \emph{state} and outputs the mean-squared displacement vs. atom number:
+\begin{verbatim}
+$ grep -E ' equil_umsd_1' state | awk '{for(i=2; i<=NF; i++){print i-1,$i}}'
+\end{verbatim}
+Their uncertainties are similarly given by 
+\begin{verbatim}
+$ grep -E ' sigma_equil_umsd_1' state | awk '{for(i=2; i<=NF; i++){print i-1,$i}}'.
+\end{verbatim}
+Similar commands can be used to obtain the mean-squared displacements and associated uncertainties for phase 2. Of course, it is not necessary to use
+a lattice-switch simulation to extract all of these `one-phase' quantities; a conventional Monte Carlo simulation will do the job more efficiently.
+Here the quantities are somewhat of a by-product of the lattice-switch simulation to calculate the free energy difference.
+
+\subsection{Consistency checks}
+Once the simulation is complete, it is prudent to perform some checks to ensure that it has gone as expected, and hence that the values for equilibrium
+quantities obtained from the simulation are meaningful. Of course, comparing the final values obtained from the simulation to 'known' values is useful.
+Below we describe some less obvious checks.
+
+The free energy difference for a block is given by Eqn. [INSERT EQUATION], where [t\_1] and [t\_2] are the number of moves in which the system spent in
+phase 1 and phase 2 respectively during the block. Of course, this equation presupposes that both phases are explored during the block. In evaluating the
+final free energy difference, monteswitch only considers blocks during which both phases are explored. This notwithstanding, it is good to check that
+the block size is significantly larger than the time it typically takes the system to explore the whole of order-parameter space -- which in practice
+is an equivalent condition to both phases being thoroughly explored during each block. Of course, this was the point of the weight function verifictaion
+simulation to determine the appropriate block size. However, to check this we plot the order parameter vs. simulation time for MPI thread 0:
+\begin{verbatim}
+$ grep 'M:' data_0 | awk '{print $2,$3}' > M_vs_t_0.dat
+\end{verbatim}
+Plotting \emph{M\_vs\_t\_0.dat} it can be seen that the system traverses the entire range of order-parameter space (-62--32) often within the block size 
+(175000 sweeps), as required.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{User-defined interatomic potentials}\label{chapter:interactions}
+As mentioned in Chapter [INTRO?], the file \texttt{interactions.f95}... [DESCRIBE CUSTOMISATION PROCEDURE; MENTION THAT THE DEFAULT IS
+FOR LENNARD-JONES INTERACTIONS].
+
+
+
+
+
+
+\appendix
+
+%% And finally the references
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{ieeetr} %\bibliographystyle{plain}%\bibliographystyle{these}
+
+\bibliography{bibliography}
+
+\end{document}
+\endinput
