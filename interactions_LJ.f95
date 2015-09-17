@@ -23,7 +23,8 @@
   !! <code>include</code>d in the <code>monteswitch_mod</code> module.
   !! </p>
   !! <p>
-  !! This version of the file corresponds to Lennard-Jones interactions.
+  !! This version of the file corresponds to Lennard-Jones interactions. Note that the potential is shifted
+  !! such that its value at the cut-off is 0; there is no discontinuity in the potential at the cut-off.
   !! </p>
   !! <p>
   !! The format of the file to import the interactions parameters is as follows. On the first line
