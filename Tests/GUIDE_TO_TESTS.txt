@@ -353,7 +353,7 @@ files.
 
 *****************************
 
-test_LJ_1
+test_LJ_shifted_1
 
 This test calculates the difference in the ground state energies per particle between the fcc and hcp phases for
 various densities, using a Lennard-Jones potential with sigma=2, epsilon=0.5, and a cut-off of 5.
