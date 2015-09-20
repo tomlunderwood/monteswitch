@@ -5558,7 +5558,8 @@ module monteswitch_mod
   !! <p>
   !! This procedure initialises all counters to be 0, except <code>trans</code> and anything to do with order parameter 
   !! barriers. 'Counters' include those all sums used to evaluate equilibrium properties, sweep numbers, etc.
-  !! It does not include the equilibrium values and their uncertainties, e.g. equil_DeltaF, sigma_equil_DeltaF.
+  !! It does include the equilibrium values and their uncertainties, e.g. equil_DeltaF, sigma_equil_DeltaF; however note
+  !! that these values are meaningless until at least one block has been considered for these variables.
   !! It does include <code>sweep_equil_reference</code>, which is set to 0.
   !! If <code>M_counts_1</code> or <code>M_counts_2</code> is already allocated then this subroutine deallocates them and
   !! then allocates them to have a size corresponding to the current value of <code>M_grid_size</code>.
@@ -5591,6 +5592,8 @@ module monteswitch_mod
     interblock_sum_DeltaF=0.0_rk
     interblock_sum_DeltaF_sqrd=0.0_rk
     block_counts_DeltaF=0 
+    equil_DeltaF=0.0_rk
+    sigma_equil_DeltaF=0.0_rk
     intrablock_sum_H_1=0.0_rk
     intrablock_sum_H_2=0.0_rk 
     interblock_sum_H_1=0.0_rk
@@ -5599,6 +5602,10 @@ module monteswitch_mod
     interblock_sum_H_2_sqrd=0.0_rk
     block_counts_H_1=0 
     block_counts_H_2=0 
+    equil_H_1=0.0_rk
+    sigma_equil_H_1=0.0_rk
+    equil_H_2=0.0_rk
+    sigma_equil_H_2=0.0_rk
     intrablock_sum_V_1=0.0_rk
     intrablock_sum_V_2=0.0_rk
     interblock_sum_V_1=0.0_rk
@@ -5607,6 +5614,11 @@ module monteswitch_mod
     interblock_sum_V_2_sqrd=0.0_rk
     block_counts_V_1=0 
     block_counts_V_2=0
+    equil_V_1=0.0_rk
+    sigma_equil_V_1=0.0_rk
+    equil_V_2=0.0_rk
+    sigma_equil_V_2=0.0_rk
+
     ! umsd variables. This must be called after n_part is set
     if(allocated(equil_umsd_1)) then
        deallocate(equil_umsd_1)
@@ -5656,6 +5668,10 @@ module monteswitch_mod
     interblock_sum_umsd_2_sqrd=0.0_rk
     block_counts_umsd_1=0
     block_counts_umsd_2=0
+    equil_umsd_1=0.0_rk
+    sigma_equil_umsd_1=0.0_rk
+    equil_umsd_2=0.0_rk
+    sigma_equil_umsd_2=0.0_rk
     ! End of umsd variables
     sweep_equil_reference=0
 
