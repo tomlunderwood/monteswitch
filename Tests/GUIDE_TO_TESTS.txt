@@ -361,3 +361,19 @@ various densities, using a Lennard-Jones potential with sigma=2, epsilon=0.5, an
 Checks to perform:
 1) The graph 'Ediff_vs_rho.dat' should exactly match the solid (but not bold) curve in Fig. 6.5 of 'Structural Phase 
 Behaviour via Monte Carlo Techniques', Andrew N. Jackson, PhD Thesis, University of Edinburgh, 2002. 
+
+
+
+*****************************
+
+test_LJ_1
+
+This test calculates the potential energy per particle of the Lennard-Jones fluid, with a cut-off (not shifted) of
+3*sigma, epsilon=sigma=1, at a temperature of 0.85 and density of 0.003 (NVT). 
+
+Checks to perform:
+1) The aforementioned energy, with tail corrections, should match those of http://mmlapps.nist.gov/srs/LJ_PURE/mc.htm,
+specifically, -0.03102(6).
+
+
+
