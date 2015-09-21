@@ -1,4 +1,7 @@
 
+  ! interactions.f95 for Lennard-Jones potential: 4*lj_epsilon*( (lj_sigma/r)^12-(lj_sigma/r)^6 )
+  ! Author: Tom L Underwood
+
   ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
   ! Insert code defining the free parameters for the potential here.
   ! Example (for Lennard-Jones potential):

@@ -1,4 +1,9 @@
 
+  ! Template interactions.f95 file for pair potentials (this file corresponds to the
+  ! Lennard-Jones potential until modified by the user). Search for 'USER-DEFINED CODE'
+  ! to find the relevant parts to modify.
+  ! Author: Tom L Underwood
+
   ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
   ! Insert code defining the free parameters for the potential here.
   ! Example (for Lennard-Jones potential):
