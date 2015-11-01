@@ -96,6 +96,26 @@
 !!   <i>state_in_2</i> (in which case the matrices <code>tran</code> are of the same size).
 !!   </td>
 !!  </tr>
+!!  <tr>
+!!   <td> -extract_lattices_in <i>vectors_in_1</i> <i>vectors_in_2</i></td>
+!!   <td>
+!!   Output the geometrical properties of the system in the format of a 'lattices_in' file. The arguments <i>vectors_in_1</i> 
+!!   and <i>vectors_in_2</i> can be either <code>pos</code> or <code>R</code>. If <i>vectors_in_1</i> is <code>pos</code>, then
+!!   the positions of the particles in lattice 1 of the 'lattices_in' file will be the positions of the particles in lattice 1
+!!   in the 'state' file; if <i>vectors_in_1</i> is <code>R</code>, then the positions of the particles in lattice 1 of the 
+!!   'lattices_in' file will be the lattice vectors (i.e., <code>R_1</code>) corresponding to lattice 1 in the 'state' file.
+!!   Similar applies for <i>vectors_in_2</i> with lattice 2.
+!!   </td>
+!!  </tr>
+!!  <tr>
+!!   <td> -extract_pos_xyz </td>
+!!   <td>
+!!   Extract the positions of the particles, and output them to stdout in '.xyz' format. In the output
+!!   the first line contains the number of particles, the second line is a comment line, and the subsequent lines contain the
+!!   particle positions: the first token is the `element' (set to A), and the second, third, fourth and fifth tokens are the
+!!   x-, y- and z-coordinates respectively.
+!!   </td>
+!!  </tr>
 !! </table>
 !! </p>
 !! <p>
@@ -129,6 +149,14 @@ program monteswitch_post
   character(len=20) :: state_in_1, state_in_2, state_out
   ! Matrix used for merging trans
   real(rk), dimension(:,:), allocatable :: trans_toadd
+
+  ! Positions of particles within the supercell
+  real(rk), dimension(:,:), allocatable :: pos
+
+  ! Variables used for -extract_lattices_in
+  character(len=20) :: vector_in_1, vector_in_2
+  real(rk), dimension(:,:), allocatable :: pos_1
+  real(rk), dimension(:,:), allocatable :: pos_2
 
   ! Unimportant variables
   character(len=20) :: char
@@ -169,13 +197,18 @@ program monteswitch_post
     
      call import("state")
 
+     allocate(pos(n_part,3))
+     select case(lattice)
+     case(1)
+         pos = R_1 + u
+         call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+     case(2)
+         pos = R_2 + u
+         call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+     end select
+
      do i=1,n_part
-        select case(lattice)
-        case(1)
-           write(*,*) R_1(i,:)+u(i,:)
-        case(2)
-           write(*,*) R_2(i,:)+u(i,:)
-        end select
+         write(*,*) pos(i,:)
      end do
 
   else if(trim(char)=="-extract_R_1") then
@@ -289,6 +322,90 @@ program monteswitch_post
      trans=trans+trans_toadd
 
      call export(trim(state_out))
+
+
+!**************************************************** >>>>>
+  else if(trim(char)=="-extract_lattices_in") then
+
+     ! CODE FOR EXPORTING IN 'lattices_in' FORMAT
+
+     call import("state")
+
+     call getarg(2,vector_in_1)
+     call getarg(3,vector_in_2)
+
+     allocate(pos_1(n_part,3))
+     allocate(pos_2(n_part,3))
+
+     ! Set pos_1
+     if(trim(vector_in_1)=="pos") then
+        pos_1 = u + R_1
+        call translate_positions(pos_1,Lx(1),Ly(1),Lz(1))
+     else if(trim(vector_in_1)=="R") then
+        pos_1 = R_1
+     else if(vector_in_1=="") then
+        write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_1' flag for -extract_lattices_in)."
+        stop 1
+     else
+        write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+        stop 1
+     end if
+
+     ! Set pos_2
+     if(trim(vector_in_2)=="pos") then
+        pos_2 = u + R_2
+        call translate_positions(pos_2,Lx(2),Ly(2),Lz(2))
+     else if(trim(vector_in_2)=="R") then
+        pos_2 = R_2
+     else if(vector_in_2=="") then
+        write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_2' flag for -extract_lattices_in)."
+        stop 1
+     else
+        write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+        stop 1
+     end if
+
+     ! Output comment line and the number of particles
+     write(*,*) "lattices_in file created by monteswitch_post"
+     write(*,*) n_part
+     ! Output lattice 1 dimensions and particle positions (in fractional coordinates)
+     write(*,*) Lx(1)
+     write(*,*) Ly(1)
+     write(*,*) Lz(1)
+     do i=1,n_part
+        write(*,*) pos_1(i,1)/Lx(1),pos_1(i,2)/Ly(1),pos_1(i,3)/Lz(1)
+     end do
+     ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
+     write(*,*) Lx(2)
+     write(*,*) Ly(2)
+     write(*,*) Lz(2)
+     do i=1,n_part
+        write(*,*) pos_2(i,1)/Lx(2),pos_2(i,2)/Ly(2),pos_2(i,3)/Lz(2)
+     end do
+
+
+  else if(trim(char)=="-extract_pos_xyz") then
+
+     ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
+    
+     call import("state")
+
+     allocate(pos(n_part,3))
+     select case(lattice)
+     case(1)
+         pos = R_1 + u
+         call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+     case(2)
+         pos = R_2 + u
+         call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+     end select
+
+     write(*,*) n_part
+     write(*,*) "xyz-format file created by monteswitch_post"
+     do i=1,n_part
+         write(*,*) "A",pos(i,:)
+     end do
+
 
   else
 
