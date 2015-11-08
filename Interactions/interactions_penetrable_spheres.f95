@@ -2,6 +2,8 @@
   ! interactions.f95 for penetrable sphere potential: epsilon for r<sigma; 0 otherwise
   ! Note that hard spheres are realised for epsilon*beta >> 1.
   ! Author: Tom L Underwood
+  ! Adapted from interactions_PAIR_TEMPLATE.f95, but note that 'cutoff' is superfluous
+  ! here, as is the function 'pair_potential_trunc', and hence I have removed them.
 
   ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>1>>>>>>> 
   ! Insert code defining the free parameters for the potential here.
@@ -14,7 +16,6 @@
   ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
   ! Variables for the potential cutoff and lists of interacting particles
-  real(rk) :: cutoff
   real(rk) :: list_cutoff
   integer(ik) :: list_size
   integer(ik), dimension(:,:), allocatable :: list_1
@@ -66,11 +67,6 @@ contains
     end if
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    read(10,*,iostat=error) string, cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'cutoff' from file '",filename,"'"
-       stop 1
-    end if
     read(10,*,iostat=error) string, list_cutoff
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'list_cutoff' from file '",filename,"'"
@@ -134,7 +130,6 @@ contains
     write(unit,*) "sigma= ",sigma
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    write(unit,*) "cutoff= ",cutoff
     write(unit,*) "list_cutoff= ",list_cutoff
     write(unit,*) "list_size= ",list_size
     write(unit,*) "list_1= ",list_1
@@ -178,11 +173,6 @@ contains
     end if
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    read(unit,*,iostat=error) string, cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'cutoff' from unit ",unit
-       stop 1
-    end if
     read(unit,*,iostat=error) string, list_cutoff
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'list_cutoff' from unit ",unit
@@ -280,8 +270,8 @@ contains
           if(j/=i) then
              sep = min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
              sep_new = min_image_distance(r_new(i,:),r_new(j,:),Lx,Ly,Lz)
-             calc_energy_part_move = calc_energy_part_move + pair_potential_trunc(sep_new) &
-                  - pair_potential_trunc(sep)
+             calc_energy_part_move = calc_energy_part_move + pair_potential(sep_new) &
+                  - pair_potential(sep)
           end if
        end if
        n=n+1
@@ -334,22 +324,6 @@ contains
 
 
 
-
-  ! Pair potential truncated at 'cutoff'. Note that there is no shifting of the potential;
-  ! there is a discontinuity at the cut-off.
-  function pair_potential_trunc(r)
-    real(rk), intent(in) :: r
-    real(rk) :: pair_potential_trunc
-
-    if(r<cutoff) then
-       pair_potential_trunc=pair_potential(r)
-    else
-       pair_potential_trunc=0.0_rk
-    end if
-  end function pair_potential_trunc
-
-
-
   ! Returns the energy of the system calculated from scratch using the specified list
   function system_energy(Lx,Ly,Lz,list,r)
     real(rk), intent(in) :: Lx
@@ -370,7 +344,7 @@ contains
           else
              if(j/=i) then
                 sep=min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
-                system_energy=system_energy+pair_potential_trunc(sep)
+                system_energy=system_energy+pair_potential(sep)
              end if
           end if
           n=n+1

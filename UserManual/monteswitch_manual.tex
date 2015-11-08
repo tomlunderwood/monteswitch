@@ -1057,6 +1057,8 @@ example if the simulation is to be initialised in phase 1 (\textbf{init\_lattice
 all particles being at their lattice sites in phase 1, and the initial microstate for phase 2 will correspond to all particles being at their lattice 
 sites in phase 2; the lists are constructed using the same cut-off $r_{\text{list}}$ for both microstates.
 
+
+[EXPLAIN LIST SIZE BETTER]
 The format of the \emph{interactions\_in} files for these potentials is similar to \emph{params\_in} described in Section \ref{section:params_in}:
 each variable which parametrises the potential corresponds to a specific line in \emph{interactions\_in}, and each line must contain a string
 (we recommend the name of the variable followed immediately by an `=' character with no spaces), followed by whitespace, followed by the value
@@ -1065,8 +1067,9 @@ of the variable. The final column of Table \ref{table:pair_potentials} gives the
 used in the preceding mathematical expression for the potential $\phi(r)$. Where it is not obvious to which variable in the mathematical expression
 a variable in the last column relates, the analogous variable in the mathematical expression is given in parenthesis immediately after it. In all
 cases the variables \textbf{cutoff} and \textbf{list\_cutoff} correspond to $r_{\text{c}}$ and $r_{\text{list}}$ described above. \textbf{list\_size} is the
-maximum size of the list of particles which any particle in the system interacts with. If $N_{\text{list},i,p}$ is the number of particles within
-$r_{\text{list}}$ of particle $i$ in the initial microstate for phase $p$, and $N_{\text{list}}$ is the maximum value of $N_{\text{list},i,p}$ over all particles
+maximum size of the list of particles which any particle in the system interacts with, + 1. If $N_{\text{list},i,p}$ denotes the number of particles within
+$r_{\text{list}}$ of particle $i$, including particle $i$ itself,
+in the initial microstate for phase $p$, and $N_{\text{list}}$ denotes the maximum value of $N_{\text{list},i,p}$ over all particles
 $i$ and both phases $p=1$ and 2, then \textbf{list\_size} should be greater than $N_{\text{list}}$ -- it should be at least $(N_{\text{list}}+1)$ (note the
 $+1$!). To illustrate the above, here is an example \emph{interactions\_in} file for the Lennard-Jones potential (\emph{interactions\_LJ.f95}) for
 a system with 480 particles:
@@ -1079,7 +1082,9 @@ list_size= 481
 \end{verbatim}
 Note that \textbf{list\_size} is set to 481, and not 480! Of course depending on $r_{\text{c}}$ and the density of the system one could get away with 
 setting this to a smaller value. E.g. if only nearest neighbours within the fcc lattice are ever to interact, then setting \textbf{list\_size} to
-$12+1=13$ would be sufficient, and save on computer memory.
+$14$ would be sufficient, and save on computer memory. It is 14 because there are 12 nearest neighbours, which means that there are 13 
+Note that 14 is necessary instead of 13 because there are 13 particles within (and including at)
+the nearest neighbour distance of \emph{including the particle iteslf}.
 
 \begin{landscape}
 \begin{center}\label{table:pair_potentials}
