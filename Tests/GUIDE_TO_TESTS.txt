@@ -343,6 +343,9 @@ Checks to perform:
 
 
 
+
+
+
 *************************************************************************************************************
 The hcp and fcc phases of the hard-sphere solid (penetrable_spheres)
 
@@ -373,6 +376,87 @@ Checks to perform:
    simulation: the free energy difference is stored in the 'equil_DeltaF' in the 'state' file, with its uncertainty 
    stored in the 'sigma_equil_DeltaF' variable.
 
+
+*************************************************************************************************************
+The hcp and fcc phases of the hard-sphere solid (penetrable_spheres)
+
+The relevant 'interactions' file for this test is 'interactions_penetrable_spheres.f95'. We use this class of
+interactions to treat hard-spheres, realised by setting epsilon=1.0E100. Here we also try to reproduce the
+results of 'Structural Phase Behaviour via Monte Carlo Techniques', Andrew N. Jackson, PhD Thesis, University
+of Edinburgh, 2002. Specifically we examine the hcp and fcc phases of the hard-sphere solid.
+
+
+*****************************
+
+test_penetrable_spheres_1 
+
+This test calculates the free energy difference between hcp and fcc for a 216-particle supercell at 
+P*beta*sigma^3=14.58, where beta denotes the thermodynamic beta and sigma denotes the hard sphere radius,
+in the NPT ensemble. 2 4-thread MPI simulations are used. The first generates the weight function using 'pong_down'
+barrier dynamics over 500000 sweeps. The second simulation calculates the free energy difference. Note that
+this simulation may take a while to run. The final result for the free energy difference
+should match that in Andrew Jackson's thesis, Table 4.4, i.e. the free energy difference per particle should be
+0.00113(4)/beta. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp, 
+while in monteswitch, with hcp corresponding to lattice 1 and fcc corresponding to lattice 2, the free energy 
+difference is defined as that of hcp minus that of fcc - hence the change of sign here
+relative to Jackson's result). Hence in the test simulation the final extensive free energy difference should be 
+0.244.
+
+Checks to perform:
+1) The final free energy difference between the two systems should be 0.244. Check that this is the case for the 
+   simulation: the free energy difference is stored in the 'equil_DeltaF' in the 'state' file, with its uncertainty 
+   stored in the 'sigma_equil_DeltaF' variable.
+
+
+*************************************************************************************************************
+The hcp and fcc phases of the hard-sphere solid (penetrable_spheres)
+
+The relevant 'interactions' file for this test is 'interactions_penetrable_spheres.f95'. We use this class of
+interactions to treat hard-spheres, realised by setting epsilon=1.0E100. Here we also try to reproduce the
+results of 'Structural Phase Behaviour via Monte Carlo Techniques', Andrew N. Jackson, PhD Thesis, University
+of Edinburgh, 2002. Specifically we examine the hcp and fcc phases of the hard-sphere solid.
+
+
+*****************************
+
+test_penetrable_spheres_1 
+
+This test calculates the free energy difference between hcp and fcc for a 216-particle supercell at 
+P*beta*sigma^3=14.58, where beta denotes the thermodynamic beta and sigma denotes the hard sphere radius,
+in the NPT ensemble. 2 4-thread MPI simulations are used. The first generates the weight function using 'pong_down'
+barrier dynamics over 500000 sweeps. The second simulation calculates the free energy difference. Note that
+this simulation may take a while to run. The final result for the free energy difference
+should match that in Andrew Jackson's thesis, Table 4.4, i.e. the free energy difference per particle should be
+0.00113(4)/beta. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp, 
+while in monteswitch, with hcp corresponding to lattice 1 and fcc corresponding to lattice 2, the free energy 
+difference is defined as that of hcp minus that of fcc - hence the change of sign here
+relative to Jackson's result). Hence in the test simulation the final extensive free energy difference should be 
+0.244.
+
+Checks to perform:
+1) The final free energy difference between the two systems should be 0.244. Check that this is the case for the 
+   simulation: the free energy difference is stored in the 'equil_DeltaF' in the 'state' file, with its uncertainty 
+   stored in the 'sigma_equil_DeltaF' variable.
+
+
+
+*************************************************************************************************************
+The hcp and bcc phases of Zr (EAM)
+
+The relevant 'interactions' file for this test is 'interactions_EAM.f95'. The test here is exactly the
+same calculation as the worked example. See the chapter in the user manual pertaining to the worked example
+for details.
+
+
+*****************************
+
+test_EAM_1 
+
+
+Checks to perform:
+1) The final free energy difference between the two systems should be 0. Check that this is the case for the 
+   simulation: the free energy difference is stored in the 'equil_DeltaF' in the 'state' file, with its uncertainty 
+   stored in the 'sigma_equil_DeltaF' variable.
 
 
 
