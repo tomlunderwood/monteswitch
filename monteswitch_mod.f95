@@ -5235,6 +5235,20 @@ module monteswitch_mod
     u_trial(i,2)=u(i,2)+top_hat_rand(part_step)
     u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
 
+    ! If we use the centre-of-mass frame then ammend the trial particle displacements.
+    ! This could probably be done faster/more efficiently if required.
+    if(enable_COM_frame) then
+        umean=0.0_rk
+        do j=1,n_part
+            umean(:)=umean(:)+u_trial(j,:)
+        end do
+        umean=umean/n_part
+        do j=1,n_part
+            u(j,:)=u_trial(j,:)-umean(:)
+        end do
+    end if
+
+
     ! Calculate 'delta_E_1' and 'delta_E_2'
     delta_E_1=calc_energy_part_move_wrapper(1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
     delta_E_2=calc_energy_part_move_wrapper(2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
@@ -5270,18 +5284,6 @@ module monteswitch_mod
           E_2=E_2+delta_E_2
           E=E+delta_E
           M=M_trial
-          ! If we use the centre-of-mass frame then ammend the particle displacements
-          ! This could probably be done faster/more efficiently if required.
-          if(enable_COM_frame) then
-             umean=0.0_rk
-             do j=1,n_part
-                umean(:)=umean(:)+u(j,:)
-             end do
-             umean=umean/n_part
-             do j=1,n_part
-                u(j,:)=u(j,:)-umean(:)
-             end do
-          end if
           ! Ammend accepted counters
           accepted_moves_part=accepted_moves_part+1
           ! Perform 'interactions'-specific tasks after an accepted move
