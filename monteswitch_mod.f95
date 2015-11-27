@@ -709,6 +709,20 @@ module monteswitch_mod
   !!  <td> <font color="red">  Current volume of the system (for NPT simulations) </font> </td>
   !! </tr>
   !! <tr>
+  !!  <td> <font color="red">  <code>spec_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>integer(ik), dimension(:), allocatable</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  <code>spec_1(n)</code> is the species of the nth particle for lattice type 1.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>spec_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>integer(ik), dimension(:), allocatable</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  <code>spec_2(n)</code> is the species of the nth particle for lattice type 2.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
   !!  <td> <font color="red">  <code>R_1</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
@@ -782,6 +796,8 @@ module monteswitch_mod
   real(rk), dimension(2) :: Ly
   real(rk), dimension(2) :: Lz
   real(rk) :: V
+  integer(ik), dimension(:), allocatable :: spec_1
+  integer(ik), dimension(:), allocatable :: spec_2
   real(rk), dimension(:,:), allocatable :: R_1
   real(rk), dimension(:,:), allocatable :: R_2
   real(rk), dimension(:,:), allocatable :: u
@@ -2529,6 +2545,8 @@ module monteswitch_mod
        write(10,*) "block_counts_umsd_2= ",block_counts_umsd_2
        write(10,*) "sweep_equil_reference= ",sweep_equil_reference
        ! Output allocatable arrays
+       write(10,*) "spec_1= ",spec_1
+       write(10,*) "spec_2= ",spec_2
        write(10,*) "R_1= ",R_1
        write(10,*) "R_2= ",R_2
        write(10,*) "u= ",u
@@ -3462,6 +3480,26 @@ module monteswitch_mod
     ! we read only the first token (as a string) of each line - since there is no second, third etc.
     ! tokens.
     !
+    ! spec_1
+    if(allocated(spec_1)) then
+       deallocate(spec_1)
+    end if
+    allocate(spec_1(n_part))
+    read(10,*,iostat=error) string, spec_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'spec_1' from file '",trim(filename)
+       stop 1
+    end if
+    ! spec_2
+    if(allocated(spec_2)) then
+       deallocate(spec_2)
+    end if
+    allocate(spec_2(n_part))
+    read(10,*,iostat=error) string, spec_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'spec_2' from file '",trim(filename)
+       stop 1
+    end if
     ! R_1
     if(allocated(R_1)) then
        deallocate(R_1)
@@ -5682,13 +5720,15 @@ module monteswitch_mod
 
   !! <h4> <code>  subroutine initialise_lattices(filename) </code> </h4>
   !! <p>
-  !! This subroutine initialises <code>R_1</code>, <code>R_2</code>, <code>n_part</code>, <code>Lx</code>, <code>Ly</code>, 
+  !! This subroutine initialises <code>spec_1</code>, <code>spec_2</code>, <code>R_1</code>, <code>R_2</code>, <code>n_part</code>, 
+  !! <code>Lx</code>, <code>Ly</code>, 
   !! <code>Lz</code> by importing these variables from the specified file. This procedure also allocates 
   !! <code>u</code>. If any of the aforementioned arrays are already allocated, then this subroutine deallocates them before 
   !! initialising them (and the scalar variables) 'from scratch'. Be aware that this subroutine opens and closes unit 10.
   !! The format of the file <code>filename</code> must be as follows, where <code>n_part</code> is the number of particles in
   !! the supercells pertaining to both lattices 1 and 2; <code>Lx(1)</code> is the length of the supercell for lattice 1 along
-  !! the x-direction and similarly for other such quantities; and <code>(R_1(i,1),R_1(i,2),R_1(i,3))</code> is the position of
+  !! the x-direction and similarly for other such quantities; <code>spec_1(i)</code> is the species (integer) of particle i for
+  !! lattice 1 and similarly for <code>spec_2(i)</code> for lattice 2; and <code>(R_1(i,1),R_1(i,2),R_1(i,3))</code> is the position of
   !! particle <code>i</code> in lattice 1 <i>in fractional coordinates</i> (note that this is the only situation in which
   !! these quantities are given in fractional coordinates) with respect to the supercell dimensions, and similarly for
   !! <code>(R_2(i,1),R_2(i,2),R_2(i,3))</code> for lattice 2:
@@ -5698,19 +5738,19 @@ module monteswitch_mod
   !! Lx(1)
   !! Ly(1)
   !! Lz(1)
-  !! R_1(1,1) R_1(1,2) R_1(1,3)
-  !! R_1(2,1) R_1(2,2) R_1(2,3)
-  !! R_1(3,1) R_1(3,2) R_1(3,3)
+  !! R_1(1,1) R_1(1,2) R_1(1,3) spec_1(1)
+  !! R_1(2,1) R_1(2,2) R_1(2,3) spec_1(2)
+  !! R_1(3,1) R_1(3,2) R_1(3,3) spec_1(3)
   !! ...
-  !! R_1(n_part,1) R_1(n_part,2) R_1(n_part,3)
+  !! R_1(n_part,1) R_1(n_part,2) R_1(n_part,3) spec_1(n_part)
   !! Lx(2)
   !! Ly(2)
   !! Lz(2)
-  !! R_2(1,1) R_2(1,2) R_2(1,3)
-  !! R_2(2,1) R_2(2,2) R_2(2,3)
-  !! R_2(3,1) R_2(3,2) R_2(3,3)
+  !! R_2(1,1) R_2(1,2) R_2(1,3) spec_2(1)
+  !! R_2(2,1) R_2(2,2) R_2(2,3) spec_2(2)
+  !! R_2(3,1) R_2(3,2) R_2(3,3) spec_2(3)
   !! ...
-  !! R_2(n_part,1) R_2(n_part,2) R_2(n_part,3)
+  !! R_2(n_part,1) R_2(n_part,2) R_2(n_part,3) spec_2(n_part)
   !! <code>
   !! </p>
   !! <p>
@@ -5737,6 +5777,12 @@ module monteswitch_mod
     character(120) :: string
     real(rk) :: scalefactor
 
+    if(allocated(spec_1)) then
+       deallocate(spec_1)
+    end if
+    if(allocated(spec_2)) then
+       deallocate(spec_2)
+    end if
     if(allocated(R_1)) then
        deallocate(R_1)
     end if
@@ -5755,6 +5801,8 @@ module monteswitch_mod
 
     read(10,*) string
     read(10,*) n_part
+    allocate(spec_1(n_part))
+    allocate(spec_2(n_part))
     allocate(R_1(n_part,3))
     allocate(R_2(n_part,3))
     allocate(u(n_part,3))
@@ -5762,7 +5810,7 @@ module monteswitch_mod
     read(10,*) Ly(1)
     read(10,*) Lz(1)
     do i=1,n_part
-       read(10,*) R_1(i,1),R_1(i,2),R_1(i,3)
+       read(10,*) R_1(i,1),R_1(i,2),R_1(i,3), spec_1(i)
        R_1(i,1)=R_1(i,1)*Lx(1)
        R_1(i,2)=R_1(i,2)*Ly(1)
        R_1(i,3)=R_1(i,3)*Lz(1)
@@ -5771,7 +5819,7 @@ module monteswitch_mod
     read(10,*) Ly(2)
     read(10,*) Lz(2)
     do i=1,n_part
-       read(10,*) R_2(i,1),R_2(i,2),R_2(i,3)
+       read(10,*) R_2(i,1),R_2(i,2),R_2(i,3), spec_2(i)
        R_2(i,1)=R_2(i,1)*Lx(2)
        R_2(i,2)=R_2(i,2)*Ly(2)
        R_2(i,3)=R_2(i,3)*Lz(2)
