@@ -43,7 +43,7 @@ performed at beta=100 using Boltzmann sampling, for a one particle supercell, an
 sweeps using 'part_step=0.12'.
 
 Checks to perform:
-1) The free energy difference per particle between the two systems should be (3/200)*ln(1/2)=-0.0103972. 
+1) The free energy difference between the two systems should be (3/200)*ln(1/2)=-0.0103972. 
    Check that this is the case for the simulation: the free energy difference is stored in the 'equil_DeltaF' 
    variable output to the terminal, with its uncertainty stored in the 'sigma_equil_DeltaF' variable. 
 2) The mean-squared displacements should be 3/200=0.015 for lattice 1 and 3/400=0.0075 for lattice 2: see the 
@@ -174,7 +174,7 @@ test_EC_8
 
 This test is similar to test_EC_1, except that the crystal consists of 4 particles.
 Checks to perform:
-1) The free energy difference per particle between the two systems should be -0.0415888
+1) The free energy difference between the two systems should be -0.0415888
    Check that this is the case for the simulation: the free energy difference is stored in the 'equil_DeltaF' 
    variable output to the terminal, with its uncertainty stored in the 'sigma_equil_DeltaF' variable. 
 2) The mean-squared displacements should be 3/200=0.015 for lattice 1 and 3/400=0.0075 for lattice 2: see the 
@@ -233,6 +233,10 @@ $\langle u^2\rangle_1$=\frac{1}{\beta\alpha_1(\beta P)^{\gamma_1}}\frac{\Gamma(2
 The mean volume is:
 $<V>=\frac{\Gamma(1.5\gamma_1+2)}{\Gamma(1.5\gamma_1+1)}\frac{1}{\beta P}
 Similar applies for lattice 2.
+
+For N>1 particles the partition function is (IS THIS CORRECT?):
+$Z(N)=(2\pi\Gamma(1.5)(\beta\alpha)^{-3/2})^N\frac{\Gamma(1.5N\gamma+1)}{(\betaP)^{1.5N\gamma+1}}
+
 
 Using the expression for the partition function, one can derive an expression for the free energy difference
 between the two lattices:
@@ -307,6 +311,12 @@ Checks to perform (beyond  1)-4) described in test_EC_NPT_1):
    visted with equal probability in multicanonical sampling using an ideal weight function.
 
 
+*****************************
+This test is similar to test EC_NPT_2, but uses 5 particles, and a lattice switch which changes the system volume.
+This checks that lattice switches which do not preserve the system volume sample the NPT ensemble correctly.
+
+Checks to perform:
+1) The free energy difference between the two phases should be -0.7860673299.
 
 
 

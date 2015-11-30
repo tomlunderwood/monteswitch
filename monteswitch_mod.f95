@@ -807,6 +807,45 @@ module monteswitch_mod
   real(rk) :: E
   real(rk) :: M
 
+  !! <h3> Variables describing the lattice switch </h3>
+  !! <table border="1">
+  !! <tr>
+  !!  <td> <b> Variable </b> </td>
+  !!  <td> <b> Type </b> </td>
+  !!  <td> <b> Description </b> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>E</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The current energy. (<code>E=E_1</code> if <code>lattice=1</code> and <code>E=E_2</code> if <code>lattice=2</code>).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>switchscalex</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The scalefactor of the supercell in the x-dimension to take the system from lattice 1 to lattice 2
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>switchscaley</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The scalefactor of the supercell in the y-dimension to take the system from lattice 1 to lattice 2
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>switchscalez</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The scalefactor of the supercell in the z-dimension to take the system from lattice 1 to lattice 2
+  !!  </font> </td>
+  !! </tr>
+  real(rk) :: switchscalex
+  real(rk) :: switchscaley
+  real(rk) :: switchscalez
+
   !! <h3> Variables keeping track of move numbers, acceptance rates, etc. </h3>
   !! <table border="1">
   !! <tr>
@@ -2483,6 +2522,9 @@ module monteswitch_mod
        write(10,*) "E_2= ",E_2
        write(10,*) "E= ",E
        write(10,*) "M= ",M
+       write(10,*) "switchscalex= ",switchscalex
+       write(10,*) "switchscaley= ",switchscaley
+       write(10,*) "switchscalez= ",switchscalez
        write(10,*) "sweeps= ",sweeps
        write(10,*) "moves= ",moves
        write(10,*) "moves_lattice= ",moves_lattice
@@ -3168,6 +3210,21 @@ module monteswitch_mod
     read(10,*,iostat=error) string, M
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'M' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, switchscalex
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'switchscalex' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, switchscaley
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'switchscaley' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, switchscalez
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'switchscalez' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, sweeps
@@ -4074,7 +4131,7 @@ module monteswitch_mod
     end subroutine block_stuff
     
 
-    ! This nested subroutine checks whether or not the system has melted or exploded and acts accordingly.
+    ! This nested subroutine checks whether or not the system has melted and acts accordingly.
     subroutine check_for_melt()
 
       ! Check for melting first
@@ -4117,7 +4174,7 @@ module monteswitch_mod
                   E=E_2
                end select
             end select
-            M=calc_M(E_1,E_2)
+            M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
             if(enable_barriers) then
                call initialise_barriers()
             end if
@@ -4170,7 +4227,7 @@ module monteswitch_mod
       ! Set the energies and order parameters to their exact values
       E_1=E_exact_1
       E_2=E_exact_2
-      M=calc_M(E_1,E_2)
+      M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
     end subroutine check_for_divergence
 
 
@@ -4585,9 +4642,9 @@ module monteswitch_mod
 
 
 
-  !! <h4> <code> function calc_M(E_1,E_2) </code> </h4>
+  !! <h4> <code> function calc_M(E_1,E_2,V_1,V_2) </code> </h4>
   !! <p>
-  !! This function returns the order parameter if the energies of the system in lattice types
+  !! This function returns the order parameter if the energies and volumes of the system in lattice types
   !! 1 and 2 are those of the arguments.
   !! </p>
   !! <table border="1">
@@ -4610,13 +4667,29 @@ module monteswitch_mod
   !!   Energy corresponding to lattice type 2.
   !!   </td>
   !!  </tr>
+  !!  <tr>
+  !!   <td> <code> V_1 </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   Volume corresponding to lattice type 1.
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> V_2 </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   Volume corresponding to lattice type 2.
+  !!   </td>
+  !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_M(E_1,E_2)
+  function calc_M(E_1,E_2,V_1,V_2)
     real(rk), intent(in) :: E_1
     real(rk), intent(in) :: E_2
+    real(rk), intent(in) :: V_1
+    real(rk), intent(in) :: V_2
     real(rk) :: calc_M
-    calc_M=E_1-E_2
+    calc_M = E_1-E_2 + P*(V_1-V_2) - log(V_1/V_2)/beta
   end function calc_M
 
 
@@ -4686,10 +4759,10 @@ module monteswitch_mod
 
   !! <h4> <code> function metropolis_prob(E_trial,M_trial) </code> </h4>
   !! <p>
-  !! This function gives the probability of a move with the specified trial energy and
+  !! This function gives the probability of a particle move with the specified trial energy and
   !! order parameter being accepted according to the Metropolis algorithm, and depends
-  !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag). This
-  !! function is not applicable to volume moves. The <code>trans</code> array is updated within
+  !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag).
+  !! The <code>trans</code> array is updated within
   !! this function if it is in use (i.e. if <code>update_trans=.true.</code>) and we have reached equilibration.
   !! </p>
   !! <table border="1">
@@ -4741,7 +4814,7 @@ module monteswitch_mod
 
   !! <h4> <code> function metropolis_prob_vol(E_trial,M_trial,V_trial) </code> </h4>
   !! <p>
-  !! This function gives the probability of a move with the specified trial energy,
+  !! This function gives the probability of a volume move with the specified trial energy,
   !! order parameter and volume being accepted according to the Metropolis algorithm, and depends
   !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag). The 
   !! <code>trans</code> array is updated within this function if it is in use (if <code>update_trans=.true.</code>)
@@ -4798,6 +4871,72 @@ module monteswitch_mod
        end if
     end if
   end function metropolis_prob_vol
+
+
+
+
+  !! <h4> <code> function metropolis_prob_lattice(E_trial,M_trial,V_trial) </code> </h4>
+  !! <p>
+  !! This function gives the probability of a lattice move with the specified trial energy,
+  !! order parameter and volume being accepted according to the Metropolis algorithm. Note that
+  !! the acceptance probability is not the same as for a volume move because displacements are held
+  !! constant during a lattice switch here. The probability returned depends
+  !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag). The 
+  !! <code>trans</code> array is updated within this function if it is in use (if <code>update_trans=.true.</code>)
+  !! and we have reached equilibration.
+  !! </p>
+  !! <table border="1">
+  !!  <tr>
+  !!   <td> <b> Argument </b> </td>
+  !!   <td> <b> Type </b> </td>
+  !!   <td> <b> Description </b> </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> E_trial </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   The trial energy.
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> M_trial </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   The trial weight function.
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> V_trial </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   The trial volume.
+  !!   </td>
+  !!  </tr>
+  !! </table>
+  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
+  function metropolis_prob_lattice(E_trial,M_trial,V_trial)
+      real(rk), intent(in) :: E_trial
+      real(rk), intent(in) :: M_trial
+      real(rk), intent(in) :: V_trial
+      real(rk) :: metropolis_prob_lattice
+      real(rk) :: prob_B
+      if(enable_multicanonical) then
+          metropolis_prob_lattice= &
+              metropolis_prob_MC_vol_unscaled_pos(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+          if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
+              ! Update 'trans' using the Boltzmann probability of the transition
+              prob_B=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
+              trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
+              trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+          end if
+      else
+          metropolis_prob_lattice=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
+          if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
+              trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob_lattice
+              trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob_lattice
+          end if
+      end if
+  end function metropolis_prob_lattice
 
 
 
@@ -5195,9 +5334,9 @@ module monteswitch_mod
     ! Calculate the probability of accepting a lattice switch
     select case(lattice)
     case(1)
-       prob=metropolis_prob(E_2,M)
+       prob=metropolis_prob_lattice(E_2, M, Lx(2)*Ly(2)*Lz(2) )
     case(2)
-       prob=metropolis_prob(E_1,M)
+       prob=metropolis_prob_lattice(E_1, M, Lx(1)*Ly(1)*Lz(1) )
     case default
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
@@ -5207,9 +5346,11 @@ module monteswitch_mod
        select case(lattice)
        case(1)
           E=E_2
+          V=Lx(2)*Ly(2)*Lz(2)
           lattice=2
        case(2)
           E=E_1
+          V=Lx(1)*Ly(1)*Lz(1)
           lattice=1
        case default
           write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
@@ -5286,7 +5427,7 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
     end select
-    M_trial=calc_M(E_1+delta_E_1,E_2+delta_E_2)
+    M_trial=calc_M(E_1+delta_E_1, E_2+delta_E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
 
     ! Check that M_trial is within the supported range of order parameters.
     proceed=is_M_supported(M_trial)
@@ -5390,7 +5531,7 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
     end select
-    M_trial=calc_M(E_1_trial,E_2_trial)
+    M_trial=calc_M(E_1_trial, E_2_trial, Lx_trial(1)*Ly_trial(1)*Lz_trial(1), Lx_trial(2)*Ly_trial(2)*Lz_trial(2))
 
     ! Check that M_trial is within the supported range of order parameters.
     proceed=is_M_supported(M_trial)
@@ -5439,28 +5580,23 @@ module monteswitch_mod
     subroutine vol_trial_FVM()
       ! Scaling factor for the volume
       real(rk) :: S_vol
-      ! Scaling factors for each dimension
-      real(rk) :: S, S2
+      ! Scaling factor for each dimension for each lattice
+      real(rk) :: S
       ! Determine the scaling factor for the volume
       S_vol=exp(top_hat_rand(vol_step))
       ! Calculate the scaling factor for each dimension required to achieve this new volume
       S=S_vol**(1.0_rk/3.0_rk)
 
-      ! Set the trial variables accordingly. First scale up supercell 1, then recalculate the scaling
-      ! factor required to bring supercell 2 to that volume, then scale up/down supercell 2 accordingly.
-      ! This method ensures that supercells 1 and 2 are always of the same volume, and that there is
-      ! no 'drift' in the volume difference between the supercells over a long simulation due to the
-      ! finite precision of the machine.
+      ! Set the trial variables accordingly.
       V_trial=V*S_vol
       Lx_trial(1)=Lx(1)*S
       Ly_trial(1)=Ly(1)*S
       Lz_trial(1)=Lz(1)*S
-      S2=(Lx_trial(1)*Ly_trial(1)*Lz_trial(1)/(Lx(2)*Ly(2)*Lz(2)))**(1.0_rk/3.0_rk)
-      Lx_trial(2)=Lx(2)*S2
-      Ly_trial(2)=Ly(2)*S2
-      Lz_trial(2)=Lz(2)*S2
+      Lx_trial(2)=Lx(2)*S
+      Ly_trial(2)=Ly(2)*S
+      Lz_trial(2)=Lz(2)*S
       R_1_trial=R_1*S
-      R_2_trial=R_2*S2
+      R_2_trial=R_2*S
       u_trial=u*S
     end subroutine vol_trial_FVM
 
@@ -5721,9 +5857,9 @@ module monteswitch_mod
   !! <h4> <code>  subroutine initialise_lattices(filename) </code> </h4>
   !! <p>
   !! This subroutine initialises <code>spec_1</code>, <code>spec_2</code>, <code>R_1</code>, <code>R_2</code>, <code>n_part</code>, 
-  !! <code>Lx</code>, <code>Ly</code>, 
-  !! <code>Lz</code> by importing these variables from the specified file. This procedure also allocates 
-  !! <code>u</code>. If any of the aforementioned arrays are already allocated, then this subroutine deallocates them before 
+  !! <code>Lx</code>, <code>Ly</code>, <code>Lz</code> by importing these variables from the specified file. This procedure also allocates 
+  !! <code>u</code>, and initialises <code>switchscalex</code>, <code>switchscaley</code> and <code>switchscalez</code>. 
+  !! If any of the aforementioned arrays are already allocated, then this subroutine deallocates them before 
   !! initialising them (and the scalar variables) 'from scratch'. Be aware that this subroutine opens and closes unit 10.
   !! The format of the file <code>filename</code> must be as follows, where <code>n_part</code> is the number of particles in
   !! the supercells pertaining to both lattices 1 and 2; <code>Lx(1)</code> is the length of the supercell for lattice 1 along
@@ -5752,12 +5888,6 @@ module monteswitch_mod
   !! ...
   !! R_2(n_part,1) R_2(n_part,2) R_2(n_part,3) spec_2(n_part)
   !! <code>
-  !! </p>
-  !! <p>
-  !! Note that the volumes of both supercells <i>must</i> match. An error is returned, with error code 1, if the volume of supercell
-  !! 2 is outwith 0.0001% of that of supercell 1. Furthermore, <code>Lx(2)</code>, <code>Ly(2)</code>, and <code>Lz(2)</code> are
-  !! all scaled by a common factor after reading their values from <code>filename</code> such that the volumes of both supercells
-  !! match exactly to within the machine precision.
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -5827,12 +5957,10 @@ module monteswitch_mod
 
     close(unit=10)
 
-    ! Check the volumes of both supercells match
-    scalefactor=Lx(2)*Ly(2)*Lz(2)/(Lx(1)*Ly(1)*Lz(1))
-    if(scalefactor > 1.000001_rk .or. scalefactor < 0.999999_rk) then
-       write(0,*) "Error: the volumes of the supercells specified in the file ",filename," do not sufficiently match."
-       stop 1
-    end if
+    switchscalex = Lx(2)/Lx(1)
+    switchscaley = Ly(2)/Ly(1)
+    switchscalez = Lz(2)/Lz(1)
+
   end subroutine initialise_lattices
 
 
@@ -5882,7 +6010,7 @@ module monteswitch_mod
        write(0,*) "monteswitch_mod: Error. 'lattice_in' is not 1 or 2."
        stop 1
     end select
-    M=calc_M(E_1,E_2)
+    M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
   end subroutine initialise_cold_microstate
 
 
