@@ -134,7 +134,7 @@ program monteswitch_mpi
      ! CODE FOR A NEW SIMULATION
 
      ! Import the appropriate variables from the 3 input files
-     call initialise_from_files("params_in","lattices_in","interactions_in")
+     call initialise_from_files("params_in","lattices_in")
      
      ! Assign sweeps according to the task ID
      call assign_sweeps()

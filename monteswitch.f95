@@ -93,7 +93,7 @@ program monteswitch
 
      ! CODE FOR A NEW SIMULATION
 
-     call initialise_from_files("params_in","lattices_in","interactions_in")
+     call initialise_from_files("params_in","lattices_in")
      call run("data","state",.false.)
 
   else if(trim(char)=="-resume") then

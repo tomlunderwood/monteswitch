@@ -197,11 +197,13 @@ module monteswitch_mod
   !!  <li> <code> kinds_mod </code> </li>
   !!  <li> <code> rng_mod </code> </li>
   !!  <li> <code> metropolis_mod </code> </li>
+  !!  <li> <code> interactions_mod </code> </li>
   !! </ul>
   !! </p>
   use kinds_mod
   use rng_mod
   use metropolis_mod
+  use interactions_mod
 
   implicit none
 
@@ -1586,9 +1588,7 @@ module monteswitch_mod
 
 
 
-  ! Inlcude the 'interactions.f95' file, which contains variables associated with particle interactions,
-  ! followed by the 'contains' statement, followed by procedures associated with particle interactions.
-  include 'interactions.f95'
+contains
 
 
 
@@ -1637,10 +1637,9 @@ module monteswitch_mod
   !!   </td>
   !!  </tr>
   !! </table>
-  subroutine initialise_from_files(filename_params,filename_lattice,filename_interactions)
+  subroutine initialise_from_files(filename_params,filename_lattice)
     character(*), intent(in) :: filename_params
     character(*), intent(in) :: filename_lattice
-    character(*), intent(in) :: filename_interactions
     ! The lattice the system will be initialised in (cold)
     integer(ik) :: init_lattice
     ! The minimum and maximum ranges of the order parameter grid
@@ -1657,7 +1656,7 @@ module monteswitch_mod
     call initialise_counters()
 
     ! Import the 'interactions' variables
-    call initialise_interactions(filename_interactions)
+    call initialise_interactions(Lx(1),Ly(1),Lz(1),spec_1,R_1,Lx(2),Ly(2),Lz(2),spec_2,R_2)
 
     call initialise_cold_microstate(init_lattice)
     if(enable_barriers) then
@@ -2609,7 +2608,7 @@ module monteswitch_mod
        write(10,*) "interblock_sum_umsd_2_sqrd= ",interblock_sum_umsd_2_sqrd
 
        ! Export 'interactions' variables
-       call export_interactions_state(10)
+       call export_interactions()
 
     end if
     close(unit=10)
@@ -3739,7 +3738,7 @@ module monteswitch_mod
     end if
 
     ! Import 'interactions' variables
-    call import_interactions_state(10)
+    call import_interactions()
 
     close(unit=10)
 
@@ -6121,10 +6120,21 @@ module monteswitch_mod
     real(rk), intent(in) :: Lz
     real(rk) :: calc_energy_scratch_wrapper
     ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos 
+    real(rk), dimension(size(u,1),size(u,2)) :: pos
+    ! Species array to be passed to calc_energy_scratch
+    integer(ik), dimension(n_part) :: spec
+    select case(lattice)
+    case(1)
+       spec = spec_1
+    case(2)
+       spec = spec_2
+    case default
+       write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
+       stop 1
+    end select
     pos=R+u
     call translate_positions(pos,Lx,Ly,Lz)
-    calc_energy_scratch_wrapper=calc_energy_scratch(lattice,Lx,Ly,Lz,pos)
+    calc_energy_scratch_wrapper=calc_energy_scratch(lattice,Lx,Ly,Lz,spec,pos)
   end function calc_energy_scratch_wrapper
 
 
@@ -6210,12 +6220,23 @@ module monteswitch_mod
     integer(ik), intent(in) :: i
     real(rk) :: calc_energy_part_move_wrapper
     ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new
+    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new  
+    ! Species array to be passed to calc_energy_scratch
+    integer(ik), dimension(n_part) :: spec
+    select case(lattice)
+    case(1)
+       spec = spec_1
+    case(2)
+       spec = spec_2
+    case default
+       write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
+       stop 1
+    end select
     pos=R+u
     call translate_positions(pos,Lx,Ly,Lz)
     pos_new=R+u_new
     call translate_positions(pos_new,Lx,Ly,Lz)
-    calc_energy_part_move_wrapper=calc_energy_part_move(lattice,Lx,Ly,Lz,pos,pos_new,i)
+    calc_energy_part_move_wrapper=calc_energy_part_move(lattice,Lx,Ly,Lz,spec,pos,pos_new,i)
   end function calc_energy_part_move_wrapper
 
 
