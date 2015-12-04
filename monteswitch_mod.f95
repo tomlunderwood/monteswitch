@@ -4144,8 +4144,8 @@ contains
             stop 2
          case(melt_option_zero_1,melt_option_zero_2,melt_option_zero_current,melt_option_zero_random)
             u=0.0_rk
-            E_1=calc_energy_scratch_wrapper(1,u,R_1,Lx(1),Ly(1),Lz(1))
-            E_2=calc_energy_scratch_wrapper(2,u,R_2,Lx(2),Ly(2),Lz(2))
+            E_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
+            E_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
             select case(melt_option)
             case(melt_option_zero_1)
                lattice=1
@@ -4208,8 +4208,8 @@ contains
     subroutine check_for_divergence()
       real(rk) :: E_exact_1, E_exact_2
       ! Calculate the exact energy for both lattice types
-      E_exact_1=calc_energy_scratch_wrapper(1,u,R_1,Lx(1),Ly(1),Lz(1))
-      E_exact_2=calc_energy_scratch_wrapper(2,u,R_2,Lx(2),Ly(2),Lz(2))
+      E_exact_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
+      E_exact_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
       ! Compare to the current energies and flag any errors
       if(abs(E_1-E_exact_1)>divergence_tol) then
          write(0,*) "monteswitch_mod: Error. Energy of lattice 1 has diverged from exact value by ",abs(E_1-E_exact_1),&
@@ -5414,8 +5414,8 @@ contains
     u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
 
     ! Calculate 'delta_E_1' and 'delta_E_2'
-    delta_E_1=calc_energy_part_move_wrapper(1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
-    delta_E_2=calc_energy_part_move_wrapper(2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
+    delta_E_1=calc_energy_part_move_wrapper(1,spec_1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
+    delta_E_2=calc_energy_part_move_wrapper(2,spec_2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
 
     select case(lattice)
     case(1)
@@ -5519,8 +5519,8 @@ contains
     end select
 
     ! Calculate the other trial variables
-    E_1_trial=calc_energy_scratch_wrapper(1,u_trial,R_1_trial,Lx_trial(1),Ly_trial(1),Lz_trial(1))
-    E_2_trial=calc_energy_scratch_wrapper(2,u_trial,R_2_trial,Lx_trial(2),Ly_trial(2),Lz_trial(2))
+    E_1_trial=calc_energy_scratch_wrapper(1,spec_1,u_trial,R_1_trial,Lx_trial(1),Ly_trial(1),Lz_trial(1))
+    E_2_trial=calc_energy_scratch_wrapper(2,spec_2,u_trial,R_2_trial,Lx_trial(2),Ly_trial(2),Lz_trial(2))
     select case(lattice)
     case(1)
        E_trial=E_1_trial
@@ -5993,16 +5993,16 @@ contains
     select case(lattice_in)
     case(1)
        u=0.0_rk
-       E=calc_energy_scratch_wrapper(1,u,R_1,Lx(1),Ly(1),Lz(1))
+       E=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
        E_1=E
-       E_2=calc_energy_scratch_wrapper(2,u,R_2,Lx(2),Ly(2),Lz(2))
+       E_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
        lattice=1
        V=Lx(1)*Ly(1)*Lz(1)
     case(2)
        u=0.0_rk 
-       E=calc_energy_scratch_wrapper(2,u,R_2,Lx(2),Ly(2),Lz(2))
+       E=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
        E_2=E
-       E_1=calc_energy_scratch_wrapper(1,u,R_1,Lx(1),Ly(1),Lz(1))
+       E_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
        lattice=2
        V=Lx(2)*Ly(2)*Lz(2)
     case default
@@ -6073,6 +6073,13 @@ contains
   !!   <td>
   !!   Lattice type to calculate the energy for.
   !!   </td>
+  !!  <tr>
+  !!   <td> <code> spec </code> </td>
+  !!   <td> <code> integer(ik), dimension(:), intent(in) </code> </td>
+  !!   <td>
+  !!   Species of particles.
+  !!   </td>
+  !!  </tr>
   !!  </tr>
   !!  <tr>
   !!   <td> <code> u </code> </td>
@@ -6111,8 +6118,9 @@ contains
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_scratch_wrapper(lattice,u,R,Lx,Ly,Lz) 
+  function calc_energy_scratch_wrapper(lattice,spec,u,R,Lx,Ly,Lz) 
     integer(ik), intent(in) :: lattice
+    integer(ik), dimension(:), intent(in) :: spec
     real(rk), intent(in), dimension(:,:) :: u
     real(rk), intent(in), dimension(:,:) :: R
     real(rk), intent(in) :: Lx
@@ -6121,17 +6129,6 @@ contains
     real(rk) :: calc_energy_scratch_wrapper
     ! The positions of the particles within the supercell
     real(rk), dimension(size(u,1),size(u,2)) :: pos
-    ! Species array to be passed to calc_energy_scratch
-    integer(ik), dimension(n_part) :: spec
-    select case(lattice)
-    case(1)
-       spec = spec_1
-    case(2)
-       spec = spec_2
-    case default
-       write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
-       stop 1
-    end select
     pos=R+u
     call translate_positions(pos,Lx,Ly,Lz)
     calc_energy_scratch_wrapper=calc_energy_scratch(lattice,Lx,Ly,Lz,spec,pos)
@@ -6157,6 +6154,13 @@ contains
   !!   <td> <code> integer(ik), intent(in) </code> </td>
   !!   <td>
   !!   Lattice type to calculate the energy for.
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> spec </code> </td>
+  !!   <td> <code> integer(ik), dimension(:), intent(in) </code> </td>
+  !!   <td>
+  !!   Species of particles.
   !!   </td>
   !!  </tr>
   !!  <tr>
@@ -6209,8 +6213,9 @@ contains
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_part_move_wrapper(lattice,u,u_new,R,Lx,Ly,Lz,i)
+  function calc_energy_part_move_wrapper(lattice,spec,u,u_new,R,Lx,Ly,Lz,i)
     integer(ik), intent(in) :: lattice
+    integer(ik), dimension(:), intent(in) :: spec
     real(rk), intent(in), dimension(:,:) :: u
     real(rk), intent(in), dimension(:,:) :: u_new
     real(rk), intent(in), dimension(:,:) :: R
@@ -6220,18 +6225,7 @@ contains
     integer(ik), intent(in) :: i
     real(rk) :: calc_energy_part_move_wrapper
     ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new  
-    ! Species array to be passed to calc_energy_scratch
-    integer(ik), dimension(n_part) :: spec
-    select case(lattice)
-    case(1)
-       spec = spec_1
-    case(2)
-       spec = spec_2
-    case default
-       write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
-       stop 1
-    end select
+    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new 
     pos=R+u
     call translate_positions(pos,Lx,Ly,Lz)
     pos_new=R+u_new
