@@ -155,8 +155,8 @@ program monteswitch_post
 
   ! Variables used for -extract_lattices_in
   character(len=20) :: vector_in_1, vector_in_2
-  real(rk), dimension(:,:), allocatable :: pos_1
-  real(rk), dimension(:,:), allocatable :: pos_2
+  real(rk), dimension(:,:), allocatable :: pos_1_temp
+  real(rk), dimension(:,:), allocatable :: pos_2_temp
 
   ! Unimportant variables
   character(len=20) :: char
@@ -334,15 +334,15 @@ program monteswitch_post
      call getarg(2,vector_in_1)
      call getarg(3,vector_in_2)
 
-     allocate(pos_1(n_part,3))
-     allocate(pos_2(n_part,3))
+     allocate(pos_1_temp(n_part,3))
+     allocate(pos_2_temp(n_part,3))
 
-     ! Set pos_1
+     ! Set pos_1_temp
      if(trim(vector_in_1)=="pos") then
-        pos_1 = u + R_1
-        call translate_positions(pos_1,Lx(1),Ly(1),Lz(1))
+        pos_1_temp = u + R_1
+        call translate_positions(pos_1_temp,Lx(1),Ly(1),Lz(1))
      else if(trim(vector_in_1)=="R") then
-        pos_1 = R_1
+        pos_1_temp = R_1
      else if(vector_in_1=="") then
         write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_1' flag for -extract_lattices_in)."
         stop 1
@@ -351,12 +351,12 @@ program monteswitch_post
         stop 1
      end if
 
-     ! Set pos_2
+     ! Set pos_2_temp
      if(trim(vector_in_2)=="pos") then
-        pos_2 = u + R_2
-        call translate_positions(pos_2,Lx(2),Ly(2),Lz(2))
+        pos_2_temp = u + R_2
+        call translate_positions(pos_2_temp,Lx(2),Ly(2),Lz(2))
      else if(trim(vector_in_2)=="R") then
-        pos_2 = R_2
+        pos_2_temp = R_2
      else if(vector_in_2=="") then
         write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_2' flag for -extract_lattices_in)."
         stop 1
@@ -373,14 +373,14 @@ program monteswitch_post
      write(*,*) Ly(1)
      write(*,*) Lz(1)
      do i=1,n_part
-        write(*,*) pos_1(i,1)/Lx(1),pos_1(i,2)/Ly(1),pos_1(i,3)/Lz(1)
+        write(*,*) pos_1_temp(i,1)/Lx(1),pos_1_temp(i,2)/Ly(1),pos_1_temp(i,3)/Lz(1)
      end do
      ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
      write(*,*) Lx(2)
      write(*,*) Ly(2)
      write(*,*) Lz(2)
      do i=1,n_part
-        write(*,*) pos_2(i,1)/Lx(2),pos_2(i,2)/Ly(2),pos_2(i,3)/Lz(2)
+        write(*,*) pos_2_temp(i,1)/Lx(2),pos_2_temp(i,2)/Ly(2),pos_2_temp(i,3)/Lz(2)
      end do
 
 

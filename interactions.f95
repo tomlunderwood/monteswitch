@@ -1,5 +1,7 @@
 
 
+! Author: Tom L Underwood
+
 
 module interactions_mod
 
@@ -48,11 +50,48 @@ end subroutine import_interactions
 
 
 
-! WHAT TO DO WITH THIS?
-subroutine after_accepted_interactions()
+! Performs any interactions-related tasks after a particle move for particle i is accepted
+subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    integer(ik), intent(in) :: i
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+
+end subroutine after_accepted_part_interactions
 
 
-end subroutine after_accepted_interactions
+
+
+! Performs any interactions-related tasks after a volume move is accepted
+subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+
+end subroutine after_accepted_vol_interactions
+
+
+
+
+! Performs any interactions-related tasks after a lattice move is accepted
+subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+
+end subroutine after_accepted_lattice_interactions
+
+
+
+
+! Performs any interactions-related tasks after all moves
+subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+
+
+end subroutine after_all_interactions
 
 
 
@@ -75,7 +114,8 @@ function calc_energy_part_move(lattice,Lx,Ly,Lz,species,pos,pos_new,i)
     integer(ik), intent(in) :: lattice, i
     real(rk), intent(in) :: Lx, Ly, Lz
     integer(ik), dimension(:), intent(in) :: species
-    real(rk), dimension(:,:), intent(in) :: pos, pos_new
+    real(rk), dimension(:,:), intent(in) :: pos
+    real(rk), dimension(3), intent(in) :: pos_new
     real(rk) :: calc_energy_part_move
 
 end function calc_energy_part_move

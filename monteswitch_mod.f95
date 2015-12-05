@@ -4188,8 +4188,10 @@ contains
             stop 2
          case(melt_option_zero_1,melt_option_zero_2,melt_option_zero_current,melt_option_zero_random)
             u=0.0_rk
-            E_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
-            E_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
+            pos_1=R_1
+            pos_2=R_2
+            E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1)
+            E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2)
             select case(melt_option)
             case(melt_option_zero_1)
                lattice=1
@@ -4252,8 +4254,8 @@ contains
     subroutine check_for_divergence()
       real(rk) :: E_exact_1, E_exact_2
       ! Calculate the exact energy for both lattice types
-      E_exact_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
-      E_exact_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
+      E_exact_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1)
+      E_exact_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2)
       ! Compare to the current energies and flag any errors
       if(abs(E_1-E_exact_1)>divergence_tol) then
          write(0,*) "monteswitch_mod: Error. Energy of lattice 1 has diverged from exact value by ",abs(E_1-E_exact_1),&
@@ -5073,6 +5075,9 @@ contains
     integer(ik) :: n ! Particle number
     real(rk) :: usqrd ! The magnitude of u squared for a given particle
 
+    ! Update interactions stuff
+    call after_all_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2)
+
     ! Update the barrier stuff if need be
     if(enable_barriers) then
        call update_barriers()
@@ -5282,15 +5287,58 @@ contains
     real(rk), intent(in) :: Lx, Ly, Lz
     integer(ik) :: i
 
-    do i=lbound(r,1),ubound(r,1)
-       ! Translate the x-component of r(i,:)
-       r(i,1)=modulo(r(i,1),Lx)
-       ! Translate the y-component of r(i,:)
-       r(i,2)=modulo(r(i,2),Ly)
-       ! Translate the z-component of r(i,:)
-       r(i,3)=modulo(r(i,3),Lz)
+    do i=1,n_part
+       call translate_position(r(i,:),Lx,Ly,Lz)
     end do    
   end subroutine translate_positions
+
+
+
+
+  !! <h3> <code> subroutine translate_position(r,Lx,Ly,Lz) </code> </h3>
+  !! <p>
+  !! <code> translate_positios </code> translates the position vector in the 
+  !! array <code>r</code> so that it becomes the analogous positions in a cuboid 
+  !! whose faces are x=0, x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and
+  !! z=<code>Lz</code>.
+  !! </p>
+  !! <table border="1">
+  !!  <tr>
+  !!   <td> <b> Argument </b> </td>
+  !!   <td> <b> Type </b> </td>
+  !!   <td> <b> Description </b> </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> r </code> </td>
+  !!   <td> <code> real(rk), dimension(3), intent(inout) </code> </td>
+  !!   <td> Position to be translated. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Lx </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the x-axis. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Ly </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the y-axis. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Lz </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the z-axis. </td>
+  !!  </tr>
+  !! </table>
+  subroutine translate_position(r,Lx,Ly,Lz)
+    real(rk), dimension(3), intent(inout) :: r
+    real(rk), intent(in) :: Lx, Ly, Lz
+    integer(ik) :: i
+
+    r(1)=modulo(r(1),Lx)
+    r(2)=modulo(r(2),Ly)
+    r(3)=modulo(r(3),Lz)
+
+  end subroutine translate_position
 
 
 
@@ -5401,6 +5449,8 @@ contains
        end select
        ! Ammend accepted counters
        accepted_moves_lattice=accepted_moves_lattice+1
+       ! Perform 'interactions'-specific tasks after an accepted move
+       call after_accepted_lattice_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2)
     end if
     ! Ammend counter
     moves_lattice=moves_lattice+1
@@ -5431,8 +5481,11 @@ contains
   !! </table>
   subroutine move_particle(i)
     integer(ik), intent(in) :: i
-    ! 'u_trial' is the trial set of displacements.
-    real(rk), dimension(n_part,3) :: u_trial
+    ! 'u_trial' is the trial displacement vector for particle i
+    real(rk), dimension(3) :: u_trial
+    ! Trial position vectors for each lattice
+    real(rk), dimension(3) :: pos_new_1
+    real(rk), dimension(3) :: pos_new_2
     ! 'delta_E_1' and 'delta_E_2' are the energy differences between the trial move and the current energy
     ! lattice types 1 and 2.
     real(rk) :: delta_E_1
@@ -5446,38 +5499,25 @@ contains
     ! This is a boolean which determines whether or not the move is within the required range
     ! of order parameters
     logical :: proceed
-    ! The mean particle displacement (for use if enable_COM_frame=.true.)
-    real(rk), dimension(3) :: umean
+    ! The change in the particle displacement - which constitutes the move
+    real(rk), dimension(3) :: delta_u
     ! For use in loops
     integer(ik) :: j
 
+    ! Generate trial positions for particle 'i' according to a random walk
+    delta_u(1)=top_hat_rand(part_step)
+    delta_u(2)=top_hat_rand(part_step)
+    delta_u(3)=top_hat_rand(part_step)
+    pos_new_1=pos_1(i,:)+delta_u
+    call translate_position(pos_new_1,Lx(1),Ly(1),Lz(1))
+    pos_new_2=pos_2(i,:)+delta_u
+    call translate_position(pos_new_2,Lx(2),Ly(2),Lz(2))
 
-    !* * Generate change for particle i: delta(3) 
-    !*       delta(1)=top_hat_rand(part_step)
-    !*       delta(2)=top_hat_rand(part_step)
-    !*       delta(3)=top_hat_rand(part_step)
-    !* * Generate new position pos_new_1(3) and pos_new_2 for particle i:
-    !*       pos_new_1=pos_1(i,:)+delta
-    !*       pos_new_2=pos_2(i,:)+delta
-    !* * Translate the new position to within the supercell
-    !*       call translate_position(pos_new_1,Lx(1),Ly(1),Lz(1))
-    !*       call translate_position(pos_new_2,Lx(2),Ly(2),Lz(2))
-    !* * Calculate the change in energies for each lattice:
-    !*       delta_E_1=calc_energy_part_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,i) [change format of calc_energy_part_move]
-    !*       delta_E_2=calc_energy_part_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,i) [change format of calc_energy_part_move]
+    ! Calculate the change in energies for each lattice, using the new positions for i
+    delta_E_1=calc_energy_part_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,i)
+    delta_E_2=calc_energy_part_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,i)
 
-    
-
-!!$    ! Generate 'u_trial' by moving particle 'i' according to a random walk
-!!$    u_trial=u
-!!$    u_trial(i,1)=u(i,1)+top_hat_rand(part_step)
-!!$    u_trial(i,2)=u(i,2)+top_hat_rand(part_step)
-!!$    u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
-!!$
-!!$    ! Calculate 'delta_E_1' and 'delta_E_2'
-!!$    delta_E_1=calc_energy_part_move_wrapper(1,spec_1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
-!!$    delta_E_2=calc_energy_part_move_wrapper(2,spec_2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
-
+    ! Set delta_E depending on the lattice, and calculate M for the trial state
     select case(lattice)
     case(1)
        delta_E=delta_E_1
@@ -5505,33 +5545,46 @@ contains
        ! Finally, if proceed=.true. accept the move or not based on a random number
        if(proceed .and. get_random_number()<prob) then
 
-           !* * Accept change to pos_1(i,:) and pos_2(i,:)
-           !*       pos_1(i,:)=pos_new_1
-           !*       pos_2(i,:)=pos_new_2
-           !* * Update u by delta
-           !*       u(i,:)=u(i,:)+delta
+           ! Accept the change to pos_1, pos_2 particle i
+           pos_1(i,:)=pos_new_1
+           pos_2(i,:)=pos_new_2
 
-!!$          u=u_trial
-          E_1=E_1+delta_E_1
-          E_2=E_2+delta_E_2
-          E=E+delta_E
-          M=M_trial
-          ! If we use the centre-of-mass frame then ammend the particle displacements.
-          ! This could probably be done faster/more efficiently if required.
-          if(enable_COM_frame) then
-             umean=0.0_rk
-             do j=1,n_part
-                umean(:)=umean(:)+u(j,:)
-             end do
-             umean=umean/n_part
-             do j=1,n_part
-                u(j,:)=u(j,:)-umean(:)
-             end do
-          end if
-          ! Ammend accepted counters
-          accepted_moves_part=accepted_moves_part+1
-          ! Perform 'interactions'-specific tasks after an accepted move
-          call after_accepted_interactions()
+           ! Amend the displacement of particle i accordingly
+           u(i,:)=u(i,:)+delta_u
+           
+           ! Update the energies
+           E_1=E_1+delta_E_1
+           E_2=E_2+delta_E_2
+           E=E+delta_E
+           M=M_trial
+           
+           ! If we use the centre-of-mass frame...
+           if(enable_COM_frame) then
+               ! Ammend the particle displacements: shift all displacements by -delta_u/n_part
+               ! to counter the fact that u(i,:) has shifted by delta_u
+               u(:,1)=u(:,1)-delta_u(1)/n_part
+               u(:,2)=u(:,2)-delta_u(2)/n_part
+               u(:,3)=u(:,3)-delta_u(3)/n_part
+               ! Update the positions to correspond to this shift - otherwise, while the separations between the
+               ! particles according to the positions will be correct, the absolute positions of the particles will
+               ! not be 'the lattice site positions plus the displacement'.
+               ! For optimisation purposes, if one does not care about the positions not matching the displacements,
+               ! and considers the arrays pos_1 and pos_2 simply as 'work arrays' to enable energies to be efficiently
+               ! evaluated, then perhaps this can be removed?
+               pos_1(:,1)=pos_1(:,1)-delta_u(1)/n_part
+               pos_1(:,2)=pos_1(:,2)-delta_u(2)/n_part
+               pos_1(:,3)=pos_1(:,3)-delta_u(3)/n_part
+               call translate_positions(pos_1,Lx(1),Ly(1),Lz(1))
+               pos_2(:,1)=pos_2(:,1)-delta_u(1)/n_part
+               pos_2(:,2)=pos_2(:,2)-delta_u(2)/n_part
+               pos_2(:,3)=pos_2(:,3)-delta_u(3)/n_part
+               call translate_positions(pos_2,Lx(2),Ly(2),Lz(2))
+           end if
+           ! Ammend accepted counters
+           accepted_moves_part=accepted_moves_part+1
+           ! Perform 'interactions'-specific tasks after an accepted move
+           call after_accepted_part_interactions(i, Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2)
+
        end if
     end if
     ! Ammend counter
@@ -5554,11 +5607,14 @@ contains
     real(rk), dimension(2) :: Lx_trial
     real(rk), dimension(2) :: Ly_trial
     real(rk), dimension(2) :: Lz_trial
+    ! 'u_trial' are the trial displacements
+    real(rk), dimension(n_part,3) :: u_trial
     ! 'R_1_trial' and 'R_2_trial' are the trial lattice vectors for lattice types 1 and 2 respectively
     real(rk), dimension(n_part,3) :: R_1_trial
     real(rk), dimension(n_part,3) :: R_2_trial
-    ! 'u_trial' is the trial set of displacements.
-    real(rk), dimension(n_part,3) :: u_trial
+    ! Trial positions for both lattices
+    real(rk), dimension(n_part,3) :: pos_trial_1
+    real(rk), dimension(n_part,3) :: pos_trial_2
     ! 'E_1_trial' and 'E_2_trial' are the trial energies for lattice types 1 and 2.
     real(rk) :: E_1_trial
     real(rk) :: E_2_trial
@@ -5575,7 +5631,7 @@ contains
     logical :: proceed
 
     ! Generate trial varaiables 'Lx_trial', 'Ly_trial', 'Lz_trial', 'V_trial',
-    ! 'R_1_trial', 'R_2_trial' and 'u_trial'
+    ! 'R_1_trial', 'R_2_trial', 'u_trial', 'pos_trial_1' and 'pos_trial_2'
     select case(vol_dynamics)
     case(vol_dynamics_FVM)
        call vol_trial_FVM()
@@ -5587,8 +5643,9 @@ contains
     end select
 
     ! Calculate the other trial variables
-    E_1_trial=calc_energy_scratch_wrapper(1,spec_1,u_trial,R_1_trial,Lx_trial(1),Ly_trial(1),Lz_trial(1))
-    E_2_trial=calc_energy_scratch_wrapper(2,spec_2,u_trial,R_2_trial,Lx_trial(2),Ly_trial(2),Lz_trial(2))
+    E_1_trial=calc_energy_scratch(1,Lx_trial(1),Ly_trial(1),Lz_trial(1),spec_1,pos_trial_1)
+    E_2_trial=calc_energy_scratch(2,Lx_trial(2),Ly_trial(2),Lz_trial(2),spec_2,pos_trial_2)
+
     select case(lattice)
     case(1)
        E_trial=E_1_trial
@@ -5619,9 +5676,11 @@ contains
           Ly=Ly_trial
           Lz=Lz_trial
           V=V_trial
+          u=u_trial
           R_1=R_1_trial
           R_2=R_2_trial
-          u=u_trial
+          pos_1=pos_trial_1
+          pos_2=pos_trial_2
           E_1=E_1_trial
           E_2=E_2_trial
           E=E_trial
@@ -5629,7 +5688,7 @@ contains
           ! Ammend accepted counters
           accepted_moves_vol=accepted_moves_vol+1
           ! Perform 'interactions'-specific tasks after an accepted move
-          call after_accepted_interactions()
+          call after_accepted_vol_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2)
        end if
     end if
     ! Ammend counters
@@ -5665,6 +5724,9 @@ contains
       R_1_trial=R_1*S
       R_2_trial=R_2*S
       u_trial=u*S
+      pos_trial_1=pos_1*S
+      pos_trial_2=pos_2*S
+
     end subroutine vol_trial_FVM
 
     ! This nested subroutine sets the variables 'Lx_trial', 'Ly_trial', 'Lz_trial', 'V_trial',
@@ -5688,7 +5750,6 @@ contains
       Lz_trial=Lz
       R_1_trial=R_1
       R_2_trial=R_2
-      u_trial=u
 
       ! Determine the scaling factor for the volume
       S=exp(top_hat_rand(vol_step))
@@ -5703,6 +5764,9 @@ contains
          R_1_trial(:,1)=R_1(:,1)*S
          R_2_trial(:,1)=R_2(:,1)*S
          u_trial(:,1)=u(:,1)*S
+         pos_trial_1(:,1)=pos_1(:,1)*S
+         pos_trial_2(:,1)=pos_2(:,1)*S
+
       else if(rand<2.0_rk/3.0_rk) then
          ! Move y
          V_trial=V*S
@@ -5711,6 +5775,9 @@ contains
          R_1_trial(:,2)=R_1(:,2)*S
          R_2_trial(:,2)=R_2(:,2)*S
          u_trial(:,2)=u(:,2)*S
+         pos_trial_1(:,2)=pos_1(:,2)*S
+         pos_trial_2(:,2)=pos_2(:,2)*S
+
       else
          ! Move z
          V_trial=V*S
@@ -5719,6 +5786,9 @@ contains
          R_1_trial(:,3)=R_1(:,3)*S
          R_2_trial(:,3)=R_2(:,3)*S
          u_trial(:,3)=u(:,3)*S
+         pos_trial_1(:,3)=pos_1(:,3)*S
+         pos_trial_2(:,3)=pos_2(:,3)*S
+
       end if
 
     end subroutine vol_trial_UVM
@@ -6072,18 +6142,18 @@ contains
        u=0.0_rk
        pos_1=R_1
        pos_2=R_2
-       E=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
+       E=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1)
        E_1=E
-       E_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
+       E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2)
        lattice=1
        V=Lx(1)*Ly(1)*Lz(1)
     case(2)
        u=0.0_rk 
        pos_1=R_1
        pos_2=R_2
-       E=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
+       E=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2)
        E_2=E
-       E_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
+       E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1)
        lattice=2
        V=Lx(2)*Ly(2)*Lz(2)
     case default
@@ -6127,192 +6197,6 @@ contains
     rejected_moves_M_barrier=0
     moves_since_lock=0
   end subroutine initialise_barriers
-
-
-
-
-  !! <h3> Wrappers to calculate energies </h3>
-
-
-
-
-  !! <h4> <code> function calc_energy_scratch_wrapper(lattice,u,R,Lx,Ly,Lz) </code> </h4>
-  !! <p>
-  !! This function wraps to the <code>calc_energy_scratch(lattice,Lx,Ly,Lz,r)</code> function in the module
-  !! <code>energy_mod</code>. The <code>calc_energy_scratch(lattice,Lx,Ly,Lz,r)</code> function requires
-  !! particle positions which are within the supercell - hence this wrapper.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  <tr>
-  !!   <td> <code> spec </code> </td>
-  !!   <td> <code> integer(ik), dimension(:), intent(in) </code> </td>
-  !!   <td>
-  !!   Species of particles.
-  !!   </td>
-  !!  </tr>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> u </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle displacements.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> R </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the lattice site positions.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_scratch_wrapper(lattice,spec,u,R,Lx,Ly,Lz) 
-    integer(ik), intent(in) :: lattice
-    integer(ik), dimension(:), intent(in) :: spec
-    real(rk), intent(in), dimension(:,:) :: u
-    real(rk), intent(in), dimension(:,:) :: R
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    real(rk) :: calc_energy_scratch_wrapper
-    ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos
-    pos=R+u
-    call translate_positions(pos,Lx,Ly,Lz)
-    calc_energy_scratch_wrapper=calc_energy_scratch(lattice,Lx,Ly,Lz,spec,pos)
-  end function calc_energy_scratch_wrapper
-
-
-
-
-  !! <h4> <code> function calc_energy_part_move_wrapper(u,u_new,R,Lx,Ly,Lz,list,i) </code> </h4>
-  !! <p>
-  !! This function wraps to the <code>calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i)</code> function in the module
-  !! <code>energy_mod</code>. The <code>calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i)</code> function requires
-  !! particle positions which are within the supercell - hence this wrapper.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> spec </code> </td>
-  !!   <td> <code> integer(ik), dimension(:), intent(in) </code> </td>
-  !!   <td>
-  !!   Species of particles.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> u </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle displacements.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> u_new </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the 'new' particle displacements - in which only particle <code>i</code>
-  !!   has a different displacement from the other particles.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> R </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the lattice site positions (which defines the underlying lattice).
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> i </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td> The particle whose displacement has been modified relative to the 'old' displacements <code>u</code>. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_part_move_wrapper(lattice,spec,u,u_new,R,Lx,Ly,Lz,i)
-    integer(ik), intent(in) :: lattice
-    integer(ik), dimension(:), intent(in) :: spec
-    real(rk), intent(in), dimension(:,:) :: u
-    real(rk), intent(in), dimension(:,:) :: u_new
-    real(rk), intent(in), dimension(:,:) :: R
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    integer(ik), intent(in) :: i
-    real(rk) :: calc_energy_part_move_wrapper
-    ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new 
-    pos=R+u
-    call translate_positions(pos,Lx,Ly,Lz)
-    pos_new=R+u_new
-    call translate_positions(pos_new,Lx,Ly,Lz)
-    calc_energy_part_move_wrapper=calc_energy_part_move(lattice,Lx,Ly,Lz,spec,pos,pos_new,i)
-  end function calc_energy_part_move_wrapper
 
 
 
