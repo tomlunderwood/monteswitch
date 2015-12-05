@@ -725,6 +725,26 @@ module monteswitch_mod
   !!  </font> </td>
   !! </tr>
   !! <tr>
+  !!  <td> <font color="red">  <code>pos_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  (<code>pos_1(n,1)</code>,<code>pos_1(n,2)</code>,<code>pos_1(n,3)</code>) is the position 
+  !!  of the nth particle for lattice type 1.
+  !!  This array should have <code>n_part</code> elements in its first dimension,
+  !!  and 3 elements in its second.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>pos_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  (<code>pos_2(n,2)</code>,<code>pos_2(n,2)</code>,<code>pos_2(n,3)</code>) is the position 
+  !!  of the nth particle for lattice type 2.
+  !!  This array should have <code>n_part</code> elements in its first dimension,
+  !!  and 3 elements in its second.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
   !!  <td> <font color="red">  <code>R_1</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
@@ -800,6 +820,8 @@ module monteswitch_mod
   real(rk) :: V
   integer(ik), dimension(:), allocatable :: spec_1
   integer(ik), dimension(:), allocatable :: spec_2
+  real(rk), dimension(:,:), allocatable :: pos_1
+  real(rk), dimension(:,:), allocatable :: pos_2
   real(rk), dimension(:,:), allocatable :: R_1
   real(rk), dimension(:,:), allocatable :: R_2
   real(rk), dimension(:,:), allocatable :: u
@@ -2588,6 +2610,8 @@ contains
        ! Output allocatable arrays
        write(10,*) "spec_1= ",spec_1
        write(10,*) "spec_2= ",spec_2
+       write(10,*) "pos_1= ",pos_1
+       write(10,*) "pos_2= ",pos_2
        write(10,*) "R_1= ",R_1
        write(10,*) "R_2= ",R_2
        write(10,*) "u= ",u
@@ -3554,6 +3578,26 @@ contains
     read(10,*,iostat=error) string, spec_2
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'spec_2' from file '",trim(filename)
+       stop 1
+    end if
+    ! pos_1
+    if(allocated(pos_1)) then
+       deallocate(pos_1)
+    end if
+    allocate(pos_1(n_part,3))
+    read(10,*,iostat=error) string, pos_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'pos_1' from file '",trim(filename)
+       stop 1
+    end if
+    ! pos_2
+    if(allocated(pos_2)) then
+       deallocate(pos_2)
+    end if
+    allocate(pos_2(n_part,3))
+    read(10,*,iostat=error) string, pos_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'pos_2' from file '",trim(filename)
        stop 1
     end if
     ! R_1
@@ -5407,15 +5451,32 @@ contains
     ! For use in loops
     integer(ik) :: j
 
-    ! Generate 'u_trial' by moving particle 'i' according to a random walk
-    u_trial=u
-    u_trial(i,1)=u(i,1)+top_hat_rand(part_step)
-    u_trial(i,2)=u(i,2)+top_hat_rand(part_step)
-    u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
 
-    ! Calculate 'delta_E_1' and 'delta_E_2'
-    delta_E_1=calc_energy_part_move_wrapper(1,spec_1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
-    delta_E_2=calc_energy_part_move_wrapper(2,spec_2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
+    !* * Generate change for particle i: delta(3) 
+    !*       delta(1)=top_hat_rand(part_step)
+    !*       delta(2)=top_hat_rand(part_step)
+    !*       delta(3)=top_hat_rand(part_step)
+    !* * Generate new position pos_new_1(3) and pos_new_2 for particle i:
+    !*       pos_new_1=pos_1(i,:)+delta
+    !*       pos_new_2=pos_2(i,:)+delta
+    !* * Translate the new position to within the supercell
+    !*       call translate_position(pos_new_1,Lx(1),Ly(1),Lz(1))
+    !*       call translate_position(pos_new_2,Lx(2),Ly(2),Lz(2))
+    !* * Calculate the change in energies for each lattice:
+    !*       delta_E_1=calc_energy_part_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,i) [change format of calc_energy_part_move]
+    !*       delta_E_2=calc_energy_part_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,i) [change format of calc_energy_part_move]
+
+    
+
+!!$    ! Generate 'u_trial' by moving particle 'i' according to a random walk
+!!$    u_trial=u
+!!$    u_trial(i,1)=u(i,1)+top_hat_rand(part_step)
+!!$    u_trial(i,2)=u(i,2)+top_hat_rand(part_step)
+!!$    u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
+!!$
+!!$    ! Calculate 'delta_E_1' and 'delta_E_2'
+!!$    delta_E_1=calc_energy_part_move_wrapper(1,spec_1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
+!!$    delta_E_2=calc_energy_part_move_wrapper(2,spec_2,u,u_trial,R_2,Lx(2),Ly(2),Lz(2),i)
 
     select case(lattice)
     case(1)
@@ -5443,7 +5504,14 @@ contains
        end if
        ! Finally, if proceed=.true. accept the move or not based on a random number
        if(proceed .and. get_random_number()<prob) then
-          u=u_trial
+
+           !* * Accept change to pos_1(i,:) and pos_2(i,:)
+           !*       pos_1(i,:)=pos_new_1
+           !*       pos_2(i,:)=pos_new_2
+           !* * Update u by delta
+           !*       u(i,:)=u(i,:)+delta
+
+!!$          u=u_trial
           E_1=E_1+delta_E_1
           E_2=E_2+delta_E_2
           E=E+delta_E
@@ -5857,7 +5925,8 @@ contains
   !! <p>
   !! This subroutine initialises <code>spec_1</code>, <code>spec_2</code>, <code>R_1</code>, <code>R_2</code>, <code>n_part</code>, 
   !! <code>Lx</code>, <code>Ly</code>, <code>Lz</code> by importing these variables from the specified file. This procedure also allocates 
-  !! <code>u</code>, and initialises <code>switchscalex</code>, <code>switchscaley</code> and <code>switchscalez</code>. 
+  !! <code>u</code>, <code>pos_1</code> and <code>pos_2</code>, and initialises <code>switchscalex</code>, <code>switchscaley</code> 
+  !! and <code>switchscalez</code>. 
   !! If any of the aforementioned arrays are already allocated, then this subroutine deallocates them before 
   !! initialising them (and the scalar variables) 'from scratch'. Be aware that this subroutine opens and closes unit 10.
   !! The format of the file <code>filename</code> must be as follows, where <code>n_part</code> is the number of particles in
@@ -5912,6 +5981,12 @@ contains
     if(allocated(spec_2)) then
        deallocate(spec_2)
     end if
+    if(allocated(pos_1)) then
+       deallocate(pos_1)
+    end if
+    if(allocated(pos_2)) then
+       deallocate(pos_2)
+    end if
     if(allocated(R_1)) then
        deallocate(R_1)
     end if
@@ -5932,6 +6007,8 @@ contains
     read(10,*) n_part
     allocate(spec_1(n_part))
     allocate(spec_2(n_part))
+    allocate(pos_1(n_part,3))
+    allocate(pos_2(n_part,3))
     allocate(R_1(n_part,3))
     allocate(R_2(n_part,3))
     allocate(u(n_part,3))
@@ -5968,8 +6045,8 @@ contains
   !! <h4> <code> subroutine initialise_cold_microstate(lattice_in) </code> </h4>
   !! <p>
   !! This procedure initialises <code>u</code>, <code>lattice</code>, <code>E</code>, 
-  !! <code>E_1</code>, <code>E_2</code>, <code>V</code> and <code>M</code> to reflect the microstate
-  !! with <code>u=0</code> for the specified lattice.
+  !! <code>E_1</code>, <code>E_2</code>, <code>pos_1</code>, <code>pos_2</code>,
+  !! <code>V</code> and <code>M</code> to reflect the microstate with <code>u=0</code> for the specified lattice.
   !! </p>
   !! <p>
   !! <b> Dependencies: </b> <code>n_part</code>, <code>R_1</code>, <code>R_2</code>, <code>Lx</code>, <code>Ly</code>, 
@@ -5993,6 +6070,8 @@ contains
     select case(lattice_in)
     case(1)
        u=0.0_rk
+       pos_1=R_1
+       pos_2=R_2
        E=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
        E_1=E
        E_2=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
@@ -6000,6 +6079,8 @@ contains
        V=Lx(1)*Ly(1)*Lz(1)
     case(2)
        u=0.0_rk 
+       pos_1=R_1
+       pos_2=R_2
        E=calc_energy_scratch_wrapper(2,spec_2,u,R_2,Lx(2),Ly(2),Lz(2))
        E_2=E
        E_1=calc_energy_scratch_wrapper(1,spec_1,u,R_1,Lx(1),Ly(1),Lz(1))
