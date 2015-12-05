@@ -5238,15 +5238,58 @@ contains
     real(rk), intent(in) :: Lx, Ly, Lz
     integer(ik) :: i
 
-    do i=lbound(r,1),ubound(r,1)
-       ! Translate the x-component of r(i,:)
-       r(i,1)=modulo(r(i,1),Lx)
-       ! Translate the y-component of r(i,:)
-       r(i,2)=modulo(r(i,2),Ly)
-       ! Translate the z-component of r(i,:)
-       r(i,3)=modulo(r(i,3),Lz)
+    do i=1,n_part
+       call translate_position(r(i,:),Lx,Ly,Lz)
     end do    
   end subroutine translate_positions
+
+
+
+
+  !! <h3> <code> subroutine translate_position(r,Lx,Ly,Lz) </code> </h3>
+  !! <p>
+  !! <code> translate_positios </code> translates the position vector in the 
+  !! array <code>r</code> so that it becomes the analogous positions in a cuboid 
+  !! whose faces are x=0, x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and
+  !! z=<code>Lz</code>.
+  !! </p>
+  !! <table border="1">
+  !!  <tr>
+  !!   <td> <b> Argument </b> </td>
+  !!   <td> <b> Type </b> </td>
+  !!   <td> <b> Description </b> </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> r </code> </td>
+  !!   <td> <code> real(rk), dimension(3), intent(inout) </code> </td>
+  !!   <td> Position to be translated. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Lx </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the x-axis. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Ly </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the y-axis. </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> Lz </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> Length of cuboid along the z-axis. </td>
+  !!  </tr>
+  !! </table>
+  subroutine translate_position(r,Lx,Ly,Lz)
+    real(rk), dimension(3), intent(inout) :: r
+    real(rk), intent(in) :: Lx, Ly, Lz
+    integer(ik) :: i
+
+    r(1)=modulo(r(1),Lx)
+    r(2)=modulo(r(2),Ly)
+    r(3)=modulo(r(3),Lz)
+
+  end subroutine translate_position
 
 
 
@@ -5387,8 +5430,8 @@ contains
   !! </table>
   subroutine move_particle(i)
     integer(ik), intent(in) :: i
-    ! 'u_trial' is the trial set of displacements.
-    real(rk), dimension(n_part,3) :: u_trial
+    ! 'u_trial' is the trial displacement vector for particle i
+    real(rk), dimension(3) :: u_trial
     ! 'delta_E_1' and 'delta_E_2' are the energy differences between the trial move and the current energy
     ! lattice types 1 and 2.
     real(rk) :: delta_E_1
@@ -5402,16 +5445,16 @@ contains
     ! This is a boolean which determines whether or not the move is within the required range
     ! of order parameters
     logical :: proceed
-    ! The mean particle displacement (for use if enable_COM_frame=.true.)
-    real(rk), dimension(3) :: umean
+    ! The change in the particle displacement - which constitutes the move
+    real(rk), dimension(3) :: delta_u
     ! For use in loops
     integer(ik) :: j
 
     ! Generate 'u_trial' by moving particle 'i' according to a random walk
-    u_trial=u
-    u_trial(i,1)=u(i,1)+top_hat_rand(part_step)
-    u_trial(i,2)=u(i,2)+top_hat_rand(part_step)
-    u_trial(i,3)=u(i,3)+top_hat_rand(part_step)
+    delta_u(1)=top_hat_rand(part_step)
+    delta_u(2)=top_hat_rand(part_step)
+    delta_u(3)=top_hat_rand(part_step)
+    u_trial=u(i,:)+delta_u
 
     ! Calculate 'delta_E_1' and 'delta_E_2'
     delta_E_1=calc_energy_part_move_wrapper(1,spec_1,u,u_trial,R_1,Lx(1),Ly(1),Lz(1),i)
@@ -5443,22 +5486,17 @@ contains
        end if
        ! Finally, if proceed=.true. accept the move or not based on a random number
        if(proceed .and. get_random_number()<prob) then
-          u=u_trial
+          u(i,:)=u_trial
           E_1=E_1+delta_E_1
           E_2=E_2+delta_E_2
           E=E+delta_E
           M=M_trial
-          ! If we use the centre-of-mass frame then ammend the particle displacements.
-          ! This could probably be done faster/more efficiently if required.
+          ! If we use the centre-of-mass frame then ammend the particle displacements: shift all displacements
+          ! by -delta/N
           if(enable_COM_frame) then
-             umean=0.0_rk
-             do j=1,n_part
-                umean(:)=umean(:)+u(j,:)
-             end do
-             umean=umean/n_part
-             do j=1,n_part
-                u(j,:)=u(j,:)-umean(:)
-             end do
+             u(:,1)=u(:,1)-delta_u(1)/n_part
+             u(:,2)=u(:,2)-delta_u(2)/n_part
+             u(:,3)=u(:,3)-delta_u(3)/n_part
           end if
           ! Ammend accepted counters
           accepted_moves_part=accepted_moves_part+1
@@ -6172,10 +6210,9 @@ contains
   !!  </tr>
   !!  <tr>
   !!   <td> <code> u_new </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
+  !!   <td> <code> real(rk), intent(in), dimension(3) </code> </td>
   !!   <td>
-  !!   Array containing the 'new' particle displacements - in which only particle <code>i</code>
-  !!   has a different displacement from the other particles.
+  !!   The 'new' particle displacement for particle <code>i</code>
   !!   </td>
   !!  </tr>
   !!  <tr>
@@ -6217,7 +6254,7 @@ contains
     integer(ik), intent(in) :: lattice
     integer(ik), dimension(:), intent(in) :: spec
     real(rk), intent(in), dimension(:,:) :: u
-    real(rk), intent(in), dimension(:,:) :: u_new
+    real(rk), intent(in), dimension(3) :: u_new
     real(rk), intent(in), dimension(:,:) :: R
     real(rk), intent(in) :: Lx
     real(rk), intent(in) :: Ly
@@ -6225,11 +6262,12 @@ contains
     integer(ik), intent(in) :: i
     real(rk) :: calc_energy_part_move_wrapper
     ! The positions of the particles within the supercell
-    real(rk), dimension(size(u,1),size(u,2)) :: pos, pos_new 
+    real(rk), dimension(size(u,1),size(u,2)) :: pos
+    real(rk), dimension(3) :: pos_new 
     pos=R+u
     call translate_positions(pos,Lx,Ly,Lz)
-    pos_new=R+u_new
-    call translate_positions(pos_new,Lx,Ly,Lz)
+    pos_new=R(i,:)+u_new
+    call translate_position(pos_new,Lx,Ly,Lz)
     calc_energy_part_move_wrapper=calc_energy_part_move(lattice,Lx,Ly,Lz,spec,pos,pos_new,i)
   end function calc_energy_part_move_wrapper
 

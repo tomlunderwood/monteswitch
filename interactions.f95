@@ -75,7 +75,8 @@ function calc_energy_part_move(lattice,Lx,Ly,Lz,species,pos,pos_new,i)
     integer(ik), intent(in) :: lattice, i
     real(rk), intent(in) :: Lx, Ly, Lz
     integer(ik), dimension(:), intent(in) :: species
-    real(rk), dimension(:,:), intent(in) :: pos, pos_new
+    real(rk), dimension(:,:), intent(in) :: pos
+    real(rk), dimension(3), intent(in) :: pos_new
     real(rk) :: calc_energy_part_move
 
 end function calc_energy_part_move
