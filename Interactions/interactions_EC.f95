@@ -2,7 +2,7 @@
 ! Author: Tom L Underwood
 
 ! The Hamiltonian corresponding to this module is as follows. In lattice 1 the energy
-! of each particle corresponds to a harmonic oscillator about the origin in which the
+! of each particle corresponds to a harmonic oscillator ABOUT THE ORIGIN, for which the
 ! spring constant is 'alpha_1'; the spring constant for lattice 2 is 'alpha_2'.
 !
 ! 'alpha_1' and 'alpha_2' are imported at initialisation from a file 'interactions_in'.
