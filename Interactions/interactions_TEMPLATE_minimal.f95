@@ -65,7 +65,20 @@ end subroutine export_interactions
 ! read from the file(s) should correspond to that output by 'export_interactions' above. If one is
 ! importing from within a 'state' file as described in that procedure, then use unit 10, but
 ! do not open or close that unit!
-subroutine import_interactions()
+subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+    ! Dimensions of the (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
+    ! etc.
+    real(rk), intent(in), dimension(:,:) :: u
 
     return
 

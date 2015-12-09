@@ -3782,7 +3782,7 @@ contains
     end if
 
     ! Import 'interactions' variables
-    call import_interactions()
+    call import_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
 
     close(unit=10)
 
