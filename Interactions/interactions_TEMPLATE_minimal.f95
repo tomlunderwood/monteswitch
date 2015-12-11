@@ -23,7 +23,7 @@ module interactions_mod
 contains
 
 
-! Initialises the  variables in this module. The initial configurations for both
+! Initialises the variables in this module. The initial configurations for both
 ! lattices are provided as arguments in case this information is required. Unless the interactions
 ! are 'hard-coded', the initialisation will involve reading from a file. This should be done here.
 subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
@@ -65,7 +65,7 @@ end subroutine export_interactions
 ! read from the file(s) should correspond to that output by 'export_interactions' above. If one is
 ! importing from within a 'state' file as described in that procedure, then use unit 10, but
 ! do not open or close that unit!
-subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, u, R2)
     ! Dimensions of the (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension
     real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
@@ -76,6 +76,10 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, spe
     ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
     ! etc.
     real(rk), intent(in), dimension(:,:) :: u
@@ -88,7 +92,7 @@ end subroutine import_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a particle move for particle i is accepted
-subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! The particle which has just been moved (where the move has been accepted)
     integer(ik), intent(in) :: i
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
@@ -101,6 +105,10 @@ subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, Lx
     ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
     ! y-coordinate, and pos1(i,3) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
@@ -113,7 +121,7 @@ end subroutine after_accepted_part_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a volume move is accepted
-subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension (after the move has been accepted)
     real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
@@ -124,6 +132,10 @@ subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, L
     ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
     ! y-coordinate, and pos1(i,3) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
@@ -136,7 +148,7 @@ end subroutine after_accepted_vol_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a lattice move is accepted
-subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension (after the move has been accepted)
     real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
@@ -147,6 +159,10 @@ subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx
     ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
     ! y-coordinate, and pos1(i,3) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
@@ -159,7 +175,7 @@ end subroutine after_accepted_lattice_interactions
 
 
 ! Performs any tasks required for the variables in this module after ALL moves (accepted or rejected)
-subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2, u)
+subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension
     real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
@@ -170,10 +186,13 @@ subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, 
     ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3) 
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
-
 
     return
 
@@ -183,7 +202,7 @@ end subroutine after_all_interactions
 
 
 ! Returns the energy for the specificed configuration of the specified lattice
-function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, u)
+function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
     ! Dimensions of the (orthorhombic) supercell
@@ -194,6 +213,9 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, u)
     ! Positions (Cartesian) of the particles: e.g., pos(i,1) is the x-coordinate of particle 
     ! i, pos1(i,2) is the y-coordinate, and pos1(i,3) is the z-coordinate
     real(rk), dimension(:,:), intent(in) :: pos
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
     ! Displacement vectors for the particles; e.g., u(i,1) is the x-displacement of 
     ! particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
@@ -209,7 +231,7 @@ end function calc_energy_scratch
 
 ! Returns the energy for the specificed configuration of the specified lattice given
 ! that particle i has moved
-function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, u, u_new, i)
+function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, u_new, i)
     ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
     ! The particle which has just been moved
@@ -225,6 +247,9 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, u, u_
     real(rk), dimension(:,:), intent(in) :: pos
     ! Position of particle i AFTER the particle has been moved
     real(rk), dimension(3), intent(in) :: pos_new
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
     ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(j,1) is 
     ! the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u

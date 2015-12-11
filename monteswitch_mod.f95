@@ -3782,7 +3782,7 @@ contains
     end if
 
     ! Import 'interactions' variables
-    call import_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
+    call import_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
 
     close(unit=10)
 
@@ -4190,8 +4190,8 @@ contains
             u=0.0_rk
             pos_1=R_1
             pos_2=R_2
-            E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,u)
-            E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,u)
+            E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,R_1,u)
+            E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,R_2,u)
             select case(melt_option)
             case(melt_option_zero_1)
                lattice=1
@@ -4254,8 +4254,8 @@ contains
     subroutine check_for_divergence()
       real(rk) :: E_exact_1, E_exact_2
       ! Calculate the exact energy for both lattice types
-      E_exact_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,u)
-      E_exact_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,u)
+      E_exact_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,R_1,u)
+      E_exact_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,R_2,u)
       ! Compare to the current energies and flag any errors
       if(abs(E_1-E_exact_1)>divergence_tol) then
          write(0,*) "monteswitch_mod: Error. Energy of lattice 1 has diverged from exact value by ",abs(E_1-E_exact_1),&
@@ -5100,7 +5100,8 @@ contains
     real(rk) :: usqrd ! The magnitude of u squared for a given particle
 
     ! Update interactions stuff
-    call after_all_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
+    call after_all_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, &
+        Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
 
     ! Update the barrier stuff if need be
     if(enable_barriers) then
@@ -5474,8 +5475,8 @@ contains
        ! Ammend accepted counters
        accepted_moves_lattice=accepted_moves_lattice+1
        ! Perform 'interactions'-specific tasks after an accepted move
-       call after_accepted_lattice_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, &
-           Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
+       call after_accepted_lattice_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, &
+           Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
     end if
     ! Ammend counter
     moves_lattice=moves_lattice+1
@@ -5540,8 +5541,8 @@ contains
     call translate_position(pos_new_2,Lx(2),Ly(2),Lz(2))
 
     ! Calculate the change in energies for each lattice, using the new positions for i
-    delta_E_1=calc_energy_part_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,u,u_trial,i)
-    delta_E_2=calc_energy_part_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,u,u_trial,i)
+    delta_E_1=calc_energy_part_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,R_1,u,u_trial,i)
+    delta_E_2=calc_energy_part_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,R_2,u,u_trial,i)
 
     ! Set delta_E depending on the lattice, and calculate M for the trial state
     select case(lattice)
@@ -5607,8 +5608,8 @@ contains
            ! Ammend accepted counters
            accepted_moves_part=accepted_moves_part+1
            ! Perform 'interactions'-specific tasks after an accepted move
-           call after_accepted_part_interactions(i, Lx(1), Ly(1), Lz(1), spec_1, pos_1, &
-               Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
+           call after_accepted_part_interactions(i, Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, &
+               Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
 
        end if
     end if
@@ -5668,8 +5669,8 @@ contains
     end select
 
     ! Calculate the other trial variables
-    E_1_trial=calc_energy_scratch(1,Lx_trial(1),Ly_trial(1),Lz_trial(1),spec_1,pos_trial_1,u_trial)
-    E_2_trial=calc_energy_scratch(2,Lx_trial(2),Ly_trial(2),Lz_trial(2),spec_2,pos_trial_2,u_trial)
+    E_1_trial=calc_energy_scratch(1,Lx_trial(1),Ly_trial(1),Lz_trial(1),spec_1,pos_trial_1,R_1_trial,u_trial)
+    E_2_trial=calc_energy_scratch(2,Lx_trial(2),Ly_trial(2),Lz_trial(2),spec_2,pos_trial_2,R_2_trial,u_trial)
 
     select case(lattice)
     case(1)
@@ -5713,8 +5714,8 @@ contains
           ! Ammend accepted counters
           accepted_moves_vol=accepted_moves_vol+1
           ! Perform 'interactions'-specific tasks after an accepted move
-          call after_accepted_vol_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, &
-              Lx(2), Ly(2), Lz(2), spec_2, pos_2, u)
+          call after_accepted_vol_interactions(Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, &
+              Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
        end if
     end if
     ! Ammend counters
@@ -6163,18 +6164,18 @@ contains
        u=0.0_rk
        pos_1=R_1
        pos_2=R_2
-       E=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,u)
+       E=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,R_1,u)
        E_1=E
-       E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,u)
+       E_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,R_2,u)
        lattice=1
        V=Lx(1)*Ly(1)*Lz(1)
     case(2)
        u=0.0_rk 
        pos_1=R_1
        pos_2=R_2
-       E=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,u)
+       E=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,R_2,u)
        E_2=E
-       E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,u)
+       E_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,R_1,u)
        lattice=2
        V=Lx(2)*Ly(2)*Lz(2)
     case default
