@@ -4901,19 +4901,43 @@ contains
     real(rk) :: metropolis_prob_vol
     real(rk) :: prob_B
     if(enable_multicanonical) then
-       metropolis_prob_vol=metropolis_prob_MC_vol(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
-       if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-          ! Update 'trans' using the Boltzmann probability of the transition
-          prob_B=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
-          trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
-          trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
-       end if
+        select case(vol_dynamics)
+        case(vol_dynamics_FVM)
+            metropolis_prob_vol = &
+                metropolis_prob_MC_vol(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+            if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
+                ! Update 'trans' using the Boltzmann probability of the transition
+                prob_B=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
+                trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
+                trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+            end if
+        case(vol_dynamics_UVM)
+            metropolis_prob_vol = &
+                metropolis_prob_MC_vol_uniaxial(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+            if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
+                ! Update 'trans' using the Boltzmann probability of the transition
+                prob_B=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
+                trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
+                trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+            end if
+        case default
+            write(0,*) "monteswitch_mod: Error. 'vol_dynamics' value is not recognised."
+            stop 1
+        end select
     else
-       metropolis_prob_vol=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
-       if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-          trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob_vol
-          trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob_vol
-       end if
+        select case(vol_dynamics)
+        case(vol_dynamics_FVM)
+            metropolis_prob_vol=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
+        case(vol_dynamics_UVM)
+            metropolis_prob_vol=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
+        case default
+            write(0,*) "monteswitch_mod: Error. 'vol_dynamics' value is not recognised."
+            stop 1
+        end select
+        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
+            trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob_vol
+            trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob_vol
+        end if
     end if
   end function metropolis_prob_vol
 
@@ -5740,11 +5764,6 @@ contains
       real(rk) :: rand
       ! Scaling factor for the volume
       real(rk) :: S
-
-      if(enable_lattice_moves) then
-         write(0,*) "monteswitch_mod: Error. UVM moves are not allowed in conjunction with lattice moves."
-         stop 1
-      end if
 
       ! Set the trial state vectors to the current state initially
       Lx_trial=Lx
