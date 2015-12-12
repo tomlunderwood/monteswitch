@@ -22,10 +22,10 @@
 ! the EXACT energy of lattice L at density \rho, i.e., what Phi_{LJ,trunc}({R_L}) would be if there were no
 ! truncations.
 !
-! The format of the file to import the interactions parameters is as follows. On the first line
-! there are two tokens. The first is a character(len=20) variable (I recommend: 'lj_epsilon=');
-! the second is the value of 'lj_epsilon' (all variables are explained in a moment). The second 
-! line is similar, but for 'lj_sigma'. The third line is for 'cutoff', and the fourth is for 'list_cutoff',
+! The variables for this module are imported from a file 'interactions_in', and the format of this file is
+! as follows. On the first line there are two tokens. The first is a character(len=20) variable (I recommend:
+! 'lj_epsilon='); the second is the value of 'lj_epsilon' (all variables are explained in a moment). The second 
+! line is similar, but for 'lj_sigma'. The third line is for 'cutoff', the fourth is for 'list_cutoff',
 ! and the fifth is for 'list_size'. The variables are as follows:
 !
 ! * lj_epsilon (real(rk)) is the depth of the Lennard-Jones potential well.
@@ -47,6 +47,9 @@
 !   be set to at least 14. While there is nothing wrong in principle with setting 'list_size' to, say, 500, 
 !   the associated arrays would be very large (500 integers per particle), and hence could slow down the 
 !   simulation and/or use up too much memory.
+!
+! Regarding checkpointing, the variables in this module are stored in the 'state' file used to checkpoint all
+! other monteswitch variables; see the comments for 'export_interactions' for more details.
 !
 module interactions_mod
 

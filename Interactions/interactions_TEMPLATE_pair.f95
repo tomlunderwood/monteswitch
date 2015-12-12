@@ -37,6 +37,9 @@
 !   the associated arrays would be very large (500 integers per particle), and hence could slow down the 
 !   simulation and/or use up too much memory.
 !
+! Regarding checkpointing, the variables in this module are stored in the 'state' file used to checkpoint all
+! other monteswitch variables; see the comments for 'export_interactions' for more details.
+!
 module interactions_mod
 
 
