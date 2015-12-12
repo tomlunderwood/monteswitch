@@ -1,7 +1,27 @@
-! Template 'interactions.f95' file for monteswitch for a pair potential in conjunction
-! with a cut-off and fixed neighbour lists.
-!
+! 'interactions.f95' file for monteswitch for a hard-sphere potential in conjunction with fixed neighbour lists.
+! 
 ! Author: Tom L Underwood
+!
+! This file was adapted from the file 'interactions_TEMPLATE_pair.f95', but note that 'cutoff' is superfluous
+! for hard-sphere interactions, as is the function 'pair_potential_trunc', and hence I have removed them.
+! The variables to be specified in the 'interactions_in' file (see below) are as follows (in the following 
+! order):
+! 
+! * epsilon (real(rk)) is the energy cost associated with overlappng spheres. This will normally be set to a 
+!   'high' value.
+!
+! * sigma (real(rk)) is the hard-sphere diameter.
+!
+! * list_cutoff (real(rk)) is the cut-off distance determining whether pairs of particles interact with each 
+!   other throughout the simulation. (See below).
+!
+! * list_size (integer(ik)) determines the maximum number of particles any one particle is 'allowed' to 
+!   interact with via the 'list' mechanism (determined by the 'list_cutoff' variable above). (See below).
+!
+!
+!
+!
+! COMMENTS PRESENT IN THE TEMPLATE BEFORE I MODIFIED IT...
 !
 ! This file corresponds to the Lennard-Jones potential until modified by the user. Search for 
 ! 'USER-DEFINED CODE' to find the relevant parts to modify. What follows is a description of functionality
@@ -56,12 +76,12 @@ module interactions_mod
     !  real(rk) :: lj_epsilon
     !  real(rk) :: lj_sigma
     !
-    real(rk) :: lj_epsilon
-    real(rk) :: lj_sigma
+    real(rk) :: epsilon
+    real(rk) :: sigma
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     ! Variables for the potential cutoff and lists of interacting particles
-    real(rk) :: cutoff
+    !real(rk) :: cutoff
     real(rk) :: list_cutoff
     integer(ik) :: list_size
     integer(ik), dimension(:,:), allocatable :: list_1
@@ -126,23 +146,23 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     !     stop 1
     !  end if
     !
-    read(10,*,iostat=error) string, lj_epsilon
+    read(10,*,iostat=error) string, epsilon
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'epsilon' from file 'interactions'"
         stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, sigma
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'sigma' from file 'interactions'"
         stop 1
     end if
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    read(10,*,iostat=error) string, cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'cutoff' from file 'interactions_in'"
-       stop 1
-    end if
+    !read(10,*,iostat=error) string, cutoff
+    !if(error/=0) then
+    !   write(0,*) "interactions: Error. Problem reading 'cutoff' from file 'interactions_in'"
+    !   stop 1
+    !end if
     read(10,*,iostat=error) string, list_cutoff
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'list_cutoff' from file 'interactions_in'"
@@ -209,11 +229,11 @@ subroutine export_interactions()
     !  write(10,*) "lj_epsilon= ",lj_epsilon
     !  write(10,*) "lj_sigma= ",lj_sigma
     !
-    write(10,*) "lj_epsilon= ",lj_epsilon
-    write(10,*) "lj_sigma= ",lj_sigma
+    write(10,*) "epsilon= ",epsilon
+    write(10,*) "sigma= ",sigma
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    write(10,*) "cutoff= ",cutoff
+    !write(10,*) "cutoff= ",cutoff
     write(10,*) "list_cutoff= ",list_cutoff
     write(10,*) "list_size= ",list_size
     write(10,*) "list_1= ",list_1
@@ -267,23 +287,23 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     !     stop 1
     !  end if
     !
-    read(10,*,iostat=error) string, lj_epsilon
+    read(10,*,iostat=error) string, epsilon
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'epsilon' from unit 10"
        stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, sigma
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'sigma' from unit 10"
        stop 1
     end if
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    read(10,*,iostat=error) string, cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'cutoff' from unit 10"
-       stop 1
-    end if
+    !read(10,*,iostat=error) string, cutoff
+    !if(error/=0) then
+    !   write(0,*) "interactions: Error. Problem reading 'cutoff' from unit 10"
+    !   stop 1
+    !end if
     read(10,*,iostat=error) string, list_cutoff
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'list_cutoff' from unit 10"
@@ -522,8 +542,10 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
              sep = min_image_distance(pos(i,:),pos(j,:),Lx,Ly,Lz)
              sep_new = min_image_distance(pos_new,pos(j,:),Lx,Ly,Lz)
              calc_energy_part_move = calc_energy_part_move + &
-                 pair_potential_trunc(sep_new,species(i),species(j)) - &
-                 pair_potential_trunc(sep,species(i),species(j))
+                 !pair_potential_trunc(sep_new,species(i),species(j)) - &
+                 !pair_potential_trunc(sep,species(i),species(j))
+                 pair_potential(sep_new,species(i),species(j)) - &
+                 pair_potential(sep,species(i),species(j))
           end if
        end if
        n=n+1
@@ -579,7 +601,11 @@ function pair_potential(r, species1, species2)
     ! Example (for Lennard-Jones potential):
     !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
     !
-    pair_potential = 4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    if(r<sigma) then
+        pair_potential=epsilon
+    else
+        pair_potential=0.0_rk
+    end if
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
 end function pair_potential
@@ -589,21 +615,21 @@ end function pair_potential
 
 ! Pair potential truncated at 'cutoff'. Note that there is no shifting of the potential;
 ! there is a discontinuity at the cut-off.
-function pair_potential_trunc(r, species1, species2)
-    ! Separation between the particles
-    real(rk), intent(in) :: r
-    ! Species of the two particles
-    integer(ik), intent(in) :: species1, species2
-
-    real(rk) :: pair_potential_trunc
-    
-    if(r<cutoff) then
-        pair_potential_trunc=pair_potential(r,species1,species2)
-    else
-        pair_potential_trunc=0.0_rk
-    end if
-
-end function pair_potential_trunc
+!function pair_potential_trunc(r, species1, species2)
+!    ! Separation between the particles
+!    real(rk), intent(in) :: r
+!    ! Species of the two particles
+!    integer(ik), intent(in) :: species1, species2
+!
+!    real(rk) :: pair_potential_trunc
+!    
+!    if(r<cutoff) then
+!        pair_potential_trunc=pair_potential(r,species1,species2)
+!    else
+!        pair_potential_trunc=0.0_rk
+!    end if
+!
+!end function pair_potential_trunc
 
 
 
@@ -636,7 +662,8 @@ function system_energy(species, Lx, Ly, Lz, list, r)
           else
              if(j/=i) then
                 sep=min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
-                system_energy=system_energy+pair_potential_trunc(sep,species(i),species(j))
+                !system_energy=system_energy+pair_potential_trunc(sep,species(i),species(j))
+                system_energy=system_energy+pair_potential(sep,species(i),species(j))
              end if
           end if
           n=n+1
