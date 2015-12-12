@@ -1,10 +1,42 @@
 ! Template 'interactions.f95' file for monteswitch for for a pair potential in conjunction
 ! with a cut-off and fixed neighbour lists.
-! (This file corresponds to the Lennard-Jones potential until modified by the user).
+!
 ! Author: Tom L Underwood
-
-! Search for 'USER-DEFINED CODE' to find the relevant parts to modify.
-
+!
+! This file corresponds to the Lennard-Jones potential until modified by the user. Search for 
+! 'USER-DEFINED CODE' to find the relevant parts to modify. What follows is a description of functionality
+! for the Lennard-Jones potential. The functionality will be similar if the 'USER-DEFINED CODE' blocks
+! are altered, except the variables 'lj_epsilon' and 'lj_sigma' will be replaced by user-defined variables.
+!
+! Description of functionality of this file if it is unaltered by the user...
+!
+! This file implements a Lennard-Jones potential with truncated interactions, and a fixed neighbour list for
+! each particle. The variables for this module are imported from a file 'interactions_in', and the format of 
+! this file is as follows. On the first line there are two tokens. The first is a character(len=20) variable
+! (I recommend: 'lj_epsilon='); the second is the value of 'lj_epsilon' (all variables are explained in a 
+! moment). The second line is similar, but for 'lj_sigma'. The third line is for 'cutoff', the fourth is for 
+! 'list_cutoff', and the fifth is for 'list_size'. The variables are as follows:
+!
+! * lj_epsilon (real(rk)) is the depth of the Lennard-Jones potential well.
+!
+! * lj_sigma (real(rk)) is the distance corresponding to 0 potential for the Lennard-Jones potential.
+!
+! * cutoff (real(rk)) is the cut-off distance for the Lennard-Jones potential.
+!
+! * list_cutoff (real(rk)) is the cut-off distance determining whether pairs of particles interact with each 
+!   other throughout the simulation. Those within list_cutoff of each other at the start of the simulation, 
+!   before any moves are made, will interact with each other forever more. Note that the set of interacting 
+!   pairs does not change during the simulation, even if pairs of interacting particles later exceed 
+!   'list_cutoff' in separation.
+!
+! * list_size (integer(ik)) determines the maximum number of particles any one particle is 'allowed' to 
+!   interact with via the 'list' mechanism (determined by the 'list_cutoff' variable above). This should be
+!   set to at least the number of neghbours one will interact with + 2. E.g., if 'list_cutoff' is set to (just over) 
+!   the nearest neighbour distance, and there are 12 nearest neighbours, then 'list_size' should 
+!   be set to at least 14. While there is nothing wrong in principle with setting 'list_size' to, say, 500, 
+!   the associated arrays would be very large (500 integers per particle), and hence could slow down the 
+!   simulation and/or use up too much memory.
+!
 module interactions_mod
 
 

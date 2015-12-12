@@ -1,203 +1,142 @@
-  !
-  ! By extracting lines beginning with the regular expression '\!\! ?'
-  ! (ignoring leading whitespace), and then removing matches to the
-  ! regular expression, html documentation corresponding to this 
-  ! source code will be created.
-  !
-  !! <html>
-  !! <head>
-  !!  <title> Lennard-Jones hcp-fcc interactions Documentation </title>
-  !! </head>
-  !! <body>
-  !! 
-  !! <h1> Lennard-Jones hcp-fcc <code>interactions</code> Documentation </h1>
-  !!
-  !! <h2> Author </h2>
-  !! <p> Tom Underwood </p>
-  !!
-  !! <h2> General Notes </h2>
-  !!
-  !! <h3> Description </h3>
-  !! <p>
-  !! This file contains variables and procedures pertaining to how the particles interact. It is
-  !! <code>include</code>d in the <code>monteswitch_mod</code> module.
-  !! </p>
-  !! <p>
-  !! This version of the file corresponds to Lennard-Jones interactions in hcp (lattice 1) and fcc (lattice 2).
-  !! The interactions are not your typical Lennard-Jones interactions. Usually one truncates the interactions at
-  !! a predetermined distance, or uses a predetermined 'list' of interacting pairs of particles. However, this
-  !! gives errors in the ground state energies (see 'Structural Phase Behaviour Via Monte Carlo Techniques', 
-  !! Andrew N. Jackson, PhD Thesis, University of Edinburgh, 2002). A more accurate approach is to evaluate the 
-  !! <i>difference</i> of the energy of the lattice under consideration relative to the ground state, and apply 
-  !! the usual truncations to this difference. This is what is done here. Of course, this approach necessitates 
-  !! a, say, fcc-specific Fortran procedure to treat the fcc lattice; while in the conventional approach the 
-  !! Lennard-Jones procedure can be applied to any crystal.
-  !! </p>
-  !! <p>
-  !! The format of the file to import the interactions parameters is as follows. On the first line
-  !! there are two tokens. The first is a <code>character(len=20)</code> variable (I recommend: 'lj_epsilon=');
-  !! the second is the value of <code>lj_epsilon</code> (all variables will be explained in a moment). The second 
-  !! line is similar, but for <code>lj_sigma</jcode>. The third line is for <code>lj_cutoff</code>, and the 
-  !! fourth is for <code>list_cutoff</code>. 
-  !! </p>
+! 'interactions.f95' file for special LJ interactions for hcp-fcc system
+!
+! Author: Tom L Underwood
+
+! This version of the file corresponds to Lennard-Jones interactions in hcp (lattice 1) and fcc (lattice 2).
+! The interactions are not your typical Lennard-Jones interactions. Usually one truncates the interactions at
+! a predetermined distance, or uses a predetermined 'list' of interacting pairs of particles. However, this
+! gives errors in the ground state energies (see 'Structural Phase Behaviour Via Monte Carlo Techniques', 
+! Andrew N. Jackson, PhD Thesis, University of Edinburgh, 2002). A better approach is to evaluate the 
+! DIFFERENCE of the energy of the lattice under consideration relative to the ground state for the density
+! under consideration, and apply the usual truncations to this difference. This is what is done here. Of 
+! course, this approach necessitates a, say, fcc-specific Fortran procedure to treat the fcc lattice; while 
+! in the conventional approach the Lennard-Jones procedure can be applied to any crystal. Hence this file
+! should only be used in conjunction with hcp as lattice 1 and fcc with lattice 2 as the underlying
+! lattices; the lattice sites should form a perfect hcp crysal for lattice 1 and a perfect fcc crystal for
+! lattice 2 (though the displacements of the particles from their lattice sites are allowed to be non-zero).
+!
+! The energy here for particle positions {r} in lattice L at density V is: 
+! E = Phi_{LJ,trunc}({r})-Phi_{LJ,trunc}({R_L})+ E_{GS}(L,\rho),
+! where {R_L} are the lattice vectors corresponding to lattice L at density \rho, Phi_{LJ,trunc}({r}) is the 
+! Lennard-Jones energy for set of particle positions {r} using truncated interactions, and E_{GS}(L,\rho) is
+! the EXACT energy of lattice L at density \rho, i.e., what Phi_{LJ,trunc}({R_L}) would be if there were no
+! truncations.
+!
+! The format of the file to import the interactions parameters is as follows. On the first line
+! there are two tokens. The first is a character(len=20) variable (I recommend: 'lj_epsilon=');
+! the second is the value of 'lj_epsilon' (all variables are explained in a moment). The second 
+! line is similar, but for 'lj_sigma'. The third line is for 'cutoff', and the fourth is for 'list_cutoff',
+! and the fifth is for 'list_size'. The variables are as follows:
+!
+! * lj_epsilon (real(rk)) is the depth of the Lennard-Jones potential well.
+!
+! * lj_sigma (real(rk)) is the distance corresponding to 0 potential for the Lennard-Jones potential.
+!
+! * cutoff (real(rk)) is the cut-off distance for the Lennard-Jones potential.
+!
+! * list_cutoff (real(rk)) is the cut-off distance determining whether pairs of particles interact with each 
+!   other throughout the simulation. Those within list_cutoff of each other at the start of the simulation, 
+!   before any moves are made, will interact with each other forever more. Note that the set of interacting 
+!   pairs does not change during the simulation, even if pairs of interacting particles later exceed 
+!   'list_cutoff' in separation.
+!
+! * list_size (integer(ik)) determines the maximum number of particles any one particle is 'allowed' to 
+!   interact with via the 'list' mechanism (determined by the 'list_cutoff' variable above). This should be
+!   set to at least the number of neghbours one will interact with + 2. E.g., if 'list_cutoff' is set to (just over) 
+!   the nearest neighbour distance, and there are 12 nearest neighbours, then 'list_size' should 
+!   be set to at least 14. While there is nothing wrong in principle with setting 'list_size' to, say, 500, 
+!   the associated arrays would be very large (500 integers per particle), and hence could slow down the 
+!   simulation and/or use up too much memory.
+!
+module interactions_mod
 
 
+    ! The module 'kinds_mod' (in 'kinds_mod.f95') contains the real and integer kinds
+    ! which monteswitch uses: real(kind=rk) and integer(kind=ik). Please use these
+    ! kinds throughout this module to allow portability.
+    use kinds_mod
+    
+    implicit none
 
-  !! <h2> 'Interation variables' which are required for initialisation of the particle interactions. </h3>
-  !! <p>
-  !! The following variables are read from the <code>filename_params</code> file by 
-  !! <code>initialise_from_files(filename_params,filename_lattice)</code> in <code>monteswitch_mod</code>.
-  !! These varaibles are later used to initialise how the particles interact.
-  !! </p>
-  !! <table border="1">
-  !! <tr>
-  !!  <td> <b> Variable </b> </td>
-  !!  <td> <b> Type </b> </td>
-  !!  <td> <b> Description </b> </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>lj_epsilon<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> Depth of the Lennard-Jones potential well. </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>lj_sigma<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> Distance corresponding to 0 potential for the Lennard-Jones potential. </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>lj_cutoff<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> Cut-off distance for the Lennard-Jones potential.  Note that the potential is shifted so that there is no
-  !!  discontinuity in the potential at the cut-off distance. </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>list_cutoff<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> 
-  !!  Cut-off distance determining whether pairs of particles interact with each other throughout the simulation.
-  !!  Those within <code>list_cutoff<code> of each other at the start of the simulation, before any moves are made,
-  !!  will interact with each other. Note that the set of interacting pairs does not change during the simulation, even if
-  !!  pairs of interacting particles later exceed <code>list_cutoff<code> in separation.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>list_size<code> </td>
-  !!  <td> <code>integer(ik)</code> </td>
-  !!  <td> 
-  !!  The maximum number of particles any one particle is 'allowed' to interact with via the 'list' mechanism (determined
-  !!  by the <code>list_cutoff<code> variables above). E.g., if <code>list_cutoff<code> is set to (just over) the nearest
-  !!  neighbour distance, and there are 12 nearest neighbours, then <code>list_size<code> should be set to at least 12.
-  !!  While there is nothing wrong in principle with setting <code>list_size<code> to, say, 500, the associated arrays would
-  !!  be very large (500 integers per particle), and hence would slow down the simulation and/or use up too much memory.
-  !!  </td>
-  !! </tr>
-  !! </table>
-  real(rk) :: lj_epsilon
-  real(rk) :: lj_sigma
-  real(rk) :: lj_cutoff
-  real(rk) :: list_cutoff
-  integer(ik) :: list_size
+    ! Lennard-Jones parameters
+    real(rk) :: lj_epsilon
+    real(rk) :: lj_sigma
+    ! Variables for the potential cutoff and lists of interacting particles
+    real(rk) :: cutoff
+    real(rk) :: list_cutoff
+    integer(ik) :: list_size
+    integer(ik), dimension(:,:), allocatable :: list_1
+    integer(ik), dimension(:,:), allocatable :: list_2
 
-
-  !! <h2> Further 'interaction variables'</h3>
-  !! <p>
-  !! The following variables are initialised according to the values of the above variables.
-  !! </p>
-  !! <table border="1">
-  !! <tr>
-  !!  <td> <b> Variable </b> </td>
-  !!  <td> <b> Type </b> </td>
-  !!  <td> <b> Description </b> </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>list_1<code> </td>
-  !!  <td> <code>integer(ik), dimension(:,:), allocatable</code> </td>
-  !!  <td>
-  !!  Array holding information regarding which pairs of particles interact with one
-  !!  another when we are in lattice 1: <code>list_1(i,n)</code> is the nth particle which
-  !!  particle 'i' interacts with. <code>list_1(i,n)=0</code> for 'n' greater than 'z', where 
-  !!  'z' is the number of particles which 'i' interacts with.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>list_2<code> </td>
-  !!  <td> <code>integer(ik), dimension(:,:), allocatable</code> </td>
-  !!  <td> 
-  !!  Array holding information regarding which pairs of particles interact with one
-  !!  another when we are in lattice 2. This is similar to <code>list_1<code>.
-  !!  </td>
-  !! </tr>
-  !! </table>
-  integer(ik), dimension(:,:), allocatable :: list_1
-  integer(ik), dimension(:,:), allocatable :: list_2
+    ! The below public procedures are called by 'monteswitch_mod' (in 'monteswitch_mod.f95'),
+    ! and must be 'filled in' by the user.
+    private
+    public :: initialise_interactions, export_interactions, import_interactions, &
+        after_accepted_part_interactions, after_accepted_vol_interactions, &
+        after_accepted_lattice_interactions, after_all_interactions, &
+        calc_energy_scratch, calc_energy_part_move
 
 
 contains
 
 
-  !! <h2> Key procedures used in <code>monteswitch_mod</code> </h2>
 
 
-  !! <h3> <code> subroutine import_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure imports interaction variables required to initialise the interactions from the specified file,
-  !! and initialises all interaction variables. This procedure presumably requires all other simulation variables
-  !! to be initialised; accordingly it is the 'last' initialisation procedure to be called.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> filename </code> </td>
-  !!   <td> <code>  character(*), intent(in) </code> </td>
-  !!   <td> The file from which the interactions will be imported.
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  subroutine initialise_interactions(filename)
-    character(*), intent(in) :: filename
+! Initialises the  variables in this module. The initial configurations for both
+! lattices are provided as arguments in case this information is required. Unless the interactions
+! are 'hard-coded', the initialisation will involve reading from a file. This should be done here.
+subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    ! Dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+
     character(len=20) string
     integer(ik) :: error
-    integer(ik) :: i,j,n
+    integer(ik) :: i,j,n,n_part
 
-    ! Open the file and import the variables required for initialisation
-    open(unit=10,file=filename,iostat=error,status="old")
+    n_part = size(pos1,1)
+
+    ! Read the interactions variables from the file 'interactions_in'
+    open(unit=10,file="interactions_in",iostat=error,status="old")
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem opening file '",filename,"'"
+       write(0,*) "interactions: Error. Problem opening file 'interactions_in'"
        stop 1
     end if
+
     read(10,*,iostat=error) string, lj_epsilon
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file '",filename,"'"
-       stop 1
+        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+        stop 1
     end if
     read(10,*,iostat=error) string, lj_sigma
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file '",filename,"'"
-       stop 1
+        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+        stop 1
     end if
-    read(10,*,iostat=error) string, lj_cutoff
+
+    read(10,*,iostat=error) string, cutoff
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_cutoff' from file '",filename,"'"
+       write(0,*) "interactions: Error. Problem reading 'cutoff' from file 'interactions_in'"
        stop 1
     end if
     read(10,*,iostat=error) string, list_cutoff
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from file '",filename,"'"
+       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from file 'interactions_in'"
        stop 1
     end if
     read(10,*,iostat=error) string, list_size
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_size' from file '",filename,"'"
+       write(0,*) "interactions: Error. Problem reading 'list_size' from file 'interactions_in'"
        stop 1
     end if
     close(10)
-
-    ! Initialise the interaction variables accordingly
 
     ! Initialise lists
     if(allocated(list_1)) then
@@ -213,7 +152,7 @@ contains
     do i=1,n_part
        n=1
        do j=1,n_part
-          if(min_image_distance(R_1(i,:),R_1(j,:),Lx(1),Ly(1),Lz(1))<list_cutoff) then
+          if(min_image_distance(pos1(i,:),pos1(j,:),Lx1,Ly1,Lz1)<list_cutoff) then
              list_1(i,n)=j
              n=n+1
           end if
@@ -223,71 +162,96 @@ contains
     do i=1,n_part
        n=1
        do j=1,n_part
-          if(min_image_distance(R_2(i,:),R_2(j,:),Lx(2),Ly(2),Lz(2))<list_cutoff) then
+          if(min_image_distance(pos2(i,:),pos2(j,:),Lx2,Ly2,Lz2)<list_cutoff) then
              list_2(i,n)=j
              n=n+1
           end if
        end do
     end do
 
-  end subroutine initialise_interactions
+end subroutine initialise_interactions
 
 
 
 
-  !! <h3> <code> subroutine export_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure exports all interaction variables to the specified unit.
-  !! </p>
-  subroutine export_interactions_state(unit)
-    integer(ik), intent(in) :: unit
-    write(unit,*) "lj_epsilon= ",lj_epsilon
-    write(unit,*) "lj_sigma= ",lj_sigma
-    write(unit,*) "lj_cutoff= ",lj_cutoff
-    write(unit,*) "list_cutoff= ",list_cutoff
-    write(unit,*) "list_size= ",list_size
-    write(unit,*) "list_1= ",list_1
-    write(unit,*) "list_2= ",list_2
-  end subroutine export_interactions_state
+! Export all of the variables in this module - for the purposes of checkpointing. There are 
+! two options for this. If one outputs the variables to unit 10, without opening or closing that 
+! unit in this procedure, then the variables will be output to, and stored within,
+! the 'state' file which contains all other monteswitch variables, and is used for resuming
+! old simulations as well as post-processing. If one wishes to use a separate file or files to 
+! checkpoint the variables in this module, then one is free to do so in this procedure - 
+! just don't use unit 10! Note that the format output to the checkpoint file(s) by this procedure
+! must correspond to the format read in from these files by the procedure 'import_interactions()'.
+subroutine export_interactions()
 
+    write(10,*) "lj_epsilon= ",lj_epsilon
+    write(10,*) "lj_sigma= ",lj_sigma
 
-
-
-  !! <h3> <code> subroutine import_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure imports all interaction variables from the specified unit.
-  !! </p>
-  subroutine import_interactions_state(unit)
-    integer(ik), intent(in) :: unit
-    character(len=20) string
-    integer(ik) :: error
+    write(10,*) "cutoff= ",cutoff
+    write(10,*) "list_cutoff= ",list_cutoff
+    write(10,*) "list_size= ",list_size
+    write(10,*) "list_1= ",list_1
+    write(10,*) "list_2= ",list_2
     
-    read(unit,*,iostat=error) string, lj_epsilon
+end subroutine export_interactions
+
+
+
+
+! Import all variables in this module from file(s) - for the purposes of checkpointing. The format 
+! read from the file(s) should correspond to that output by 'export_interactions' above. If one is
+! importing from within a 'state' file as described in that procedure, then use unit 10, but
+! do not open or close that unit!
+subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Dimensions of the (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
+    ! etc.
+    real(rk), intent(in), dimension(:,:) :: u
+
+    character(len=20) string
+    integer(ik) :: error, n_part
+    
+    read(10,*,iostat=error) string, lj_epsilon
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit ",unit
+       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
        stop 1
     end if
-    read(unit,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, lj_sigma
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit ",unit
-       stop 1
-    end if
-    read(unit,*,iostat=error) string, lj_cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_cutoff' from unit ",unit
-       stop 1
-    end if
-    read(unit,*,iostat=error) string, list_cutoff
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from unit ",unit
-       stop 1
-    end if
-    read(unit,*,iostat=error) string, list_size
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_size' from unit ",unit
+       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
        stop 1
     end if
 
+    read(10,*,iostat=error) string, cutoff
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'cutoff' from unit 10"
+       stop 1
+    end if
+    read(10,*,iostat=error) string, list_cutoff
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from unit 10"
+       stop 1
+    end if
+    read(10,*,iostat=error) string, list_size
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'list_size' from unit 10"
+       stop 1
+    end if
+
+    n_part = size(pos1,1)
     if(allocated(list_1)) then
        deallocate(list_1)
     end if
@@ -297,205 +261,227 @@ contains
     allocate(list_1(n_part,list_size))
     allocate(list_2(n_part,list_size))
 
-    read(unit,*,iostat=error) string, list_1
+    read(10,*,iostat=error) string, list_1
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_1' from unit ",unit
+       write(0,*) "interactions: Error. Problem reading 'list_1' from unit 10"
        stop 1
     end if
-    read(unit,*,iostat=error) string, list_2
+    read(10,*,iostat=error) string, list_2
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_2' from unit ",unit
+       write(0,*) "interactions: Error. Problem reading 'list_2' from unit 10"
        stop 1
     end if
 
-  end subroutine import_interactions_state
+end subroutine import_interactions
 
 
 
 
-  !! <h3> <code> subroutine after_accepted_interactions() </code> </h3>
-  !! <p>
-  !! This procedure is called after a particle or volume move (but not a lattice move) has been
-  !! accepted. It can be used to update, say, neighbour lists, which require knowledge of the
-  !! current microstate - or in this case, the current microstate pertaining to both lattices.
-  !! </p>
-  subroutine after_accepted_interactions()
-   
-  end subroutine after_accepted_interactions
+! Performs any tasks required for the variables in this module, after a particle move for particle i is accepted
+subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! The particle which has just been moved (where the move has been accepted)
+    integer(ik), intent(in) :: i
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+    return
+
+end subroutine after_accepted_part_interactions
 
 
 
 
-  !! <h3> <code> function calc_energy_scratch(lattice,Lx,Ly,Lz,r) </code> </h3>
-  !! <p>
-  !! This function calculates the energy of a given system 'from scratch'.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle positions. These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_scratch(lattice,Lx_in,Ly_in,Lz_in,r)
+! Performs any tasks required for the variables in this module, after a volume move is accepted
+subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+
+    return
+
+end subroutine after_accepted_vol_interactions
+
+
+
+
+! Performs any tasks required for the variables in this module, after a lattice move is accepted
+subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+
+    return
+
+end subroutine after_accepted_lattice_interactions
+
+
+
+
+! Performs any tasks required for the variables in this module after ALL moves (accepted or rejected)
+subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is 
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3) 
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+
+    return
+
+end subroutine after_all_interactions
+
+
+
+
+! Returns the energy for the specificed configuration of the specified lattice
+function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
+    ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
-    real(rk), intent(in) :: Lx_in
-    real(rk), intent(in) :: Ly_in
-    real(rk), intent(in) :: Lz_in
-    real(rk), intent(in), dimension(:,:) :: r
+    ! Dimensions of the (orthorhombic) supercell
+    real(rk), intent(in) :: Lx, Ly, Lz
+    ! Array containing the species of each particle for each lattice: e.g., species(i) is the
+    ! species of particle i
+    integer(ik), dimension(:), intent(in) :: species
+    ! Positions (Cartesian) of the particles: e.g., pos(i,1) is the x-coordinate of particle 
+    ! i, pos1(i,2) is the y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), dimension(:,:), intent(in) :: pos
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
+    ! Displacement vectors for the particles; e.g., u(i,1) is the x-displacement of 
+    ! particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
     real(rk) :: calc_energy_scratch
+
     ! Constants for calculating the exact ground state for the hcp and fcc lattices
     ! at a given density (see Table 6.1 of Andrew Jackson's thesis mentioned above)
     real(rk), parameter :: A12_hcp=12.132293768
     real(rk), parameter :: A6_hcp=14.454897093
     real(rk), parameter :: A12_fcc=12.131880196
     real(rk), parameter :: A6_fcc=14.453920885
+    real(rk) :: root2=sqrt(2.0_rk)
     real(rk) :: E_gs
-    ! A scalefactor (explained below)
-    real(rk) :: scale
+    integer(ik) :: n_part
+
+    n_part = size(pos,1)
 
     select case(lattice)
     case(1)
-       ! Calculate the ground state energy (for 0 particle displacements) for the volume of the input system (corresponding to Lx_in,
-       ! Ly_in, Lz_in, r) (hcp)
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**4*A12_hcp &
-            -(lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**2*A6_hcp )
+       ! Calculate the ground state energy (for 0 particle displacements) for the volume of the input system (corresponding to Lx,
+       ! Ly, Lz, r) (hcp)
+       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**4*A12_hcp &
+            -(lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**2*A6_hcp )
        ! Calculate the difference relative to this ground state using truncation (1st 2 terms), and add it to the
-       ! ground state for the input volume. Note that the 2nd term is the energy of the ground state with a truncated
-       ! potential, and that to get this we need to rescale R_1, Lx_in, Ly_in and Lz_in such that the underlying
-       ! undistorted lattice corresponds to the INPUT volume to this function, not the CURRENT volume which R_1, Lx(1), Ly(1)
-       ! and Lz(1) correspond to.
-       scale=(Lx_in*Ly_in*Lz_in/(Lx(1)*Ly(1)*Lz(1)))**(1.0_rk/3.0_rk)
-       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_1,r) &
-         -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx(1)*scale,Ly(1)*scale,Lz(1)*scale,list_1,R_1*scale) + E_gs
+       ! ground state for the input volume. Note that the 2nd term is the energy of the ground state for the input volume
+       ! with a truncated potential.
+       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,cutoff,Lx,Ly,Lz,list_1,pos) &
+           -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,cutoff,Lx,Ly,Lz,list_1,R) + E_gs
     case(2)
        ! As above, but for fcc
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**4*A12_fcc &
-            -(lj_sigma**3*n_part/(Lx_in*Ly_in*Lz_in*sqrt(2.0_rk)))**2*A6_fcc )
-       !
-       scale=(Lx_in*Ly_in*Lz_in/(Lx(2)*Ly(2)*Lz(2)))**(1.0_rk/3.0_rk)
-       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx_in,Ly_in,Lz_in,list_2,r) &
-         -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,lj_cutoff,Lx(2)*scale,Ly(2)*scale,Lz(2)*scale,list_2,R_2*scale) + E_gs
+       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**4*A12_fcc &
+            -(lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**2*A6_fcc )
+       calc_energy_scratch = lj_energy_trunc_list_2(lj_epsilon,lj_sigma,cutoff,Lx,Ly,Lz,list_2,pos) &
+           -lj_energy_trunc_list_2(lj_epsilon,lj_sigma,cutoff,Lx,Ly,Lz,list_2,R) + E_gs
     case default
        write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
        stop 1
     end select
 
-  end function calc_energy_scratch
+end function calc_energy_scratch
 
 
 
 
-  !! <h3> <code> function calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i) </code> </h3>
-  !! <p>
-  !! This function calculates the energy <i>change</i> of the system if particle <code>i</code> is moved
-  !! such that the positions, which were previously <code>r</code>, are now <code>r_new</code>.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle positions. These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_new </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the new particle positions with the positions of particle <code>i</code> moved. 
-  !!   These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> i </code> </td>
-  !!   <td> <code> integer(ik) </code> </td>
-  !!   <td>
-  !!   The number of the particle which has been moved
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i)
+! Returns the energy for the specificed configuration of the specified lattice given
+! that particle i has moved
+function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, u_new, i)
+    ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    real(rk), intent(in), dimension(:,:) :: r
-    real(rk), intent(in), dimension(:,:) :: r_new
+    ! The particle which has just been moved
     integer(ik), intent(in) :: i
+    ! Dimensions of the (orthorhombic) supercell
+    real(rk), intent(in) :: Lx, Ly, Lz
+    ! Array containing the species of each particle for each lattice: e.g., species(i) is the
+    ! species of particle i
+    integer(ik), dimension(:), intent(in) :: species
+    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(j,1) is 
+    ! the x-coordinate of particle j, pos(j,2) is the y-coordinate, and pos(j,3) is the
+    ! z-coordinate
+    real(rk), dimension(:,:), intent(in) :: pos
+    ! Position of particle i AFTER the particle has been moved
+    real(rk), dimension(3), intent(in) :: pos_new
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
+    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(j,1) is 
+    ! the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+    ! Displacement of particle i AFTER the particle has been moved
+    real(rk), dimension(3), intent(in) :: u_new
+
     real(rk) :: calc_energy_part_move
+
     real(rk) :: sep, sep_new
     integer(ik) :: j,n
+
     calc_energy_part_move=0.0_rk
     n=1
     do
@@ -513,71 +499,23 @@ contains
           exit
        else
           if(j/=i) then
-             sep = min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
-             sep_new = min_image_distance(r_new(i,:),r_new(j,:),Lx,Ly,Lz)
-             calc_energy_part_move = calc_energy_part_move + lj_pot_trunc(lj_epsilon,lj_sigma,lj_cutoff,sep_new) &
-                  - lj_pot_trunc(lj_epsilon,lj_sigma,lj_cutoff,sep)
+             sep = min_image_distance(pos(i,:),pos(j,:),Lx,Ly,Lz)
+             sep_new = min_image_distance(pos_new,r(j,:),Lx,Ly,Lz)
+             calc_energy_part_move = calc_energy_part_move + lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep_new) &
+                  - lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep)
           end if
        end if
        n=n+1
     end do
 
-
-  end function calc_energy_part_move
-
+end function calc_energy_part_move
 
 
 
-  !! <h2>Procedures used internally </h2>
 
-
-
-  !! <h3> <code> function min_image_distance(r_1,r_2,Lx,Ly,Lz) </code> </h3>
-  !! <p>
-  !! <code>  min_image_distance </code>  returns the distance between the 
-  !! positions <code>r_1</code> and <code>r_2</code> according to the 
-  !! minimum image convention for a periodic cuboid whose faces are x=0, 
-  !! x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and z=<code>Lz</code>.
-  !! <code>r_1(1)</code> is the x-component of <code>r_1</code>, 
-  !! <code>r_1(2)</code> is the y-component, and <code>r_1(3)</code> is the 
-  !! z-component; and similarly for <code>r_2</code>. Note that
-  !! <code>r_1</code> and <code>r_2</code> must be such that
-  !! 0<=x<<code>Lx</code>, 0<=y<<code>Ly</code>, and 0<=z<<code>Lz</code>.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_1 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_2 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the x-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the y-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the z-axis. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function min_image_distance(r_1,r_2,Lx,Ly,Lz)
+! Returns the separation between two positions within an orthorhombic
+! cell with the specified dimensions
+function min_image_distance(r_1,r_2,Lx,Ly,Lz)
     real(rk), dimension(3), intent(in) :: r_1, r_2
     real(rk), intent(in) :: Lx, Ly, Lz
     real(rk) :: min_image_distance
@@ -593,162 +531,46 @@ contains
     zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
     ! Calculate the distance
     min_image_distance=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
-  end function min_image_distance
+end function min_image_distance
 
 
 
 
-   !! <h3> <code> function lj_pot(epsilon,sigma,r) </code> </h3>
-  !! <p>
-  !! This function returns the value of the Lennard-Jones potential at the specified
-  !! distance, given the specified parametrisation of the potential.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> epsilon </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Depth of the potential well. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> sigma </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Distance corresponding to 0 potential. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Distance at which the potential is to be evaluated. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function lj_pot(epsilon,sigma,r)
+! This function returns the value of the Lennard-Jones potential at the specified
+! distance, given the specified parametrisation of the potential.
+function lj_pot(epsilon,sigma,r)
     real(rk), intent(in) :: epsilon
     real(rk), intent(in) :: sigma
     real(rk), intent(in) :: r
     real(rk) :: lj_pot
     lj_pot=4.0_rk*epsilon*( (sigma/r)**12-(sigma/r)**6 )
-  end function lj_pot
+end function lj_pot
 
 
 
 
-  !! <h3> <code> function lj_pot_trunc(epsilon,sigma,cutoff,r) </code> </h3>
-  !! <p>
-  !! This function returns the value of a truncated Lennard-Jones potential at the specified
-  !! distance, given the specified parametrisation of the potential. The potential is truncated
-  !! at distance <code>cutoff</code>, and the potential is shifted to avoid a discontinuity in the
-  !! potential at this distance.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> epsilon </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Depth of the potential well. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> sigma </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Distance corresponding to 0 potential. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> cutoff </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> The cut-off distance for the potential. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Distance at which the potential is to be evaluated. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function lj_pot_trunc(epsilon,sigma,cutoff,r)
+! This function returns the value of a truncated Lennard-Jones potential at the specified
+! distance, given the specified parametrisation of the potential. The potential is truncated
+! at distance 'cutoff'.
+function lj_pot_trunc(epsilon,sigma,cutoff,r)
     real(rk), intent(in) :: epsilon
     real(rk), intent(in) :: sigma
     real(rk), intent(in) :: cutoff
     real(rk), intent(in) :: r
     real(rk) :: lj_pot_trunc
     if(r<cutoff) then
-       lj_pot_trunc=lj_pot(epsilon,sigma,r)-lj_pot(epsilon,sigma,cutoff)
+       lj_pot_trunc=lj_pot(epsilon,sigma,r)
     else
        lj_pot_trunc=0.0_rk
     end if
-  end function lj_pot_trunc
+end function lj_pot_trunc
 
 
 
 
-  !! <h3> <code> function lj_energy_trunc_list_2(epsilon,sigma,cutoff,Lx,Ly,Lz,list,r) </code> </h3>
-  !! <p>
-  !! This function returns the Lennard-Jones energy for a system whose particles are contained
-  !! in the array <code>r</code> - where (<code>r(i,1)</code>,<code>r(i,2)</code>,<code>r(i,3)</code>) 
-  !! is the position of the 'i'th particle - where the supercell has dimensions <code>Lx</code>, 
-  !! <code>Ly</code> and <code>Lz</code> respectively in the x-, y- and z- directions. The positions
-  !! of the particles must conform to the rules for the <code>min_image_distance</code> function.
-  !! <code>list</code> provides information regarding the pairs of particles which will interact. The 
-  !! (i,n)th element of <code>list</code> is the nth particle which particle 'i' interacts with. If 'i'
-  !! only interacts with 'z' particles, then element (i,n) for n>z should be 0.
-  !! For this procedure, the lower bounds on the array indices should be 1.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> epsilon </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Depth of the potential well. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> sigma </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Distance corresponding to 0 potential. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of supercell along the x-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of supercell along the y-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of supercell along the z-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> cutoff </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> The cut-off distance for the potential. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> list </code> </td>
-  !!   <td> <code> integer(ik), dimension(:,:), intent(in) </code> </td>
-  !!   <td> Array determining which particles interact. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), dimension(:,:), intent(in) </code> </td>
-  !!   <td> Particle positions. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function lj_energy_trunc_list_2(epsilon,sigma,cutoff,Lx,Ly,Lz,list,r)
+! This function returns the Lennard-Jones energy for the specified system, list and parametrisation
+! of the LJ potential (which is truncated)
+function lj_energy_trunc_list_2(epsilon,sigma,cutoff,Lx,Ly,Lz,list,r)
     real(rk), intent(in) :: epsilon
     real(rk), intent(in) :: sigma
     real(rk), intent(in) :: cutoff
@@ -777,4 +599,9 @@ contains
        end do
     end do
     lj_energy_trunc_list_2=0.5*lj_energy_trunc_list_2
-  end function lj_energy_trunc_list_2
+end function lj_energy_trunc_list_2
+
+
+
+
+end module interactions_mod
