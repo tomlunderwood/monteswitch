@@ -1,200 +1,114 @@
-  !
-  ! By extracting lines beginning with the regular expression '\!\! ?'
-  ! (ignoring leading whitespace), and then removing matches to the
-  ! regular expression, html documentation corresponding to this 
-  ! source code will be created.
-  !
-  !! <html>
-  !! <head>
-  !!  <title> EAM interactions Documentation </title>
-  !! </head>
-  !! <body>
-  !! 
-  !! <h1> EAM <code>interactions</code> Documentation </h1>
-  !!
-  !! <h2> Author </h2>
-  !! <p> Tom Underwood </p>
-  !!
-  !! <h2> General Notes </h2>
-  !!
-  !! <h3> Description </h3>
-  !! <p>
-  !! This file contains variables and procedures pertaining to how the particles interact. It is
-  !! <code>include</code>d in the <code>monteswitch_mod</code> module.
-  !! </p>
-  !! <p>
-  !! This version of the file implements the embedded atom model (EAM) similarly to LAMMPS, as described at
-  !! http://lammps.sandia.gov/doc/pair_eam.html. The input file which specifies the potential (the 'interactions_in'
-  !! file read by monteswitch) must be in the DYNAMO/LAMMPS 'setfl' format; a file with this format is often
-  !! indicated with the suffix '.eam.alloy'. A description of the 'setfl' format can be found at 
-  !! http://lammps.sandia.gov/doc/pair_eam.html. However, note that, since monteswitch currently
-  !! only supports unary systems, the file must not correspond to a multicomponent system - an error is returned
-  !! if this is the case. Note also this file implements the EAM potential by using linear interpolation, using the
-  !! tabulations of the various functions in the input file (the embedding function, the density function, 
-  !! and the pair-potential) as a basis. At initialisation three files are created, 'F.dat', 'rho.dat', and 'rphi.dat', which
-  !! correspond to the embedding function, density function, and pair potential (multiplied by separation) read
-  !! from the input file.
-  !! </p>
-  !! <p>
-  !! NB: It seems that 'setfl' format files often have cut-offs which are very slightly
-  !! higher than that suggested by the values of <code>Nr</code> and
-  !! <code>dr</code>. The aforementioned LAMMPS documentation specifies that
-  !! elements <code>i</code> of <code>rho</code> and <code>rphi</code>
-  !! correspond to a separation of <code>r=(i-1)*dr</code> - as opposed to
-  !! <code>r=i*dr</code>. Hence the maximum supported separation is
-  !! <code>(Nr-1)*dr</code>, as opposed to <code>Nr*dr</code>. However, people
-  !! often set the cut-off to the latter value, as opposed to the former. Here,
-  !! to account for this, if the cut-off is greater than <code>(Nr-1)*dr</code>, 
-  !! then it is ammeded at initialisation to be <code>(Nr-1)*dr</code>.
-  !! </p>
-  
-  !! <h2> 'Interation variables' which are required for initialisation of the particle interactions. </h3>
-  !! The following variables are read from the <code>filename_params</code> file by 
-  !! <code>initialise_from_files(filename_params,filename_lattice)</code> in <code>monteswitch_mod</code>.
-  !! These varaibles are later used to initialise how the particles interact.
-  !! </p>
-  !! <table border="1">
-  !! <tr>
-  !!  <td> <b> Variable </b> </td>
-  !!  <td> <b> Type </b> </td>
-  !!  <td> <b> Description </b> </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>Nrho<code> </td>
-  !!  <td> <code>integer(ik)</code> </td>
-  !!  <td> The number of points on the 'density grid'. </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>drho<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> The spacing between points on the 'density grid'. </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>Nr<code> </td>
-  !!  <td> <code>integer(ik)</code> </td>
-  !!  <td> 
-  !!  The number of points on the 'separation grid'.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>dr<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> 
-  !!  The spacing between points on the 'separation grid'.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>cutoff<code> </td>
-  !!  <td> <code>real(rk)</code> </td>
-  !!  <td> 
-  !!  The interaction cut-off: pairs of particles beyond this separation do not interact.
-  !!  </td>
-  !! </tr>
-  !! </table> 
-  integer(ik) :: Nrho
-  real(rk) :: drho
-  integer(ik) :: Nr
-  real(rk) :: dr
-  real(rk) :: cutoff
+! 'interactions.f95' file for EAM metal potentials (single-species '.eam.alloy' format) 
+!
+! Author: Tom L Underwood
+!
+! This file implements the embedded atom model (EAM) similarly to LAMMPS, as described at
+! http://lammps.sandia.gov/doc/pair_eam.html. The input file which specifies the potential to be used by monteswitch
+! must be named 'interactions_in', and must be in the DYNAMO/LAMMPS 'setfl' format; a file with this format is often
+! indicated with the suffix '.eam.alloy'. A description of the 'setfl' format can be found at 
+! http://lammps.sandia.gov/doc/pair_eam.html. However, note that this file ONLY WORKS FOR SINGLE-SPECIES
+! SYSTEMS: the .eam.alloy file must not correspond to a multicomponent system - an error is returned
+! if this is the case. Note also this file implements the EAM potential by using linear interpolation, using the
+! tabulations of the various functions in the input file (the embedding function, the density function, 
+! and the pair-potential) as a basis. 
+!
+! At initialisation this module creates three files: 'F.dat', 'rho.dat', and 'rphi.dat', which
+! correspond to the embedding function, density function, and pair potential (multiplied by separation) read
+! from the input file.
+!
+! NB: It seems that 'setfl' format files often have cut-offs which are very slightly
+! higher than that suggested by the values of 'Nr' and 'dr. The aforementioned LAMMPS documentation specifies that
+! elements 'i' of rho' and 'rphi' correspond to a separation of 'r=(i-1)*dr' - as opposed to
+! 'r=i*dr'. Hence the maximum supported separation between particles is '(Nr-1)*dr', as opposed to 'Nr*dr'. 
+! However, people often set the cut-off to the latter value, as opposed to the former. Here, to account for this, 
+! if the cut-off is greater than '(Nr-1)*dr', then it is ammeded at initialisation to be '(Nr-1)*dr'.
+!
+! This file was adapted from the file 'interactions_TEMPLATE_minimal.f95' - some comments are inherited from that
+! file.
+
+module interactions_mod
 
 
-  !! <h2> Further 'interaction variables'</h3>
-  !! <p>
-  !! The following variables are initialised according to the values of the above variables.
-  !! </p>
-  !! <table border="1">
-  !! <tr>
-  !!  <td> <b> Variable </b> </td>
-  !!  <td> <b> Type </b> </td>
-  !!  <td> <b> Description </b> </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>F<code> </td>
-  !!  <td> <code>real(rk), dimension(:), allocatable</code> </td>
-  !!  <td>
-  !!  Array defining the embedding function: <code>F(i)</code> is the embedding function at density
-  !!  <code>(i-1)*drho</code>.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>rho<code> </td>
-  !!  <td> <code>real(rk), dimension(:), allocatable</code> </td>
-  !!  <td>
-  !!  Array defining the density function: <code>rho(i)</code> is the density for inter-particle separation
-  !!  <code>(i-1)*dr</code>.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>rphi<code> </td>
-  !!  <td> <code>real(rk), dimension(:), allocatable</code> </td>
-  !!  <td>
-  !!  Array defining the pair-potential function: <code>rphi(i)</code> is the pair-potential, multiplied by
-  !!  the separation, for inter-particle separation <code>(i-1)*dr</code>.
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>part_rho<code> </td>
-  !!  <td> <code>real(rk), dimension(:,:), allocatable</code> </td>
-  !!  <td>
-  !!  Array defining containing the density - with regards to the embedding function - associated with
-  !!  each particle in the current microstate of the system for each latice. 
-  !!  <code>part_rho(lattice,i)</code> is the density for particle <code>i</code> in lattice <cdoe>lattice</code>. 
-  !!  This is used to speed up the calculation of the change in embedding energy as a result of a particle move. 
-  !!  </td>
-  !! </tr>
-  !! <tr>
-  !!  <td> <code>part_rho_buffer<code> </td>
-  !!  <td> <code>real(rk), dimension(:,:), allocatable</code> </td>
-  !!  <td>
-  !!  Like <code>part_rho</code>, but a 'buffer' value. Every particle or volume move, the energy of the trial
-  !!  microstate is evaluated by calling the <code>calc_energy_scratch</code> or <code>calc_energy_part_move</code>
-  !!  procedure. In each of these procedures, the densities for the trial state are stored in <code>part_rho_buffer<code>.
-  !!  If the move is accepted, i.e., the trial microstate becomes the actual microstate of the system, 
-  !!  <code>part_rho_buffer<code> is copied to <code>part_rho</code>. If the move is rejected, then 
-  !!  <code>part_rho_buffer<code> is not copied to <code>part_rho</code>.  Thus <code>part_rho</code> always reflects the 
-  !!  actual microstate.
-  !!  </td>
-  !! </tr>
-  !! </table>
-  real(rk), dimension(:), allocatable :: F
-  real(rk), dimension(:), allocatable :: rho
-  real(rk), dimension(:), allocatable :: rphi
-  real(rk), dimension(:,:), allocatable :: part_rho
-  real(rk), dimension(:,:), allocatable :: part_rho_buffer
+    ! The module 'kinds_mod' (in 'kinds_mod.f95') contains the real and integer kinds
+    ! which monteswitch uses: real(kind=rk) and integer(kind=ik). Please use these
+    ! kinds throughout this module to allow portability.
+    use kinds_mod
+    
+    implicit none
+
+    ! Number of points on the density grid
+    integer(ik) :: Nrho
+    ! Spacing of points on the density grid
+    real(rk) :: drho
+    ! Number of points on the separation grid
+    integer(ik) :: Nr
+    ! Spacing of points on the separation grid
+    real(rk) :: dr
+    ! The interaction cut-off: pairs of particles beyond this separation do not interact.
+    real(rk) :: cutoff
+
+    ! Array defining the embedding function: 'F(i)' is the embedding function at density
+    ! '(i-1)*drho'.
+    real(rk), dimension(:), allocatable :: F
+    ! Array defining the density function: 'rho(i)' is the density for inter-particle separation
+    ! '(i-1)*dr'.
+    real(rk), dimension(:), allocatable :: rho
+    ! Array defining the pair-potential function: 'rphi(i)' is the pair-potential, multiplied by
+    ! the separation, for inter-particle separation '(i-1)*dr'.
+    real(rk), dimension(:), allocatable :: rphi
+    ! Array defining containing the density - with regards to the embedding function - associated with
+    ! each particle in the current microstate of the system for each latice. 
+    ! 'part_rho(lattice,i)' is the density for particle 'i' in lattice <cdoe>lattice'. 
+    ! This is used to speed up the calculation of the change in embedding energy as a result of a particle move. 
+    real(rk), dimension(:,:), allocatable :: part_rho
+    ! Like 'part_rho', but a 'buffer' value. Every particle or volume move, the energy of the trial
+    ! microstate is evaluated by calling the 'calc_energy_scratch' or 'calc_energy_part_move'
+    ! procedure. In each of these procedures, the densities for the trial state are stored in 'part_rho_buffer'.
+    ! If the move is accepted, i.e., the trial microstate becomes the actual microstate of the system, 
+    ! 'part_rho_buffer' is copied to 'part_rho'. If the move is rejected, then 
+    ! 'part_rho_buffer' is not copied to 'part_rho'. Thus 'part_rho' always reflects the 
+    ! actual microstate.
+    real(rk), dimension(:,:), allocatable :: part_rho_buffer
+
+
+    ! The below public procedures are called by 'monteswitch_mod' (in 'monteswitch_mod.f95'),
+    ! and must be 'filled in' by the user.
+    private
+    public :: initialise_interactions, export_interactions, import_interactions, &
+        after_accepted_part_interactions, after_accepted_vol_interactions, &
+        after_accepted_lattice_interactions, after_all_interactions, &
+        calc_energy_scratch, calc_energy_part_move
+
 
 contains
 
 
-  !! <h2> Key procedures used in <code>monteswitch_mod</code> </h2>
+! Initialises the variables in this module. The initial configurations for both
+! lattices are provided as arguments in case this information is required. Unless the interactions
+! are 'hard-coded', the initialisation will involve reading from a file. This should be done here.
+subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
+    ! Dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
 
-
-  !! <h3> <code> subroutine import_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure imports interaction variables required to initialise the interactions from the specified file,
-  !! and initialises all interaction variables. This procedure presumably requires all other simulation variables
-  !! to be initialised; accordingly it is the 'last' initialisation procedure to be called.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> filename </code> </td>
-  !!   <td> <code>  character(*), intent(in) </code> </td>
-  !!   <td> The file from which the interactions will be imported.
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  subroutine initialise_interactions(filename)
-    character(*), intent(in) :: filename
+    character(*),parameter :: filename="interactions_in"
     character(len=200) :: line
     integer(ik) :: error
     integer(ik) :: i,j,n
 
     integer(ik) :: indx, prev_indx
     integer(ik) :: start_of_word
+
+    integer(ik) :: n_part
+
+    n_part=size(pos1,1)
 
     ! Open the file and import the variables required for initialisation
     open(unit=10,file=filename,iostat=error,status="old")
@@ -373,8 +287,8 @@ contains
     ! Initialise part_rho, and allocate - but not set any values to - part_rho_buffer
     allocate(part_rho(2,n_part))
     allocate(part_rho_buffer(2,n_part))
-    call set_part_rho(1,Lx(1),Ly(1),Lz(1),R_1)
-    call set_part_rho(2,Lx(2),Ly(2),Lz(2),R_2)
+    call set_part_rho(1,Lx1,Ly1,Lz1,pos1)
+    call set_part_rho(2,Lx2,Ly2,Lz2,pos2)
 
     ! Output the functions to files
     open(unit=10,file="F.dat")
@@ -393,17 +307,23 @@ contains
     end do
     close(10)
 
-  end subroutine initialise_interactions
+
+end subroutine initialise_interactions
 
 
 
+! Export all of the variables in this module - for the purposes of checkpointing. There are 
+! two options for this. If one outputs the variables to unit 10, without opening or closing that 
+! unit in this procedure, then the variables will be output to, and stored within,
+! the 'state' file which contains all other monteswitch variables, and is used for resuming
+! old simulations as well as post-processing. If one wishes to use a separate file or files to 
+! checkpoint the variables in this module, then one is free to do so in this procedure - 
+! just don't use unit 10! Note that the format output to the checkpoint file(s) by this procedure
+! must correspond to the format read in from these files by the procedure 'import_interactions()'.
+subroutine export_interactions()
 
-  !! <h3> <code> subroutine export_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure exports all interaction variables to the specified unit.
-  !! </p>
-  subroutine export_interactions_state(unit)
-    integer(ik), intent(in) :: unit
+    integer(ik), parameter :: unit=10
+
     write(unit,*) "Nrho= ",Nrho
     write(unit,*) "drho= ",drho
     write(unit,*) "Nr= ",Nr
@@ -414,19 +334,40 @@ contains
     write(unit,*) "rphi= ",rphi
     write(unit,*) "part_rho= ",part_rho
     write(unit,*) "part_rho_buffer= ",part_rho_buffer
-  end subroutine export_interactions_state
+    
+end subroutine export_interactions
 
 
 
 
-  !! <h3> <code> subroutine import_interactions_params(unit) </code> </h3>
-  !! <p>
-  !! This procedure imports all interaction variables from the specified unit.
-  !! </p>
-  subroutine import_interactions_state(unit)
-    integer(ik), intent(in) :: unit
+! Import all variables in this module from file(s) - for the purposes of checkpointing. The format 
+! read from the file(s) should correspond to that output by 'export_interactions' above. If one is
+! importing from within a 'state' file as described in that procedure, then use unit 10, but
+! do not open or close that unit!
+subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, u, R2)
+    ! Dimensions of the (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
+    ! etc.
+    real(rk), intent(in), dimension(:,:) :: u
+
+    integer(ik), parameter :: unit=10
     character(len=20) string
-    integer(ik) :: error
+    integer(ik) :: error, n_part
+
+    n_part=size(pos1,1)
 
     read(unit,*,iostat=error) string, Nrho
     if(error/=0) then
@@ -495,82 +436,150 @@ contains
        stop 1
     end if
 
-  end subroutine import_interactions_state
+end subroutine import_interactions
 
 
 
-  
-  !! <h3> <code> subroutine after_accepted_interactions() </code> </h3>
-  !! <p>
-  !! This procedure is called after a particle or volume move (but not a lattice move) has been
-  !! accepted. It can be used to update, say, neighbour lists, which require knowledge of the
-  !! current microstate - or in this case, the current microstate pertaining to both lattices.
-  !! </p>
-  subroutine after_accepted_interactions()
+
+! Performs any tasks required for the variables in this module, after a particle move for particle i is accepted
+subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! The particle which has just been moved (where the move has been accepted)
+    integer(ik), intent(in) :: i
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+
     part_rho=part_rho_buffer
-  end subroutine after_accepted_interactions
+
+end subroutine after_accepted_part_interactions
 
 
 
 
-  !! <h3> <code> function calc_energy_scratch(lattice,Lx,Ly,Lz,r) </code> </h3>
-  !! <p>
-  !! This function calculates the energy of a given system 'from scratch'.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz_in </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle positions. These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_scratch(lattice,Lx_in,Ly_in,Lz_in,r)
+! Performs any tasks required for the variables in this module, after a volume move is accepted
+subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+    part_rho=part_rho_buffer
+
+end subroutine after_accepted_vol_interactions
+
+
+
+! Performs any tasks required for the variables in this module, after a lattice move is accepted
+subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
+    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+    return
+
+end subroutine after_accepted_lattice_interactions
+
+
+
+
+! Performs any tasks required for the variables in this module after ALL moves (accepted or rejected)
+subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is 
+    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3) 
+    ! is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+    return
+
+end subroutine after_all_interactions
+
+
+
+
+! Returns the energy for the specificed configuration of the specified lattice
+function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
+    ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
-    real(rk), intent(in) :: Lx_in
-    real(rk), intent(in) :: Ly_in
-    real(rk), intent(in) :: Lz_in
-    real(rk), intent(in), dimension(:,:) :: r
+    ! Dimensions of the (orthorhombic) supercell
+    real(rk), intent(in) :: Lx, Ly, Lz
+    ! Array containing the species of each particle for each lattice: e.g., species(i) is the
+    ! species of particle i
+    integer(ik), dimension(:), intent(in) :: species
+    ! Positions (Cartesian) of the particles: e.g., pos(i,1) is the x-coordinate of particle 
+    ! i, pos1(i,2) is the y-coordinate, and pos1(i,3) is the z-coordinate
+    real(rk), dimension(:,:), intent(in) :: pos
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
+    ! Displacement vectors for the particles; e.g., u(i,1) is the x-displacement of 
+    ! particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
     real(rk) :: calc_energy_scratch
+
     integer(ik) :: i,j
     real(rk) :: sep
     real(rk) :: pair_energy
     real(rk) :: embedding_energy
+    integer(ik) :: n_part
+
+    n_part=size(pos,1)
+
     pair_energy=0.0_rk
     embedding_energy=0.0_rk
     do i=1,n_part
@@ -580,7 +589,7 @@ contains
        part_rho_buffer(lattice,i)=0.0_rk
        do j=1,n_part
           if(j/=i) then
-             sep=min_image_distance(r(i,:),r(j,:),Lx_in,Ly_in,Lz_in)
+             sep=min_image_distance(pos(i,:),pos(j,:),Lx,Ly,Lz)
              if(sep<cutoff) then
                 pair_energy=pair_energy+0.5_rk*phi_func(sep)
                 part_rho_buffer(lattice,i)=part_rho_buffer(lattice,i)+rho_func(sep)
@@ -591,117 +600,104 @@ contains
     end do
 
     calc_energy_scratch = pair_energy + embedding_energy
-  end function calc_energy_scratch
+
+end function calc_energy_scratch
 
 
 
 
-  !! <h3> <code> function calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i) </code> </h3>
-  !! <p>
-  !! This function calculates the energy <i>change</i> of the system if particle <code>i</code> is moved
-  !! such that the positions, which were previously <code>r</code>, are now <code>r_new</code>.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> lattice </code> </td>
-  !!   <td> <code> integer(ik), intent(in) </code> </td>
-  !!   <td>
-  !!   Lattice type to calculate the energy for.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in x direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in y direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   Length of supercell in z direction.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the particle positions. These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_new </code> </td>
-  !!   <td> <code> real(rk), intent(in), dimension(:,:) </code> </td>
-  !!   <td>
-  !!   Array containing the new particle positions with the positions of particle <code>i</code> moved. 
-  !!   These positions will be within the supercell 'box'.  
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> i </code> </td>
-  !!   <td> <code> integer(ik) </code> </td>
-  !!   <td>
-  !!   The number of the particle which has been moved
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function calc_energy_part_move(lattice,Lx,Ly,Lz,r,r_new,i)
+! Returns the energy for the specificed configuration of the specified lattice given
+! that particle i has moved
+function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, u_new, i)
+    ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    real(rk), intent(in), dimension(:,:) :: r
-    real(rk), intent(in), dimension(:,:) :: r_new
+    ! The particle which has just been moved
     integer(ik), intent(in) :: i
+    ! Dimensions of the (orthorhombic) supercell
+    real(rk), intent(in) :: Lx, Ly, Lz
+    ! Array containing the species of each particle for each lattice: e.g., species(i) is the
+    ! species of particle i
+    integer(ik), dimension(:), intent(in) :: species
+    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(j,1) is 
+    ! the x-coordinate of particle j, pos(j,2) is the y-coordinate, and pos(j,3) is the
+    ! z-coordinate
+    real(rk), dimension(:,:), intent(in) :: pos
+    ! Position of particle i AFTER the particle has been moved
+    real(rk), dimension(3), intent(in) :: pos_new
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
+    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(j,1) is 
+    ! the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+    ! Displacement of particle i AFTER the particle has been moved
+    real(rk), dimension(3), intent(in) :: u_new
+
     real(rk) :: calc_energy_part_move
+
     integer(ik) :: j
     real(rk) :: sep
     real(rk) :: sep_new
     real(rk) :: delta_pair_energy
     real(rk) :: delta_embedding_energy
     ! The change in density for microstate with r_new relative to the current microstate (r)
-    real(rk), dimension(n_part) :: delta_rho    
+    real(rk), dimension(size(pos,1)) :: delta_rho    
 
-    ! Calculate the change in the pair energy
+    integer(ik) :: n_part
+
+    n_part=size(pos,1)
+
+    ! EAM code from an older version of monteswitch, which is optimised below...
+    !
+    !    ! Calculate the change in the pair energy
+    !    delta_pair_energy=0.0_rk
+    !    do j=1,n_part
+    !       if(j/=i) then
+    !          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
+    !          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
+    !          if(sep_new<cutoff) delta_pair_energy=delta_pair_energy+phi_func(sep_new)
+    !          if(sep<cutoff) delta_pair_energy=delta_pair_energy-phi_func(sep)
+    !       end if
+    !    end do
+    !
+    !    ! Calculate the change in the embedding energy
+    !
+    !    ! Calculate the changes in all particles' densities for  r_new relative to r_ref
+    !    delta_rho=0.0_rk
+    !    do j=1,n_part
+    !       if(j/=i) then
+    !          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
+    !          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
+    !          if(sep_new<cutoff) then
+    !             delta_rho(j)=delta_rho(j)+rho_func(sep_new)
+    !             delta_rho(i)=delta_rho(i)+rho_func(sep_new)
+    !          end if
+    !          if(sep<cutoff) then
+    !             delta_rho(j)=delta_rho(j)-rho_func(sep)
+    !             delta_rho(i)=delta_rho(i)-rho_func(sep)
+    !          end if
+    !       end if
+    !    end do
+    
+    ! Combine the above commented out code into one more efficient loop
+    
     delta_pair_energy=0.0_rk
-    do j=1,n_part
-       if(j/=i) then
-          sep=min_image_distance(r(j,:),r(i,:),Lx,Ly,Lz)
-          sep_new=min_image_distance(r_new(j,:),r_new(i,:),Lx,Ly,Lz)
-          if(sep_new<cutoff) delta_pair_energy=delta_pair_energy+phi_func(sep_new)
-          if(sep<cutoff) delta_pair_energy=delta_pair_energy-phi_func(sep)
-       end if
-    end do
-
-    ! Calculate the change in the embedding energy
-
-    ! Calculate the changes in all particles' densities for  r_new relative to r_ref
     delta_rho=0.0_rk
     do j=1,n_part
        if(j/=i) then
-          sep=min_image_distance(r(j,:),r(i,:),Lx,Ly,Lz)
-          sep_new=min_image_distance(r_new(j,:),r_new(i,:),Lx,Ly,Lz)
+          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
+          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
           if(sep_new<cutoff) then
-             delta_rho(j)=delta_rho(j)+rho_func(sep_new)
-             delta_rho(i)=delta_rho(i)+rho_func(sep_new)
+              delta_pair_energy=delta_pair_energy+phi_func(sep_new)
+
+              delta_rho(j)=delta_rho(j)+rho_func(sep_new)
+              delta_rho(i)=delta_rho(i)+rho_func(sep_new)
           end if
           if(sep<cutoff) then
-             delta_rho(j)=delta_rho(j)-rho_func(sep)
-             delta_rho(i)=delta_rho(i)-rho_func(sep)
+              delta_pair_energy=delta_pair_energy-phi_func(sep)
+              
+              delta_rho(j)=delta_rho(j)-rho_func(sep)
+              delta_rho(i)=delta_rho(i)-rho_func(sep)
           end if
        end if
     end do
@@ -718,24 +714,26 @@ contains
 
     calc_energy_part_move = delta_pair_energy + delta_embedding_energy
 
-  end function calc_energy_part_move
+end function calc_energy_part_move
 
 
 
 
-  !! <h2>Procedures used internally </h2>
-
-
-  ! Set the part of part_rho for 'lattice' to correspond to the microstate
-  ! in the argument
-  subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
+! Set the part of part_rho for 'lattice' to correspond to the microstate
+! in the argument
+subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
     integer(ik), intent(in) :: lattice
     real(rk), intent(in) :: Lx
     real(rk), intent(in) :: Ly
     real(rk), intent(in) :: Lz
     real(rk), intent(in), dimension(:,:) :: r
+
     integer(ik) :: i,j
     real(rk) :: sep
+    integer(ik) :: n_part
+    
+    n_part=size(r,1)
+
     do i=1,n_part
        part_rho(lattice,i)=0.0_rk
        do j=1,n_part
@@ -747,57 +745,14 @@ contains
           end if
        end do
     end do
-  end subroutine set_part_rho
+end subroutine set_part_rho
 
 
 
 
-  !! <h3> <code> function min_image_distance(r_1,r_2,Lx,Ly,Lz) </code> </h3>
-  !! <p>
-  !! <code>  min_image_distance </code>  returns the distance between the 
-  !! positions <code>r_1</code> and <code>r_2</code> according to the 
-  !! minimum image convention for a periodic cuboid whose faces are x=0, 
-  !! x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and z=<code>Lz</code>.
-  !! <code>r_1(1)</code> is the x-component of <code>r_1</code>, 
-  !! <code>r_1(2)</code> is the y-component, and <code>r_1(3)</code> is the 
-  !! z-component; and similarly for <code>r_2</code>. Note that
-  !! <code>r_1</code> and <code>r_2</code> must be such that
-  !! 0<=x<<code>Lx</code>, 0<=y<<code>Ly</code>, and 0<=z<<code>Lz</code>.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_1 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_2 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the x-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the y-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the z-axis. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function min_image_distance(r_1,r_2,Lx,Ly,Lz)
+! Returns the separation between two positions within an orthorhombic
+! cell with the specified dimensions
+function min_image_distance(r_1,r_2,Lx,Ly,Lz)
     real(rk), dimension(3), intent(in) :: r_1, r_2
     real(rk), intent(in) :: Lx, Ly, Lz
     real(rk) :: min_image_distance
@@ -813,31 +768,13 @@ contains
     zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
     ! Calculate the distance
     min_image_distance=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
-  end function min_image_distance
+end function min_image_distance
 
 
 
 
-  !! <h3> <code> function F_func(rho) </code> </h3>
-  !! <p>
-  !! <code>F_func(rho) </code> returns the embedding energy for a given density,
-  !! given the array <code>F</code>, and the 'density grid' defined by <code>Nrho</code>
-  !! and <code>drho</code>. Note that linear interpolation is used.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> rho </code> </td>
-  !!   <td> <code> real(rk) </code> </td>
-  !!   <td> The electron density. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function F_func(rho)
+! Returns the embedding energy for a given density.
+function F_func(rho)
     real(rk), intent(in) :: rho
     real(rk) :: F_func
     real(rk) :: bin_cont
@@ -853,31 +790,13 @@ contains
     bin_below=floor(bin_cont)
     bin_above=ceiling(bin_cont)
     F_func=F(bin_below) + (F(bin_above)-F(bin_below))*(bin_cont-bin_below)
-  end function F_func
+end function F_func
 
 
 
 
-  !! <h3> <code> function rho_func(rho) </code> </h3>
-  !! <p>
-  !! <code>rho_func(r) </code> returns the density corresponding to a given separation,
-  !! given the array <code>rho</code>, and the 'separation grid' defined by <code>Nr/code>
-  !! and <code>dr</code>. Note that linear interpolation is used.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code>r </code> </td>
-  !!   <td> <code> real(rk) </code> </td>
-  !!   <td> The distance between two particles. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function rho_func(r)
+! Returns the density corresponding to a given separation.
+function rho_func(r)
     real(rk), intent(in) :: r
     real(rk) :: rho_func
     real(rk) :: bin_cont
@@ -893,31 +812,13 @@ contains
     bin_below=floor(bin_cont)
     bin_above=ceiling(bin_cont)
     rho_func=rho(bin_below) + (rho(bin_above)-rho(bin_below))*(bin_cont-bin_below)
-  end function rho_func
+end function rho_func
 
 
 
 
-  !! <h3> <code> function phi_func(rho) </code> </h3>
-  !! <p>
-  !! <code>phi_func(r) </code> returns the value of the pair-potential corresponding to a given separation,
-  !! given the array <code>rphi</code>, and the 'separation grid' defined by <code>Nr/code>
-  !! and <code>dr</code>. Note that linear interpolation is used.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code>r </code> </td>
-  !!   <td> <code> real(rk) </code> </td>
-  !!   <td> The distance between two particles. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function phi_func(r)
+! Returns the value of the pair potential corresponding to a given separation.
+function phi_func(r)
     real(rk), intent(in) :: r
     real(rk) :: phi_func
     real(rk) :: bin_cont
@@ -934,5 +835,9 @@ contains
     bin_above=ceiling(bin_cont)
     phi_func=rphi(bin_below) + (rphi(bin_above)-rphi(bin_below))*(bin_cont-bin_below)
     phi_func=phi_func/r
-  end function phi_func
+end function phi_func
 
+
+
+
+end module interactions_mod
