@@ -487,6 +487,53 @@ contains
     if(task_id==0) then
        block_counts_umsd_2=sum_int
     end if
+    ! interblock_sum_L_1
+    allocate(sum_real_array(3))
+    sum_real_array=0
+    call MPI_REDUCE(interblock_sum_L_1,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       interblock_sum_L_1=sum_real_array
+    end if
+    deallocate(sum_real_array)
+    ! interblock_sum_L_2
+    allocate(sum_real_array(3))
+    sum_real_array=0
+    call MPI_REDUCE(interblock_sum_L_2,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       interblock_sum_L_2=sum_real_array
+    end if
+    deallocate(sum_real_array)
+    ! interblock_sum_L_1_sqrd
+    allocate(sum_real_array(3))
+    sum_real_array=0
+    call MPI_REDUCE(interblock_sum_L_1_sqrd,sum_real_array,size(sum_real_array), &
+         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       interblock_sum_L_1_sqrd=sum_real_array
+    end if
+    deallocate(sum_real_array)
+    ! interblock_sum_L_2_sqrd
+    allocate(sum_real_array(3))
+    sum_real_array=0
+    call MPI_REDUCE(interblock_sum_L_2_sqrd,sum_real_array,size(sum_real_array), &
+         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       interblock_sum_L_2_sqrd=sum_real_array
+    end if
+    deallocate(sum_real_array)
+    ! block_counts_L_1
+    sum_int=0
+    call MPI_REDUCE(block_counts_L_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       block_counts_L_1=sum_int
+    end if
+    ! block_counts_L_2
+    sum_int=0
+    call MPI_REDUCE(block_counts_L_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+    if(task_id==0) then
+       block_counts_L_2=sum_int
+    end if
+
 
     ! In task 0, perform the final things
     if(task_id==0) then

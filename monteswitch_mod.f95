@@ -527,6 +527,10 @@ module monteswitch_mod
   !! <tr> <td> <code>output_file_sigma_equil_umsd_1 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_sigma_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_equil_L_1 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_sigma_equil_L_1 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_equil_L_2 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_sigma_equil_L_2 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_period</code> </td> <td> <code>integer(ik)</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_Lx </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_Ly </code> </td> <td> <code>logical</code> </td> </tr>
@@ -563,7 +567,11 @@ module monteswitch_mod
   !! <tr> <td> <code>output_stdout_sigma_equil_umsd_1 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_sigma_equil_umsd_2 </code> </td> <td> <code>logical</code> </td> </tr>
-  !! <tr> <td> <code>checkpoint_period </code> </td> <td> <code>integer(ik)</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_equil_L_1 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_sigma_equil_L_1 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_equil_L_2 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_sigma_equil_L_2 </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>> <code>checkpoint_period </code> </td> <td> <code>integer(ik)</code> </td> </tr> </code> </td> <td> <code>logical</code> </td> </tr>
   !! </table>
   integer(ik) :: output_file_period
   logical :: output_file_Lx
@@ -605,6 +613,10 @@ module monteswitch_mod
   logical :: output_file_sigma_equil_umsd_1
   logical :: output_file_equil_umsd_2
   logical :: output_file_sigma_equil_umsd_2
+  logical :: output_file_equil_L_1
+  logical :: output_file_sigma_equil_L_1
+  logical :: output_file_equil_L_2
+  logical :: output_file_sigma_equil_L_2
   integer(ik) :: output_stdout_period
   logical :: output_stdout_Lx
   logical :: output_stdout_Ly
@@ -645,6 +657,10 @@ module monteswitch_mod
   logical :: output_stdout_sigma_equil_umsd_1
   logical :: output_stdout_equil_umsd_2
   logical :: output_stdout_sigma_equil_umsd_2
+  logical :: output_stdout_equil_L_1
+  logical :: output_stdout_sigma_equil_L_1
+  logical :: output_stdout_equil_L_2
+  logical :: output_stdout_sigma_equil_L_2
   integer(ik) :: checkpoint_period
 
 
@@ -1540,10 +1556,102 @@ module monteswitch_mod
   !!  </font> </td>
   !! </tr>
   !! <tr>
-  !!  <td> <font color="red">  <code>block_counts_umsd_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>block_counts_umsd_2</code> </font> </td>
   !!  <td> <font color="red">  <code>integer(ik)</code> </font> </td>
   !!  <td> <font color="red">  
-  !!  The number of blocks which have been considered so far for the purposes of evaluating <code>equil_umsd_1</code>.
+  !!  The number of blocks which have been considered so far for the purposes of evaluating <code>equil_umsd_2</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>equil_L_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  Variable containing the mean dimensions of the supercell for phase 1: equil_L_1(1) is the mean x-dimension of the supercell for
+  !!  phase 1, equil_L_1(2) is the y-dimension, equil_L_1(3) is the z-dimension.
+  !!  Note that this variable is only meaningful if <code>block_counts_L_1>0</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>simga_equil_L_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  Variable containing the uncertainties in the mean dimensions of the supercell for phase 1: sigma_equil_L_1(1) is the uncertainty
+  !!  in equil_L_1(1), etc.
+  !!  Note that this variable is only meaningful if <code>block_counts_L_1>0</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>equil_L_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  Variable containing the mean dimensions of the supercell for phase 2: equil_L_2(1) is the mean x-dimension of the supercell for
+  !!  phase 1, equil_L_2(2) is the y-dimension, equil_L_2(3) is the z-dimension.
+  !!  Note that this variable is only meaningful if <code>block_counts_L_2>0</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>simga_equil_L_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  Variable containing the uncertainties in the mean dimensions of the supercell for phase 2: sigma_equil_L_2(1) is the uncertainty
+  !!  in equil_L_2(1), etc.
+  !!  Note that this variable is only meaningful if <code>block_counts_L_2>0</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>intrablock_sum_L_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_1</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>intrablock_sum_L_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_2</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>interblock_sum_L_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_1</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>interblock_sum_L_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_2</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>interblock_sum_L_1_sqrd</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_1</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>interblock_sum_L_2_sqrd</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk), dimension(3), allocatable</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  A running sum used in the evaluation of <code>equil_L_2</code>. (Details in the source code).
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>block_counts_L_1</code> </font> </td>
+  !!  <td> <font color="red">  <code>integer(ik)</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  The number of blocks which have been considered so far for the purposes of evaluating <code>equil_L_1</code>.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>block_counts_L_2</code> </font> </td>
+  !!  <td> <font color="red">  <code>integer(ik)</code> </font> </td>
+  !!  <td> <font color="red">  
+  !!  The number of blocks which have been considered so far for the purposes of evaluating <code>equil_L_2</code>.
   !!  </font> </td>
   !! </tr>
   !! <tr>
@@ -1605,9 +1713,19 @@ module monteswitch_mod
   real(rk), dimension(:), allocatable :: interblock_sum_umsd_2_sqrd
   integer(ik) :: block_counts_umsd_1
   integer(ik) :: block_counts_umsd_2
+  real(rk), dimension(3) :: equil_L_1
+  real(rk), dimension(3) :: sigma_equil_L_1
+  real(rk), dimension(3) :: equil_L_2
+  real(rk), dimension(3) :: sigma_equil_L_2
+  real(rk), dimension(3) :: intrablock_sum_L_1
+  real(rk), dimension(3) :: intrablock_sum_L_2
+  real(rk), dimension(3) :: interblock_sum_L_1
+  real(rk), dimension(3) :: interblock_sum_L_2
+  real(rk), dimension(3) :: interblock_sum_L_1_sqrd
+  real(rk), dimension(3) :: interblock_sum_L_2_sqrd
+  integer(ik) :: block_counts_L_1
+  integer(ik) :: block_counts_L_2
   integer(ik) :: sweep_equil_reference
-
-
 
 
 contains
@@ -2092,6 +2210,30 @@ contains
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_umsd_2' from file '",filename_params,"'"
          stop 1
       end if
+      !init_params output_file_equil_L_1= logical
+      read(10,*,iostat=error) string, output_file_equil_L_1
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_equil_L_1' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_file_sigma_equil_L_1= logical
+      read(10,*,iostat=error) string, output_file_sigma_equil_L_1
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_L_1' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_file_equil_L_2= logical
+      read(10,*,iostat=error) string, output_file_equil_L_2
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_equil_L_2' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_file_sigma_equil_L_2= logical
+      read(10,*,iostat=error) string, output_file_sigma_equil_L_2
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_L_2' from file '",filename_params,"'"
+         stop 1
+      end if
       !init_params output_stdout_period= integer
       read(10,*,iostat=error) string, output_stdout_period
       if(error/=0) then
@@ -2333,6 +2475,30 @@ contains
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_umsd_2' from file '",filename_params,"'"
          stop 1
       end if
+      !init_params output_stdout_equil_L_1= logical
+      read(10,*,iostat=error) string, output_stdout_equil_L_1
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_equil_L_1' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_sigma_equil_L_1= logical
+      read(10,*,iostat=error) string, output_stdout_sigma_equil_L_1
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_L_1' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_equil_L_2= logical
+      read(10,*,iostat=error) string, output_stdout_equil_L_2
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_equil_L_2' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_sigma_equil_L_2= logical
+      read(10,*,iostat=error) string, output_stdout_sigma_equil_L_2
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_L_2' from file '",filename_params,"'"
+         stop 1
+      end if
       !init_params checkpoint_period= integer
       read(10,*,iostat=error) string, checkpoint_period
       if(error/=0) then
@@ -2491,6 +2657,10 @@ contains
        write(10,*) "output_file_sigma_equil_umsd_1= ",output_file_sigma_equil_umsd_1
        write(10,*) "output_file_equil_umsd_2= ",output_file_equil_umsd_2
        write(10,*) "output_file_sigma_equil_umsd_2= ",output_file_sigma_equil_umsd_2
+       write(10,*) "output_file_equil_L_1= ",output_file_equil_L_1
+       write(10,*) "output_file_sigma_equil_L_1= ",output_file_sigma_equil_L_1
+       write(10,*) "output_file_equil_L_2= ",output_file_equil_L_2
+       write(10,*) "output_file_sigma_equil_L_2= ",output_file_sigma_equil_L_2
        write(10,*) "output_stdout_period= ",output_stdout_period
        write(10,*) "output_stdout_Lx= ",output_stdout_Lx
        write(10,*) "output_stdout_Ly= ",output_stdout_Ly
@@ -2531,6 +2701,10 @@ contains
        write(10,*) "output_stdout_sigma_equil_umsd_1= ",output_stdout_sigma_equil_umsd_1
        write(10,*) "output_stdout_equil_umsd_2= ",output_stdout_equil_umsd_2
        write(10,*) "output_stdout_sigma_equil_umsd_2= ",output_stdout_sigma_equil_umsd_2
+       write(10,*) "output_stdout_equil_L_1= ",output_stdout_equil_L_1
+       write(10,*) "output_stdout_sigma_equil_L_1= ",output_stdout_sigma_equil_L_1
+       write(10,*) "output_stdout_equil_L_2= ",output_stdout_equil_L_2
+       write(10,*) "output_stdout_sigma_equil_L_2= ",output_stdout_sigma_equil_L_2
        write(10,*) "checkpoint_period= ",checkpoint_period
        write(10,*) "M_grid_size= ",M_grid_size
        write(10,*) "n_part= ",n_part
@@ -2606,6 +2780,18 @@ contains
        write(10,*) "block_counts_V_2= ",block_counts_V_2
        write(10,*) "block_counts_umsd_1= ",block_counts_umsd_1
        write(10,*) "block_counts_umsd_2= ",block_counts_umsd_2
+       write(10,*) "equil_L_1= ",equil_L_1
+       write(10,*) "equil_L_2= ",equil_L_2
+       write(10,*) "sigma_equil_L_1= ",sigma_equil_L_1
+       write(10,*) "sigma_equil_L_2= ",sigma_equil_L_2
+       write(10,*) "intrablock_sum_L_1= ",intrablock_sum_L_1
+       write(10,*) "intrablock_sum_L_2= ",intrablock_sum_L_2
+       write(10,*) "interblock_sum_L_1= ",interblock_sum_L_1
+       write(10,*) "interblock_sum_L_2= ",interblock_sum_L_2
+       write(10,*) "interblock_sum_L_1_sqrd= ",interblock_sum_L_1_sqrd
+       write(10,*) "interblock_sum_L_2_sqrd= ",interblock_sum_L_2_sqrd
+       write(10,*) "block_counts_L_1= ",block_counts_L_1
+       write(10,*) "block_counts_L_2= ",block_counts_L_2
        write(10,*) "sweep_equil_reference= ",sweep_equil_reference
        ! Output allocatable arrays
        write(10,*) "spec_1= ",spec_1
@@ -2975,6 +3161,26 @@ contains
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_umsd_2' from file '",trim(filename)
        stop 1
     end if
+    read(10,*,iostat=error) string, output_file_equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_file_sigma_equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_file_equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_equil_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_file_sigma_equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_sigma_equil_L_2' from file '",trim(filename)
+       stop 1
+    end if
     read(10,*,iostat=error) string, output_stdout_period
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_period' from file '",trim(filename)
@@ -3173,6 +3379,26 @@ contains
     read(10,*,iostat=error) string, output_stdout_sigma_equil_umsd_2
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_umsd_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_sigma_equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_equil_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_sigma_equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_sigma_equil_L_2' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, checkpoint_period
@@ -3548,6 +3774,66 @@ contains
     read(10,*,iostat=error) string, block_counts_umsd_2
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'block_counts_umsd_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'equil_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, sigma_equil_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'sigma_equil_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, sigma_equil_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'sigma_equil_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, intrablock_sum_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'intrablock_sum_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, intrablock_sum_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'intrablock_sum_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, interblock_sum_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'interblock_sum_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, interblock_sum_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'interblock_sum_L_2' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, interblock_sum_L_1_sqrd
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'interblock_sum_L_1_sqrd' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, interblock_sum_L_2_sqrd
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'interblock_sum_L_2_sqrd' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, block_counts_L_1
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'block_counts_L_1' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, block_counts_L_2
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'block_counts_L_2' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, sweep_equil_reference
@@ -4100,12 +4386,14 @@ contains
     ! Of course, all intrablock counters and sums must be reset at the end of each block.
     !
     subroutine block_stuff()
-      ! The values of DeltaF, H_1, H_2, V_1 and V_2 for the current block
+      ! The values of DeltaF, H_1, H_2, V_1, V_2, L_1 and L_2 for the current block
       real(rk) :: block_DeltaF
       real(rk) :: block_H_1
       real(rk) :: block_H_2
       real(rk) :: block_V_1
       real(rk) :: block_V_2
+      real(rk), dimension(3) :: block_L_1
+      real(rk), dimension(3) :: block_L_2
       ! The values of the arrays umsd_1 and umsd_2 for the current block
       real(rk), dimension(n_part) :: block_umsd_1
       real(rk), dimension(n_part) :: block_umsd_2
@@ -4158,6 +4446,19 @@ contains
          interblock_sum_umsd_2=interblock_sum_umsd_2+block_umsd_2
          interblock_sum_umsd_2_sqrd=interblock_sum_umsd_2_sqrd + block_umsd_2*block_umsd_2
       end if
+      ! Code for L_1 and L_2: consider the block only if intrablock_counts_1>0 and intrablock_counts_2>0 respectively
+      if(intrablock_counts_1>0) then
+         block_L_1=intrablock_sum_L_1/intrablock_counts_1
+         block_counts_L_1=block_counts_L_1+1
+         interblock_sum_L_1=interblock_sum_L_1+block_L_1
+         interblock_sum_L_1_sqrd=interblock_sum_L_1_sqrd + block_L_1*block_L_1
+      end if
+      if(intrablock_counts_2>0) then
+         block_L_2=intrablock_sum_L_2/intrablock_counts_2
+         block_counts_L_2=block_counts_L_2+1
+         interblock_sum_L_2=interblock_sum_L_2+block_L_2
+         interblock_sum_L_2_sqrd=interblock_sum_L_2_sqrd + block_L_2*block_L_2
+      end if
 
       ! Reset sums
       intrablock_counts_1=0.0_rk
@@ -4168,6 +4469,8 @@ contains
       intrablock_sum_V_2=0.0_rk
       intrablock_sum_umsd_1=0.0_rk
       intrablock_sum_umsd_2=0.0_rk
+      intrablock_sum_L_1=0.0_rk
+      intrablock_sum_L_2=0.0_rk
       ! Calculate equilibrium properties
       call set_equil_properties()
 
@@ -4407,6 +4710,18 @@ contains
       if(output_file_sigma_equil_umsd_2) then
          write(11,*) "sigma_equil_umsd_2: ",sweeps,sigma_equil_umsd_2
       end if
+      if(output_file_equil_L_1) then
+         write(11,*) "equil_L_1: ",sweeps,equil_L_1
+      end if
+      if(output_file_sigma_equil_L_1) then
+         write(11,*) "sigma_equil_L_1: ",sweeps,sigma_equil_L_1
+      end if
+      if(output_file_equil_L_2) then
+         write(11,*) "equil_L_2: ",sweeps,equil_L_2
+      end if
+      if(output_file_sigma_equil_L_2) then
+         write(11,*) "sigma_equil_L_2: ",sweeps,sigma_equil_L_2
+      end if
     end subroutine output_file
 
     
@@ -4540,6 +4855,18 @@ contains
       end if
       if(output_stdout_sigma_equil_umsd_2) then
          write(6,*) "sigma_equil_umsd_2: ",sigma_equil_umsd_2
+      end if
+      if(output_stdout_equil_L_1) then
+         write(6,*) "equil_L_1: ",equil_L_1
+      end if
+      if(output_stdout_sigma_equil_L_1) then
+         write(6,*) "sigma_equil_L_1: ",sigma_equil_L_1
+      end if
+      if(output_stdout_equil_L_2) then
+         write(6,*) "equil_L_2: ",equil_L_2
+      end if
+      if(output_stdout_sigma_equil_L_2) then
+         write(6,*) "sigma_equil_L_2: ",sigma_equil_L_2
       end if
     end subroutine output_stdout
 
@@ -4682,6 +5009,14 @@ contains
     equil_umsd_2=interblock_sum_umsd_2/block_counts_umsd_2
     sigma_equil_umsd_2=sqrt( interblock_sum_umsd_2_sqrd/block_counts_umsd_2 - equil_umsd_2*equil_umsd_2 ) &
          / sqrt(block_counts_umsd_2*1.0_rk)
+    ! L_1
+    equil_L_1=interblock_sum_L_1/block_counts_L_1
+    sigma_equil_L_1=sqrt( interblock_sum_L_1_sqrd/block_counts_L_1 - equil_L_1*equil_L_1 ) &
+         / sqrt(block_counts_L_1*1.0_rk)
+    ! L_2
+    equil_L_2=interblock_sum_L_2/block_counts_L_2
+    sigma_equil_L_2=sqrt( interblock_sum_L_2_sqrd/block_counts_L_2 - equil_L_2*equil_L_2 ) &
+         / sqrt(block_counts_L_2*1.0_rk)
   end subroutine set_equil_properties
 
 
@@ -5152,6 +5487,11 @@ contains
              usqrd=dot_product(u(n,:),u(n,:))
              intrablock_sum_umsd_1(n)=intrablock_sum_umsd_1(n)+weight*usqrd
           end do
+          ! Update the L sum
+          intrablock_sum_L_1(1) = intrablock_sum_L_1(1) + weight*Lx(1)
+          intrablock_sum_L_1(2) = intrablock_sum_L_1(2) + weight*Ly(1)
+          intrablock_sum_L_1(3) = intrablock_sum_L_1(3) + weight*Lz(1)
+
        case(2)
           intrablock_counts_2=intrablock_counts_2+weight
           ! Update the energy/enthalpy sum
@@ -5168,7 +5508,12 @@ contains
           do n=1,n_part
              usqrd=dot_product(u(n,:),u(n,:))
              intrablock_sum_umsd_2(n)=intrablock_sum_umsd_2(n)+weight*usqrd
-          end do
+          end do 
+          ! Update the L sum
+          intrablock_sum_L_2(1) = intrablock_sum_L_2(1) + weight*Lx(2)
+          intrablock_sum_L_2(2) = intrablock_sum_L_2(2) + weight*Ly(2)
+          intrablock_sum_L_2(3) = intrablock_sum_L_2(3) + weight*Lz(2)
+
        case default
           write(0,*) "monteswitch_mod: Error. 'lattice' does not equal 1 or 2."
           stop 1
@@ -5953,6 +6298,18 @@ contains
     sigma_equil_V_1=0.0_rk
     equil_V_2=0.0_rk
     sigma_equil_V_2=0.0_rk
+    intrablock_sum_L_1=0.0_rk
+    intrablock_sum_L_2=0.0_rk
+    interblock_sum_L_1=0.0_rk
+    interblock_sum_L_2=0.0_rk
+    interblock_sum_L_1_sqrd=0.0_rk
+    interblock_sum_L_2_sqrd=0.0_rk
+    block_counts_L_1=0 
+    block_counts_L_2=0
+    equil_L_1=0.0_rk
+    sigma_equil_L_1=0.0_rk
+    equil_L_2=0.0_rk
+    sigma_equil_L_2=0.0_rk
 
     ! umsd variables. This must be called after n_part is set
     if(allocated(equil_umsd_1)) then
