@@ -1,0 +1,5 @@
+epsilon= 1.0E5
+sigma= 1.0
+list_cutoff= 1.54
+list_size= 20
+
