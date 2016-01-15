@@ -6119,6 +6119,7 @@ contains
       R_2_trial=R_2
       pos_trial_1=pos_1
       pos_trial_2=pos_2
+      u_trial=u
 
       ! Determine the scaling factor for the volume
       S=exp(top_hat_rand(vol_step))
