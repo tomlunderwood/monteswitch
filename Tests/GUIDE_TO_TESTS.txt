@@ -396,9 +396,13 @@ Checks to perform:
    volume of the hcp supercell and its uncertainty obtained via block analysis are stored in the variables
    'equil_V_1' and 'sigma_equil_V_1'.
 2) The c/a ratio should agree with the value in the table, i.e., 1.6323(7). The c/a ratio can be obtained from
-   the equilibrium x-, y- and z-dimensions of the supercell, stored in 'equil_L_1' (with uncertainty 
-   'sigma_equil_L_1'): c is the z-dimension divided by 6 and a is the x-dimension divided by 3.
+   the following awk command, which extracts a measure of the instantaneous c/a ratio from Lx and Lz in the
+   data_0 file:
 
+   awk 'NR%14==1 {Lx=$3}; NR%14==3 {Lz=$3; print $2,(Lz/6)/(Lx/3)}' data_0 | awk '$1>0 {sum=sum+$2;count=count+1}; END{print sum/count}'
+
+   Doing similar for data_1, data_2 and data_3 will give 4 independent results which can be combined
+   to give a final mean and standard error.
 
 
 *************************************************************************************************************
