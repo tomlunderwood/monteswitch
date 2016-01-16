@@ -273,7 +273,7 @@ contains
     real(rk), intent(in) :: V_trial
     real(rk) :: metropolis_prob_B_vol_uniaxial
     metropolis_prob_B_vol_uniaxial = &
-        min(exp(-beta*((E_trial-E)+P*(V_trial-V))+(N/3.0_rk+1)*log(V_trial/V)),1.0_rk)
+        min(exp(-beta*((E_trial-E)+P*(V_trial-V))+(N+1)*log(V_trial/V)),1.0_rk)
 end function metropolis_prob_B_vol_uniaxial
 
 
@@ -566,7 +566,7 @@ end function metropolis_prob_B_vol_uniaxial
     real(rk), intent(in) :: V_trial
     real(rk) :: metropolis_prob_MC_vol_uniaxial
     metropolis_prob_MC_vol_uniaxial = &
-        min(exp(-beta*((E_trial-E)+P*(V_trial-V))+eta_trial-eta+(N/3.0_rk+1)*log(V_trial/V)),1.0_rk)
+        min(exp(-beta*((E_trial-E)+P*(V_trial-V))+eta_trial-eta+(N+1)*log(V_trial/V)),1.0_rk)
   end function metropolis_prob_MC_vol_uniaxial
 
 
