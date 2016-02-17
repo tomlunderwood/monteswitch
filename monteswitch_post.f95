@@ -125,296 +125,78 @@
 !!
 program monteswitch_post
 
-  !! <h2> Dependencies </h2>
-  !! <p> 
-  !! <ul>
-  !!  <li> <code> kinds_mod </code> </li>
-  !!  <li> <code> monteswitch_mod </code> </li>
-  !! </ul>
-  !! </p>
-  use kinds_mod
-  use monteswitch_mod
+    !! <h2> Dependencies </h2>
+    !! <p> 
+    !! <ul>
+    !!  <li> <code> kinds_mod </code> </li>
+    !!  <li> <code> monteswitch_mod </code> </li>
+    !! </ul>
+    !! </p>
+    use kinds_mod
+    use monteswitch_mod
 
-  implicit none
+    implicit none
 
 
-  ! Number of bins for -calc_rad_dist
-  integer(ik) :: bins
-  ! Histogram arrays for -calc_rad_dist
-  real(rk), dimension(:), allocatable :: rad_dist_seps
-  integer(ik), dimension(:), allocatable :: rad_dist_counts
-  real(rk), dimension(:), allocatable :: rad_dist_function
+    character(len=20) :: char
 
-  ! File names used for -merge_trans
-  character(len=20) :: state_in_1, state_in_2, state_out
-  ! Matrix used for merging trans
-  real(rk), dimension(:,:), allocatable :: trans_toadd
 
-  ! Positions of particles within the supercell
-  real(rk), dimension(:,:), allocatable :: pos
+    ! THE PROGRAM
 
-  ! Variables used for -extract_lattices_in
-  character(len=20) :: vector_in_1, vector_in_2
-  real(rk), dimension(:,:), allocatable :: pos_1_temp
-  real(rk), dimension(:,:), allocatable :: pos_2_temp
+    ! Read the command line argument 
+    call getarg(1,char)
 
-  ! Unimportant variables
-  character(len=20) :: char
-  integer(ik) :: i,j
-  real(rk) :: sep
-  
+    if(char=="") then
 
-  ! THE PROGRAM
-
-  ! Read the command line argument 
-  call getarg(1,char)
-  if(char=="") then
-     write(0,*) "Error: No command line argument detected."
-     stop 1
-  else if(trim(char)=="-extract_wf") then
-
-     ! CODE FOR EXTRACTING THE WEIGHT FUNCTION FROM THE STATE FILE
-    
-     call import("state")
-
-     do i=1,M_grid_size
-        write(*,*) M_grid(i), eta_grid(i)
-     end do
-     
-  else if(trim(char)=="-extract_M_counts") then
-
-     ! CODE FOR EXTRACTING THE ORDER PARAMETER HISTOGRAM FROM THE STATE FILE
-    
-     call import("state")
-
-     do i=1,M_grid_size
-        write(*,*) M_grid(i), M_counts_1(i),M_counts_2(i)
-     end do
-     
-  else if(trim(char)=="-extract_pos") then
-
-     ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
-    
-     call import("state")
-
-     allocate(pos(n_part,3))
-     select case(lattice)
-     case(1)
-         pos = R_1 + u
-         call translate_positions(pos,Lx(1),Ly(1),Lz(1))
-     case(2)
-         pos = R_2 + u
-         call translate_positions(pos,Lx(2),Ly(2),Lz(2))
-     end select
-
-     do i=1,n_part
-         write(*,*) pos(i,:)
-     end do
-
-  else if(trim(char)=="-extract_R_1") then
-
-     ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 1
-    
-     call import("state")
-
-     do i=1,n_part
-        write(*,*) R_1(i,:)
-     end do
-
- else if(trim(char)=="-extract_R_2") then
-
-     ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 2
-    
-     call import("state")
-
-     do i=1,n_part
-        write(*,*) R_2(i,:)
-     end do
-
-  else if(trim(char)=="-extract_u") then
-
-     ! CODE FOR EXTRACTING THE PARTICLE DISPLACEMENTS
-    
-     call import("state")
-
-     do i=1,n_part
-        write(*,*) u(i,:)
-     end do
-     
-  else if(trim(char)=="-calc_rad_dist") then
-
-     ! CODE FOR CALCULATING THE RADIAL DISTRIBUTION FUNCTION
-
-     call getarg(2,char)
-     if(char=="") then
-        write(0,*) "Error: No 2nd command line argument detected (the 'bins' file name for -calc_rad_dist)."
+        write(0,*) "Error: No command line argument detected."
         stop 1
-     end if
-     
-     read(char,*) bins
-     
-     if(bins<=0) then
-        write(0,*) "Error: 'bins' is <=0."
+
+    else if(trim(char)=="-extract_wf") then
+
+        call extract_wf()
+
+    else if(trim(char)=="-extract_M_counts") then
+
+        call extract_M_counts()
+
+    else if(trim(char)=="-extract_pos") then
+
+        call extract_pos()
+
+    else if(trim(char)=="-extract_R_1") then
+
+        call extract_R_1()
+
+    else if(trim(char)=="-extract_R_2") then
+
+        call extract_R_2()
+
+    else if(trim(char)=="-extract_u") then
+
+        call extract_u()
+
+    else if(trim(char)=="-calc_rad_dist") then
+
+        call calc_rad_dist()
+
+    else if(trim(char)=="-merge_trans") then
+
+        call merge_trans()
+
+    else if(trim(char)=="-extract_lattices_in") then
+
+        call extract_lattices_in()
+
+    else if(trim(char)=="-extract_pos_xyz") then
+
+        call extract_pos_xyz()
+
+    else
+
+        write(0,*) "Error: Unrecognised command line argument."
         stop 1
-     end if
 
-     call import("state")
-
-     ! Initialise histogram
-     allocate(rad_dist_seps(bins))
-     allocate(rad_dist_counts(bins))
-     allocate(rad_dist_function(bins))
-     do i=1,bins
-        select case(lattice)
-        case(1)
-           rad_dist_seps(i)=(i-1)*min(Lx(1)/2.0_rk,Ly(1)/2.0_rk,Lz(1)/2.0_rk)/bins
-        case(2)
-           rad_dist_seps(i)=(i-1)*min(Lx(2)/2.0_rk,Ly(2)/2.0_rk,Lz(2)/2.0_rk)/bins
-        end select
-     end do
-     rad_dist_counts=0
-
-     ! Construct histogram
-     do i=1,n_part
-        do j=1,n_part
-           select case(lattice)
-           case(1)
-              sep=min_image_distance_fancy(R_1(i,:)+u(i,:),R_1(j,:)+u(j,:),Lx(1),Ly(1),Lz(1))
-           case(2)
-              sep=min_image_distance_fancy(R_2(i,:)+u(i,:),R_2(j,:)+u(j,:),Lx(2),Ly(2),Lz(2))
-           end select
-           call update_histogram(bins,rad_dist_seps,rad_dist_counts,rad_dist_seps(2),sep)
-        end do
-     end do
-
-     ! Output histogram
-     rad_dist_function=(rad_dist_counts*1.0_rk)/n_part
-     do i=1,bins
-        write(*,*) rad_dist_seps(i),rad_dist_function(i)
-     end do
-
-  else if(trim(char)=="-merge_trans") then
-
-     ! CODE FOR MERGING TRANS MATRICES
-     
-     call getarg(2,state_in_1)
-     if(state_in_1=="") then
-        write(0,*) "Error: No 2nd command line argument detected (the 'state_in_1' file name for -merge_trans)."
-        stop 1
-     end if
-     call getarg(3,state_in_2)
-     if(state_in_2=="") then
-        write(0,*) "Error: No 3rd command line argument detected (the 'state_in_2' file name for -merge_trans)."
-        stop 1
-     end if
-     call getarg(4,state_out)
-     if(state_out=="") then
-        write(0,*) "Error: No 3rd command line argument detected (the 'state_out' file name for -merge_trans)."
-        stop 1
-     end if
-
-     call import(trim(state_in_2))    
-
-     allocate(trans_toadd(M_grid_size,M_grid_size))
-     trans_toadd=trans
-
-     call import(trim(state_in_1))
-     trans=trans+trans_toadd
-
-     call export(trim(state_out))
-
-
-!**************************************************** >>>>>
-  else if(trim(char)=="-extract_lattices_in") then
-
-     ! CODE FOR EXPORTING IN 'lattices_in' FORMAT
-
-     call import("state")
-
-     call getarg(2,vector_in_1)
-     call getarg(3,vector_in_2)
-
-     allocate(pos_1_temp(n_part,3))
-     allocate(pos_2_temp(n_part,3))
-
-     ! Set pos_1_temp
-     if(trim(vector_in_1)=="pos") then
-        pos_1_temp = u + R_1
-        call translate_positions(pos_1_temp,Lx(1),Ly(1),Lz(1))
-     else if(trim(vector_in_1)=="R") then
-        pos_1_temp = R_1
-     else if(vector_in_1=="") then
-        write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_1' flag for -extract_lattices_in)."
-        stop 1
-     else
-        write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
-        stop 1
-     end if
-
-     ! Set pos_2_temp
-     if(trim(vector_in_2)=="pos") then
-        pos_2_temp = u + R_2
-        call translate_positions(pos_2_temp,Lx(2),Ly(2),Lz(2))
-     else if(trim(vector_in_2)=="R") then
-        pos_2_temp = R_2
-     else if(vector_in_2=="") then
-        write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_2' flag for -extract_lattices_in)."
-        stop 1
-     else
-        write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
-        stop 1
-     end if
-
-     ! Output comment line and the number of particles
-     write(*,*) "lattices_in file created by monteswitch_post"
-     write(*,*) n_part
-     ! Output lattice 1 dimensions and particle positions (in fractional coordinates)
-     write(*,*) Lx(1)
-     write(*,*) Ly(1)
-     write(*,*) Lz(1)
-     do i=1,n_part
-        write(*,*) pos_1_temp(i,1)/Lx(1),pos_1_temp(i,2)/Ly(1),pos_1_temp(i,3)/Lz(1)
-     end do
-     ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
-     write(*,*) Lx(2)
-     write(*,*) Ly(2)
-     write(*,*) Lz(2)
-     do i=1,n_part
-        write(*,*) pos_2_temp(i,1)/Lx(2),pos_2_temp(i,2)/Ly(2),pos_2_temp(i,3)/Lz(2)
-     end do
-
-
-  else if(trim(char)=="-extract_pos_xyz") then
-
-     ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
-    
-     call import("state")
-
-     allocate(pos(n_part,3))
-     select case(lattice)
-     case(1)
-         pos = R_1 + u
-         call translate_positions(pos,Lx(1),Ly(1),Lz(1))
-     case(2)
-         pos = R_2 + u
-         call translate_positions(pos,Lx(2),Ly(2),Lz(2))
-     end select
-
-     write(*,*) n_part
-     write(*,*) "xyz-format file created by monteswitch_post"
-     do i=1,n_part
-         write(*,*) "A",pos(i,:)
-     end do
-
-
-  else
-
-     ! CODE FOR ANY OTHER COMMAND LINE ARGUMENTS
-
-     write(0,*) "Error: Unrecognised command line argument."
-     stop 1
-
-  end if
+    end if
 
 
 
@@ -424,77 +206,384 @@ contains
 
 
 
-  !! <h3> <code> function min_image_distance_fancy(r_1,r_2,Lx,Ly,Lz) </code> </h3>
-  !! <p>
-  !! <code>  min_image_distance_fancy </code>  returns the distance between the 
-  !! positions <code>r_1</code> and <code>r_2</code> according to the 
-  !! minimum image convention for a periodic cuboid whose faces are x=0, 
-  !! x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and z=<code>Lz</code>.
-  !! <code>r_1(1)</code> is the x-component of <code>r_1</code>, 
-  !! <code>r_1(2)</code> is the y-component, and <code>r_1(3)</code> is the 
-  !! z-component; and similarly for <code>r_2</code>.
-  !! This function has a wider applicability than the funciton
-  !! <code>min_image_distance</code>: it allows <code>r_1</code> and
-  !! <code>r_2</code> to be outwith the aforementioned cube.
-  !! Note that <code>r_1</code> and <code>r_2</code> must be such that
-  !! <code>-Lx</code><=x<<code>2*Lx</code>, <code>-Ly</code><=y<<code>2*Ly</code>
-  !! and <code>-Lz</code><=z<<code>2*Lz</code>.
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_1 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> r_2 </code> </td>
-  !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
-  !!   <td> Position within the cuboid. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lx </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the x-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Ly </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the y-axis. </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> Lz </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td> Length of cuboid along the z-axis. </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function min_image_distance_fancy(r_1,r_2,Lx,Ly,Lz)
-    real(rk), dimension(3), intent(in) :: r_1, r_2
-    real(rk), intent(in) :: Lx, Ly, Lz
-    real(rk) :: min_image_distance_fancy
-    real(rk) :: xsep, ysep, zsep
-    ! Calculate the x-sep
-    xsep=abs(r_2(1)-r_1(1))
-    xsep=xsep-Lx*floor(xsep/Lx)
-    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
-    ! Calculate the y-sep
-    ysep=abs(r_2(2)-r_1(2))
-    ysep=ysep-Ly*floor(ysep/Ly)
-    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
-    ! Calculate the z-sep
-    zsep=abs(r_2(3)-r_1(3))
-    zsep=zsep-Lz*floor(zsep/Lz)
-    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
-    ! Calculate the distance
-    min_image_distance_fancy=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
-  end function min_image_distance_fancy
+    ! CODE FOR EXTRACTING THE WEIGHT FUNCTION FROM THE STATE FILE
+    subroutine extract_wf()
 
-     
+        integer(ik) :: i
+
+        call import("state")
+
+        do i=1,M_grid_size
+            write(*,*) M_grid(i), eta_grid(i)
+        end do
+
+    end subroutine extract_wf
+
+
+
+
+    ! CODE FOR EXTRACTING THE ORDER PARAMETER HISTOGRAM FROM THE STATE FILE
+    subroutine extract_M_counts()
+
+        integer(ik) :: i
+
+        call import("state")
+
+        do i=1,M_grid_size
+            write(*,*) M_grid(i), M_counts_1(i),M_counts_2(i)
+        end do
+
+    end subroutine extract_M_counts
+
+
+
+
+    ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
+    subroutine extract_pos()
+
+        real(rk), dimension(:,:), allocatable :: pos
+        integer(ik) :: i
+
+        call import("state")
+
+        allocate(pos(n_part,3))
+        select case(lattice)
+        case(1)
+            pos = R_1 + u
+            call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+        case(2)
+            pos = R_2 + u
+            call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+        end select
+
+        do i=1,n_part
+            write(*,*) pos(i,:)
+        end do
+
+    end subroutine extract_pos
+
+
+
+
+    ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 1
+    subroutine extract_R_1()
+
+        integer(ik) :: i
+
+        call import("state")
+
+        do i=1,n_part
+            write(*,*) R_1(i,:)
+        end do
+
+
+    end subroutine extract_R_1
+
+
+
+
+    ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 2
+    subroutine extract_R_2()
+
+        integer(ik) :: i
+
+        call import("state")
+
+        do i=1,n_part
+            write(*,*) R_2(i,:)
+        end do
+
+    end subroutine extract_R_2
+
+
+
+
+    ! CODE FOR EXTRACTING THE PARTICLE DISPLACEMENTS
+    subroutine extract_u()
+
+        integer(ik) :: i
+
+        call import("state")
+
+        do i=1,n_part
+            write(*,*) u(i,:)
+        end do
+
+    end subroutine extract_u
+
+
+
+
+    ! CODE FOR CALCULATING THE RADIAL DISTRIBUTION FUNCTION
+    subroutine calc_rad_dist()
+    
+        real(rk), dimension(:), allocatable :: rad_dist_seps
+        integer(ik), dimension(:), allocatable :: rad_dist_counts
+        real(rk), dimension(:), allocatable :: rad_dist_function
+        character(len=20) :: char
+        real(rk) :: sep
+        integer(ik) :: bins, i,j
+
+        call getarg(2,char)
+        if(char=="") then
+            write(0,*) "Error: No 2nd command line argument detected (the 'bins' file name for -calc_rad_dist)."
+            stop 1
+        end if
+
+        read(char,*) bins
+
+        if(bins<=0) then
+            write(0,*) "Error: 'bins' is <=0."
+            stop 1
+        end if
+
+        call import("state")
+
+        ! Initialise histogram
+        allocate(rad_dist_seps(bins))
+        allocate(rad_dist_counts(bins))
+        allocate(rad_dist_function(bins))
+        do i=1,bins
+            select case(lattice)
+            case(1)
+                rad_dist_seps(i)=(i-1)*min(Lx(1)/2.0_rk,Ly(1)/2.0_rk,Lz(1)/2.0_rk)/bins
+            case(2)
+                rad_dist_seps(i)=(i-1)*min(Lx(2)/2.0_rk,Ly(2)/2.0_rk,Lz(2)/2.0_rk)/bins
+            end select
+        end do
+        rad_dist_counts=0
+
+        ! Construct histogram
+        do i=1,n_part
+            do j=1,n_part
+                select case(lattice)
+                case(1)
+                    sep=min_image_distance_fancy(R_1(i,:)+u(i,:),R_1(j,:)+u(j,:),Lx(1),Ly(1),Lz(1))
+                case(2)
+                    sep=min_image_distance_fancy(R_2(i,:)+u(i,:),R_2(j,:)+u(j,:),Lx(2),Ly(2),Lz(2))
+                end select
+                call update_histogram(bins,rad_dist_seps,rad_dist_counts,rad_dist_seps(2),sep)
+            end do
+        end do
+
+        ! Output histogram
+        rad_dist_function=(rad_dist_counts*1.0_rk)/n_part
+        do i=1,bins
+            write(*,*) rad_dist_seps(i),rad_dist_function(i)
+        end do
+
+    end subroutine calc_rad_dist
+
+
+
+
+    ! CODE FOR MERGING TRANS MATRICES
+    subroutine merge_trans()
+
+        ! 'state' file names to merge and output
+        character(len=20) :: state_in_1, state_in_2, state_out
+        ! Matrix used for merging trans
+        real(rk), dimension(:,:), allocatable :: trans_toadd
+
+        character(len=20) :: char
+
+        call getarg(2,state_in_1)
+        if(state_in_1=="") then
+            write(0,*) "Error: No 2nd command line argument detected (the 'state_in_1' file name for -merge_trans)."
+            stop 1
+        end if
+        call getarg(3,state_in_2)
+        if(state_in_2=="") then
+            write(0,*) "Error: No 3rd command line argument detected (the 'state_in_2' file name for -merge_trans)."
+            stop 1
+        end if
+        call getarg(4,state_out)
+        if(state_out=="") then
+            write(0,*) "Error: No 3rd command line argument detected (the 'state_out' file name for -merge_trans)."
+            stop 1
+        end if
+
+        call import(trim(state_in_2))    
+
+        allocate(trans_toadd(M_grid_size,M_grid_size))
+        trans_toadd=trans
+
+        call import(trim(state_in_1))
+        trans=trans+trans_toadd
+
+        call export(trim(state_out))
+
+    end subroutine merge_trans
+
+
+
+
+    ! CODE FOR EXPORTING IN 'lattices_in' FORMAT
+    subroutine extract_lattices_in()
+
+        character(len=20) :: vector_in_1, vector_in_2
+        real(rk), dimension(:,:), allocatable :: pos_1_temp
+        real(rk), dimension(:,:), allocatable :: pos_2_temp
+        integer(ik) :: i
+
+        call import("state")
+
+        call getarg(2,vector_in_1)
+        call getarg(3,vector_in_2)
+
+        allocate(pos_1_temp(n_part,3))
+        allocate(pos_2_temp(n_part,3))
+
+        ! Set pos_1_temp
+        if(trim(vector_in_1)=="pos") then
+            pos_1_temp = u + R_1
+            call translate_positions(pos_1_temp,Lx(1),Ly(1),Lz(1))
+        else if(trim(vector_in_1)=="R") then
+            pos_1_temp = R_1
+        else if(vector_in_1=="") then
+            write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_1' flag for -extract_lattices_in)."
+            stop 1
+        else
+            write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+            stop 1
+        end if
+
+        ! Set pos_2_temp
+        if(trim(vector_in_2)=="pos") then
+            pos_2_temp = u + R_2
+            call translate_positions(pos_2_temp,Lx(2),Ly(2),Lz(2))
+        else if(trim(vector_in_2)=="R") then
+            pos_2_temp = R_2
+        else if(vector_in_2=="") then
+            write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_2' flag for -extract_lattices_in)."
+            stop 1
+        else
+            write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+            stop 1
+        end if
+
+        ! Output comment line and the number of particles
+        write(*,*) "lattices_in file created by monteswitch_post"
+        write(*,*) n_part
+        ! Output lattice 1 dimensions and particle positions (in fractional coordinates)
+        write(*,*) Lx(1)
+        write(*,*) Ly(1)
+        write(*,*) Lz(1)
+        do i=1,n_part
+            write(*,*) pos_1_temp(i,1)/Lx(1),pos_1_temp(i,2)/Ly(1),pos_1_temp(i,3)/Lz(1)
+        end do
+        ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
+        write(*,*) Lx(2)
+        write(*,*) Ly(2)
+        write(*,*) Lz(2)
+        do i=1,n_part
+            write(*,*) pos_2_temp(i,1)/Lx(2),pos_2_temp(i,2)/Ly(2),pos_2_temp(i,3)/Lz(2)
+        end do
+
+    end subroutine extract_lattices_in
+
+
+
+
+    ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
+    subroutine extract_pos_xyz()
+
+        real(rk), dimension(:,:), allocatable :: pos
+        integer(ik) :: i
+
+        call import("state")
+
+        allocate(pos(n_part,3))
+        select case(lattice)
+        case(1)
+            pos = R_1 + u
+            call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+        case(2)
+            pos = R_2 + u
+            call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+        end select
+
+        write(*,*) n_part
+        write(*,*) "xyz-format file created by monteswitch_post"
+        do i=1,n_part
+            write(*,*) "A",pos(i,:)
+        end do
+
+    end subroutine extract_pos_xyz
+
+
+
+    !! <h3> <code> function min_image_distance_fancy(r_1,r_2,Lx,Ly,Lz) </code> </h3>
+    !! <p>
+    !! <code>  min_image_distance_fancy </code>  returns the distance between the 
+    !! positions <code>r_1</code> and <code>r_2</code> according to the 
+    !! minimum image convention for a periodic cuboid whose faces are x=0, 
+    !! x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and z=<code>Lz</code>.
+    !! <code>r_1(1)</code> is the x-component of <code>r_1</code>, 
+    !! <code>r_1(2)</code> is the y-component, and <code>r_1(3)</code> is the 
+    !! z-component; and similarly for <code>r_2</code>.
+    !! This function has a wider applicability than the funciton
+    !! <code>min_image_distance</code>: it allows <code>r_1</code> and
+    !! <code>r_2</code> to be outwith the aforementioned cube.
+    !! Note that <code>r_1</code> and <code>r_2</code> must be such that
+    !! <code>-Lx</code><=x<<code>2*Lx</code>, <code>-Ly</code><=y<<code>2*Ly</code>
+    !! and <code>-Lz</code><=z<<code>2*Lz</code>.
+    !! </p>
+    !! <table border="1">
+    !!  <tr>
+    !!   <td> <b> Argument </b> </td>
+    !!   <td> <b> Type </b> </td>
+    !!   <td> <b> Description </b> </td>
+    !!  </tr>
+    !!  <tr>
+    !!   <td> <code> r_1 </code> </td>
+    !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
+    !!   <td> Position within the cuboid. </td>
+    !!  </tr>
+    !!  <tr>
+    !!   <td> <code> r_2 </code> </td>
+    !!   <td> <code> real(rk), dimension(3), intent(in) </code> </td>
+    !!   <td> Position within the cuboid. </td>
+    !!  </tr>
+    !!  <tr>
+    !!   <td> <code> Lx </code> </td>
+    !!   <td> <code> real(rk), intent(in) </code> </td>
+    !!   <td> Length of cuboid along the x-axis. </td>
+    !!  </tr>
+    !!  <tr>
+    !!   <td> <code> Ly </code> </td>
+    !!   <td> <code> real(rk), intent(in) </code> </td>
+    !!   <td> Length of cuboid along the y-axis. </td>
+    !!  </tr>
+    !!  <tr>
+    !!   <td> <code> Lz </code> </td>
+    !!   <td> <code> real(rk), intent(in) </code> </td>
+    !!   <td> Length of cuboid along the z-axis. </td>
+    !!  </tr>
+    !! </table>
+    !! <p><b>Returns:</b> <code> real(rk) </code> </p>
+    function min_image_distance_fancy(r_1,r_2,Lx,Ly,Lz)
+        real(rk), dimension(3), intent(in) :: r_1, r_2
+        real(rk), intent(in) :: Lx, Ly, Lz
+        real(rk) :: min_image_distance_fancy
+        real(rk) :: xsep, ysep, zsep
+        ! Calculate the x-sep
+        xsep=abs(r_2(1)-r_1(1))
+        xsep=xsep-Lx*floor(xsep/Lx)
+        xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+        ! Calculate the y-sep
+        ysep=abs(r_2(2)-r_1(2))
+        ysep=ysep-Ly*floor(ysep/Ly)
+        ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+        ! Calculate the z-sep
+        zsep=abs(r_2(3)-r_1(3))
+        zsep=zsep-Lz*floor(zsep/Lz)
+        zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+        ! Calculate the distance
+        min_image_distance_fancy=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
+    end function min_image_distance_fancy
+
+
 end program monteswitch_post
 !!
 !! </body>
