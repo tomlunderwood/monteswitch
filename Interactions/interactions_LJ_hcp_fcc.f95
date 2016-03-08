@@ -503,7 +503,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
        else
           if(j/=i) then
              sep = min_image_distance(pos(i,:),pos(j,:),Lx,Ly,Lz)
-             sep_new = min_image_distance(pos_new,pos_new(j,:),Lx,Ly,Lz)
+             sep_new = min_image_distance(pos_new,pos(j,:),Lx,Ly,Lz)
              calc_energy_part_move = calc_energy_part_move + lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep_new) &
                   - lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep)
           end if
