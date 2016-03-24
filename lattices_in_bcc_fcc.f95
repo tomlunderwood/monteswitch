@@ -129,7 +129,7 @@ program lattices_in_bcc_fcc
   write(*,*) Ly
   write(*,*) Lz
   do i=1,2*nx*ny*nz
-     write(*,*)  R(i,1)/Lx, R(i,2)/Ly, R(i,3)/Lz
+     write(*,*)  R(i,1)/Lx, R(i,2)/Ly, R(i,3)/Lz, 1
   end do
 
   ! Construct and output the fcc supercell
@@ -142,7 +142,7 @@ program lattices_in_bcc_fcc
   write(*,*) Ly
   write(*,*) Lz
   do i=1,2*nx*ny*nz
-     write(*,*)  R(i,1)/Lx, R(i,2)/Ly, R(i,3)/Lz
+     write(*,*)  R(i,1)/Lx, R(i,2)/Ly, R(i,3)/Lz, 1
   end do
 
 

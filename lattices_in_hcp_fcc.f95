@@ -166,10 +166,10 @@ program lattices_in_hcp_fcc
               end if
               n=n+1
               R = ix*lattice_x + iy*lattice_y + iz*lattice_z +  b_1 + offset
-              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz
+              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz, 1
               n=n+1
               R = ix*lattice_x + iy*lattice_y + iz*lattice_z +  b_2 + offset
-              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz
+              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz, 1
            end do
         end do
      end do
@@ -196,10 +196,10 @@ program lattices_in_hcp_fcc
               end if
               n=n+1
               R = ix*lattice_x + iy*lattice_y + iz*lattice_z +  b_1 + offset
-              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz
+              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz, 1
               n=n+1
               R = ix*lattice_x + iy*lattice_y + iz*lattice_z +  b_2 + offset
-              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz
+              write(*,*) R(1)/Lx, R(2)/Ly, R(3)/Lz, 1
            end do
         end do
      end do
