@@ -2121,8 +2121,8 @@ performed on the \texttt{state} file.
 
 \section{`NPT Einstein crystal' (\texttt{EC\_NPT})}
 The Einstein crystal cannot be used for NPT simulations. Here we consider a modification of the Einstein
-crystal model in which the spring constants have a volume dependence. The relevant \texttt{interactions\_} file is 
-\texttt{interactions\_EC\_NPT.f95}.  Before running these tests one should copy 
+crystal model in which the spring constants have a volume dependence. The relevant \texttt{interactions\_} file for these tests is 
+\texttt{interactions\_EC\_NPT.f95}. Before running these tests one should copy 
 \texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then (re-)complile 
 \emph{monteswitch}.
 
@@ -2179,20 +2179,20 @@ Checks to perform:
 \begin{enumerate}
 \item
 The mean-squared displacements should be 0.00048 for phase 1 and 0.00018089 for phase 2: see the 
-variables \texttt{equil\_umsd\_1}, \texttt{sigma\_equil\_umsd\_1}, \texttt{equil\_umsd\_2} and \texttt{sigma\_equil\_umsd\_2} output to the 
+variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to the 
 terminal.
 \item
-The mean volume should be 1.6 for phase 1 and 1.48 for phase 2: see the variables \texttt{equil\_V\_1}, 
-\texttt{sigma\_equil\_V\_1}, \texttt{equil\_V\_2} and \texttt{sigma\_equil\_V\_2} output to the terminal.
+The mean volume should be 1.6 for phase 1 and 1.48 for phase 2: see the variables \textbf{equil\_V\_1}, 
+\textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} output to the terminal.
 \item
 The mean enthalphy should be 0.55 for phase 1 and 0.52 for phase 2. This follows from the fact that
 the mean enthalpy is the mean energy + $PV$, where the mean energy of both crystals should be 0.15, which 
 follows from the equipartition theorem: there are 3 degrees of freedom, each with $0.5/\beta$.
-See the variables \texttt{equil\_H\_1}, \texttt{sigma\_equil\_H\_1}, \texttt{equil\_H\_2} and \texttt{sigma\_equil\_H\_2} output to the terminal.
+See the variables \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2} output to the terminal.
 Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and the enthalpy in an NPT simulation.
 \item
 The free energy difference per particle between the two systems should be -0.11285. See the variables
-\texttt{equil\_DeltaF} and \texttt{sigma\_equil\_DeltaF} output to the terminal.
+\textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output to the terminal.
 \end{enumerate}
 
 
@@ -2238,6 +2238,152 @@ Checks to perform:
 The free energy difference between the two phases should be -0.7860673299.
 \end{enumerate}
 
+
+\section{Lennard--Jones solid: hcp vs. fcc (\texttt{LJ\_hcp\_fcc})}
+A solid in which particles interact via a Lennard-Jones potential is a more realistic test for \emph{monteswitch}.
+Here we try to reproduce the results of Refs. \cite{thesis:Jackson,Jackson_2002}. Specifically, we calculate the free energy
+difference between hcp and fcc phases of the Lennard-Jones solid. The relevant \texttt{interactions\_} file for these tests is 
+\texttt{interactions\_LJ\_hcp\_fcc.f95}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ\_hcp\_fcc.f95}
+to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+
+The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_LJ\_hcp\_fcc.f95} is applicable only to
+to the hcp--fcc problem. Phase 1 is assumed to be hcp and phase 2 is assumed to be fcc. The Lennard-Jones interactions
+used here are not your typical Lennard-Jones interactions. Usually one truncates the interactions at
+a predetermined distance, or uses a predetermined 'list' of interacting pairs of particles. However, this
+approach yields errors which cannot be ignored for this problem: see Refs. \cite{thesis:Jackson,Jackson_2002} for details. A
+better approach is to evaluate the \emph{difference} of the energy of the phase under consideration relative to the 
+ground state for the density under consideration, and apply the usual truncations to this difference. This is what is done here:
+The energy here for particle positions $\lbrace\mathbf{r}\rbrace$ in the hcp phase, given that the system currently has density $\rho$, is:
+\begin{equation}
+E = \Phi_{\text{LJ,trunc}}(\lbrace\mathbf{r}\rbrace)-\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)
++ E_{\text{GS,hcp}}(\rho),
+\end{equation}
+where $\lbrace\mathbf{R}_{\text{hcp}}\rbrace$ are the lattice vectors corresponding to the hcp lattice at the current density $\rho$, 
+$\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{r}\rbrace)$ is the Lennard-Jones energy for the set of particle positions $\lbrace\mathbf{r}\rbrace$
+using truncated interactions (in the conventional sense, e.g., ignore interactions between particles $i$ and $j$ if their separation is
+greater than some cut-off), and $E_{\text{GS,hcp}}(\rho)$ is the \emph{exact} energy of the hcp lattice at density $\rho$, i.e., what 
+$\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)$ would be if the cut-off distance were taken to infinity. Similar applies
+for the fcc phase.
+Of course, this approach necessitates a tailor-made \texttt{interactions\_} file for the hcp--fcc. By contrast the \texttt{interactions\_}
+file corresponding to the `conventional' Lennard-Jones Hamiltonian can be applied to any pair of phases.
+Note that the usage of \texttt{interactions\_LJ\_hcp\_fcc.f95} is identical to \texttt{interactions\_LJ.f95} -- which is described in
+Chapter \ref{chapter:interactions}.
+
+
+\subsection{\texttt{test\_LJ\_hcp\_fcc\_1\_MPI}}
+This test calculates the free energy difference between hcp and fcc for a 216-particle supercell at $P=0$ and
+$\beta=10$ in the NPT ensemble, given Lennard-Jones parametrisation $\epsilon=\sigma=1$. 2 4-thread MPI simulations are used. 
+The first generates the weight function using \texttt{pong\_down} barrier dynamics over 500000 sweeps. The second simulation calculates 
+the free energy difference. Note that this simulation may take a while to run. The final result for the free energy difference
+should match that in Ref. \cite{thesis:Jackson}, Fig. 6.21, the data-point corresponding to $k_BT=0.1$, i.e.,
+the free energy difference per particle should be -0.00055 (Note that Jackson defines the free energy difference as
+that of fcc minus that of hcp, while in \emph{monteswitch}, with hcp corresponding to lattice 1 and fcc corresponding to
+lattice 2, the free energy difference is defined as that of hcp minus that of fcc -- hence the change of sign here
+relative to Jackson's result). Hence in the test simulation the final extensive free energy difference should be -0.12.
+
+Checks to perform:
+\begin{enumerate}
+\item
+The final free energy difference between the two systems should be -0.12. Check that this is the case for the
+simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
+stored in the \textbf{sigma\_equil\_DeltaF} variable.
+\end{enumerate}
+
+
+\section{The hard-sphere solid (\texttt{HS})}
+The hard-sphere solid has been well studied, and makes an excellent testing ground for \emph{monteswitch}.
+The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_HS.f95}, whose usage is described in Chapter
+\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS.f95}
+to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}. Note that here we set the energy cost of two spheres overlapping,
+$\epsilon$, to 100,000, as well as setting $\beta=1$ to realise hard spheres as described in Chapter \ref{chapter:interactions}.
+
+
+\subsection{\texttt{test\_HS\_1}}
+This test calculates the free energy difference between the hcp and fcc phases for a 216-particle supercell in the NPT ensemble at
+$P\beta\sigma^3=14.58$ (where $\sigma$ denotes the hard-sphere diameter), using \texttt{UVM} volume moves. An analogous calculation
+has been performed in Refs. \cite{thesis:Jackson,Bruce_2000}, the results of which will act as a benchmark.
+2 4-thread MPI simulations are used. The first generates the weight function using \texttt{pong\_down}
+barrier dynamics over 2,000,000 sweeps. The second simulation calculates the free energy difference, using
+a total of 125,000,000 sweeps. Note that this simulation may take a while to run. The final result for the free energy difference
+should match that Refs. \cite{thesis:Jackson,Bruce_2000}: the free energy difference per particle should be
+$0.00113(4)/\beta$. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp,
+while in \emph{monteswitch}, with hcp corresponding to phase 1 and fcc corresponding to phase 2, the free energy
+difference is defined as that of hcp minus that of fcc -- hence the change of sign here
+relative to Jackson's result).
+
+Checks to perform:
+\begin{enumerate}
+\item
+The final free energy difference between the two systems, when divided by 216, should agree with 0.00113(4).
+Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
+in the 'state' file, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable.
+\end{enumerate}
+
+
+\subsection{\texttt{test\_HS\_2}}
+This test calculates the properties of the hcp phase for a 216-particle supercell at $P\beta\sigma^3=14.58$ in
+the NPT ensemble. A 4-thread MPI simulation is used: a conventional (one-phase, not LSMC) Monte Carlo simulation is
+performed with \texttt{UVM} volume moves, which allow each dimension of the supercell to move independently. The
+results should correspond to Table 4.1 in Ref. \cite{thesis:Jackson}; specifically, the row $6^3$, hcp, etc. Note
+that there is a typo in this refence: the results in Table 4.1 correspond to a reduced pressure of 14.58, \emph{not}
+18.74. The densities quoted for the latter are not in agreement with those quoted in the table; however they
+do correspond to other hard-sphere simulations the author performed at a reduced pressure of 14.58, which also agree with
+Speedy's equation of state (Ref. 70 in Ref. \cite{thesis:Jackson}) at that pressure.
+
+Checks to perform:
+\begin{enumerate}
+\item
+The density obtained from the simulation, when divided by $\sqrt{2}$, should agree with the value in the table,
+i.e., 0.7776(1). To calculate the density note that the supercell contains 216 particles, and the equilibrium
+volume of the hcp supercell and its uncertainty obtained via block analysis are stored in the variables
+\textbf{equil\_V\_1} and \textbf{sigma\_equil\_V\_1}.
+\item
+The hcp $c/a$ ratio should agree with the value in the table, i.e., 1.6323(7). The $c/a$ ratio can be obtained from
+the following \texttt{awk} command, which extracts a measure of the instantaneous $c/a$ ratio from \textbf{Lx} and \textbf{Lz} in the
+\texttt{data\_0} file:
+\begin{verbatim}
+awk 'NR%14==1 {Lx=$3}; NR%14==3 {Lz=$3; print $2,(Lz/6)/(Lx/3)}' data_0 | awk '$1>0 {sum=sum+$2;count=count+1}; END{print sum/count}'
+\end{verbatim}
+Doing similar for \texttt{data\_1}, \texttt{data\_2} and \texttt{data\_3} will give 4 independent results which can be combined
+to give a final mean and standard error.
+\end{enumerate}
+
+
+\section{Embedded atom model (\texttt{EAM})}
+The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_EAM.f95}, whose usage is described in Chapter
+\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_EAM.f95}
+to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+
+
+\subsection{\texttt{test\_EAM\_1}}
+The test here is exactly the same calculation as the worked example; see Chapter \ref{chapter:example} for details.
+
+Checks to perform:
+\begin{enumerate}
+\item
+The final free energy difference between the two systems should be 0. Check that this is the case for the
+simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
+stored in the \texttt{sigma\_equil\_DeltaF} variable.
+\end{enumerate}
+
+
+
+\section{`Conventional' Lennard-Jones (\texttt{LJ})}
+The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_LJ.f95}, whose usage is described in Chapter
+\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ.f95}
+to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+
+
+\subsection{\texttt{test\_LJ\_1}}
+This test calculates the potential energy per particle of the Lennard-Jones fluid in the NVT ensemble, with a cut-off (not shifted) of
+$3\sigma$, $\epsilon=\sigma=1$, at a temperature of 0.85 and density of 0.003.
+
+Checks to perform:
+\begin{enumerate}
+\item
+The aforementioned energy, with tail corrections, should match those of \url{http://mmlapps.nist.gov/srs/LJ_PURE/mc.htm},
+specifically, -0.03102(6).
+\end{enumerate}
 
 
 
