@@ -74,8 +74,9 @@ phases to be efficiently evaluated to a high precision.
 \emph{monteswitch} is a package whose primary purpose is to enable LSMC simulations to be performed, and can treat 
 `atomic' systems (i.e., those in which the constituent particles do not have rotational degrees of 
 freedom), and pairs of phases which can be represented by an orthorhombic unit cell, in the NVT and NPT ensembles.
-Note that the two `phases' need not be homogeneous crystals, though we expect that this will be the main use for \emph{monteswitch}; 
-possible applications for \emph{monteswitch} include evaluating the free energy cost of creating
+Note that the two `phases' need not be homogeneous crystals, though we expect that this will be the main use for \emph{monteswitch}.
+[DIFFERENT SPECIES?]
+Possible applications for \emph{monteswitch} include evaluating the free energy cost of creating
 point defects and interfaces.
 
 %While steps have been taken to implement LSMC in existing general-purpose Monte Carlo codes, we believe that \emph{monteswitch} will fulfill
@@ -116,32 +117,46 @@ and its generalisations to solid--fluid transitions and molecular systems, can b
 \footnote{The incarnation of LSMC suitable for solid--fluid transitions is referred to as \emph{phase-switch Monte Carlo}. Furthermore
 the reader should be aware that the term lattice-\emph{switching} Monte Carlo has also been applied to LSMC.}
 
-\section{Calculating free energy differences}
-Consider a system which is free to visit two phases 1 and 2 (and only phases 1 and 2) within the NVT ensemble. At this point we do not specify what the
-phases are, but the reader should bear in mind that \emph{monteswitch} deals with pairs of \emph{solid} phases. We consider only
-the NVT ensemble here for the sake of simplicity; however what follows can easily be adapted to apply to the NPT ensemble.
-Of phases 1 and 2, the equilibrium phase is that with the lower Helmholtz free energy $F$; it is the free energy difference between the phases 
-$\Delta F\equiv F_1-F_2$ which we wish to evaluate, where $F_1$ and $F_2$ denote the free energies of phases 1 and 2.
 
-We now derive an expression for $\Delta F$ which allows $\Delta F$ to be determined from the relative time $t_1$ and $t_2$ which the system spends 
-in each phase 1 and 2 during a sufficiently long simulation. It is this expression which is ultimately used in LSMC to calculate $\Delta F$. 
-Consider the free energy of phase $\alpha$:
+\section{What do we mean by `phase'?}\label{sec:phase}
+LSMC is a method to calculate the free energy difference between two phases. The term `phase' could mean a number of things. However, here
+we use the following definition which is convenient for our purposes. We define a phase using some state of the system
+which is \emph{representative} of the phase in question. We refer to such a state as a \emph{representative state}: phase $\alpha$ is the 
+set of all states of the system which are `reachable' from the chosen representative state for $\alpha$ on the timescale of the simulation. 
+For example, if one is interested in the `fcc phase', i.e., the set of states 
+corresponding to thermodynamic fluctuations in the particle positions about their average positions (which form an fcc crystal
+lattice), then a suitable choice of representative state would be that in which the particle positions form an ideal fcc crystal lattice. A
+simulation initialised in this state would, on the timescales of the simulation, explore the configurations which
+constitute the fcc phase.
+
+
+\section{Calculating free energy differences}
+Now that we have defined what we mean by a `phase', consider now a system which is free to visit two phases 1 and 2 (and only phases 1 and 2).
+Of phases 1 and 2, the equilibrium phase is that with the lower free energy $\mathcal{F}$, where $\mathcal{F}$ is the Helmholtz free energy $F$ in the 
+NVT ensemble and the Gibbs free energy $G$ in the NPT ensemble. It is the free energy difference between the phases 
+$\Delta\mathcal{F}\equiv \mathcal{F}_1-\mathcal{F}_2$ which we wish to evaluate, where $\mathcal{F}_1$ and $\mathcal{F}_2$ denote the free energies of 
+phases 1 and 2.
+We now derive an expression for $\Delta \mathcal{F}$ which allows $\Delta \mathcal{F}$ to be determined from the relative time $t_1$ and $t_2$ which 
+the system spends in each phase 1 and 2 during a sufficiently long simulation. It is this expression which is ultimately used in LSMC to calculate 
+$\Delta \mathcal{F}$. Consider the free energy of phase $\alpha$:
 \begin{equation}\label{Falpha_def}
-F_{\alpha}=-\beta^{-1}\ln Z_{\alpha},
+\mathcal{F}_{\alpha}=-\beta^{-1}\ln Z_{\alpha},
 \end{equation}
 where
 \begin{equation}\label{Zalpha_def}
-Z_{\alpha}=\sum_{\sigma\in\alpha}\exp(-\beta E_{\sigma})
+Z_{\alpha}=\sum_{\sigma\in\alpha}\exp(-\beta \mathcal{E}_{\sigma})
 \end{equation}
-is the partition function for phase $\alpha$, $\beta\equiv 1/(k_BT)$, $k_B$ is Boltzmann's constant, $\sigma$ denotes a state of the system, $E_{\sigma}$ 
-denotes the energy of state $\sigma$, and the summation in the above equation is over all microstates which `belong' to phase $\alpha$. 
+is the partition function for phase $\alpha$; $\beta\equiv 1/(k_BT)$; $k_B$ is Boltzmann's constant; $\sigma$ denotes a state of the system;
+$\mathcal{E}_{\sigma}$ denotes the energy $E_{\sigma}$ of state $\sigma$ in the NVT ensemble, and the enthalpy $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ of
+state $\sigma$ in the NPT ensemble, where $V_{\sigma}$ denotes the volume of state $\sigma$; 
+and the summation in the above equation is over all microstates which `belong' to phase $\alpha$. 
 From Eqn. \eqref{Falpha_def} it follows that
 \begin{equation}\label{DeltaF_Z}
-\Delta F=\beta^{-1}\ln\biggl(\frac{Z_2}{Z_1}\biggr).
+\Delta \mathcal{F}=\beta^{-1}\ln\biggl(\frac{Z_2}{Z_1}\biggr).
 \end{equation}
 Now,
 \begin{equation}\label{MC_prob}
-p_{\sigma}=\frac{1}{Z}e^{-\beta E_{\sigma}}, \quad Z\equiv Z_1+Z_2
+p_{\sigma}=\frac{1}{Z}e^{-\beta \mathcal{E}_{\sigma}}, \quad Z\equiv Z_1+Z_2
 \end{equation}
 is the probability that the system, free to explore both phases 1 and 2, is in state $\sigma$. Hence the probability of the system being in
 phase $\alpha$ is
@@ -150,99 +165,156 @@ p_{\alpha} = \sum_{\sigma\in \alpha}p_{\sigma} = Z_{\alpha}/Z,
 \end{equation}
 where we have used Eqn. \eqref{Zalpha_def}. Finally, substituting this into Eqn. \eqref{DeltaF_Z} gives
 \begin{equation}\label{DeltaF_stat_mech}
-\Delta F=\beta^{-1}\ln\biggl(\frac{p_2}{p_1}\biggr),
+\Delta \mathcal{F}=\beta^{-1}\ln\biggl(\frac{p_2}{p_1}\biggr),
 \end{equation}
-where $p_1$ and $p_2$ denote the probability of the system being in phase 1 and 2 respectively.  
+where $p_1$ and $p_2$ denote the probability of the system being in phase 1 and 2 respectively. 
 
-The above equation suggests the following method for calculating $\Delta F$ from, e.g. a molecular dynamics simulation: measure the relative time $t_1$ 
+The above equation suggests the following method for calculating $\Delta \mathcal{F}$ from, e.g. a molecular dynamics simulation: measure the 
+relative time $t_1$ 
 and $t_2$ which the system spends in each phase 1 and 2 during the simulation, and substitute these quantities into the above equation -- bearing in mind 
 that $t_2/t_1=p_2/p_1$. However, this method is often intractable in practice for two solid phases, 
 because the time taken for the system to transition between the two phases is too long to allow a reasonable estimate of $t_2/t_1$ to be deduced 
 in a reasonable simulation time; it may be the case that, regardless of the phase in which the simulation is initialised, the system \emph{never} 
 transitions to the `other' phase during the course of the simulation.
 The problem is that, while the regions of phase space corresponding to phase 1 and phase 2 both correspond to probable states of the system
-at thermodynamic equilibrium, these regions are separated by an \emph{entropic barrier} -- a region of phase space associated
-with states which are very improbable at thermodynamic equilibrium. This entropic barrier inhibits transitions between the `islands of
+at thermodynamic equilibrium, these regions are separated by a \emph{free energy barrier} -- a region of phase space associated
+with states which are very improbable at thermodynamic equilibrium. This barrier inhibits transitions between the `islands of
 stability' in phase space associated with phase 1 and phase 2.
 
 This problem can in principle be circumvented within the Monte Carlo method.
-In the original incarnation of Monte Carlo, which we refer to as \emph{Metropolis Monte Carlo}\cite{Metropolis_1953} (which we contrast later to 
+In the original incarnation of Monte Carlo, which we refer to as \emph{canonical Monte Carlo}\cite{Metropolis_1953} (which we contrast later to 
 \emph{multicanonical Monte Carlo}), the system is evolved throughout the simulation as follows. Each timestep we generate a trial state of the system 
-$\sigma'$, and attempt to change the system from its current state $\sigma$, to the trial state. We change the state from $\sigma$ to $\sigma'$ with 
-probability
+$\sigma'$, and attempt to change the system from its current state $\sigma$, to the trial state. 
+The traditional approach for NVT ensembles is to perform a `particle move' to generate a trial state. Here, one particle in $\sigma$ is moved
+to yield $\sigma'$. In NPT ensembles particle moves are supplemented by `volume moves', in which the volume, and potentially shape, of the 
+entire system is altered, along with a commensurate rescaling of the particle positions. We accept the change of state from $\sigma$ to $\sigma'$ with 
+a probability $p_{\sigma\to\sigma'}$, which is a function of the energies of the states $\sigma$ and $\sigma'$ in the NVT ensemble, and
+the enthalpies and volumes of the states $\sigma$ and $\sigma'$ in the NPT ensemble. The function also depends on the specific scheme used to generate 
+state $\sigma'$ from $\sigma$. For the schemes used in \emph{monteswitch}, $p_{\sigma\to\sigma'}$ is given by
 \begin{equation}\label{p_Metropolis}
-p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr].
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr]
 \end{equation}
-The end result is that each state $\sigma$ is sampled with a probability corresponding to the NVT ensemble, i.e., Eqn. \eqref{MC_prob}.
+for particle moves and
+\begin{equation}\label{p_Metropolis_NPT}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(H_{\sigma'}-H_{\sigma})+(N+1)\ln(V_{\sigma'}/V_{\sigma})}\Bigr],
+\end{equation}
+for volume moves.
+\footnote{See, e.g, Ref. \cite{book:Frenkel} for expressions for $p_{\sigma\to\sigma'}$ for other schemes}. 
+The end result is that each state $\sigma$ is sampled with a probability which reflects the underlying ensemble, i.e., Eqn. \eqref{MC_prob}.
 Hence the equilibrium value of any physical quantity $X$ can be obtained by evaluating the average of $X$ over all timesteps in a sufficiently long 
-simulation. In this manner $t_1$ and $t_2$, and hence $\Delta F$ (via Eqn. \eqref{DeltaF_stat_mech}) can be calculated; 
+simulation. In this manner $t_1$ and $t_2$, and hence $\Delta \mathcal{F}$ (via Eqn. \eqref{DeltaF_stat_mech}) can be calculated; 
 $t_{\alpha}$ is the time average of the quantity $\theta_{\alpha}$, where $\theta_{\alpha}=1$ if the system is in phase $\alpha$ and 0 otherwise.
-The traditional approach for NVT ensmbles is to perform a `particle move' to generate a trial state. In this, the trial state differs from the
-current state in that one of the particle's positions differs. In NPT ensembles particle moves are supplemented by `volume moves', in which the 
-shape of the entire system is altered, along with a commensurate rescaling of the particle positions.
-Crucially however, the important properties of the Metropolis algorithm do not rely upon the choice of mechanism used to generate trial states. 
-One has considerable freedom in this regard, and is by no means limited to the aforementioned `traditional' move set. The prospect therefore exists 
-of generating trial states in a manner which results in the system traversing a path in phase space which allows $\Delta F$ to be calculated 
-relatively quickly. Such a path would involve frequent transitions between both phases 1 and 2 by `jumping over' the entropic barrier. 
+However, in canonical Monte Carlo one has considerable freedom as to how trial states are generated; one is by no means limited to the aforementioned 
+`traditional' move set. The prospect therefore exists of generating trial states in a manner which results in the system traversing a path in phase 
+space which allows $\Delta \mathcal{F}$ to be calculated relatively quickly. Such a path would involve frequent transitions between both phases 1 and 
+2 by `tunnelling' through the free energy barrier separating them.
+
 
 \section{Lattice switch Monte Carlo moves}\label{sec:lattice_switch}
-In LSMC a new type of move, a \emph{lattice switch}, is introduced to supplement the traditional move set mentioned above. Let $\mathbf{r}_i$ 
-denote the position of particle $i$. Now, in an NVT emsemble, the set of particle positions $\lbrace\mathbf{r}_i\rbrace$ amounts to a specification 
-of the state of the system. We are interested in evaluating free energy differences between pairs of crystalline solid phases. Accordingly, it 
-makes sense to characterise a given state of the system as belonging to a solid phase $\alpha$ if the positions of the particles `approximately' 
-form a crystal lattice characteristic of $\alpha$. In this case one can express the position $\mathbf{r}_i$ of particle $i$ as follows:
+In LSMC a new type of move, a \emph{lattice switch}, is introduced to supplement the traditional move set mentioned above. A lattice switch move takes
+the system \emph{directly} from one phase to the other, bypassing any free energy barriers separating the phases. Every time a lattice switch is accepted, 
+the system transitions to the `other' phase. The salient feature of the move is that the underlying `lattice' which characterises the current phase is 
+`switched' for a lattice which characterises the other phase. For example if the two phases in question are fcc and hcp, then a lattice switch from an
+fcc state involves switching the underlying fcc lattice for an hcp lattice, while preserving the \emph{displacements} of each particle from its associated
+lattice site. 
+
+Of course this is just a basic description of the lattice switch. We now explain exactly how lattice switches are implemented in \emph{monteswitch}. 
+In \emph{monteswitch} two states are provided at initialisation, one for each phase. The functions of these states are twofold. Firstly, they act as 
+prospective initial states for the simulation: if the system is to be initialised in phase 1, then the phase-1 state will be used as the initial state.
+Secondly, they are used to determine the nature of the lattice switch move. We refer to these states as \emph{reference states}.
+Now, in \emph{monteswitch} only orthorhombic systems can be treated. Hence we only consider orthorhombic systems here. For such systems a state 
+amounts to a specification of the following: the dimensions of the supercell $L_x$, $L_y$ and $L_z$ in each Cartesian direction; either the \emph{fractional} 
+positions $\lbrace\tilde{\mathbf{r}}_i\rbrace$ or the \emph{absolute} positions $\lbrace\mathbf{r}_i\rbrace$ of the particles within the supercell
+(we denote fractional positions by a `$\sim$'); and the species of the particles $\lbrace S_i\rbrace$. For convenience we gather these quantites into
+a tuple: $(L_x,L_y,L_z,\lbrace\tilde{\mathbf{r}}_i\rbrace,\lbrace S_i\rbrace)$ or $(L_x,L_y,L_z,\lbrace\mathbf{r}_i\rbrace,\lbrace S_i\rbrace)$ amounts to
+a specification of the state of the system. With this in mind, let 
+$(\mathcal{L}^{(1)}_x,\mathcal{L}^{(1)}_y,\mathcal{L}^{(1)}_z,\lbrace\tilde{\mathcal{R}}^{(1)}_i\rbrace,\lbrace\mathcal{S}^{(1)}_i\rbrace)$ and
+$(\mathcal{L}^{(2)}_x,\mathcal{L}^{(2)}_y,\mathcal{L}^{(2)}_z,\lbrace\tilde{\mathcal{R}}^{(2)}_i\rbrace,\lbrace\mathcal{S}^{(2)}_i\rbrace)$ describe
+the reference states for phases 1 and 2 respectively.
+Without loss of generality consider now a state $\sigma=(L_x,L_y,L_z,\lbrace\mathbf{r}_i\rbrace,\lbrace s_i\rbrace)$ belonging to phase 1.
+We now describe how the state $\sigma'=(L_x',L_y',L_z',\lbrace\mathbf{r}'_i\rbrace,\lbrace s'_i\rbrace)$ which results from a lattice switch from
+state $\sigma$is generated from $\sigma$ in \emph{monteswitch}. We first construct the underlying phase-1 `lattice' for $\sigma$.
+The positions of the lattice sites, which we denote as $\lbrace\mathbf{R}^{(1)}_i\rbrace$, are constructed from the phase-1 reference state. Specifically, 
+$\lbrace\mathbf{R}^{(1)}_i\rbrace$, transformed into fractional coordinates, is identical to the fractional positions of the particles in the phase-1 
+reference state:
 \begin{equation}
-\mathbf{r}_i=\mathbf{R}^{\alpha}_i+\mathbf{u}_i,
+\mathbf{R}^{(1)}_i = \text{diag}(L_x,L_y,L_z)\tilde{\mathcal{R}}^{(1)}_i
 \end{equation}
-where $\mathbf{R}^{\alpha}_i$ denotes the position of the site in the analogous $\alpha$ crystal lattice which is closest to $i$, and $\mathbf{u}_i$ denotes 
-the displacement of $i$ from that lattice site. Note that the displacements $\lbrace\mathbf{u}_i\rbrace$ are necessarily small since the particle
-positions form an approximate $\alpha$ crystal lattice. In a lattice switch from phase $\alpha$ to the `other' phase $\alpha'$ we transform the 
-underlying lattice $\lbrace\mathbf{R}^{\alpha}_i\rbrace$ to $\lbrace\mathbf{R}^{\alpha'}_i\rbrace$, \emph{while keeping the particle displacements 
-$\lbrace\mathbf{u}_i\rbrace$ unchanged}.
-\footnote{One could in principle alter the particle displacements during a lattice switch. It is conceivable that this would lead to a more efficient
-exploration of both phases for some systems. However, this is not implemented in \emph{monteswitch}: in \emph{monteswitch} lattice switches always
-keep the particle displacements unchanged.}
-The effect is that the trial state belongs to phase $\alpha'$: the positions of the particles in the trial state form an approximate $\alpha'$ crystal 
-lattice. Hence every time a lattice switch is accepted, the system transitions to the `other' phase. 
+for all particles $i$, where $\text{diag}(L_x,L_y,L_z)$ denotes the $3\times 3$ matrix with $L_x$, $L_y$ and $L_z$ along the leading diagonal. We now turn
+to constructing the trial state $\sigma'$. We begin by constructing the dimensions of the supercell for $\sigma'$. The reference states for both phases are 
+used to determine how the supercell is transformed during the switch. Specifically, the dimensions of the supercell for $\sigma'$ are given by
+\begin{equation}
+L_x'=\frac{\mathcal{L}_x^{(2)}}{\mathcal{L}_x^{(1)}}L_x, \quad 
+L_y'=\frac{\mathcal{L}_y^{(2)}}{\mathcal{L}_y^{(1)}}L_y, \quad 
+L_z'=\frac{\mathcal{L}_z^{(2)}}{\mathcal{L}_x^{(1)}}L_z.
+\end{equation}
+Hence in the lattice switch the supercell is dilated/contracted in each Cartesian dimension by the same factor as would be the case in transforming the
+supercell from the phase-1 reference state to the phase-2 reference state.
+Thirdly, we construct the underlying lattice for phase 2. As was the case for the underlying lattice for phase 1, the underlying lattice for phase
+2, transformed into fractional coordinates, is identical to the fractional positions of the particles in the phase-2 reference state:
+\begin{equation}
+\mathbf{R}^{(2)}_i = \text{diag}(L_x',L_y',L_z')\tilde{\mathcal{R}}^{(2)}_i
+\end{equation}
+for all $i$.
+Fourthly we construct the particle positions in $\sigma'$ using the particle positions in $\sigma$ and the aforementioned underlying lattices for
+phases 1 and 2 as follows:
+\begin{equation}
+\mathbf{r}_i'=\mathbf{r}_i-\mathbf{R}^{1}_i+\mathbf{R}^{2}_i
+\end{equation}
+for all $i$. Note that this amounts to a transformation of the particle positions in which the underlying phase-1 lattice $\lbrace\mathbf{R}^{1}_i\rbrace$ 
+is substituted for a phase-2 lattice $\lbrace\mathbf{R}^{2}_i\rbrace$ while keeping the \emph{displacement} of each particle from its lattice site unchanged. 
+This can perhaps be seen more clearly by reexpressing the transformation as follows:
+\begin{equation}
+\mathbf{r}_i=\mathbf{R}^{(1)}_i+\mathbf{u}_i \to \mathbf{r}'_i=\mathbf{R}^{(2)}_i+\mathbf{u}_i
+\end{equation}
+for all $i$, where
+\begin{equation}
+\mathbf{u}_i=\mathbf{r}_i-\mathbf{R}^{(1)}_i=\mathbf{r}'_i-\mathbf{R}^{(2)}_i
+\end{equation}
+is the displacement of particle $i$ from its lattice site.
+Finally we transform the species of $\sigma$ (which initialy corresponding to phase 1) to correspond to phase 2:
+\begin{equation}
+s_i= S^{(1)}_i\to s_i'= S^{(2)}_i
+\end{equation}
+for all $i$.
+
+Note that the lattice switch as just described is an involution: if a lattice switch from state $\sigma$ yields state $\sigma'$, then
+performing a lattice switch from state $\sigma'$ yields $\sigma$.
+
 
 \section{Multicanonical Monte Carlo}
-One might expect that by regularly making lattice switches, the system will regularly transition between phases, allowing $\Delta F$ to be efficiently 
-evaluated as described earlier. Unfortunately, if one does this in Metropolis Monte Carlo, one finds that lattice switches are too rarely accepted for 
-this approach to be useful. 
-The problem is that the trial state $\sigma'$ generated by a lattice switch is almost always of much higher energy than the current state $\sigma$, 
-and hence will almost always be rejected by the Metropolis algorithm (Eqn. \eqref{p_Metropolis}). 
-The solution to this problem is to use \emph{multicanonical Monte Carlo}\cite{Berg_1991,Berg_1992,Smith_1995} instead of Metropolis Monte Carlo.
+One might expect that by regularly making lattice switches, the system will regularly transition between phases, allowing $\Delta \mathcal{F}$ to 
+be efficiently evaluated as described above. Unfortunately using canonical Monte Carlo one finds that lattice switches are too rarely accepted for 
+this approach to be useful.
+The solution to this problem is to use \emph{multicanonical Monte Carlo}\cite{Berg_1991,Berg_1992,Smith_1995} instead of canonical Monte Carlo.
 \footnote{Multicanonical Monte Carlo belongs to the class of extended/expanded ensemble techniques; see, e.g., Ref. \cite{Iba_2001}.}
-The former is a straightforward generalisation of the latter in which, instead of Eqn. \eqref{p_Metropolis}, one has
-\begin{equation}\label{p_multicanonical}
-\tilde{p}_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}e^{(\eta_{\sigma'}-\eta_{\sigma})}\Bigr],
-\end{equation}
-where $\eta_{\sigma}$, known as the \emph{weight function}, is chosen according to the aims of the simulation. In this case each state $\sigma$ is 
-sampled with probability
+The former is a straightforward generalisation of the latter in which, instead of sampling from the probability distribution $p_{\sigma}$ 
+(Eqn. \eqref{MC_prob}), one samples from the distribution
 \begin{equation}\label{MCMC_prob}
-\tilde{p}_{\sigma}=\frac{1}{\tilde{Z}}e^{-\beta E_{\sigma}}e^{\eta_{\sigma}}, \quad \tilde{Z}\equiv\sum_{\sigma}e^{-\beta E_{\sigma}}e^{\eta_{\sigma}}
+\tilde{p}_{\sigma}=\frac{1}{\tilde{Z}}e^{-\beta \mathcal{E}_{\sigma}}e^{\eta_{\sigma}}, \quad \tilde{Z}\equiv\sum_{\sigma}e^{-\beta \mathcal{E}_{\sigma}}e^{\eta_{\sigma}},
 \end{equation}
+where $\eta_{\sigma}$, known as the \emph{weight function}, is chosen according to the aims of the simulation. 
 Using Eqn. \eqref{MC_prob}, it can be shown that
 \begin{equation}\label{MCMC_prob_2}
 \tilde{p}_{\sigma}=\frac{1}{\tilde{Z}'}p_{\sigma}e^{\eta_{\sigma}}, \quad \tilde{Z}'=\sum_{\sigma}p_{\sigma}e^{\eta_{\sigma}},
 \end{equation}
-where recall that $p_{\sigma}$ is the probability of observing state $\sigma$ in the NVT ensemble. From this it can be seen that if 
-$\eta_{\sigma}>0$ then state $\sigma$ is \emph{over-sampled} relative to Metropolis Monte Carlo. On the other hand if $\eta_{\sigma}<0$ then 
+where note that $p_{\sigma}$ is the `true' probability of the system being in state $\sigma$. From the above it can be seen that if 
+$\eta_{\sigma}>0$ then state $\sigma$ is \emph{over-sampled} relative to the true distribution. On the other hand if $\eta_{\sigma}<0$ then 
 $\sigma$ is \emph{under-sampled}. 
 The strength of this approach is that, through judicious choice of the weight function, one can `choose' the path the system traverses 
-through phase space. To elaborate, a multicanonical Monte Carlo simulation can be regarded as a Metropolis Monte Carlo 
+through phase space. To elaborate, a multicanonical Monte Carlo simulation can be regarded as a canonical Monte Carlo 
 simulation, but if the energy for each state $\sigma$ were 
 \begin{equation}
-\tilde{E}_{\sigma}=E_{\sigma}-\eta_{\sigma}/\beta
+\tilde{\mathcal{E}}_{\sigma}=\mathcal{E}_{\sigma}-\eta_{\sigma}/\beta
 \end{equation}
-instead of $E_{\sigma}$. Hence a multicanonical Monte Carlo simulation samples states with probabilities corresponding to, say, an NVT ensemble,
-but if energy were $\tilde{E}_{\sigma}$ instead of $E_{\sigma}$. Noting that the modification to the `true' energy function, $-\eta_{\sigma}/\beta$, is
-proportional to the weight function, it can be seen that the weight function defines an additional `force' on the system which affects its
-trajectory through phase space. Therefore by choosing $\eta_{\sigma}$, one can choose the system's path through phase space. 
+instead of $\mathcal{E}_{\sigma}$. Hence a multicanonical Monte Carlo simulation samples states with probabilities corresponding to, say, an NVT ensemble,
+but if energy were $\tilde{\mathcal{E}}_{\sigma}$ instead of $E_{\sigma}$. Noting that since the modification to the `true' energy function, 
+$-\eta_{\sigma}/\beta$, is proportional to the weight function, it can be seen that the weight function defines an additional `force' on the system 
+which affects its trajectory through phase space. Therefore by choosing $\eta_{\sigma}$, one can choose the system's path through phase space. 
 
-Of course, in a multicanonical simulation the states are not longer sampled with probabilities corresponding to the `true' NVT ensemble -- 
-which \emph{is} the case for Metropolis Monte Carlo. Accordingly the time average of some physical quantity $X$ throughout a long multicanonical 
-Monte Carlo simulation is not equivalent to the equilibrium value of $X$ for the NVT ensemble in question, like it is in a Metropolis Monte Carlo
+Of course, in a multicanonical simulation the states are not longer sampled with probabilities corresponding to the true ensemble in question -- 
+which \emph{is} the case for canonical Monte Carlo. Accordingly the time average of some physical quantity $X$ throughout a long multicanonical 
+Monte Carlo simulation is not equivalent to the equilibrium value of $X$ for the true ensemble, like it is in a canonical Monte Carlo
 simulation. Nevertheless one can obtain the equilibrium value of $X$ from a multicanonical simulation by exploiting the fact that, since the 
 weight function is known, then so is the degree of over- or under-sampling of each state. To elaborate, to evaluate the equilibrium value of 
 $X$ in a Metropolis Monte Carlo simulation, we use the following expression:
@@ -257,7 +329,7 @@ For reasons which will become clear in a moment, $\langle X\rangle$ could equiva
 with $w(t)$ taking the same constant value for all $t$, where $w(t)$ is the \emph{weight} (not to be confused with the weight function) associated 
 with the state at timestep $t$.
 Now, Eqn. \eqref{MCMC_prob_2} reveals that state $\sigma$ is sampled in a multicanonical Monte Carlo simulation a factor of
-$e^{\eta_{\sigma}}/\tilde{Z}'$ more often than for the true NVT ensemble. Associating a weight $(e^{\eta_{\sigma}}/\tilde{Z}')^{-1}$ to $\sigma$ corrects for
+$e^{\eta_{\sigma}}/\tilde{Z}'$ more often than for the true ensemble. Associating a weight $(e^{\eta_{\sigma}}/\tilde{Z}')^{-1}$ to $\sigma$ corrects for
 this; the effect is that states which are over-sampled are counted less, and under-sampled states are counted more, in the evaluation of $\langle X\rangle$.
 Hence the expression for $\langle X\rangle$ pertaining to a multicanonical simulation is the same as above, but with $w(t)=(e^{\eta(t)}/\tilde{Z}')^{-1}$:
 \begin{equation}\label{equilX_MCMC}
@@ -265,54 +337,94 @@ Hence the expression for $\langle X\rangle$ pertaining to a multicanonical simul
 \end{equation}
 where we have canceled the factors of $\tilde{Z}'^{-1}$ from the numerator and denominator.
 
-Why is this helpful to us? As mentioned above, most states are such that lattice switches will be almost certainly be rejected from them. There 
-are, however, a small number of states from which a lattice switch yields a trial state which is of comparable energy to $\sigma$. From such 
-states a lattice switch has a good chance of being accepted. (Note that the same is also true for the trial state corresponding to a lattice switch:
-a lattice switch from the trial state, which brings us back to the current state, would also have a good chance of success). We refer to 
-such states as \emph{gateway states}, since they provide the key to jumping between both phases. It is these states which we wish to over-sample,
-and we set the weight function accordingly. The result is that lattice switches are accepted reasonably often, encouraging switching between the 
-two phases. Thus the multicanonical simulation samples both phases in a reasonable simulation time, which enables us to obtain 
-$t_1$ and $t_2$ (which recall are the time averages of $\theta_1$ and $\theta_2$ defined earlier, i.e. $t_1=\langle\theta_1\rangle$ and 
-$t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC}, enabling us to obtain $\Delta F$ via Eqn. \eqref{DeltaF_stat_mech}.
 
-How should the weight function be engineered such that gateway states are over-sampled? Let us define the quantity
-\begin{equation}
-M(\lbrace\mathbf{u}_i\rbrace)=E(\lbrace\mathbf{R}^{1}_i+\mathbf{u}_i\rbrace)
--E(\lbrace\mathbf{R}^{2}_i+\mathbf{u}_i\rbrace),
+\section{Exploiting multicaonical Monte Carlo}
+How does multicanonical Monte Carlo resolve the problem that lattice switch moves are too rarely accepted to be useful? To answer this question we must 
+first understand why lattice switches are so rarely accepted. 
+Consider the probability of a lattice switch from state $\sigma$ to $\sigma'$ being accepted. Using the lattice switch scheme implemented in
+\emph{monteswitch}, and described in Sec. \ref{sec:lattice_switch}, this is
+\begin{equation}\label{p_LSMC_NPT}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(H_{\sigma'}-H_{\sigma})+\ln(V_{\sigma'}/V_{\sigma})}\Bigr],
 \end{equation}
-where $E(\lbrace\mathbf{r}_i\rbrace)$ denotes the energy of the state with positions $\lbrace\mathbf{r}_i\rbrace$. The first term on the right-hand side
-is the energy associated with the state in phase 1 where the displacements are $\lbrace\mathbf{u}_i\rbrace$ for phase 1, and the second term is the 
-analogous quantity for phase 2. Note that the states $\lbrace\mathbf{r}_i\rbrace=\lbrace\mathbf{R}^{1}_i+\mathbf{u}_i\rbrace$ and 
-$\lbrace\mathbf{r}_i\rbrace=\lbrace\mathbf{R}^{2}_i+\mathbf{u}_i\rbrace$ differ by a lattice switch: performing a lattice switch from the former yields 
-the latter and \emph{vice versa}. Note also that $M(\lbrace\mathbf{u}_i\rbrace)=0$ if the energies of both these states are identical. In this
-case the energy cost of a lattice switch is zero, an attempted lattice switch from either state would be successful, and hence both states are gateway 
-states. By contrast, if $|M(\lbrace\mathbf{u}_i\rbrace)|\gg 0$, then the two states have significanly different energies. In this case, while
-switching from the higher-energy state to the lower-energy state is guaranteed, the converse is not: the two states are not concordant with switching
-\emph{to and from} both phases.
-$|M(\lbrace\mathbf{u}_i\rbrace)|$ therefore provides a measure of how `un-gateway-like' a state with displacements $\lbrace\mathbf{u}_i\rbrace$ 
-is, with zero corresponding to a gateway state. With this in mind, if we choose the weight function $\eta_{\sigma}$ to take the same value $\eta_{M}$ 
+where recall that $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ denotes the enthalpy of state $\sigma$, and $V_{\sigma}$ denotes its volume. Consider first the
+case where the lattice switch preserves the volume of the system. This is necessary for the NVT ensemble, but in the NPT ensemble one has freedom to
+define the switch such that it changes the volume of the system. In this case, since $V_{\sigma'}=V_{\sigma}$, the above equation reduces to
+\begin{equation}\label{p_LSMC_NVT}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr].
+\end{equation}
+This equation reveals the main cause for lattice switches being unsuccessful: the energy of the trial state $\sigma'$ generated by a 
+lattice switch is almost always of much higher energy than the current state $\sigma$, leading to $p_{\sigma\to\sigma'}$ being very low. 
+This is perhaps obvious in retrospect: one should expect that,
+from a state which is probable at equilibrium, which accordingly will have a relatively low energy, a large change to the system, such as that 
+brought about by a lattice switch, will typically lead to a huge increase in the system's energy. 
+%
+There are, however, (hopefully) a small number of states `close' to those found at equilibrium for each phase from which a lattice switch yields a 
+trial state $\sigma'$ which is of comparable energy to $\sigma$. From such states a lattice switch has a good chance of being accepted.
+We refer to such states as \emph{gateway states}, since they provide the key to jumping between both phases. It is these states which we wish to over-sample,
+and we set the weight function accordingly. The idea is that by over-sampling these states, lattice switches are accepted reasonably often, 
+enabling both phases to be explored in a reasonable simulation time. This in turn allows us to determine
+$t_1$ and $t_2$ (which recall are the time averages of $\theta_1$ and $\theta_2$ defined earlier, i.e. $t_1=\langle\theta_1\rangle$ and 
+$t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC}, and hence ultimately $\Delta \mathcal{F}$ via Eqn. \eqref{DeltaF_stat_mech}.
+
+But how does the above discussion change for lattice switches which alter the volume of the system? The answer is `not much'. For the
+case of volume-preserving lattice switches a gateway state is a state from which a lattice switch yields another state of comparable energy.
+This reflects the fact that $p_{\sigma\to\sigma'}\approx 1$ if $E_{\sigma'}\approx E_{\sigma}$ in Eqn. \eqref{p_LSMC_NVT}. For the general case of a
+non-volume-preserving lattice switch the analogous condition for a gateway state, as can be seen from Eqn. \eqref{p_LSMC_NPT}, is that
+$J_{\sigma}\approx J_{\sigma'}$, where
+\begin{equation}
+J_{\sigma}\equiv H_{\sigma}+\ln(V_{\sigma})/\beta.
+\end{equation}
+Note that for the case of volume-preserving lattice switches the condition $J_{\sigma}\approx J_{\sigma'}$ is equivalent to $E_{\sigma}\approx E_{\sigma'}$.
+
+With the above in mind, how should the weight function be engineered such that gateway states are over-sampled? 
+Consider a state $\sigma$, and let $\sigma'$ denote the state which results from a lattice switch performed from $\sigma$. Let us define the 
+state-dependent quantity
+\begin{equation}\label{M_def}
+M_{\sigma}=
+\begin{cases}
+(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 1} \\
+-(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 2}.
+\end{cases}
+\end{equation}
+This quantity in practice provides a means for resolving gateway states, states corresponding to equilibrium (for the true ensemble under consideration)
+for phase 1, and states corresponding to equilibrium for phase 2. Accordingly we refer to $M$ as the `order parameter'. Consider first gateway states.
+Above we illustrated that gateway states correspond to the condition $J_{\sigma}\approx J_{\sigma'}$. As can be seen from the above this corresponds to
+states with $M_{\sigma}\approx 0$. By contrast, if $|M_{\sigma}|\gg 0$, then the two states have significantly different values of $J$. In this case, while
+switching from the state with the higher value of $J$ to that with the lower value of $J$ is guaranteed, the converse is not: the two states are not 
+concordant with switching \emph{to and from} both phases. $|M_{\sigma}|$ therefore provides a measure of how `un-gateway-like' state $\sigma$ is, with 
+zero corresponding to `very gateway-like'. 
+Consider now phase-1-equilibrium states. From such states we generally expect a lattice switch to be unsuccessful, and hence
+$J_{\sigma'}\gg J_{\sigma}$. Therefore for such states $M_{\sigma}\ll 0$. Finally consider phase-2-equilibrium states. Similarly we generally expect 
+a lattice switch from such states to be unsuccessful, and hence $J_{\sigma'}\gg J_{\sigma}$. However this time $M_{\sigma}\gg 0$. We therefore have three regimes:
+$M_{\sigma}\ll 0$ corresponds to phase-1-equilibrium states; $M_{\sigma}\approx 0$ corresponds to gateway states; and $M_{\sigma}\gg 0$ corresponds to 
+phase-2-equilibrium states.
+
+With this in mind, if we choose the weight function $\eta_{\sigma}$ to take the same value $\eta_{M}$ 
 for all states with the same $M$, and also choose $\eta_{M}$ to be peaked at $M=0$ and to decay monotonically with 
-$|M|$, then the weight function corresponds to a `force' which drives the system towards gateway states.
+$|M|$, then the weight function corresponds to a `force' which drives the system towards gateway states, allowing the system to transition between
+the phase-1 and phase-2 regions of phase space, corresponding to $M\ll 0$ and $M\gg 0$ respectively, in a reasonable simulation time.
 This is, of course, just a \emph{qualitative} description of a form for $\eta_{M}$ which is sufficient for our purposes. As one might expect, 
 the quantitative details of the weight function $\eta_{M}$ strongly affect the efficiency of the path traversed though phase space with regards 
-to calculating $\Delta F$; a `bad' weight function might result in the system getting stuck in one phase, or an unimportant region of phase space, for
-a long time. Furthermore, it is not obvious \emph{a priori} what a suitable weight function for a given system should be. Hence one must 
+to calculating $\Delta \mathcal{F}$; a `bad' weight function might result in the system getting stuck in one phase, or an unimportant region of phase 
+space, for a long time. Furthermore, it is not obvious \emph{a priori} what a suitable weight function for a given system should be. Hence one must 
 \emph{generate} a weight function which leads to an efficient sampling of phase space. After this \emph{weight function generation simulation},
-the resulting weight function can be used in a \emph{production simulation} to calculate $\Delta F$ as described above.
+the resulting weight function can be used in a \emph{production simulation} to calculate $\Delta \mathcal{F}$ as described earlier.
 
 Given that we are constraining the weight function to take the same value for all states with the same $M$, it is convenient to define a
 macrostate, which we also denote as $M$, which is comprised of all such states. Thus in implementing multicanonical Monte Carlo
-in the computer, it is sufficient to store the value of the weight function for each $M$ considered, instead of for each state - which is
+in the computer, it is sufficient to store the value of the weight function for each $M$ considered, instead of for each state -- which is
 intractable. Of course, it is impossible to treat $M$ as a continuous variable in the computer; in reality the considered range of $M$ will
-be split into $N_{\text{macro}}$ bins each corresponding to a range of $M$. Each bin itself corresponds to a macrostate: the macrostate is the
+be split into $N_{\text{macro}}$ bins each corresponding to a range of $M$. Furthermore only a finite range of $M$ can be considered: one must
+decide upon a suitable maximum and minimum for the problem at hand. Each bin itself corresponds to a macrostate: the macrostate is the
 collection of states corresponding to the range of $M$ covered by the bin. We will henceforth explicitly take the discretisation of $M$ into
 account. Let $\mathcal{M}$ denote the macrostate corresponding to the $\mathcal{M}$th bin, where $\mathcal{M}=1,2,\dotsc,N_{\text{macro}}$.
-Accordingly let $\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$.
+Accordingly let $\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$. 
+
 
 \section{Weight function generation}\label{sec:weight_generation}
 We will now describe how weight functions can be generated for use in a production simulation.
 In multicanonical Monte Carlo the `ideal' weight function, which we denote as $\eta_{\mathcal{M}}^*$, is regarded as that which leads to 
-all macrostates within an `allowed range' of order parameter to be sampled with equal probability in the multicanonical Monte Carlo simulation.
+all macrostates within the considered order parameter range to be sampled with equal probability in the multicanonical Monte Carlo simulation.
 Let $\tilde{p}_{\mathcal{M}}$ denote the probability that the multicanonical Monte Carlo simulation is in macrostate $\mathcal{M}$; formally,
 \begin{equation}
 \tilde{p}_{\mathcal{M}}=\sum_{\sigma\in\mathcal{M}}\tilde{p}_{\sigma}.
@@ -324,16 +436,15 @@ However we emphasise that strictly speaking it is unnecessary to use the ideal w
 probablility, during the
 production simulation. The choice of weight function affects the accuracy of physical quantities determined during the production simulation
 (evaluated using Eqn. \eqref{equilX_MCMC}) only in that it determines the efficiency with which phase space is explored. For this reason though a
-weight function close
-to the ideal is desirable because it enables gateway states to be visited often, hence allowing both phases to be explored regularly: 
-a weight function which is `far from ideal' may not result in gateway states being visited often enough to enable useful estimates
-of $t_1$ and $t_2$ to be obtained. However, using the latter weight function would enable useful estimates for $t_1$ and $t_2$ to be obtained
-\emph{eventually}.
+weight function close to the ideal is desirable because it is a convenient way of ensuring that gateway states are visited often, hence 
+allowing both phases to be explored regularly: a weight function which is `far from ideal' may not result in gateway states being visited often
+enough to enable useful estimates of $t_1$ and $t_2$ to be obtained. However, using the latter weight function would enable useful estimates 
+for $t_1$ and $t_2$ to be obtained \emph{eventually}.
 
 \subsection{Visited states method}\label{sec:visited_states}
 The \emph{visited states method} (see Ref. \cite{Smith_1995} and references therein) is arguably the simplest method for generating the weight function. 
 In this method, the simulation consists of a number of
-`blocks', which themselves consist of a large number of Monte Carlo sweeps. Multicanonical Monte Carlo is used, and the weight function is updated at
+`blocks', which themselves consist of a large number of Monte Carlo sweeps. Multicanonical sampling is used throughout, and the weight function is updated at
 the end of each block. The weight function is different -- closer to the ideal -- in each subsequent block, and information
 collected during each block is used to inform the weight function to be used in the next block. Eventually the weight function converges on the 
 ideal: it provides a `flat' macrostate histogram; the weight function is such that all macrostates are sampled with equal probability.
@@ -347,10 +458,12 @@ The specific equation used to obtain the weight function for the next block $n+1
 +k,
 \end{equation}
 where $\eta^{(n)}_{\mathcal{M}}$ denotes the weight function for block $n$; the summation over $\mathcal{M}'$ on the denominator of the fraction is
-over all macrostates $1,2,\dotsc,N_{\text{macro}}$; and $k$ is an inconsequential arbitrary constant,
-\footnote{Only differences in the values of the weight function between states are `physically significant'; the absolute values 
-of the weight function are not. See, e.g., Eqn. \eqref{p_multicanonical}.}
-which we choose such that the minimum value of $\eta^{(n+1)}_{\mathcal{M}}$ over all $\mathcal{M}$ is 0.
+over all macrostates $1,2,\dotsc,N_{\text{macro}}$; and $k$ is an inconsequential arbitrary constant, which we choose such that the minimum value of 
+$\eta^{(n+1)}_{\mathcal{M}}$ over all $\mathcal{M}$ is 0.
+\footnote{Like energies, only differences in the values of the weight function between states are `physically significant'; the absolute values 
+of the weight function are not. Hence performing a global shift to the weight function for our own convenience is inconsequential to the
+multicanonical distribution $\tilde{p}_{\sigma}$. This can be seen by applying the transformation $\eta_{\sigma}\to\eta_{\sigma}+C$ to Eqn. \eqref{MCMC_prob},
+where $C$ is ab arbitrary constant}
 The above equation acts to enhance the value of the weight function for macrostates which have not been visited often during the previous block, and
 diminish the weight function for macrostates which have been visited. Eventually the weight function is such that all macrostates are visited equally
 often. 
@@ -359,18 +472,19 @@ for all $\mathcal{M}$.
 
 In practice the visited states method converges to the ideal weight function very slowly, and is not amenable to parallelisation. 
 For this reason we do not recommend that it is the sole method used to 
-generate weight function with \emph{monteswitch}, but primarily, or perhaps entirely, use the other methods for generating weight functions described 
-in a moment. These other methods are much more efficient at obtaining a weight function close to the ideal. However, these methods, as implemented in 
-\emph{monteswitch}, perhaps never converge on the ideal, while the visited states method does \cite{Smith_1995}. 
+generate weight function with \emph{monteswitch}. We recommend that the other methods for generating weight functions described 
+in a moment are used instead, at least at first. These other methods are much more efficient at obtaining a weight function close to the ideal. 
+However, these methods, as implemented in \emph{monteswitch}, perhaps never converge on the ideal, while the visited states method does \cite{Smith_1995}. 
 This limitation of the other methods is in practice probably
-unimportant; as mentioned earlier, it is unnecessary to use the `exact' ideal weight function, just a weight function `close' to the ideal, which
+unimportant. As mentioned earlier, it is unnecessary to use the `exact' ideal weight function, just a weight function `close' to the ideal, which
 these methods provide. Nevertheless the visited states method is included within \emph{monteswitch} in order that the exact ideal weight function can
 be calculated if required, possibly after a weight function close to the ideal has already been obtained using the aforementioned faster methods.
 
 
 \subsection{Transition matrix method}\label{sec:transition_matrix}
-$\eta_{\mathcal{M}}^*$ can be related to $p_{\mathcal{M}}$, the \emph{canonical} probability of the system being in macrostate $\mathcal{M}$. Firstly,
-note that $\tilde{p}_{\mathcal{M}}$ for a multicanonical simulation using weight function $\eta_{\mathcal{M}}$ obeys
+$\eta_{\mathcal{M}}^*$ can be related to $p_{\mathcal{M}}$, the \emph{canonical} probability of the system being in macrostate $\mathcal{M}$. (Multicanonical
+quantities are signified by a `$\sim$'). Firstly, note that the multicanonical probability $\tilde{p}_{\mathcal{M}}$ of the system being in macrostate 
+$\mathcal{M}$ given a weight function $\eta_{\mathcal{M}}$ is
 \begin{equation}
 \tilde{p}_{\mathcal{M}}\propto e^{\eta_{\mathcal{M}}}p_{\mathcal{M}}.
 \end{equation}
@@ -383,51 +497,60 @@ which can be rearranged to give
 \begin{equation}\label{ideal_wf}
 \eta^*_{\mathcal{M}}=C'-\ln p_{\mathcal{M}},
 \end{equation}
-where $C'$ is a constant. Eqn. \eqref{ideal_wf} reveals that $\eta^*_{\mathcal{M}}$ can be obtained from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
+where $C'$ is a constant. Eqn. \eqref{ideal_wf} reveals that $\eta^*_{\mathcal{M}}$ can be derived from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
 in turn can be determined from the \emph{macrostate transition probability matrix} $\mathcal{T}_{\mathcal{MM}'}$, which describes the probability that
-the system, currently in macrostate $\mathcal{M}$, transitions to macrostate $\mathcal{M}'$. 
-In the \emph{transition matrix method} \cite{Smith_1995,Fitzgerald_1999}
-we keep track of the transitions between all pairs of macrostates, use that information to calculate 
-$\mathcal{T}_{\mathcal{MM}'}$, then $p_{\mathcal{M}}$, and finally $\eta_{\mathcal{M}}^*$ via Eqn. \eqref{ideal_wf}.
+the system, currently in macrostate $\mathcal{M}$, transitions to macrostate $\mathcal{M}'$ \emph{in the canonical ensemble}.
+In the \emph{transition matrix method} \cite{Smith_1995,Fitzgerald_1999} we determine $\mathcal{T}_{\mathcal{MM}'}$, then use this to obtain
+$p_{\mathcal{M}}$, and finally the ideal weight function $\eta_{\mathcal{M}}^*$ via Eqn. \eqref{ideal_wf}.
 
-The first step is to calculate $\mathcal{T}_{\mathcal{MM}'}$. To do this, we keep a histogram of the number of \emph{supposed} transitions between 
-each pair of macrostates -- where the meaning of `inferred' will become clear in a moment. Let $H_{\mathcal{M}\mathcal{M}'}$ denote the number of inferred 
-transitions between macrostates $\mathcal{M}$ and $\mathcal{M}'$. Again, note that the aforementioned transitions pertain to the true ensemble, 
-\emph{not to the multicanonical one}. We update $H_{\mathcal{M}\mathcal{M}'}$ and $H_{\mathcal{M}\mathcal{M}}$ every time a trial state is generated which, if 
-accepted, would take the system from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$. The update scheme is as follows
-\begin{equation}
-\begin{split}
-H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\text{Metro}}, \\
-H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\text{Metro}},
-\end{split}
-\end{equation}
-where $p_{\text{Metro}}$ is the probability of the move being accepted according to the \emph{Metropolis algorithm} (Eqn. \eqref{p_Metropolis}) --
-\emph{not} the analogous algorithm for multicanonical Monte Carlo (Eqn. \eqref{p_multicanonical}). To restate, for every trial move, we determine the
-probability of the move being accepted according to the Metropolis algorithm, and update the histogram $H_{\mathcal{M}\mathcal{M}'}$, not with
-the number of \emph{observed} transitions, but with the number of transitions \emph{supposed} to occur given the probability given by the
-Metropolis algorithm. 
-The benefit of this approach is that $H_{\mathcal{M}\mathcal{M}}$ can be obtained even if Metropolis sampling is not used, i.e.
-if multicanonical sampling is used. To elaborate, note that in the above equation while the Metropolis probability $p_{\text{Metro}}$ is used to update 
-$H_{\mathcal{M}\mathcal{M}'}$, the actual algorithm used to determine whether the move is accepted or not does not necessarily have to be the Metropolis
-algorithm -- the multicanonical algorithm could be used. This is useful because Metropolis sampling alone would not explore the full range of
-macrostates $\mathcal{M}$, which is necessary to `fill up' the matrix $H_{\mathcal{M}\mathcal{M}'}$. We discuss methods for exploring the phase space
-in a transition matrix simulation in a moment.
-From the matrix $H_{\mathcal{M}\mathcal{M}'}$ we obtain an estimate for $\mathcal{T}_{\mathcal{MM}'}$ using the following equation:
+How do we determine $\mathcal{T}_{\mathcal{MM}'}$, and how do we obtain $p_{\mathcal{M}}$ from $\mathcal{T}_{\mathcal{MM}'}$? Let us first deal with how
+$\mathcal{T}_{\mathcal{MM}'}$ is determined.
+Surprisingly $\mathcal{T}_{\mathcal{MM}'}$, a canonical quantity, can be obtained from a simulation utilising canonical sampling, multicanonical sampling,
+or even more exotic methods. Consider the case of canonical sampling first.
+Here, $\mathcal{T}_{\mathcal{MM}'}$ can be determined in an intuitive manner as follows. During the simulation we keep track of the 
+number of observed transitions between all pairs of macrostates, which we store in a matrix $H_{\mathcal{M}\mathcal{M}'}$ -- where $H_{\mathcal{M}\mathcal{M}'}$
+denotes the number of observed transitions from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$. We then use $H_{\mathcal{M}\mathcal{M}'}$ to obtain
+an estimate for $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via the equation
 \begin{equation}\label{T_estimate}
 \mathcal{T}_{\mathcal{M}\mathcal{M}'}\approx \frac{H_{\mathcal{M}\mathcal{M}'}+1}
 {\displaystyle\sum_{\mathcal{M}^{\prime\prime}}\bigl(H_{\mathcal{M}\mathcal{M}^{\prime\prime}}+1\bigr)}.
 \end{equation}
+However, this procedure is never used in \emph{monteswitch} because the following superior alternative exists. Consider a trial state $\sigma'$ 
+generated from $\sigma$ which, if accepted, would take the system from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$, and let the probability 
+of the move being accepted be $p_{\sigma\to\sigma'}$. Instead of performing the update $H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+1$ if the move is 
+accepted and $H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}$ if it is not, one can perform the update 
+\begin{equation}
+\begin{split}
+H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\sigma\to\sigma'}, \\
+H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\sigma\to\sigma'},
+\end{split}
+\end{equation} 
+regardless of whether it is accepted or not. In this case $H_{\mathcal{M}\mathcal{M}'}$ is no longer the number of observed transitions from macrostate 
+$\mathcal{M}$ to $\mathcal{M}'$, but is instead the number of \emph{inferred} transitions. 
+In fact, as alluded to above, this procedure can be used in conjunction with a multicanonical simulation, so long as one bears in mind that
+$p_{\sigma\to\sigma'}$ is the \emph{canonical} probability of transitioning from state $\sigma$ to $\sigma'$ -- a quantity which is trivial to calculate
+during a multicanonical simulation.
+Why would one wish to use multicanonical sampling instead of canonical sampling to obtain $\mathcal{T}_{\mathcal{MM}'}$, which after all is a canonical
+quantity? If multicanonical sampling is used, while the canonical transition probability $p_{\sigma\to\sigma'}$ is used to update $H_{\mathcal{M}\mathcal{M}'}$
+via the above equation, it is the multicanonical transition probability $\tilde{p}_{\sigma\to\sigma'}$, which depends on the weight functions of
+$\sigma$ and $\sigma'$ ($\eta_{\mathcal{M}}$ and $\eta_{\mathcal{M}'}$ respectively), which is actually used to determine whether the move is accepted or not.
+This is useful because canonical sampling alone may not be sufficient to explore the full range of macrostates $\mathcal{M}$, which is necessary to 
+`fill up' the matrix $H_{\mathcal{M}\mathcal{M}'}$ and ultimately enable $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ to be calculated (Eqn. \eqref{T_estimate}). 
+For instance, typically canonical sampling will never result in the macrostates containing gateway states being visited during a reasonable simulation
+time.
+One can take this idea further and even go beyond multicanonical sampling to sample phase space. We discuss methods for exploring the phase space
+with the aim of determining $\mathcal{T}_{\mathcal{MM}'}$, and ultimately $\eta_{\mathcal{M}}^*$, in a moment.
 
-The second step is to use our estimate of $\mathcal{T}_{\mathcal{MM}'}$ to calculate $p_{\mathcal{M}}$. It can be shown that the macrostates obey a
-detailed balance condition
+Having determined  $\mathcal{T}_{\mathcal{MM}'}$, our task is to now calculate $p_{\mathcal{M}}$. It can be shown that the macrostates obey the following
+detailed balance condition \cite{Smith_1995}:
 \begin{equation}
 \mathcal{T}_{\mathcal{M}'\mathcal{M}}p_{\mathcal{M}'}=\mathcal{T}_{\mathcal{MM}'}p_{\mathcal{M}}.
 \end{equation}
-Setting $\mathcal{M}'=\mathcal{M}+1$ and rearranging gives
+Setting $\mathcal{M}'=\mathcal{M}+1$ and rearranging the above gives
 \begin{equation}\label{shooting}
 p_{(\mathcal{M}+1)}=\frac{\mathcal{T}_{\mathcal{M}(\mathcal{M}+1)}}{\mathcal{T}_{(\mathcal{M}+1)\mathcal{M}}}p_{\mathcal{M}}.
 \end{equation}
-Using this equation, $p_{\mathcal{M}}$ can be obtained from the matrix $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ using the following procedure.
+Using this equation, $p_{\mathcal{M}}$ can be obtained from the matrix $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via the following procedure.
 Firstly, one chooses some arbitrary value for $p_1$. With this $p_2$ can be obtained from the above equation ($\mathcal{M}=1$ in Eqn. \eqref{shooting}). 
 This in turn can be used to obtain $p_3$ ($\mathcal{M}=2$ in Eqn. \eqref{shooting}), which in turn can be used to obtain $p_4$, etc., until
 $p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting function $p_{\mathcal{M}}$ such that
@@ -437,28 +560,30 @@ $p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting functi
 as is required. The final step is to use $p_{\mathcal{M}}$ to obtain an estimate for the ideal weight function. This is done simply by substituting 
 $p_{\mathcal{M}}$ into Eqn. \eqref{ideal_wf}. The accuracy of the resulting ideal weight function depends on how good our statistics are with regards to
 the matrix $H_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diagonals immediately above and below the main diagonal), which is used to
-estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta_{\mathcal{M}}$. 
+estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta^*_{\mathcal{M}}$. 
 
 
 \subsubsection{Methods for exploring phase space}
-As alluded to above, since the updates to $H_{\mathcal{M}\mathcal{M}'}$ always use the Metropolis probabilities, with the transition matrix method one
-can \emph{choose} how phase space is explored. Effectively the only constraint is that there is fast local equilibration within each macrostate. We will now
-describe the various methods which can be implemented in \emph{monteswitch}.
+As alluded to above, since the updates to $H_{\mathcal{M}\mathcal{M}'}$ always use the canonical probabilities of transitioning between states, 
+with the transition matrix method one can \emph{choose} how phase space is explored. Effectively the only constraint is that there is fast local 
+equilibration within each macrostate. We will now describe the various methods which can be implemented in \emph{monteswitch}.
 
 The first method is to use multicanonical sampling to explore phase space with an evolving weight function, where the weight function
 at a given time is the current estimate for the ideal weight function derived from the current $H_{\mathcal{M}\mathcal{M}'}$ as described above.
 This is the `natural' way of applying the transition state method.
 
-The second method is to use \emph{artificial dynamics} to force the system to explore all macrostates in a reasonable amount of time. In this
-method, the system is first locked into a macrostate for a certain period of time. After that period of time has elapsed, the `barrier' preventing
-the system from moving into an adjacent macrostate is moved such that the system is free to transition into the adjacent macrostate. Once this occurs,
+The second method is to use what we refer to as \emph{artificial dynamics} to force the system to explore all macrostates in a reasonable amount of time. 
+In this method, the system is first locked into a macrostate for a certain period of time. After that period of time has elapsed, the `barriers' preventing
+the system from moving into an adjacent macrostate is moved such that the system is free to transition into an adjacent macrostate. Once this occurs,
 the system is locked into this new macrostate, and the procedure starts again. There is of course the question of which adjacent macrostate to `open'
 to the system. Assuming we are not in macrostate $\mathcal{M}=1$ or $N_{\text{macro}}$, then there are two options: $(\mathcal{M}+1)$ and $(\mathcal{M}-1)$.
 In \emph{monteswitch} one can specify whether to select the new macrostate at random \cite{thesis:Jackson}, 
 or whether to sweep through the macrostates systematically, e.g.,
-to explore macrostates $3,4,5,\dotsc,(N_{\text{macro}}-1),N_{\text{macro}},(N_{\text{macro}}-1),\dotsc,3,2,1,2,3,\dotsc$. This method is faster than that
-just described because one does not have to `wait' for the weight function to evolve such that it pushes the system to explore macrostates which
-are unlikely in the true NVT ensemble.
+to explore macrostates $3,4,5,\dotsc,(N_{\text{macro}}-1),N_{\text{macro}},(N_{\text{macro}}-1),\dotsc,3,2,1,2,3,\dotsc$. This method is faster than the `natural'
+method just described because one does not have to wait for the weight function to evolve such that it pushes the system to explore macrostates which
+are unlikely to be visited in the canonical ensemble.
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -560,7 +685,7 @@ considered, and defines the lattice switch which will be used in the simulation.
 the interatomic potential. All other variables which determine the nature of the simulation are contained within the file \texttt{params\_in}.
 We will now describe the format of these files.
 
-\section{Input file: \texttt{lattices\_in}}
+\section{Input file: \texttt{lattices\_in}}\label{sec:lattices_in}
 The input file \texttt{lattices\_in} contains specifications of two microstates (i.e., supercell dimensions and particle positions), one for
 each phase. The format of this file is as follows. The 1st line is a comment line, and is ignored by the main programs. The 2nd line contains
 the number of particles $N$ in both phases (and must be the same for both phases). The 3rd, 4th and 5th lines contain the dimensions of the
@@ -2342,7 +2467,10 @@ The hcp $c/a$ ratio should agree with the value in the table, i.e., 1.6323(7). T
 the following \texttt{awk} command, which extracts a measure of the instantaneous $c/a$ ratio from \textbf{Lx} and \textbf{Lz} in the
 \texttt{data\_0} file:
 \begin{verbatim}
-awk 'NR%14==1 {Lx=$3}; NR%14==3 {Lz=$3; print $2,(Lz/6)/(Lx/3)}' data_0 | awk '$1>0 {sum=sum+$2;count=count+1}; END{print sum/count}'
+$ awk 'NR%14==1 {Lx=$3}; NR%14==3 
+{Lz=$3; print $2,(Lz/6)/(Lx/3)}' data_0 
+| awk '$1>0 {sum=sum+$2;count=count+1}; 
+END{print sum/count}'
 \end{verbatim}
 Doing similar for \texttt{data\_1}, \texttt{data\_2} and \texttt{data\_3} will give 4 independent results which can be combined
 to give a final mean and standard error.
