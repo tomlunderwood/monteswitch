@@ -646,7 +646,7 @@ interested in performing. Finally, the tests serve to validate the Monte Carlo p
 While the test cases serve as examples, more pedagogical examples can be found in the directory \texttt{Examples}, including the worked example
 of Chapter \ref{chapter:example}.
 
-\subsection{Plug-ins for various interatomic potentials}
+\subsection{Plug-ins for various interatomic potentials}\label{sec:plugins}
 The directory \texttt{Interactions} contains Fortran files corresponding to various interatomic potentials. However, only one of these can be implemented 
 by \texttt{monteswitch} at a time. The module which is implemented is stored in the file \texttt{interactions.f95} in the main directory; it is only the 
 contents of this file which is used in the package -- after compilation. Hence to implement a specific interatomic potential one must copy
@@ -681,25 +681,35 @@ There are three allowed command-line arguments to \texttt{monteswitch}:
 \item\texttt{-reset}
 \end{itemize}
 The command-line argument \texttt{-new} (Example usage: \texttt{monteswitch -new}) runs a new simulation. 
-The simulation is initialized using information contained in the input files \texttt{params\_in}, \texttt{lattices\_in} and \texttt{interactions\_in} in
-the current directory. The file \texttt{lattices\_in} contains specifications of two microstates. This file determines the two phases which will be 
-considered, and defines the lattice switch which will be used in the simulation. The file \texttt{interactions\_in} contains variables pertaining to 
-the interatomic potential. All other variables which determine the nature of the simulation are contained within the file \texttt{params\_in}.
-We will now describe the format of these files.
+The simulation is initialised using information contained in input files located in the current directory. There are two input files
+which are required for all simulations. These are \texttt{lattices\_in} and \texttt{params\_in}. 
+The file \texttt{lattices\_in} contains specifications of two microstates. This file determines the two phases which will be 
+considered, and defines the lattice switch which will be used in the simulation. The file \texttt{params\_in} contains the variables
+which determine the nature of the simulation, except variables pertaining to the interatomic potentials, which are specified in an additional input
+file (or possibly multiple files) whose nature depends on the specific version of \texttt{interactions.f95} used when compiling \emph{monteswitch} 
+(see Section \ref{sec:plugins}).
+We defer discussion of input files pertaining to the interatomic potentials to Chapter \ref{chapter:interactions}. We now describe
+the format of the input files \texttt{lattices\_in} and \texttt{params\_in}.
 
-\section{Input file: \texttt{lattices\_in}}\label{sec:lattices_in}
-The input file \texttt{lattices\_in} contains specifications of two microstates (i.e., supercell dimensions and particle positions), one for
-each phase. The format of this file is as follows. The 1st line is a comment line, and is ignored by the main programs. The 2nd line contains
+\subsection{Input file: \texttt{lattices\_in}}\label{sec:lattices_in}
+The input file \texttt{lattices\_in} contains specifications for two states (i.e., supercell dimensions and particle positions), one for
+each phase. These two states are the reference states described in Section \ref{sec:lattice_switch}. Recall that they serve two purposes. Firstly,
+they act as prospective initial state for the simulation: if the system is to be initialised in phase 1, then the phase-1 state will be used as 
+the initial state, and similarly if the system is to be initialised in phase 2. Secondly they determine the nature of the lattice switch; see
+Section \ref{sec:lattice_switch} for details.
+The format of \texttt{lattices\_in} is as follows. The 1st line is a comment line, and is ignored by the main programs. The 2nd line contains
 the number of particles $N$ in both phases (and must be the same for both phases). The 3rd, 4th and 5th lines contain the dimensions of the
-supercell for phase 1 in the x-, y- and z-directions respectively. The next $N$ lines contain the `species' and positions of the particles within 
+supercell for phase 1 in the x-, y- and z-directions respectively. The next $N$ lines contain the species and positions of the particles within 
 the supercell for phase 1 \emph{in fractional coordinates}: each line contains the fractional x-, y- and z-coordinates for the particle, followed 
 by an integer which signifies its species. (A particle's species potentially determines how it interacts with other particles; \emph{monteswitch} 
 allows different interatomic potentials between sets of particles belonging to different species. The specifics of this are determined by the file 
-\texttt{interactions.f95} -- see Chapter \ref{chapter:interactions}). The remaining lines in \texttt{lattices\_in} similarly specify the supercell 
+\texttt{interactions.f95} -- see Chapter \ref{chapter:interactions}). The remaining lines in \texttt{lattices\_in} similarly specify the state 
 for phase 2: the next 3 lines contains the dimensions of the supercell for phase 2 in the x-, y- and z-directions respectively; and the next $N$ 
 lines contain the fractional positions and species of the particles for phase 2.
-Here is an example of a \texttt{lattices\_in} file corresponding to phase 1 being an 8-atom bcc supercell and phase 2 being an 8-atom fcc supercell,
-where both phases consist entirely of atoms belonging to species `1':
+
+Below is an example of a \texttt{lattices\_in} file corresponding to phase 1 being an 8-particle bcc supercell and phase 2 being an 8-particle hcp 
+supercell, where the phase-1 state consists entirely of particles belonging to species `1'and the phase-2 state consists of a mixture of species `1'
+and `2'. Further examples of \texttt{lattices\_in} files can be found in the \texttt{Tests} and \texttt{Examples} directories.
 \begin{verbatim}
  bcc-hcp, rho = 0.5, nx,ny,nz = 1, 1, 2
    8
@@ -718,48 +728,29 @@ where both phases consist entirely of atoms belonging to species `1':
  1.4142136     
  4.6188021     
    0.0000000   0.0000000   0.0000000   1
-   0.5000000   0.5000000   0.0000000   1
+   0.5000000   0.5000000   0.0000000   2
    0.3333333   0.0000000   0.2500000   1
-   0.8333333   0.5000000   0.2500000   1
+   0.8333333   0.5000000   0.2500000   2
    0.0000000   0.0000000   0.5000000   1
-   0.5000000   0.5000000   0.5000000   1
+   0.5000000   0.5000000   0.5000000   2
    0.3333333   0.0000000   0.7500000   1
-   0.8333333   0.5000000   0.7500000   1
+   0.8333333   0.5000000   0.7500000   2
 \end{verbatim}
-
-The two microstates in \texttt{lattices\_in} are used in two ways by \texttt{monteswitch}. Firstly, they serve as the initial microstate: if the 
-simulation is to be initialised in phase 1, then it will be initialised in the phase 1 microstate specified in \texttt{lattices\_in}; and 
-similarly for phase 2. Secondly, they define the lattice switch. Let $\tilde{\mathbf{R}}^{\alpha}_i$ denote the position of the lattice site $i$
-for phase $\alpha$ in fractional coordinates. (Recall our earlier discussion of lattice sites in Sec. \ref{sec:lattice_switch}). To elaborate,
-the position of the lattice site in `real' coordinates is 
-\begin{equation}
-\mathbf{R}^{\alpha}_i=(L_x^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,x},L_y^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,y},L_z^{\alpha}\tilde{\mathbf{R}}^{\alpha}_{i,z}),
-\end{equation}
-where $L_x^{\alpha}$ denotes the current x-dimension of the supercell for phase $\alpha$ -- the current phase the system is in -- and similarly for
-$L_y^{\alpha}$ and $L_z^{\alpha}$. Now, the vectors $\tilde{\mathbf{R}}^{\alpha}_i$ used by the main program are the fractional positions specified in 
-\texttt{lattices\_in}: $\tilde{\mathbf{R}}^{\alpha}_i$ is taken to be the $i$th specified fractional coordinates pertaining to phase $\alpha$.
-With this in mind, the lattice switch from phase 1 to 2 in a simulation consists of:
+Bearing in mind our description of the lattice switch utilised in \emph{monteswitch} given in Section \ref{sec:lattice_switch}, it can be seen that
+the above file results in the following lattice switch from phase 1 to 2:
 \begin{itemize}
-\item A scaling of the x-dimension of the supercell of which reflects the relative sizes of the x-dimensions of both lattices specified in 
-\texttt{lattices\_in}. E.g., in the above example the x-dimension would be scaled by a factor of $2.2449/2.2449=1$, i.e., not at all.
-\item A similar scaling for the y-dimension of the supercell. E.g., in the above example the y-dimension would be scaled by a factor of
-$1.414/1.587=0.891$.
-\item A similar scaling for the z-dimension of the supercell. E.g., in the above example the y-dimension would be scaled by a factor of
-$4.619/4.490=1.029$.
-\item A change in the fractional position of each lattice site $i$ from $\tilde{\mathbf{R}}^{1}_i$ to $\tilde{\mathbf{R}}^{2}_i$.
+\item A scaling of the x-dimension of the supercell by a factor of $\mathcal{L}_x^{(2)}/\mathcal{L}_x^{(1)}=2.2449/2.2449=1$, i.e., not at all.
+\item A scaling of the y-dimension of the supercell by a factor of $\mathcal{L}_y^{(2)}/\mathcal{L}_y^{(1)}=1.414/1.587=0.891$.
+\item A scaling of the z-dimension of the supercell by a factor of $\mathcal{L}_z^{(2)}/\mathcal{L}_z^{(1)}=4.619/4.490=1.029$.
+\item A transformation of the fractional position of the underlying lattice site for particle $i$ from the $i$th fractional position specified in the file
+for phase 1 to the $i$th fractional position specified for phase 2. E.g. the underlying lattice site for particle 3 has its fractional position
+$(0.5000000,0.0000000,0.2500000)$ transformed to $(0.3333333,0.0000000,0.2500000)$.
+\item A transformation of the species of particles 2, 4, 6 and 8 from `1' to `2'.
 \end{itemize}
-The lattice switch from phase 2 to 1 is the reverse of the above.
+The lattice switch from phase 2 to 1 is the inverse of the above transformation.
 
-Note that in a \texttt{monteswitch} LSMC simulation, the vectors $\tilde{\mathbf{R}}^{\alpha}_i$ do not change. This means that
-if the volume of the system is expanded in an NPT simulation, then there is a commensurate scaling of the lattice sites 
-$\mathbf{R}^{\alpha}_i$.
 
-\section{Input file: \texttt{interactions\_in}}
-The file \texttt{interactions\_in} contains variables which parametrise the interatomic potential. The format of this file depends on
-the nature of the \texttt{interactions.f95} file used when compiling \emph{monteswitch}, a topic which is discussed in detail in Chapter
-\ref{chapter:interactions}.
-
-\section{Input file: \texttt{params\_in}}\label{section:params_in}
+\subsection{Input file: \texttt{params\_in}}\label{section:params_in}
 The input file \texttt{params\_in} contains the variables which determine the nature of the simulation. Each variable corresponds to a
 specific single line in the file, and each line must consist of a string (we recommend the name of the variable followed immediately
 by an `=' character with no spaces), followed by whitespace, followed by the value of the variable. The variables which must appear
@@ -956,6 +947,7 @@ their uncertainties as just described. This should be greater than 0. \\
 \end{longtable}
 \end{center}
 \end{landscape}
+
 
 \section{Output: stdout, \texttt{state} and \texttt{data}}\label{sec:output}
 During a simulation,information is periodically output to stdout and the file \texttt{data}. The variables with names beginning with 
@@ -1174,20 +1166,19 @@ exported to the file \texttt{state}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Interatomic potentials}\label{chapter:interactions}
 As mentioned in Chapter \ref{chapter:preliminaries}, the file \texttt{interactions.f95} determines the interatomic potential implemented by
-\emph{monteswitch}. The \texttt{Interactions} directory contains files which correspond to a number of commonly-used potentials. Copying, say,
-\texttt{interactions\_LJ.f95} to \texttt{interactions.f95} in the main directory, and then (re-)compiling \emph{monteswitch} results in a version 
-of \emph{monteswitch} in which the particles interact via a Lennard-Jones potential. While \texttt{interactions.f95} selects the `class' of potential
-used in \emph{monteswitch}, the specific parametrisation of the potential used for a specific simulation is specified in the input file
-\texttt{interactions\_in}. E.g. for the Lennard-Jones potential one specifies the Lennard-Jones parameters $\epsilon$ and $\sigma$ (among other
-variables, see below) in the file \texttt{interactions\_in}. In this chapter we first describe the potentials included with \emph{monteswitch},
-i.e., we describe the interatomic potential corresponding to each `\texttt{interactions\_} file' in the directory \texttt{Interactions}, and the
-corresponding format of the \texttt{interactions\_in} file. Then in Section \ref{sec:user_defined} we describe how users can write their own
-\texttt{interactions\_in} files to implement their own potentials. In time we expect more potentials to be added to \emph{monteswitch}.
-Note that all potentials included with \emph{monteswitch} are for single-component systems, do not exploit the ability of \emph{monteswitch} 
-to treat multicomponent systems.
+\emph{monteswitch}. The \texttt{Interactions} directory contains files which correspond to a number of interatomic potentials. For example, copying
+\texttt{interactions\_LJ.f95} to \texttt{interactions.f95} in the main directory, and then (re-)compiling \emph{monteswitch}, results in a version 
+of \emph{monteswitch} in which the particles interact via a Lennard-Jones potential. 
+In this chapter we first describe these potentials, as well as the input files which must be used in conjunction with each potential in order to
+specify the free parameters for the potential.
+Then in Section \ref{sec:user_defined} we describe how users can write their own `\texttt{interactions\_}' files to implement their own potentials.
+
+Note that most potentials included with \emph{monteswitch} are for single-species systems, and do not exploit the ability of \emph{monteswitch} to 
+treat multicomponent systems. Furthermore, the potentials included with \emph{monteswitch} all use a single input file named \texttt{interactions\_in}
+to specify the potential's free parameters. In time we expect more potentials to be added to \emph{monteswitch}. 
 
 \section{Embedded atom model}
-The file \texttt{interactions\_EAM.f95} corresponds to the embedded atom model (EAM) \cite{Daw_1984}. Here the energy of the system 
+The file \texttt{interactions\_EAM.f95} implements the embedded atom model (EAM) \cite{Daw_1984}. Here the energy of the system 
 is given by
 \begin{equation}
 E = \frac{1}{2}\sum_{i,j\neq i}\phi(r_{ij}) + \sum_iF(\rho_i),
@@ -1199,29 +1190,29 @@ where $r_{ij}$ is the separation between particles $i$ and $j$, and $\phi$, $F$ 
 and constitute the parametrisation of the EAM potential. If \texttt{interactions\_EAM.f95} is used then the \texttt{interactions\_in}
 file must be a description of the potential in DYNAMO/LAMMPS `setfl' format. A file with this format is often indicated with the 
 suffix `\texttt{.eam.alloy}', and a description of the format can be found at \url{http://lammps.sandia.gov/doc/pair\_eam.html}. 
-Since \emph{monteswitch} currently only supports unary systems, \texttt{interactions\_in} must not correspond to a 
-multicomponent system -- an error is returned if this is the case. Furthermore, at initialisation three additional files are created by the
+
+Note that \texttt{interactions\_EAM.f95} currently only supports single-component systems, and hence \texttt{interactions\_in} must not correspond to a 
+multicomponent system. An error is returned if this is the case. Furthermore, at initialisation three additional files are created by the
 Monte Carlo programs in \emph{monteswitch} if \texttt{interactions\_EAM.f95} is used: \texttt{F.dat}, \texttt{rho.dat} and \texttt{rphi.dat}. 
 \texttt{F.dat} and \texttt{rho.dat} contain plots of the functions $F$ and $\rho$ read from \texttt{interactions\_in}, while 
 \texttt{rphi.dat} contains a plot of $r\times\phi(r)$ vs. $r$ read from \texttt{interactions\_in}. 
 
 By default \texttt{interactions.f95} is the same as \texttt{interactions\_EAM.f95}.
 
-\section{Analytical pair potentials}\label{section:pair_potentials}
+\section{Analytical pair potentials [TOO MANY!]}\label{section:pair_potentials}
 Table \ref{table:pair_potentials} gives a list of analytical (as opposed to tabulated) 
 pair potentials included with \emph{monteswitch}, and the name of the corresponding
 \texttt{interactions\_} file in \texttt{Interactions}. All of these potentials are implemented in the same way.
-Firstly, the pair potential $\phi(r)$ is assumed to be 0 for inter-particle separations $r$ greater than some cut-off distance $r_{\text{c}}$.
-Secondly, only pairs of particles within a distance $r_{\text{list}}$ of each other \emph{in the initial microstate for the simulation} interact
-with each other throughout the entire simulation. To elaborate, a `list' of particles which particle $i$ interacts with in phase $p$ is created at 
-the start of a simulation: the list consists of all those particles which are initially within distance $r_{\text{list}}$ of $i$ in phase $p$. Note that
-\emph{monteswitch} stores two sets of lists, one for each phase, and that $r_{\text{list}}$ applies to the initial microstate for both phases. For
-example if the simulation is to be initialised in phase 1 (\textbf{init\_lattice} is 1), then the initial microstate for phase 1 will correspond to
-all particles being at their lattice sites in phase 1, and the initial microstate for phase 2 will correspond to all particles being at their lattice 
-sites in phase 2; the lists are constructed using the same cut-off $r_{\text{list}}$ for both microstates.
+Firstly, the pair potential $\phi(r)$ is assumed to be 0 for inter-particle separations $r$ greater than some cut-off distance $r_{\text{c}}$. In other
+words the potential is \emph{truncated} at $r_{\text{c}}$.
+Secondly, only pairs of particles within a distance $r_{\text{list}}$ of each other \emph{in the reference states of the simulation} interact
+with each other throughout the entire simulation. To elaborate, a list of particles which particle $i$ interacts with in phase $p$ is created at 
+the start of a simulation. This list consists of all those particles which are initially within distance $r_{\text{list}}$ of $i$ in the reference
+state for phase $p$. Note that \emph{monteswitch} stores two sets of lists, one for each phase, and hence it is possible that particle $i$ interacts
+with different sets of particles in different phases. We emphasise that the same same cut-off $r_{\text{list}}$ is used for both phases.
+To clarify the difference between $r_{\text{c}}$ and $r_{\text{list}}$: the former is the distance at which the potential is truncated, while
+the latter determines which pairs of particles `see each other' throughout the simulation. Normally one would set $r_{\text{c}}>r_{\text{list}}$.
 
-
-[EXPLAIN LIST SIZE BETTER]
 The format of the \texttt{interactions\_in} files for these potentials is similar to \texttt{params\_in} described in Section \ref{section:params_in}:
 each variable which parametrises the potential corresponds to a specific line in \texttt{interactions\_in}, and each line must contain a string
 (we recommend the name of the variable followed immediately by an `=' character with no spaces), followed by whitespace, followed by the value
@@ -1229,25 +1220,32 @@ of the variable. The final column of Table \ref{table:pair_potentials} gives the
 \texttt{interactions\_in} for each potential. In this column the names of the variables are those used by \emph{monteswitch}, as opposed to those
 used in the preceding mathematical expression for the potential $\phi(r)$. Where it is not obvious to which variable in the mathematical expression
 a variable in the last column relates, the analogous variable in the mathematical expression is given in parenthesis immediately after it. In all
-cases the variables \textbf{cutoff} and \textbf{list\_cutoff} correspond to $r_{\text{c}}$ and $r_{\text{list}}$ described above. \textbf{list\_size} is the
-maximum size of the list of particles which any particle in the system interacts with, + 1. If $N_{\text{list},i,p}$ denotes the number of particles within
-$r_{\text{list}}$ of particle $i$, including particle $i$ itself,
-in the initial microstate for phase $p$, and $N_{\text{list}}$ denotes the maximum value of $N_{\text{list},i,p}$ over all particles
-$i$ and both phases $p=1$ and 2, then \textbf{list\_size} should be greater than $N_{\text{list}}$ -- it should be at least $(N_{\text{list}}+1)$ (note the
-$+1$!). To illustrate the above, here is an example \texttt{interactions\_in} file for the Lennard-Jones potential (\texttt{interactions\_LJ.f95}) for
-a system with 480 particles:
+cases the variables \textbf{cutoff} and \textbf{list\_cutoff} correspond to $r_{\text{c}}$ and $r_{\text{list}}$ described above. 
+%
+\textbf{list\_size} is the size of the array which stores the list of particles which any particle in the system interacts with. For particle $i$,
+the list includes all particles within $r_{\text{list}}$ of particle $i$, \emph{including particle $i$ itself}, in the reference state for phase $p$. All
+of these particles are stored in the array. However for technical reasons the array must have at least one additional element. Thus
+\textbf{list\_size} should be at least the largest number of particles within $r_{\text{list}}$ of any particle $i$ (including $i$ itself) over the
+reference states for both phases, +1. 
+
+To illustrate the above, here is an example \texttt{interactions\_in} file for the Lennard-Jones potential (\texttt{interactions\_LJ.f95}):
 \begin{verbatim}
 lj_epsilon= 1.0
 lj_sigma= 1.0
-cutoff= 3.0
-list_cutoff= 100.0
-list_size= 481
+lj_cutoff= 1.5
+list_cutoff= 1.000000001
+list_size= 14
 \end{verbatim}
-Note that \textbf{list\_size} is set to 481, and not 480! Of course depending on $r_{\text{c}}$ and the density of the system one could get away with 
-setting this to a smaller value. E.g. if only nearest neighbours within the fcc lattice are ever to interact, then setting \textbf{list\_size} to
-$14$ would be sufficient, and save on computer memory. It is 14 because there are 12 nearest neighbours, which means that there are 13 
-Note that 14 is necessary instead of 13 because there are 13 particles within (and including at)
-the nearest neighbour distance of \emph{including the particle iteslf}.
+This file is designed for a LSMC simulation in which phase 1 is hcp and phase 2 is fcc, both with nearest neighbour distance $r_{\text{nn}}=1.0$, in
+which we wish only nearest neighbours to interact with each other interact via a Lennard-Jones potential with $\epsilon=\sigma=1$ truncated at
+distance $r_{\text{c}}=1.5$. We have specified that only nearest neighbours ever interact by setting \textbf{list\_cutoff} to be just above 
+the nearest neighbour distance. Furthermore we have set \textbf{list\_size} to 14 because there are 12 nearest neighbours of any particle, 
+which means that there are 13 particles within a distance $r_{\text{nn}}$ of any particle $i$ including particle $i$ itself, and, as mentioned above, 
+we must add 1 to this for technical reasons. 
+Note that 14 is the minimal value of \textbf{list\_size} suitable for this system. However one could set \textbf{list\_size} 
+to be greater than 14. The result would be that the array which stores the list is larger than necessary, and accordingly some of the array would
+remain `unused'. This becomes a problem if one sets \textbf{list\_size} to a massive value, resulting in the array taking up a lot of memory
+unnecessarily.
 
 \begin{landscape}
 \begin{center}\label{table:pair_potentials}
@@ -1293,76 +1291,72 @@ Yukawa & \texttt{interactions\_Yukawa.f95} & $\phi(r)=A\exp(-kr)/r$
 \end{landscape}
 
 
-\section{Tabulated pair potential}
-\texttt{interactions\_pair\_table.f95} implements a tabulated pair potential $\phi(r)$, defined at regularly spaced values of $r$. 
-The format of the \texttt{interactions\_in} file in this case is as follows.
-The first line is a comment line. The second line contains \textbf{Nr}, then \textbf{dr}, then \textbf{cutoff}, which are, respectively, the 
-number of elements in the table, the separation between points on the `distance grid', and the cut-off distance for the
-potential. The next line, and all subsequent lines, contain the \textbf{Nr} values which defines the pair potential:
-the $i$th value corresponds to the value of the potential for inter-particle separation $(i-1)dr$, i.e., $\phi((i-1)dr)$. Here is an example
-of the first few lines of a \texttt{interactions\_in} file for \texttt{interactions\_pair\_table.f95} (the large values of $\phi$ on
-lines 3 and above reflect the fact that the potential is very high for very short separations -- in later lines they fall to `reasonable'
-values):
-\begin{verbatim}
-Lennard-Jones potential: epsilon=0.5; sigma=2; cut-off=5
-10001 0.0005 5.0
-1.0E100
-33554432000000001423400392163144272170713088
-8192000000000000347509861367955144572928
-63138583586889161214127441051941601280
-2000000000000000084841274748035923968
-137438953471999997694156990786306048
-15414693258517861624542832288071680
-2424227711825515114228133912379392
-488281250000000020713201842782208
-118806384127098045049066032726016
-33554431999999990429850791837696
-\end{verbatim}
-Note that in \texttt{interactions\_pair\_table.f95} the potential is implemented using linear interpolation between tabulated values.
-Furthermore, similarly to \texttt{interactions\_EAM.f95}, at initialisation a file \texttt{phi.dat} is created which contains a plot of $\phi(r)$
-read from \texttt{interactions\_in}.
+\section{Hard/penetrable spheres}
+There are two implementations of the penetrable (including hard) spheres model included with \emph{monteswitch}.
+\texttt{interactions\_HS.f95} implements the penetrable spheres model for single-species systems only; while 
+\texttt{interactions\_HS\_multi.f95} supports multiple-species systems. The latter file supercedes the former, but we retain
+the former for legacy reasons: some of the test cases included with \emph{monteswitch} utilise \texttt{interactions\_HS.f95}.
+We now describe both implementations.
 
-
-\section{Penetrable (including hard) spheres}
-\texttt{interactions\_penetrable\_spheres.f95} implements the penetrable spheres model:
+\subsection{\texttt{interactions\_HS.f95}}
+In \texttt{interactions\_HS.f95} the pair potential is given by
 \begin{equation}
 \phi(r)=
 \begin{cases} 
 \epsilon & \text{if }r<\sigma \\
-0 & \text{if }r>\sigma.
+0 & \text{otherwise},
 \end{cases}
 \end{equation}
-The format for \texttt{interactions\_in}, and the implementation of the potential, is similar to the analytical pair potentials 
+where $\epsilon$ is the energy cost of a pair of spheres overlaping, and $\sigma$ is the diameter of the spheres.
+The format for \texttt{interactions\_in} here, and the implementation of the potential, is similar to the analytical pair potentials 
 described earlier in Section \ref{section:pair_potentials}; the order of variables as they should occur in \texttt{interactions\_in} 
 is \textbf{epsilon}, \textbf{sigma}, \textbf{list\_cutoff}, then \textbf{list\_size}, where the significance of 
 \textbf{list\_cutoff} and \textbf{list\_size} is the same as for the analytical pair potentials.
 
-Hard spheres are realised in the limit $\beta\epsilon\to\infty$, where $\beta=1/(k_BT)$. Thus hard spheres can be modeled by 
+Note that hard spheres are realised in the limit $\beta\epsilon\to\infty$, where $\beta=1/(k_BT)$. Thus hard spheres can be modeled by 
 setting either $\epsilon$ or $\beta$, or both, to a very high value. We recommend setting $\beta=1$ and $\epsilon=100000$ to realise
 hard spheres. In this case $\epsilon$ is not so high that numerical issues occur,
-\footnote{The Fortran procedure which determines the move acceptance probability can fail if the system exhibits
-unreasonably large energy differences: we found that setting $\beta=1$ and $\epsilon=1\times 10^{100}$ caused moves which should always
-be rejected in the hard-sphere system to be occasionally accepted. The source of this erronous behaviour is an overflow, which will
-not occur if `reasonable' values for $\beta$ and $\epsilon$ are used.} 
 but also not so small that moves which lead to overlapping spheres -- which are always possible unless $\epsilon$ is actually
 $\infty$ -- are likely to happen during even a very long simulation.
 
-Note that the order parameter $M$ has a straightforward physical interpretation for penetrable spheres: if the system is
+It is noteworthy that the order parameter $M$ has a straightforward physical interpretation for penetrable spheres: if the system is
 currently in phase 1(2) then $-(+)M/\epsilon$ is the number of overlapping spheres which result from performing a lattice switch from the 
 current microstate. This is similar to the definition of $M$ used in the original LSMC papers (Refs. \cite{Bruce_1997,Bruce_2000}).
+
+\subsection{\texttt{interactions\_HS\_multi.f95}}
+In \texttt{interactions\_HS\_multi.f95} the sphere diameter is allowed to vary with species. Here, the pair potential between two particles
+belonging to species $s$ and $t$ is given by
+\begin{equation}
+\phi_{st}(r)=
+\begin{cases} 
+\epsilon & \text{if }r<\frac{1}{2}(\sigma_s+\sigma_t) \\
+0 & \text{otherwise},
+\end{cases}
+\end{equation}
+where $\sigma_s$ denotes the diameter of spheres belonging to species $s$. The format of the \texttt{interactions\_in}
+and the implementation of the potential is similar to \texttt{interactions\_HS.f95} described above, except an additional
+\texttt{INTEGER} variable \textbf{n\_species} is introduced, which specifies the number of different species in the system,
+and \textbf{sigma} is now a \texttt{REAL(n\_species)} array which contains the hard sphere diameters for each species. Note
+that the $i$th value in \textbf{sigma} is the diameter for species $i$: the species labels range from 1 to 
+\textbf{n\_species}, e.g., species '0' or '-2' are not used).
+The order of variables as they should occur in \texttt{interactions\_in} is \textbf{epsilon}, \textbf{n\_species}, \textbf{sigma}, 
+\textbf{list\_cutoff}, then \textbf{list\_size}.
+
+
 
 
 \section{Other potentials included with \emph{monteswitch}}
 Some other \texttt{interactions\_} files are included in the directory \texttt{Interactions}, namely \texttt{interactions\_EC.f95}, 
-\texttt{interactions\_EC\_NPT.f95}, \texttt{interactions\_LJ\_hcp\_fcc.f95} and \texttt{interactions\_PAIR\_TEMPLATE.f95}. The last of
-these is a template to assist users in creating an \texttt{interactions.f95} file corresponding to a pair potential of their own
-design, and will be discussed in more detail in a moment. The other files correspond to potentials which we do not anticipate will
-be of any interest to most users; these potentials were used to validate \emph{monteswitch} via test cases described in Chapter
-\ref{chapter:tests}. Hence we do not describe them here; interested parties should inspect the files themselves for further information.
+\texttt{interactions\_EC\_NPT.f95}, \texttt{interactions\_LJ\_hcp\_fcc.f95}, \texttt{interactions\_TEMPLATE\_pair.f95} and
+\texttt{interactions\_TEMPLATE\_minimal.f95}. The last two of are templates to assist users in creating an \texttt{interactions.f95} 
+files of their own design, and will be discussed in more detail in a moment. The other files correspond to potentials which we do not anticipate will
+be of any interest to most users. These files were used to validate \emph{monteswitch} via test cases which are described in Chapter
+\ref{chapter:tests}. Hence we do not describe them here. Interested parties should inspect the files themselves for further information,
+as well as Chapter \ref{chapter:tests}.
 
 
 \section{User-defined pair potentials}\label{sec:user_defined}
-The file \texttt{interactions\_PAIR\_TEMPLATE.f95} is a template which can be used to easily create \texttt{interactions.f95} files for `new'
+The file \texttt{interactions\_TEMPLATE\_pair.f95} is a template which can be used to easily create \texttt{interactions.f95} files for `new'
 pair potentials. In fact this template was used to create the files for almost all of the potentials described in Section
 \ref{section:pair_potentials}. Instructions are provided in the file regarding how the file should be modified to realise the user's potential
 of interest. The resulting implementation of the potential, and the required format of the \texttt{interactions\_in} file, will be the same as described 
@@ -1370,8 +1364,8 @@ in Section \ref{section:pair_potentials}. Regarding the order in which the varia
 \texttt{interactions\_in}, the user-defined variables are read first, and then the variables \textbf{cutoff}, \textbf{list\_cutoff}, 
 \textbf{list\_size} are read.
 
-Note that one is by no means limited to using \texttt{interactions\_PAIR\_TEMPLATE.f95} to create `analytical' pair potentials. For instance
-piecewise pair potentials could be created from \texttt{interactions\_PAIR\_TEMPLATE.f95}, e.g., the soft sphere model:
+Note that one is by no means limited to using \texttt{interactions\_TEMPLATE\_pair.f95} to create `analytical' pair potentials. For instance
+piecewise pair potentials could be created from \texttt{interactions\_TEMPLATE\_pair.f95}, e.g., the soft sphere model:
 \begin{equation}
 \phi(r)=
 \begin{cases} 
@@ -1380,87 +1374,23 @@ piecewise pair potentials could be created from \texttt{interactions\_PAIR\_TEMP
 \end{cases}
 \end{equation}
 
-Note also that \texttt{interactions.f95} is actually a part of the Fortran module \verb|MONTESWITCH_MOD| (located in the file 
-\texttt{monteswitch\_mod.f95}) -- it is included in the file via Fortran's \verb|INCLUDE| statement. As such, when choosing variable names
-in \texttt{interactions.f95} one should be aware that the module variables of \verb|MONTESWITCH_MOD| are `in scope'.
 
+\section{General user-defined potentials}
+The file \texttt{interactions\_TEMPLATE\_minimal.f95} is a template which can be built upon by users to implement their own potentials
+in \emph{monteswitch}. The template includes empty Fortran procedures which must be filled in by the user. Comments within the template
+act as a guide for the user, who may also find it useful to examine the \texttt{interactions\_} files included with \emph{monteswitch} in the 
+\texttt{Interactions} directory as examples. The user is of course free to add their own functions and variables within their custom
+\texttt{interactions\_} file. Furthermore they can use external Fortran modules in the usual manner. 
+%
+Note that there is no universal procedure for determining the separation between two particles in \emph{monteswitch}. Separations are
+required only in that they are used to determine the energy of the system, something is within the remit of the file 
+\texttt{interactions.f95}. Hence when making a custom \texttt{interactions\_} file it is up to the user to calculate the separations
+between pairs of particles themselves, possibly by adding their own procedure which does this (which takes into account the periodic
+boundary conditions). 
 
-\section{Guide to implementing more complicated potentials}
-To conclude this chapter we describe the procedures in \texttt{interactions.f95} which are used in \emph{monteswitch} (via the module
-\texttt{monteswitch\_mod.f95}, with the aim of enabling interested users in writing their own \texttt{interactions.f95} files to implement
-more complicated potentials within \emph{monteswitch}. Note that the format of \texttt{interactions.f95} has deliberately allowed for 
-flexibility with regards to the potential. Possibilities include boundary conditions other than 3D-periodic, different Hamiltonians
-for each phase, and many-body potentials. However recall that \emph{monteswitch} is limited to single-component atomic (i.e., particles
-cannot have rotational degrees of freedom).
-
-Note that, as mentioned above \texttt{interactions.f95} is included in \texttt{monteswitch\_mod.f95} via Fortran's \verb|INCLUDE| statement, and hence
-all variables in this module are `in scope'. This allows maximal flexibility with regards to the potential; e.g., the potential can vary
-with the dimensions of the supercell if one wishes (see \texttt{interactions\_EC\_NPT.f95} in \texttt{Interactions}). The downside is that one
-must take a bit more care while naming variables in \texttt{interactions.f95} so not to accidentally refer to a variable in 
-\texttt{monteswitch\_mod.f95} when one wishes to refer to a local variable. 
-
-\texttt{interactions.f95} should firstly declare any necessary variables, conforming to the Fortran \verb|INTEGER| and \verb|REAL| kinds defined
-in the file \texttt{kinds\_mod.f95}: \verb|REAL| variables should be of kind \verb|rk| and \verb|INTEGER| variables should be of kind \verb|IK|.
-After the declarations there should be a \verb|CONTAINS| statement.
-The procedures described below must be included in \texttt{interactions.f95}, though of course other procedures are allowed in the file.
-Examples of \texttt{interactions.f95} files can be found in the directory \texttt{Interactions}; users wishing to create their own
-\texttt{interactions.f95} file may find it useful to examine these files. 
-Note that there is no implicit procedure for determining the separation between two particles in \emph{monteswitch}: it is up to the
-user to decide how a separation should be calculated. It is for this reason that we mentioned above that \emph{monteswitch} supports non-standard
-boundary conditions. However, note that the utility programs may in some cases tacitly assume 3D periodic boundary conditions. 
-
-\subsection{Compulsory procedures in \texttt{interactions.f95}}
-
-\subsubsection{\texttt{SUBROUTINE INITIALISE\_INTERACTIONS(FILENAME)}}
-This procedure should open Fortran unit 10, and read 
-the variables which are required to initialise the potential from the file \verb|FILENAME|.
-In practice the file will be \texttt{interactions\_in}. After reading these variables, the potential should be initialised. This may include
-initialisation of, e.g., neighbour lists, or work arrays to speed up calculations. Note that this procedure is called after \texttt{lattices\_in}
-and \texttt{params\_in} have been read, and the corresponding variables initialised. Hence by the time \verb|INITIALISE_INTERACTIONS| is called 
-variables pertaining to the supercell geometry, i.e. the number of particles, particle positions and the supercell dimensions 
-\emph{for each of the two phases} will be initialised, and can be used to initialise the variables in \texttt{interactions.f95} if need be.
-\verb|FILENAME| should be of type \verb|CHARACTER(*)|, and \verb|INTENT(IN)|.
-
-\subsubsection{\texttt{SUBROUTINE INITIALISE\_INTERACTIONS(FILENAME)}}
-The first required procedure we will describe is \verb|INITIALISE_INTERACTIONS|. This procedure should open Fortran unit 10, and read 
-the variables which are required to initialise the potential from the file \verb|FILENAME|.
-In practice the file will be \texttt{interactions\_in}. After reading these variables, the potential should be initialised. This may include
-initialisation of, e.g., neighbour lists, or work arrays to speed up calculations. Note that this procedure is called after \texttt{lattices\_in}
-and \texttt{params\_in} have been read, and the corresponding variables initialised. Hence by the time \verb|INITIALISE_INTERACTIONS| is called 
-variables pertaining to the supercell geometry, i.e. the number of particles, particle positions and the supercell dimensions 
-\emph{for each of the two phases} will be initialised, and can be used to initialise the variables in \texttt{interactions.f95} if need be.
-\verb|FILENAME| should be of type \verb|CHARACTER(*)|, and \verb|INTENT(IN)|.
-
-\subsubsection{\texttt{SUBROUTINE EXPORT\_INTERACTIONS\_STATE(UNIT)}}
-This procedure writes the variables in \texttt{interactions.f95} to the specified Fortran unit. The primary purpose of this procedure is checkpointing: 
-this procedure is used to output the variables pertaining to the potential interaction variables to the file \texttt{state}, for reading again later
-by the procedure \verb|IMPORT_INTERACTIONS_STATE|. Hence the format output by \verb|EXPORT_INTERACTIONS_STATE| and the format read by 
-\verb|IMPORT_INTERACTIONS_STATE| must match exactly. \verb|UNIT| should be of type \verb|INTEGER(IK)|, and \verb|INTENT(IN)|.
-
-\subsubsection{\texttt{SUBROUTINE IMPORT\_INTERACTIONS\_STATE(UNIT)}}
-Read the variables in \texttt{interactions.f95} from the specified Fortran unit. Complementary to \verb|EXPORT_INTERACTIONS_STATE|; see 
-above. \verb|UNIT| should be of type \verb|INTEGER(IK)|, and \verb|INTENT(IN)|.
-
-\subsubsection{\texttt{SUBROUTINE AFTER\_ACCEPTED\_INTERACTIONS()}}
-This procedure is called in \texttt{monteswitch\_mod.f95} after a particle or volume move (but not a lattice move) has been accepted. It can be used 
-as a means to update variables which require updating if the microstate of the system changes, e.g., neighbour lists. Note that for almost all of
-the \texttt{interactions.f95} files included with \emph{monteswitch} (in the \texttt{Interactions} directory) this procedure is unrequired and hence
-does nothing.
-
-\subsubsection{\texttt{FUNCTION CALC\_ENERGY\_SCRATCH(LATTICE,LX\_IN,LY\_IN,LZ\_IN,R)}}
-This function returns the energy for the supercell corresponding to a given phase (labeled here as \verb|LATTICE|, type \verb|INTEGER(IK)|) for 
-an orthorhomic supercell with the specified dimensions (\verb|LX_IN|, \verb|LY_IN| and \verb|LZ_IN|, all of type \verb|REAL(RK)|) and particle 
-positions (\verb|R|, type \verb|REAL(RK), DIMENSION(:,:)|). All arguments are of course \verb|INTENT(IN)|. Furthermore in \verb|R| the first dimension
-refers to the particle number and the second dimension refers to the Cartesian dimension, e.g. \verb|R(3,2)| is the y-coordinate of particle 3.
-The same applies to \verb|R| and \verb|R_NEW| in \verb|CALC_ENERGY_PART_MOVE| below. 
-
-\subsubsection{\texttt{FUNCTION CALC\_ENERGY\_PART\_MOVE(LATTICE,LX,LY,LZ,R,R\_NEW,I)}}
-This function returns the energy for the supercell corresponding to a given phase (labeled here as \verb|LATTICE|, type \verb|INTEGER(IK)|) for 
-an orthorhomic supercell with the specified dimensions (\verb|LX|, \verb|LY| and \verb|LZ|, all of type \verb|REAL(RK)|), given that particle
-number \verb|I| has just been moved: \verb|R_NEW| (type \verb|REAL(RK), DIMENSION(:,:)|) are the positions of the particles after the move
-and \verb|R| (type \verb|REAL(RK), DIMENSION(:,:)|) are the positions before the move. All arguments are of course \verb|INTENT(IN)|. 
-
-
+We emphasise that there is considerable flexibility with regards to potentials which can be implemented within an \texttt{interactions\_} file. 
+Possibilities include different Hamiltonians for each phase, position-dependent `external' potentials, and many-body potentials.
+However recall that \emph{monteswitch} is limited to `atomic' systems, i.e., particles cannot have rotational degrees of freedom.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1550,6 +1480,19 @@ file \texttt{state\_out}, where all variables in \texttt{state\_out} other than 
 \texttt{state\_in\_1}. Note that \textbf{M\_grid} must be the same for both input files (in which case the matrices \textbf{trans} for
 each are of the same size). This argument can be used for pooling the results of multiple simulations which utilise the same underlying
 `order parameter grid' \textbf{M\_grid}.
+
+\subsection{\texttt{-extract\_lattices\_in vectors\_in\_1 vectors\_in\_2}}
+Output the geometrical properties of the system in the format of a \texttt{lattices\_in} file. The arguments \texttt{vectors\_in\_1}
+and \texttt{vectors\_in\_2} can be either \texttt{pos} or \texttt{R}. If \texttt{vectors\_in\_1} is \texttt{pos}, then
+the positions of the particles in phase 1 of the forthcomning \texttt{lattices\_in} file will be the positions of the particles in phase 1
+in the \texttt{state} file; if \texttt{vectors\_in\_1} is \texttt{R}, then the positions of the particles in phase 1 of the 
+\texttt{lattices\_in} file will be the current lattice vectors (i.e., \textbf{R\_1}) corresponding to phase 1 in the \texttt{state} file.
+Similar applies for \texttt{vectors\_in\_2} with phase 2.
+
+\subsection{\texttt{--extract\_pos\_xyz}}
+Extract the positions of the particles, and output them to stdout in `.xyz' format. In the output the first line contains the number of 
+particles, the second line is a comment line, and the subsequent lines contain the particle positions and species: the first token is 
+the `element' (set to `A'), and the second, third, fourth and fifth tokens are the x-, y- and z-coordinates respectively.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
