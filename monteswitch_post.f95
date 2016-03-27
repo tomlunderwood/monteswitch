@@ -112,8 +112,8 @@
 !!   <td>
 !!   Extract the positions of the particles, and output them to stdout in '.xyz' format. In the output
 !!   the first line contains the number of particles, the second line is a comment line, and the subsequent lines contain the
-!!   particle positions: the first token is the `element' (set to A), and the second, third, fourth and fifth tokens are the
-!!   x-, y- and z-coordinates respectively.
+!!   particle positions: the first token is the `element' ('A' for species 1, 'B' for species 2, ..., 'Z' for species 26, '?'
+!!   otherwise), and the second, third, fourth and fifth tokens are the x-, y- and z-coordinates respectively.
 !!   </td>
 !!  </tr>
 !! </table>
@@ -249,11 +249,9 @@ contains
         allocate(pos(n_part,3))
         select case(lattice)
         case(1)
-            pos = R_1 + u
-            call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+            pos = pos_1
         case(2)
-            pos = R_2 + u
-            call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+            pos = pos_2
         end select
 
         do i=1,n_part
@@ -436,8 +434,7 @@ contains
 
         ! Set pos_1_temp
         if(trim(vector_in_1)=="pos") then
-            pos_1_temp = u + R_1
-            call translate_positions(pos_1_temp,Lx(1),Ly(1),Lz(1))
+            pos_1_temp = pos_1
         else if(trim(vector_in_1)=="R") then
             pos_1_temp = R_1
         else if(vector_in_1=="") then
@@ -450,8 +447,7 @@ contains
 
         ! Set pos_2_temp
         if(trim(vector_in_2)=="pos") then
-            pos_2_temp = u + R_2
-            call translate_positions(pos_2_temp,Lx(2),Ly(2),Lz(2))
+            pos_2_temp = pos_2
         else if(trim(vector_in_2)=="R") then
             pos_2_temp = R_2
         else if(vector_in_2=="") then
@@ -470,14 +466,14 @@ contains
         write(*,*) Ly(1)
         write(*,*) Lz(1)
         do i=1,n_part
-            write(*,*) pos_1_temp(i,1)/Lx(1),pos_1_temp(i,2)/Ly(1),pos_1_temp(i,3)/Lz(1)
+            write(*,*) pos_1_temp(i,1)/Lx(1), pos_1_temp(i,2)/Ly(1), pos_1_temp(i,3)/Lz(1), spec_1(i)
         end do
         ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
         write(*,*) Lx(2)
         write(*,*) Ly(2)
         write(*,*) Lz(2)
         do i=1,n_part
-            write(*,*) pos_2_temp(i,1)/Lx(2),pos_2_temp(i,2)/Ly(2),pos_2_temp(i,3)/Lz(2)
+            write(*,*) pos_2_temp(i,1)/Lx(2), pos_2_temp(i,2)/Ly(2), pos_2_temp(i,3)/Lz(2), spec_2(i)
         end do
 
     end subroutine extract_lattices_in
@@ -489,24 +485,39 @@ contains
     subroutine extract_pos_xyz()
 
         real(rk), dimension(:,:), allocatable :: pos
+        integer(ik), dimension(:), allocatable :: spec
         integer(ik) :: i
+        character(len=26), parameter :: element="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
         call import("state")
 
         allocate(pos(n_part,3))
+        allocate(spec(n_part))
+
         select case(lattice)
         case(1)
-            pos = R_1 + u
-            call translate_positions(pos,Lx(1),Ly(1),Lz(1))
+            pos = pos_1
+            spec = spec_1
         case(2)
-            pos = R_2 + u
-            call translate_positions(pos,Lx(2),Ly(2),Lz(2))
+            pos = pos_2
+            spec = spec_2
         end select
 
         write(*,*) n_part
         write(*,*) "xyz-format file created by monteswitch_post"
+
         do i=1,n_part
-            write(*,*) "A",pos(i,:)
+
+            if(spec(i)>0 .and. spec(i)<=26) then
+
+                write(*,*) element(spec(i):spec(i)), pos(i,:)
+
+            else
+
+                write(*,*) "?", pos(i,:)
+
+            end if
+
         end do
 
     end subroutine extract_pos_xyz
