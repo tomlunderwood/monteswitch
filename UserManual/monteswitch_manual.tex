@@ -1,4 +1,4 @@
-\documentclass{report}
+ \documentclass{report}
 
 \usepackage[english]{babel}
 
@@ -1489,10 +1489,11 @@ in the \texttt{state} file; if \texttt{vectors\_in\_1} is \texttt{R}, then the p
 \texttt{lattices\_in} file will be the current lattice vectors (i.e., \textbf{R\_1}) corresponding to phase 1 in the \texttt{state} file.
 Similar applies for \texttt{vectors\_in\_2} with phase 2.
 
-\subsection{\texttt{--extract\_pos\_xyz}}
+\subsection{\texttt{-extract\_pos\_xyz}}
 Extract the positions of the particles, and output them to stdout in `.xyz' format. In the output the first line contains the number of 
 particles, the second line is a comment line, and the subsequent lines contain the particle positions and species: the first token is 
-the `element' (set to `A'), and the second, third, fourth and fifth tokens are the x-, y- and z-coordinates respectively.
+the `element' (set to `A' for species `1`, `B' for species 2, ..., `Z` for species 26, and `?` otherwise), and the second, third, 
+fourth and fifth tokens are the x-, y- and z-coordinates respectively.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2238,7 +2239,7 @@ NPT ensemble. This includes testing multicanonical sampling and weight function 
 mobile barrier methods), calculation of free energy differences, and calculation of equilibrium properties.
 
 
-\subsection{\texttt{test\_EC\_1\_NPT}}
+\subsection{\texttt{test\_EC\_NPT\_1}}
 This test calculates the free energy difference between two phases with different $\alpha$ and $\gamma$,
 as well as the mean-squared displacements and mean energies of both crystals. Here $\alpha_1=1000$, $\gamma_1=2$,
 $\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$ and $P=0.25$. The calculation in this test is performed using Boltzmann 
@@ -2360,8 +2361,8 @@ stored in the \textbf{sigma\_equil\_DeltaF} variable.
 \end{enumerate}
 
 
-\section{The hard-sphere solid (\texttt{HS})}
-The hard-sphere solid has been well studied, and makes an excellent testing ground for \emph{monteswitch}.
+\section{Hard spheres (single species) (\texttt{HS})}
+The hard-sphere system has been well studied, and makes an excellent testing ground for \emph{monteswitch}.
 The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_HS.f95}, whose usage is described in Chapter
 \ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS.f95}
 to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}. Note that here we set the energy cost of two spheres overlapping,
@@ -2376,7 +2377,7 @@ has been performed in Refs. \cite{thesis:Jackson,Bruce_2000}, the results of whi
 barrier dynamics over 2,000,000 sweeps. The second simulation calculates the free energy difference, using
 a total of 125,000,000 sweeps. Note that this simulation may take a while to run. The final result for the free energy difference
 should match that Refs. \cite{thesis:Jackson,Bruce_2000}: the free energy difference per particle should be
-$0.00113(4)/\beta$. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp,
+$0.00113(4)\beta$. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp,
 while in \emph{monteswitch}, with hcp corresponding to phase 1 and fcc corresponding to phase 2, the free energy
 difference is defined as that of hcp minus that of fcc -- hence the change of sign here
 relative to Jackson's result).
@@ -2436,9 +2437,8 @@ Checks to perform:
 \item
 The final free energy difference between the two systems should be 0. Check that this is the case for the
 simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
-stored in the \texttt{sigma\_equil\_DeltaF} variable.
+stored in the \textbf{sigma\_equil\_DeltaF} variable.
 \end{enumerate}
-
 
 
 \section{`Conventional' Lennard-Jones (\texttt{LJ})}
@@ -2458,6 +2458,43 @@ The aforementioned energy, with tail corrections, should match those of \url{htt
 specifically, -0.03102(6).
 \end{enumerate}
 
+
+\section{Hard spheres (multiple species) (\texttt{HS\_multi})}
+The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_HS\_multi.f95}, whose usage is described in Chapter
+\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS\_multi.f95}
+to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+
+\subsection{\texttt{test\_HS\_multi\_1}}
+This test calculates the free energy difference between two systems each containing two hard spheres, where both systems have identical dimensions
+$L_x=L_y=L_z=1$. In the first system, i.e., `phase 1' the two spheres both have diameter $\sigma_A=0.2$. However in the second system (i.e., phase 2) 
+one sphere has diameter $\sigma_A$ and the other has $\sigma_B=0.1$. Thus phase 1 consists of two particles belonging to species `$A$', while phase 2
+consists of one particle belonging to species $A$ and the other belonging to species `$B$'.
+The free energy difference can be evaluated analytically. The relevant expression is (for phase 2 relative to phase 1)
+\begin{equation}
+\Delta F=-\frac{1}{\beta}\ln\Biggl[\frac{V-4\pi\sigma_A^3/3}{V-4\pi\sigma_{AB}^3/3}\Biggr],
+\end{equation}
+where
+\begin{equation}
+\sigma_{AB}=\frac{1}{2}(\sigma_A+\sigma_B)
+\end{equation}
+and $V$ is the volume of the system. Using $V=1$, $\sigma_A=0.2$, $\sigma_B=0.1$ and $\beta=1$ (which we use in the test) yields 
+$\Delta F=0.019846611$. 
+
+To evaluate the free energy difference between the phases we use canonical sampling in conjunction with a lattice switch move in which we simply the 
+change of species of one of the particles from $A$ to $B$ in going from phase 1 to 2, and \emph{vica versa} in going from phase 2 to 1.
+
+Checks to perform:
+\begin{enumerate}
+\item The aforementioned value of $\Delta F$ should be reproduced. Check that this is the case for the
+simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
+stored in the \textbf{sigma\_equil\_DeltaF} variable. \textbf{equil\_DeltaF} is also periodically output to stdout.
+\end{enumerate}
+
+
+\subsection{\texttt{test\_HS\_multi\_2}}
+This test is identical to \texttt{test\_HS\_multi\_1} except that multicanonical sampling is used. Note that for this problem canonical sampling
+is more efficient than multicanonical sampling, and hence the simulation may take a little longer than \texttt{test\_HS\_multi\_1} to converge
+upon the correct answer.
 
 
 %% And finally the references

@@ -1,0 +1,6 @@
+epsilon= 1.0E5
+nspecies= 2
+sigma= 0.2 0.1
+list_cutoff= 100.0
+list_size= 3 
+
