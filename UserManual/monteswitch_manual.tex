@@ -1,4 +1,4 @@
- \documentclass{report}
+\documentclass{report}
 
 \usepackage[english]{babel}
 
@@ -68,61 +68,89 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
-Lattice-switch Monte Carlo (LSMC) \cite{Bruce_1997,Bruce_2000} is a method which enables the free energy difference between pairs of solid
-phases to be efficiently evaluated to a high precision. [It has been widely applied: CHECK ALL PSMC REFERENCES ARE INCLUDED]
-\cite{Bruce_1997,Pronk_1999,Bruce_2000,Wilding_2000,Jackson_2002,Errington_2004,McNeil-Watson_2006,Jackson_2007,Marechal_2008,Yang_2008,
-Raiteri_2010,Quigley_2014,Bridgwater_2014}
-\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
-\emph{monteswitch} is a package whose primary purpose is to enable LSMC simulations to be performed, and can treat 
-`atomic' systems (i.e., those in which the constituent particles do not have rotational degrees of 
-freedom), and pairs of phases which can be represented by an orthorhombic unit cell, in the NVT and NPT ensembles.
-Note that the two `phases' need not be homogeneous crystals, though we expect that this will be the main use for \emph{monteswitch}.
-[DIFFERENT SPECIES?]
-Possible applications for \emph{monteswitch} include evaluating the free energy cost of creating
-point defects and interfaces.
+[REFERENCE MY CONFERENCE PAPER?]
 
-%While steps have been taken to implement LSMC in existing general-purpose Monte Carlo codes, we believe that \emph{monteswitch} will fulfill
-%an important `gap in the market' for the foreseeable futue for several reasons. Firstly, \emph{monteswitch} is a bespoke LSMC code, and as such
-%one would expect it to require less computational resources than general-purpose codes for similar LSMC calculations. Secondly, \emph{monteswitch} 
-%was designed from the outset to be highly customisable: users can readily implement their own inter-particle interactions, which may include
-%interfacing \emph{monteswitch} with an external program.
+%[FREE ENERGY DIFFERENCES ARE IMPORTANT; THERE ARE A PLETHORA OF METHODS AVAILABLE, EACH SUITABLE FOR DIFFERENT TASKS; LSMC IS GOOD FOR...]
+Calculating the free energy difference between two given phases is one of the most fundamental problems in materials science.
+A plethora of different methods have been developed to this end, each designed with a particlular problem in mind.
+%
+\emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
+\footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo. Furthermore the
+term \emph{phase switch Monte Carlo}, which is discussed in a moment, is usually used in the literature to refer to the derivative of
+LSMC suitable for calculating the free energy difference between a solid and a fluid phase.}
+is a method for calculating the free energy difference between two solid phases.
+\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
+It has been applied to a wide range of systems \cite{Bruce_1997,Bruce_2000,Pronk_1999,Mau_1999,Jackson_2002,Wilms_2012,Jackson_2007,Yang_2008,
+Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014},
+beginning with the hard-sphere solid, where it was used to determine the free energy difference
+between the fcc and hcp phases \cite{Bruce_1997,Bruce_2000}, as well as the free energy cost of stacking faults
+\cite{Pronk_1999,Mau_1999}. The method was later generalised to treat soft interatomic potentials \cite{Jackson_2002,Wilms_2012}, systems containing multiple
+species of particle \cite{Jackson_2007,Yang_2008}, and molecular systems \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
+LSMC has also inspired \emph{phase switch Monte Carlo}, a method for calculating the free energy difference between a solid and a
+fluid phase \cite{Wilding_2000}, which has also seen widespread use
+\cite{Wilding_2000,Errington_2004,McNeil-Watson_2006,Wilding_2009_MP,Wilding_2009_JCP,Sollich_2010,Wilding_2010}.
+%
+The strength of LSMC is its efficiency: for the purposes of evaluating the free energy difference between pairs of solid phases LSMC is ostensibly
+more efficient than other existing methods [REFS]. 
+However it should be noted that this remains somewhat of an open question [REFS]; nevertheless one can say that LSMC is \emph{at least} 
+as efficient as existing methods. 
+
+Despite its strengths, LSMC has unfortunately yet to have gained widespread popularity. This 
+presumably stems, at least in part, from the lack of an LSMC code which is both versatile and widely available.
+%
+With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can 
+be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
+package contains a version of the main executable which is parallelised using MPI for HPC applications.
+Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the 
+free energy cost associated with crystallographic defects. Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
+However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent 
+particles do not have rotational degrees of freedom), and pairs of phases which can be represented by orthorhombic unit cells.
+
+While steps have been recently been taken to implement LSMC in existing general-purpose Monte Carlo codes, we believe that \emph{monteswitch} will fulfill
+an important `gap in the market' for the foreseeable future for two reasons. Firstly, \emph{monteswitch} is a bespoke LSMC code, and as such
+one would expect it to require less computational resources than general-purpose codes for similar LSMC calculations. Secondly, the package
+was designed from the outset to be highly-customisable with regards to the interatomic potential. This is achieved by locating all of the source code
+pertaining to the interatomic potential within a signle Fortran module housed within a single file \texttt{interactions.f95}. While various
+versions of this file are included with \emph{monteswitch}, each corresponding to a commonly-used class of interatomic potential, 
+users are encouraged to write their own version of \texttt{interactions.f95} which implements the interatomic potential they are interested in
+\emph{monteswitch}.
+To this end templates and examples provided with \emph{monteswitch} for guidance. Of course, in writing their own version of \texttt{interactions.f95} users 
+are free to interface with external Fortran modules, or even external programs. After compiling the package with the desired version of 
+\texttt{interactions.f95}, the end result is a version of \emph{monteswitch} in which the desired interatomic potential is `hard-coded'.
+[A similar scheme is utilised in the molecular dynamics program MOLDY [REF]]
 
 This document describes how to use \emph{monteswitch}. Note that this document does not provide details regarding the structure of the source code. 
-Similarly, this document does not provide thorough details of how the LSMC method is implemented in \emph{monteswitch}. We direct readers
-interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
-\ref{chapter:preliminaries}) -- or failing that the source code itself. We assume that the reader is already competent with the unix shell, 
+We direct readers interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
+\ref{chapter:preliminaries}) -- or failing that the source code itself. Here we assume that the reader is already competent with the unix shell, 
 including utilities such as \texttt{grep}, \texttt{sed} and \texttt{awk}. Often we provide examples of commands which utilise the shell and the 
-aforementioned utilities to perform certain tasks. However we never describe exactly how these commands work for the sake of brevity; interested users are 
-referred to the relevant documentation online or elsewhere. In a similar vein, when we describe Fortran-related issues we assume the reader has 
+aforementioned utilities to perform certain tasks. However we never describe exactly how these commands work for the sake of brevity; interested users
+should consult the relevant documentation online or elsewhere. In a similar vein, when we describe Fortran-related issues we assume the reader has 
 an expertise in Fortran 95 . We also assume that the user is familiar with the Monte Carlo method (in the sense of computational
 chemistry), but not necessarily with LSMC. For further information regarding Monte Carlo simulations in condensed 
 matter physics, see, e.g., Ref. \cite{book:Frenkel}. 
 
 The layout of this document is as follows. In Chapter \ref{chapter:background} we describe the theory behind LSMC to a depth which enables the user to 
-competently perform LSMC simulations using \emph{monteswitch}. The rest of this document pertains to \emph{monteswitch} itself.
+competently perform LSMC simulations using \emph{monteswitch}.
 In Chapter \ref{chapter:preliminaries} we describe how to install \emph{monteswitch}, and provide
-an overview of the package. Then in Chapter \ref{chapter:simulation_programs} we describe how to use the main Monte Carlo programs within
-\emph{monteswitch}. Chapter \ref{chapter:interactions} describes the various interatomic potentials included with \emph{monteswitch}, and
-describes how users can implement their own potentials. Chapter \ref{chapter:utility_programs} describes how to use the various utility
+an overview of the package. In Chapter \ref{chapter:simulation_programs} we describe how to use the main Monte Carlo programs within
+\emph{monteswitch}. In Chapter \ref{chapter:interactions} we describe the various interatomic potentials included with \emph{monteswitch}, as well as
+how users can implement their own potentials. In Chapter \ref{chapter:utility_programs} we describe how to use the various utility
 programs included with \emph{monteswitch} for the creation of input files and post-processing of output files. In Chapter \ref{chapter:example}
 we provide a worked example which elucidates how \emph{monteswitch} can be used to solve a `real' problem. Finally in Chapter \ref{chapter:tests}
-we describe the test cases included with \emph{monteswitch} which, as well as validating \emph{monteswitch}, serve as an archive of examples.
+we describe the test cases included with \emph{monteswitch} which, as well as validating \emph{monteswitch}, serve as an archive of examples
+for users.
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Background Theory}\label{chapter:background}
-In this chapter we describe the LSMC methodology as relevant to \emph{monteswitch}. Further information regarding LSMC,
-and its generalisations to solid--fluid transitions and molecular systems, can be found in Refs.  
-\cite{Bruce_1997,Bruce_2000,Wilding_2000,Jackson_2002,Errington_2004,McNeil-Watson_2006,Jackson_2007,Bridgwater_2014}.
-\footnote{The incarnation of LSMC suitable for solid--fluid transitions is referred to as \emph{phase-switch Monte Carlo}. Furthermore
-the reader should be aware that the term lattice-\emph{switching} Monte Carlo has also been applied to LSMC.}
-
+In this chapter we describe the LSMC methodology as relevant to \emph{monteswitch}. Further information regarding different incarnations of
+LSMC can be found in the LSMC studies cited in the previous chapter.
 
 \section{What do we mean by `phase'?}\label{sec:phase}
 LSMC is a method to calculate the free energy difference between two phases. The term `phase' could mean a number of things. However, here
-we use the following definition which is convenient for our purposes. We define a phase using some state of the system
+we use the following definition, which is convenient for our purposes. We define a phase using some state of the system
 which is \emph{representative} of the phase in question. We refer to such a state as a \emph{representative state}: phase $\alpha$ is the 
 set of all states of the system which are `reachable' from the chosen representative state for $\alpha$ on the timescale of the simulation. 
 For example, if one is interested in the `fcc phase', i.e., the set of states 
@@ -151,7 +179,7 @@ Z_{\alpha}=\sum_{\sigma\in\alpha}\exp(-\beta \mathcal{E}_{\sigma})
 is the partition function for phase $\alpha$; $\beta\equiv 1/(k_BT)$; $k_B$ is Boltzmann's constant; $\sigma$ denotes a state of the system;
 $\mathcal{E}_{\sigma}$ denotes the energy $E_{\sigma}$ of state $\sigma$ in the NVT ensemble, and the enthalpy $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ of
 state $\sigma$ in the NPT ensemble, where $V_{\sigma}$ denotes the volume of state $\sigma$; 
-and the summation in the above equation is over all microstates which `belong' to phase $\alpha$. 
+and the summation in the above equation is over all states which `belong' to phase $\alpha$. 
 From Eqn. \eqref{Falpha_def} it follows that
 \begin{equation}\label{DeltaF_Z}
 \Delta \mathcal{F}=\beta^{-1}\ln\biggl(\frac{Z_2}{Z_1}\biggr).
@@ -340,7 +368,7 @@ Hence the expression for $\langle X\rangle$ pertaining to a multicanonical simul
 where we have canceled the factors of $\tilde{Z}'^{-1}$ from the numerator and denominator.
 
 
-\section{Exploiting multicaonical Monte Carlo}
+\section{Multicanonical Monte Carlo in LSMC}
 How does multicanonical Monte Carlo resolve the problem that lattice switch moves are too rarely accepted to be useful? To answer this question we must 
 first understand why lattice switches are so rarely accepted. 
 Consider the probability of a lattice switch from state $\sigma$ to $\sigma'$ being accepted. Using the lattice switch scheme implemented in
@@ -423,7 +451,7 @@ account. Let $\mathcal{M}$ denote the macrostate corresponding to the $\mathcal{
 Accordingly let $\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$. 
 
 
-\section{Weight function generation}\label{sec:weight_generation}
+\section{Weight function generation methods}\label{sec:weight_generation}
 We will now describe how weight functions can be generated for use in a production simulation.
 In multicanonical Monte Carlo the `ideal' weight function, which we denote as $\eta_{\mathcal{M}}^*$, is regarded as that which leads to 
 all macrostates within the considered order parameter range to be sampled with equal probability in the multicanonical Monte Carlo simulation.
@@ -560,7 +588,8 @@ $p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting functi
 \sum_{\mathcal{M}=1}^{N_{\text{macro}}}p_{\mathcal{M}}=1,
 \end{equation}
 as is required. The final step is to use $p_{\mathcal{M}}$ to obtain an estimate for the ideal weight function. This is done simply by substituting 
-$p_{\mathcal{M}}$ into Eqn. \eqref{ideal_wf}. The accuracy of the resulting ideal weight function depends on how good our statistics are with regards to
+$p_{\mathcal{M}}$ into Eqn. \eqref{ideal_wf}. We refer to this method for obtaining the weight function as the \emph{shooting method}.
+The accuracy of the resulting ideal weight function depends on how good our statistics are with regards to
 the matrix $H_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diagonals immediately above and below the main diagonal), which is used to
 estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta^*_{\mathcal{M}}$. 
 
@@ -683,7 +712,7 @@ There are three allowed command-line arguments to \texttt{monteswitch}:
 The command-line argument \texttt{-new} (Example usage: \texttt{monteswitch -new}) runs a new simulation. 
 The simulation is initialised using information contained in input files located in the current directory. There are two input files
 which are required for all simulations. These are \texttt{lattices\_in} and \texttt{params\_in}. 
-The file \texttt{lattices\_in} contains specifications of two microstates. This file determines the two phases which will be 
+The file \texttt{lattices\_in} contains specifications of two states. This file determines the two phases which will be 
 considered, and defines the lattice switch which will be used in the simulation. The file \texttt{params\_in} contains the variables
 which determine the nature of the simulation, except variables pertaining to the interatomic potentials, which are specified in an additional input
 file (or possibly multiple files) whose nature depends on the specific version of \texttt{interactions.f95} used when compiling \emph{monteswitch} 
@@ -776,64 +805,70 @@ one per line, in the order specified in the table. `Line' refers to the line num
 Line & Variable & Type & Description \\
 \hline
 1 & \textbf{init\_lattice}  &  \texttt{INTEGER}  & Starting phase for the simulation (1 or 2). \\
-2 & \textbf{M\_grid\_size}  &  \texttt{INTEGER}  & Number of macrostates to divide the considered order parameter range (\textbf{M\_grid\_min} to \textbf{M\_grid\_max})
-into. \\
-3 & \textbf{M\_grid\_min}  &  \texttt{REAL}  & Minimum of considered order parameter range. Note that moves which take the system outwith the considered range are
-automatically rejected. In other words, the system is constrained to have an order parameter between \textbf{M\_grid\_min} and \textbf{M\_grid\_max}. Hence
+2 & \textbf{M\_grid\_size}  &  \texttt{INTEGER}  & Number of macrostates to divide the considered order parameter range (\textbf{M\_grid\_min} to 
+\textbf{M\_grid\_max}) into. \\
+3 & \textbf{M\_grid\_min}  &  \texttt{REAL}  & Minimum of considered order parameter range. Note that moves which take the system outwith the considered 
+range are automatically rejected. In other words, the system is constrained to have an order parameter between \textbf{M\_grid\_min} and 
+\textbf{M\_grid\_max}. Hence
 if one wants to perform a simulation in which the order parameter is unconstrained, one should set \textbf{M\_grid\_min} and \textbf{M\_grid\_max} to
 values which would never be realised by the system, e.g., $-1\times 10^{100}$ and $1\times 10^{100}$ respectively. This would be the case if one wishes
 to use \texttt{monteswitch} to perform a conventional Monte Carlo simulation. \\
-4 & \textbf{M\_grid\_max}  &  \texttt{REAL}  & Maximum of considered order parameter range. (See also comments for \textbf{M\_grid\_min})  \\
-5 & \textbf{enable\_multicanonical}  &  \texttt{LOGICAL}  & \texttt{T} enables multicanonical sampling using the current weight function; \texttt{F} enables canonical sampling \\
-6 & \textbf{beta}  &  \texttt{REAL}  & Thermodynamic beta.  \\
-7 & \textbf{P}  &  \texttt{REAL}  & Pressure (only relevant in NPT ensemble simulations)  \\
-8 & \textbf{enable\_lattice\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables lattice-switch moves (performed after evey particle and volume move). \\
-9 & \textbf{enable\_part\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables particle moves. Of course this should be set to \texttt{T}; however disabling particle moves and 
-enabling volume moves may be useful for `relaxing' the volume of the system before simulations with particle moves are performed. \\
-10 & \textbf{enable\_vol\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables volume moves and selects the NPT ensemble; \texttt{F} selects the NVT ensemble. A volume move will be
-attempted on average \textbf{vol\_freq} times per sweep. We recommend that this be set to 1. \\
-11 & \textbf{part\_select}  &  \texttt{CHARACTER(30)}  & Flag determining how the next particle to move is selected: \texttt{cycle} selects particles sequentially, \texttt{rand} selects
-particles at random.  \\
-12 & \textbf{part\_step}  &  \texttt{REAL}  & Particle move maximum size; particles are moved according to a random walk, with a maximum move size of \textbf{part\_step}
-in any Cartesian direction.  \\
-13 & \textbf{enable\_COM\_frame}  &  \texttt{LOGICAL}  & \texttt{T} performs the simulation in the center-of-momentum reference frame; \texttt{F} uses the lab frame. Using the 
-centre-of-momentum frame prevents `drift' in the centre-of-momentum. This is especially important for lattice-switch simulations. Hence this should be set 
-to \texttt{T} unless the user has a very good reason not to. \\
-14 & \textbf{vol\_dynamics}  &  \texttt{CHARACTER(30)}  & Flag determining which type of volume moves are performed: \texttt{FVM} (fixed volume move) keeps the supercell 
-shape unchanged during a volume move; \texttt{UVM} (unconstrained volume move) allows the x-, y- and z-dimensions to move independently. Note that currently
-lattice moves are forbidden in conjunction with unconstrained volume moves, though this may be relaxed in the future. \\
-15 & \textbf{vol\_freq}  &  \texttt{INTEGER}  & Number of volume moves performed per sweep on average.  \\
-16 & \textbf{vol\_step}  &  \texttt{REAL}  & Volume move maximum step size; the volume is moved according to a random walk in `$\ln(V)$-space', with a maximum move size 
-of \textbf{vol\_step}.  \\
-17 & \textbf{stop\_sweeps}  &  \texttt{INTEGER}  & Total number of sweeps to perform in the simulation. If this is set to 0 then no Monte Carlo moves are performed,
-but tasks performed periodically during the Monte Carlo loop (i.e, updating the weight function, checking whether or not the system has melted, checking for
-`divergences' in the energy, calculating equilibrium quantities and their uncertainties) are performed. \\
-18 & \textbf{equil\_sweeps}  &  \texttt{INTEGER}  & Number of sweeps to disregard before the system is considered to be equilibrated; statistics are not gathered during
-these sweeps. \\
-19 & \textbf{enable\_melt\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the system has `melted', i.e., if one or more of the particles has
-moved more than a distance of \textbf{melt\_threshold} from its lattice site in any Cartesian direction then the system is considered to have `melted'.
-We recommend that this feature is used, since the LSMC method relies upon the fact that the two phases under consideration are metastable,
-and that particles will not move too far from their lattice sites on the timescale of the simulation. \\
+4 & \textbf{M\_grid\_max}  &  \texttt{REAL}  & Maximum of considered order parameter range. (See also comments for \textbf{M\_grid\_min}).  \\
+5 & \textbf{enable\_multicanonical}  &  \texttt{LOGICAL}  & \texttt{T} enables multicanonical sampling using the current weight function; \texttt{F} 
+enables canonical sampling. \\
+6 & \textbf{beta}  &  \texttt{REAL}  & Inverse temperature: $\beta=1/(k_BT)$, where $k_B$ is the Boltzmann constant.  \\
+7 & \textbf{P}  &  \texttt{REAL}  & Pressure (only relevant in NPT ensemble simulations).  \\
+8 & \textbf{enable\_lattice\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables lattice switch moves (performed after evey particle and volume move). \\
+9 & \textbf{enable\_part\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables particle moves. This should probably be set to \texttt{T}; however disabling 
+particle moves and enabling volume moves may be useful for `relaxing' the volume of the system before simulations with particle moves are performed. \\
+10 & \textbf{enable\_vol\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables volume moves and selects the NPT ensemble; \texttt{F} selects the NVT ensemble. 
+A volume move will be attempted on average \textbf{vol\_freq} times per sweep. \\
+11 & \textbf{part\_select}  &  \texttt{CHARACTER(30)}  & Flag determining how the next particle to move is selected: \texttt{"cycle"} selects particles 
+sequentially, \texttt{"rand"} selects particles at random.  \\
+12 & \textbf{part\_step}  &  \texttt{REAL}  & Particle move maximum size; particles are moved according to a random walk, with a maximum move size of 
+\textbf{part\_step} in any Cartesian direction.  \\
+13 & \textbf{enable\_COM\_frame}  &  \texttt{LOGICAL}  & \texttt{T} performs the simulation in the centre-of-mass reference frame; \texttt{F} uses 
+the lab frame. Using the centre-of-mass frame prevents `drift' in the centre-of-mass, which is convenient because it keeps particles close to
+their lattice sites. However there is a computational overhead associated with using the centre-of-mass frame. \\
+14 & \textbf{vol\_dynamics}  &  \texttt{CHARACTER(30)}  & Flag determining which type of volume moves are performed: \texttt{"FVM"} (fixed volume move) 
+keeps the supercell shape unchanged during a volume move; \texttt{"UVM"} (unconstrained volume move) allows the x-, y- and z-dimensions to move 
+independently. \\
+15 & \textbf{vol\_freq}  &  \texttt{INTEGER}  & Number of volume moves performed per sweep on average if volume moves are enabled.
+We recommend that this be set to 1.\\
+16 & \textbf{vol\_step}  &  \texttt{REAL}  & Volume move maximum step size; the volume is moved according to a random walk in `$\ln(V)$-space', with a 
+maximum move size of \textbf{vol\_step}.  \\
+17 & \textbf{stop\_sweeps}  &  \texttt{INTEGER}  & Total number of sweeps to perform in the simulation. If this is set to 0 then no Monte Carlo moves 
+are performed, but tasks performed periodically during the Monte Carlo loop (i.e, updating the weight function, checking whether or not the system has 
+melted, checking for `divergences' in the energy, calculating equilibrium quantities and their uncertainties) are performed. \\
+18 & \textbf{equil\_sweeps}  &  \texttt{INTEGER}  & Number of sweeps to disregard before the system is considered to be equilibrated; statistics are not 
+gathered during these sweeps for block averaging (see below). \\
+19 & \textbf{enable\_melt\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the system has `melted', i.e., if one or 
+more of the particles has moved more than a distance of \textbf{melt\_threshold} from its lattice site in any Cartesian direction then the system is 
+considered to have `melted'. We recommend that this feature is used, since the LSMC method relies upon the fact that the two phases under c
+onsideration are metastable, and that particles will not move too far from their lattice sites on the timescale of the simulation. \\
 20 & \textbf{melt\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) to check for melting.  \\
 21 & \textbf{melt\_threshold}  &  \texttt{REAL}  & See \textbf{enable\_melt\_checks}.  \\
-22 & \textbf{melt\_option}  &  \texttt{CHARACTER(30)}  & Flag determining what the simulation does if the system has `melted': \texttt{zero\_1} and \texttt{zero\_2} move the system 
-to the zero-displacement microstates in phases 1 and 2, respectively; \texttt{zero\_current} does the same but for the current phase; \texttt{stop} stops the simulation
-with an exit status of 2. For \texttt{zero\_1}, \texttt{zero\_2}, \texttt{zero\_current} the system is allowed to re-equilibrate before statistics are gathered. Also, the
-current block with regards to the calculation of equilibrium quantities is disregarded. \\
-23 & \textbf{enable\_divergence\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the energy of the system is correct. To elaborate, for particle 
-moves, the energy of the trial microstate is not calculated exactly because it is very computationally expensive and unnecessary. Instead the energy 
-\emph{change} with respect to the current microstate is calculated. This is far less demanding to calculate. If the move is accepted this change is 
-\emph{ammended} to the total energy. However, over time it is possible that this `running total' approach will yield incorrect energies due to the finite 
+22 & \textbf{melt\_option}  &  \texttt{CHARACTER(30)}  & Flag determining what the simulation does if the system has `melted': \texttt{zero\_1} and 
+\texttt{zero\_2} move the system to the zero-displacement states in phases 1 and 2, respectively; \texttt{zero\_current} does the same but for 
+the current phase; \texttt{stop} stops the simulation with an exit status of 2. For \texttt{zero\_1}, \texttt{zero\_2}, \texttt{zero\_current} the 
+system is allowed to re-equilibrate before statistics are gathered. Also, the current block is disregarded for the purposes of block averaging. \\
+23 & \textbf{enable\_divergence\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the energy of the system is correct. 
+To elaborate, for particle 
+moves, the energy of the trial state is not calculated exactly because it is very computationally expensive and unnecessary. Instead the energy 
+\emph{change} with respect to the current state is calculated. This is far less demanding to calculate. If the move is accepted this change is 
+\emph{amended} to the total energy. However, over time it is possible that this `running total' approach will yield incorrect energies due to the finite 
 precision of the computer. Hence one should periodically recalculate the energy exactly. This is done during volume moves. If 
-\textbf{enable\_divergence\_checks} is set to \texttt{T}, then this is also done every \textbf{divergence\_sweeps} sweeps, after which the recalculated energy 
+\textbf{enable\_divergence\_checks} is set to \texttt{T}, then this is also done every \textbf{divergence\_sweeps} sweeps, after which the 
+recalculated energy 
 is compared to the 'current' energy, and the simulation is stopped with an exit status of 3 if they are different -- outwith a tolerence of 
 \textbf{divergence\_tol}. Note that the order parameter is also ammended after the energy (for phases 1 and 2) is recalculated. We recommend that this 
 feature is used in NVT simulations, since it forces the energy of the system to be recalculated from scratch every so often. For NPT simulations this 
-should not an issue since the energy is calculated from scratch every accepted volume move. \\
-24 & \textbf{divergence\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) to check for `energy divergences' as just mentioned. Note that checking entails re-calculating
-the energy from scratch.  \\
+should not be an issue since the energy is calculated from scratch every accepted volume move. \\
+24 & \textbf{divergence\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) to check for `energy divergences' as just mentioned. 
+Note that checking entails recalculating the energy from scratch.  \\
 25 & \textbf{divergence\_tol}  &  \texttt{REAL}  & See \textbf{enable\_divergence\_checks}.  \\
-26 & \textbf{output\_file\_period}  &  \texttt{INTEGER}  & Period (sweeps) at which information is output to the file \texttt{data}. See Section \ref{sec:output}. \\
+26 & \textbf{output\_file\_period}  &  \texttt{INTEGER}  & Period (sweeps) at which information is output to the file \texttt{data}. See 
+Section \ref{sec:output}. \\
 27 & \textbf{output\_file\_Lx}  &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
 28 & \textbf{output\_file\_Ly}  &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
 29 & \textbf{output\_file\_Lz}  &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
@@ -921,29 +956,37 @@ the energy from scratch.  \\
 111 & \textbf{output\_stdout\_sigma\_equil\_L\_1} &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
 112 & \textbf{output\_stdout\_equil\_L\_2} &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
 113 & \textbf{output\_stdout\_sigma\_equil\_L\_2} &  \texttt{LOGICAL}  & See Section \ref{sec:output}. \\
-114 & \textbf{checkpoint\_period}  &  \texttt{INTEGER}  & Period (sweeps) at which the simulation is checkpointed, i.e., how often all simulation variables are
+114 & \textbf{checkpoint\_period}  &  \texttt{INTEGER}  & Period (sweeps) at which the simulation is checkpointed, i.e., how often all 
+simulation variables are 
 output to the file \texttt{state}. If \textbf{checkpoint\_period} is $\leq 0$ then \texttt{state} will be an empty file. See Section \ref{sec:output}. \\
-115 & \textbf{update\_eta}  &  \texttt{LOGICAL}  & \texttt{T} results in the weight function being periodically updated every \textbf{update\_eta\_sweeps} sweeps, according
-to the method specified in \textbf{update\_eta\_method}; \texttt{F} results in the weight function not being updated -- it remains frozen at its current state.  \\
-116 & \textbf{update\_eta\_sweeps}  &  \texttt{INTEGER}  & Period (seeps) at which the weight function is updated. \\
-117 & \textbf{update\_trans}  &  \texttt{LOGICAL}  & \texttt{T} results in the transition matrix being updated; \texttt{F} results in it not being updated.  \\
-118 & \textbf{update\_eta\_method}  &  \texttt{CHARACTER(30)}  & Method used to update the weight function: \texttt{VS} uses the visited states method; \texttt{shooting} uses the
-shooting method (using the current transition matrix). ELABORATE.  \\
-119 & \textbf{enable\_barriers}  &  \texttt{LOGICAL}  & \texttt{T} enables artificial dynamics; for \texttt{F} the system is free to explore any macrostate, but is constrained to
-reside within the considered order parameter range (\textbf{M\_grid\_min} to \textbf{M\_grid\_max}).  \\
+115 & \textbf{update\_eta}  &  \texttt{LOGICAL}  & \texttt{T} results in the weight function being periodically updated every 
+\textbf{update\_eta\_sweeps} sweeps, according
+to the method specified in \textbf{update\_eta\_method}; 
+\texttt{F} results in the weight function not being updated -- it remains frozen at its current state.  \\
+116 & \textbf{update\_eta\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) at which the weight function is updated. \\
+117 & \textbf{update\_trans}  &  \texttt{LOGICAL}  & \texttt{T} results in the transition matrix being updated; 
+\texttt{F} results in it not being updated.  \\
+118 & \textbf{update\_eta\_method}  &  \texttt{CHARACTER(30)}  & Method used to update the weight function: \texttt{"VS"} uses the visited 
+states method; \texttt{"shooting"} uses the shooting method (using the current transition matrix). (See Section \ref{sec:weight_generation}).  \\
+119 & \textbf{enable\_barriers}  &  \texttt{LOGICAL}  & \texttt{T} enables artificial dynamics; for \texttt{F} the system is free to explore 
+any macrostate, but is constrained to reside within the considered order parameter range (\textbf{M\_grid\_min} to \textbf{M\_grid\_max}). 
+(See Section \ref{sec:weight_generation}). \\
 120 & \textbf{barrier\_dynamics}  &  \texttt{CHARACTER(30)}  & Flag determining how the macrostate barriers will evolve during artificial dynamics. 
 All methods lock the system into a single
 macrostate for \textbf{lock\_moves} moves, before unlocking an adjacent macrostate. Once the system has moved into the adjacent macrostate, the system
-is then locked into that macrostate, and the procedure starts again. \texttt{random} evolves the macrostate the system is locked into via a random walk: the
-next macrostate is decided with equal probability to be that above or that below the current macrostate. \texttt{pong\_up} moves to increasingly higher 
+is then locked into that macrostate, and the procedure starts again. \texttt{"random"} evolves the macrostate the system is locked into via a 
+random walk: the
+next macrostate is decided with equal probability to be that above or that below the current macrostate. \texttt{"pong\_up"} moves to increasingly higher 
 macrostates until the upper limit of the supported order parameter range is encountered, at which point it reverses direction and proceeds to 
-increasingly lower macrostates until it reaches the lower limit of the order parameter range, at which point it reverses direction, etc. \texttt{pong\_down}
+increasingly lower macrostates until it reaches the lower limit of the order parameter range, at which point it reverses direction, etc. 
+\texttt{"pong\_down"}
 instead moves initially to increasingly lower macrostates.  \\
 121 & \textbf{lock\_moves}  &  \texttt{INTEGER}  & The number of moves to lock the system into one macrostate for if artificial dynamics is used. 
 This should be greater than 0. \\
-122 & \textbf{calc\_equil\_properties}  &  \texttt{LOGICAL}  & \texttt{T} enables calculation of equilibrium quantities using block analysis. ELABORATE.  \\
-123 & \textbf{block\_sweeps}  &  \texttt{INTEGER}  & The number of sweeps which comprise a 'block' which will be used to evaluate equilibrium properties and
-their uncertainties as just described. This should be greater than 0. \\
+122 & \textbf{calc\_equil\_properties}  &  \texttt{LOGICAL}  & \texttt{T} enables internal calculation of various physical quantities, and associated
+uncertainties, via block averaging. (See Section \ref{sec:output}). \\
+123 & \textbf{block\_sweeps}  &  \texttt{INTEGER}  & The number of sweeps which comprise a `block' which will be used to evaluate physical quantities and
+their associated uncertainties via block averaging (see Section \ref{sec:output}). This should be greater than 0. \\
 \end{longtable}
 \end{center}
 \end{landscape}
@@ -959,7 +1002,7 @@ the output is after every move; and if \textbf{output\_file\_period} is a negati
 output is suppressed. The above also applies to \textbf{output\_stdout\_X}, but for the output to stdout. 
 The only exceptions to the aforedescribed significance of variables beginning with \textbf{output\_file\_} and \textbf{output\_stdout\_}
 are \textbf{output\_file\_eta} and \textbf{output\_stdout\_eta}. For these quantities \textbf{eta} refers to the
-value of the weight function \emph{for the current microstate} -- as opposed to the entire weight function. This point is reiterated below.
+value of the weight function \emph{for the current state} -- as opposed to the entire weight function. This point is reiterated below.
 Note that there is no internal variable named \textbf{eta} in \verb|monteswitch|: the entire weight function is refered to as \textbf{eta\_grid}
 in \verb|monteswitch|; \textbf{eta} is calculated on-the-fly when required from \textbf{eta\_grid} and never stored in memory.
 
@@ -993,6 +1036,44 @@ to the user. Note that there are other variables in \texttt{state} which are not
 interest to the user; for more information see the HTML documentation for \texttt{monteswitch\_mod.f95}.
 Note that the internal variable names output in \texttt{state} are case-sensitive, and exactly reflect the names given in Tables 
 \ref{table:params_in_variables} and \ref{table:state_variables}.
+
+\subsection{Block averaging}\label{sec:block_averaging}
+\texttt{monteswitch} has the ability to use block averaging to provide estimates of various physical quantities on-the-fly during a simulation. 
+This feature is activated by setting the variable \textbf{calc\_equil\_properties} to \texttt{T}.
+In block averaging one calculates an estimate for some arbitrary physical quantity $X$, which we denote as $\bar{X}$, as well as an associated
+uncertainty in $\bar{X}$, which we denote as $\sigma_X$. $\bar{X}$ and $\sigma_X$ are calculated as follows.
+After the equilibration period, the simulation time is partitioned into $N_{\text{blocks}}$ `blocks' each consisting of an equal number of 
+moves.
+For each block $b$ we obtain an estimate for $X$ by averaging over the values of $X$ corresponding to all states visited during that block. 
+Let $X_b$ denote the estimate for $X$ for block $b$ obtained in this manner. Now, by taking the average of the values of $X_b$ over all blocks, one can 
+obtain an even more accurate estimate for $X$. This is $\bar{X}$: 
+\begin{equation}
+\bar{X}=\frac{1}{N_{\text{blocks}}}\sum_{b=1}^{N_{\text{blocks}}}X_b.
+\end{equation}
+The uncertainty $\sigma_X$ is simply the standard error in $\bar{X}$:
+\begin{equation}
+\sigma_X=\frac{1}{\sqrt{N_{\text{blocks}}}}\sqrt{\frac{1}{N_{\text{blocks}}}\sum_{b=1}^{N_{\text{blocks}}}(X_b-\bar{X})^2}.
+\end{equation}
+
+In \texttt{monteswitch} the internal variable \textbf{block\_sweeps} determines the size of a block in sweeps. Internal variables with names 
+beginning with `\textbf{equil\_}' or `\textbf{sigma\_equil\_}' contain the results of block averaging.
+To elaborate, \textbf{equil\_X} corresponds to $\bar{X}$ and \textbf{sigma\_equil\_X} corresponds to $\sigma_X$ calculated by \texttt{monteswitch}
+for physical quantity $X$. The variables with this format can be found in Table \ref{table:state_variables}. 
+These variables are updated every time a block is `completed' by the simulation after the equilibration time. Note that
+the variable \textbf{block\_counts\_X} contains the number of blocks which have been used so far in evaluating \textbf{equil\_X} and 
+\textbf{sigma\_equil\_X}. Hence \textbf{equil\_X} will be meaningless (i.e., uninitialised) if \textbf{block\_counts\_X} takes the value 0, and 
+\textbf{sigma\_equil\_X} will be meaningless if  \textbf{block\_counts\_X} is less than 2 (in which case there have not yet been enough blocks to 
+evaluate $\sigma_X$). Blocks may be `disregarded' by \texttt{monteswitch}, i.e., not used in the evaluation of \textbf{equil\_X} and 
+\textbf{sigma\_equil\_X} for a number of reasons. Firstly, a block is disregarded if the system was deemed to have `melted' during the block
+(see \textbf{enable\_melt\_checks} in Table \ref{table:params_in_variables}). Secondly, a block is disregarded if during the block the system
+never visits the phase or phases necessary to calculate $X$. For instance if $X$ is the volume of phase 1, then $X$ can only be evaluated if
+phase 1 is actually visited during the block. Accordingly in this case a block in which phase 1 is never visited is disregarded for the 
+purposes of calculating $X$. Another important example is if $X$ is the free energy difference between the two phases. In this case $X$
+can only be evaluated if both phases are visited during the block. Hence the block is disregarded in this case if only one phase is visited
+during the block. The user should be aware that all blocks are given equal weight in the block averaging. This could lead to misleading results
+for, say, quantities pertaining to phase 1, if in some blocks phase 1 is rarely visited and in other blocks phase 1 is often visited. This problem
+can be avoided by ensuring that the block size is larger than the correlation time of the simulation, in which case phase 1 would be visited
+approximately equally often for all blocks.
 
 \begin{landscape}
 \begin{center}\label{table:state_variables}
@@ -1046,31 +1127,27 @@ dynamics is enabled). \\
 dynamics is enabled). \\
 \textbf{rejected\_moves\_M\_barrier} & \texttt{INTEGER} & The number of moves rejected because the order parameter of the trial state was outwith the range
 corresponding to the macrostate barriers (relevant only when artificial dynamics is enabled).\\
-\textbf{block\_counts} & \texttt{INTEGER} & The total number of `blocks' considered so far for evaluating equilibrium quantities and their uncertainties.  \\
-\textbf{equil\_DeltaF} & \texttt{REAL} & The free energy difference between the phases ($F_1-F_2$; extensive) evaluated using block analysis.\\
-\textbf{sigma\_equil\_DeltaF} & \texttt{REAL} & The uncertainty in \textbf{equil\_DeltaF}.\\
+\textbf{block\_counts} & \texttt{INTEGER} & The total number of blocks considered so far for block averaging (see Section \ref{sec:block_averaging}.  \\
+\textbf{equil\_DeltaF} & \texttt{REAL} & The free energy difference between the phases ($F_1-F_2$; extensive) evaluated using block averaging (see Section \ref{sec:block_averaging}).\\
+\textbf{sigma\_equil\_DeltaF} & \texttt{REAL} & The uncertainty in \textbf{equil\_DeltaF} (see Section \ref{sec:block_averaging}).\\
 \textbf{block\_counts\_DeltaF} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF}. Note that
-blocks are disregarded if during the block the system melts, or if the system does not visit both phases. \\
-\textbf{equil\_H\_1} & \texttt{REAL} & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 1 evaluated using block analysis.\\
-\textbf{equil\_H\_2} & \texttt{REAL} & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 2 evaluated using block analysis.\\
-\textbf{sigma\_equil\_H\_1} & \texttt{REAL} & The uncertainty in \textbf{equil\_H\_1}.\\
-\textbf{sigma\_equil\_H\_2} & \texttt{REAL} & The uncertainty in \textbf{equil\_H\_2}.\\
+blocks are disregarded if during the block the system melts, or if the system does not visit both phases during the block  (see Section \ref{sec:block_averaging}). \\
+\textbf{equil\_H\_1} & \texttt{REAL} & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 1 evaluated using block averaging (see Section \ref{sec:block_averaging}).\\
+\textbf{equil\_H\_2} & \texttt{REAL} & The energy (for NVT simulations) or enthalpy (for NPT simulations) of phase 2 evaluated using block averaging (see Section \ref{sec:block_averaging}).\\
+\textbf{sigma\_equil\_H\_1} & \texttt{REAL} & The uncertainty in \textbf{equil\_H\_1} (see Section \ref{sec:block_averaging}).\\
+\textbf{sigma\_equil\_H\_2} & \texttt{REAL} & The uncertainty in \textbf{equil\_H\_2} (see Section \ref{sec:block_averaging}).\\
 \textbf{block\_counts\_H\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_H\_1} and \textbf{sigma\_equil\_H\_1}. Note that blocks are
-disregarded if during the block the system melts. \\
+disregarded if during the block the system melts, or if the system does not visit phase 1 during the block  (see Section \ref{sec:block_averaging}). \\
 \textbf{block\_counts\_H\_2} & \texttt{INTEGER} &  The number of blocks used in evaluating \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2}. Note that blocks are
-disregarded if during the block the system melts. \\
-\textbf{equil\_V\_1} & \texttt{REAL} & The volume of phase 1 evaluated using block analysis.\\
-\textbf{equil\_V\_2} & \texttt{REAL} & The volume of phase 2 evaluated using block analysis.\\
-\textbf{sigma\_equil\_V\_1} & \texttt{REAL} &  The uncertainty in \textbf{equil\_V\_1}.\\
-\textbf{sigma\_equil\_V\_2} & \texttt{REAL} &  The uncertainty in \textbf{equil\_V\_2}.\\
+disregarded if during the block the system melts, or if the system does not visit phase 2 during the block  (see Section \ref{sec:block_averaging}). \\
+\textbf{equil\_V\_1} & \texttt{REAL} & The volume of phase 1 evaluated using block averaging (see Section \ref{sec:block_averaging}).\\
+\textbf{equil\_V\_2} & \texttt{REAL} & The volume of phase 2 evaluated using block averaging (see Section \ref{sec:block_averaging}).\\
+\textbf{sigma\_equil\_V\_1} & \texttt{REAL} &  The uncertainty in \textbf{equil\_V\_1} (see Section \ref{sec:block_averaging}).\\
+\textbf{sigma\_equil\_V\_2} & \texttt{REAL} &  The uncertainty in \textbf{equil\_V\_2} (see Section \ref{sec:block_averaging}).\\
 \textbf{block\_counts\_V\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_V\_1} and \textbf{sigma\_equil\_V\_1}. Note that blocks are
-disregarded if during the block the system melts. \\
+disregarded if during the block the system melts, or if the system does not visit phase 1 during the block  (see Section \ref{sec:block_averaging}). \\
 \textbf{block\_counts\_V\_2} & \texttt{INTEGER} &  The number of blocks used in evaluating \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2}. Note that blocks are
-disregarded if during the block the system melts. \\
-\textbf{block\_counts\_umsd\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_umsd\_1} and \textbf{sigma\_equil\_umsd\_1}. 
-Note that blocks are disregarded if during the block the system melts. \\
-\textbf{block\_counts\_umsd\_2} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2}. 
-Note that blocks are disregarded if during the block the system melts. \\
+disregarded if during the block the system melts, or if the system does not visit phase 2 during the block (see Section \ref{sec:block_averaging}). \\
 \textbf{R\_1} & \texttt{REAL(n\_part,3)} & The current lattice vectors for phase 1. \\
 \textbf{R\_2} & \texttt{REAL(n\_part,3)} & The current lattice vectors for phase 2.\\
 \textbf{u} & \texttt{REAL(n\_part,3)} & The current displacement vectors.\\
@@ -1084,18 +1161,25 @@ system was in phase 2 so far, including over previous simulations if we have use
 \textbf{trans} & \texttt{REAL(M\_grid\_size,M\_grid\_size)} & \textbf{eta\_grid}($m,n$) is the number of inferred transitions from macrostate
 $m$ to macrostate $n$; it is the matrix $H_{\mathcal{M}\mathcal{M}'}$ in Section \ref{sec:transition_matrix}. \\
 \textbf{equil\_umsd\_1} & \texttt{REAL(n\_part)} & \textbf{equil\_umsd\_1}($n$) is the mean-squared displacement of particle $n$ from its lattice site
-in phase 1, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
+in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
 \textbf{equil\_umsd\_2} & \texttt{REAL(n\_part)} & \textbf{equil\_umsd\_2}($n$) is the mean-squared displacement of particle $n$ from its lattice site
-in phase 2, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
-\textbf{sigma\_equil\_umsd\_1} & \texttt{REAL(n\_part)} & \textbf{sigma\_equil\_umsd\_1}($n$) is the uncertainty in \textbf{equil\_umsd\_1}($n$). \\
-\textbf{sigma\_equil\_umsd\_2} & \texttt{REAL(n\_part)} & \textbf{sigma\_equil\_umsd\_2}($n$) is the uncertainty in \textbf{equil\_umsd\_2}($n$). \\
-
+in phase 2, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
+\textbf{sigma\_equil\_umsd\_1} & \texttt{REAL(n\_part)} & \textbf{sigma\_equil\_umsd\_1}($n$) is the uncertainty in \textbf{equil\_umsd\_1}($n$) (see Section \ref{sec:block_averaging}). \\
+\textbf{sigma\_equil\_umsd\_2} & \texttt{REAL(n\_part)} & \textbf{sigma\_equil\_umsd\_2}($n$) is the uncertainty in \textbf{equil\_umsd\_2}($n$) (see Section \ref{sec:block_averaging}). \\
+\textbf{block\_counts\_umsd\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_umsd\_1} and \textbf{sigma\_equil\_umsd\_1}. 
+Note that blocks are disregarded if during the block the system melts, or if the system does not visit phase 1 during the block (see Section \ref{sec:block_averaging}). \\
+\textbf{block\_counts\_umsd\_2} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2}. 
+Note that blocks are disregarded if during the block the system melts, or if the system does not visit phase 2 during the block (see Section \ref{sec:block_averaging}). \\
 \textbf{equil\_L\_1} & \texttt{REAL(3)} & The 1st, 2nd and 3rd values in the array \textbf{equil\_L\_1} are the mean x-, y- and z-dimensions of the
-supercell in phase 1, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
+supercell in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). Note that blocks are disregarded if during the block the system melts. \\
 \textbf{equil\_L\_2} & \texttt{REAL(3)} &  The 1st, 2nd and 3rd values in the array \textbf{equil\_L\_2} are the mean x-, y- and z-dimensions of the
-supercell in phase 2, evaluated using block analysis. Note that blocks are disregarded if during the block the system melts. \\
-\textbf{sigma\_equil\_L\_1} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_1}($n$) is the uncertainty in \textbf{equil\_L\_1}($n$). \\
-\textbf{sigma\_equil\_L\_2} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_2}($n$) is the uncertainty in \textbf{equil\_L\_2}($n$). \\
+supercell in phase 2, evaluated using block averaging (see Section \ref{sec:block_averaging}). Note that blocks are disregarded if during the block the system melts. \\
+\textbf{sigma\_equil\_L\_1} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_1}($n$) is the uncertainty in \textbf{equil\_L\_1}($n$) (see Section \ref{sec:block_averaging}). \\
+\textbf{sigma\_equil\_L\_2} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_2}($n$) is the uncertainty in \textbf{equil\_L\_2}($n$) (see Section \ref{sec:block_averaging}). \\
+\textbf{block\_counts\_L\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_L\_1} and \textbf{sigma\_equil\_L\_1}. Note that blocks are
+disregarded if during the block the system melts, or if the system does not visit phase 1 during the block  (see Section \ref{sec:block_averaging}). \\
+\textbf{block\_counts\_L\_2} & \texttt{INTEGER} &  The number of blocks used in evaluating \textbf{equil\_L\_2} and \textbf{sigma\_equil\_L\_2}. Note that blocks are
+disregarded if during the block the system melts, or if the system does not visit phase 2 during the block (see Section \ref{sec:block_averaging}). \\
 \end{longtable}
 \end{center}
 \end{landscape}
@@ -1113,8 +1197,8 @@ For a simulation invoked using the argument \texttt{-resume}, the file \texttt{d
 \section{`Resetting' a simulation: the argument \texttt{-reset}}\label{sec:reset}
 The command-line argument \texttt{-reset} invokes a simulation from an old \texttt{state} file similarly to \texttt{-resume}, except that it
 resets all `counter variables' to zero. This has the effect of starting a `new' simulation whose nature corresponds to the old simulation, 
-but instead uses the microstate of the system specified in \texttt{state}. By contrast, the command-line argument \texttt{-new} initialises the 
-microstate to be such that the particles form a perfect crystal lattice, which usually does not correspond to an equilibrated microstate.
+but instead uses the state of the system specified in \texttt{state}. By contrast, the command-line argument \texttt{-new} initialises the 
+state to be such that the particles form a perfect crystal lattice, which usually does not correspond to an equilibrated state.
 By `counter variables' we mean those such as variables describing the number of moves performed for each move type, the number of accepted moves 
 for each move type, and variables pertaining to equilibrium quantities. However, note that the weight function (\textbf{eta\_grid}) and the
 collection transition matrix (\textbf{trans}) are \emph{not} regarded as counter variables, and are as such retained from the old simulation
@@ -1134,22 +1218,22 @@ It is identical to the program \texttt{monteswitch}, except that instead of a si
 \texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, each being approximately \textbf{stop\_sweeps}$/n$ sweeps in 
 length. Accordingly, during the simulation multiple \texttt{data}- and \texttt{state}-format files are created -- one for each replica. These 
 are named \texttt{state\_0}, \texttt{state\_1}, \texttt{state\_2}, etc., and similarly for the \texttt{data}-format files. At the completion of 
-all replicas, the statistics from all are combined, and the results are stored in the file \texttt{state}. The microstate stored in state
-corresponds to the microstate in \texttt{state\_0}. 
+all replicas, the statistics from all are combined, and the results are stored in the file \texttt{state}. The state stored in state
+corresponds to the state in \texttt{state\_0}. 
 Note that, since \texttt{state}-format files can be large, by default the files \texttt{state\_0}, \texttt{state\_1}, 
 \texttt{state\_2}, etc. created by \texttt{monteswitch\_mpi} are empty. This can be disabled if \texttt{-explicit} is used as the second command line 
 argument to \texttt{monteswitch\_mpi}, e.g., \texttt{mpiexec -n 4 monteswitch\_mpi -new -explicit}. Similar applies to the arguments \texttt{-resume} and 
 \texttt{-reset}.
 
-Further details of the parallelisation are as follows. All replicas are always initialised to be in the same microstate. For a new simulation this is 
-determined by the \textbf{init\_lattice} variable in \texttt{params\_in} similarly to \texttt{monteswitch}. For a resumed simulation this is the microstate 
+Further details of the parallelisation are as follows. All replicas are always initialised to be in the same state. For a new simulation this is 
+determined by the \textbf{init\_lattice} variable in \texttt{params\_in} similarly to \texttt{monteswitch}. For a resumed simulation this is the state 
 contained in the \texttt{state} file from which the simulation is to be resumed. We emphasise that \emph{all replicas of the system are initialised with 
-the same microstate} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. In future we hope to allow `true' checkpointing 
+the same state} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. In future we hope to allow `true' checkpointing 
 whereby a simulation picks up exactly where it left off , i.e., by having the $n$th replica initialised from the file \texttt{state\_}$n$ instead of having
 all replicas initialised from \texttt{state}, and to ammend \texttt{data\_}$n$ with information pertaining to replica $n$ during the resumed
 simulation. Note that the files \texttt{data\_}$n$ are thus always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
 invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The excpetion is replica `0',
-whose microstate is always stored in the file \texttt{state}, as well as \texttt{state\_0}.
+whose state is always stored in the file \texttt{state}, as well as \texttt{state\_0}.
 
 To expand upon what was just said, in a resumed simulation, only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
 simulation via the file \texttt{state}. All other replicas have counter variables initialised to zero at the start of the resumed simulation.
@@ -1321,7 +1405,7 @@ $\infty$ -- are likely to happen during even a very long simulation.
 
 It is noteworthy that the order parameter $M$ has a straightforward physical interpretation for penetrable spheres: if the system is
 currently in phase 1(2) then $-(+)M/\epsilon$ is the number of overlapping spheres which result from performing a lattice switch from the 
-current microstate. This is similar to the definition of $M$ used in the original LSMC papers (Refs. \cite{Bruce_1997,Bruce_2000}).
+current state. This is similar to the definition of $M$ used in the original LSMC papers (Refs. \cite{Bruce_1997,Bruce_2000}).
 
 \subsection{\texttt{interactions\_HS\_multi.f95}}
 In \texttt{interactions\_HS\_multi.f95} the sphere diameter is allowed to vary with species. Here, the pair potential between two particles
@@ -1401,7 +1485,7 @@ of input files.
 \section{Programs for generating \texttt{lattices\_in} files}
 The programs \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} generate \texttt{lattices\_in} 
 files corresponding to, respectively, hcp--fcc, bcc--fcc and bcc--hcp pairs of phases.
-Each program takes four arguments. The first is the density, i.e., the number of atoms per unit volume, of the pair of microstates to
+Each program takes four arguments. The first is the density, i.e., the number of atoms per unit volume, of the pair of states to
 construct. The second, third and fourth arguments are the integers which correspond
 to the number of unit cells (described in a moment) which will be tiled in the x-, y- and z-directions respectively to construct the
 supercell for each phase. The program outputs the text for the \texttt{lattices\_in} file to stdout. Hence one must redirect the output
@@ -1466,7 +1550,7 @@ Extract the displacements of the particles, and output them to stdout. In the ou
 the x-, y- and z-displacements respectively for a particle. 
 
 \subsection{\texttt{-calc\_rad\_dist bins}}
-Calculate the radial distribution function, based on the current microstate, and output it to stdout. In the output, each line corresponds 
+Calculate the radial distribution function, based on the current state, and output it to stdout. In the output, each line corresponds 
 to a distance, which is the first token, and the second token contains the average number of particles at this distance from a particle. The 
 output is like a histogram, with each line corresponding to a bin, the first token corresponding to the minimum of the range covered by the 
 bin, and the second token corresponding to the number of counts for that bin. The range of the bin is inclusive at its minimum, and 
@@ -1937,7 +2021,7 @@ mean-squared displacements of each particle) and their uncertainties using block
 \item \textbf{block\_sweeps}, the number of sweeps which constitute a block in the block analysis is set to 155000, which is far larger than the 
 correlation time of
   ~10000 sweeps determined earlier. Note that, since each MPI thread performs 175000 sweeps, and since each thread will be given 20000 sweeps to 
-  equilibrate - during which time the microstates visited by the system are not used in evaluating equilibrium quantities - setting the block size to 
+  equilibrate - during which time the states visited by the system are not used in evaluating equilibrium quantities - setting the block size to 
   155000 sweeps corresponds to each MPI thread performing exactly 1 block. Hence the simulation in total considers 4 blocks.
 \end{itemize}
 
@@ -2053,7 +2137,7 @@ value of \textbf{alpha\_1} (type \texttt{REAL}). The second line is similar, but
 This test calculates the free energy difference between two Einstein crystals with different spring constants,
 as well as the mean-squared displacements and mean energies of both crystals. The spring constant for lattice 
 1 in is 1.0, and the spring constant for lattice 2 is 2.0. The calculation in this test is 
-performed at $\beta=100$ using Boltzmann (i.e., not multicanonical) sampling, for a one particle supercell, and 
+performed at $\beta=100$ using canonical (i.e., not multicanonical) sampling, for a one particle supercell, and 
 consists of 10,000,000 sweeps using \textbf{part\_step}=0.12.
 
 Checks to perform:
@@ -2118,7 +2202,7 @@ This test is the same as \texttt{test\_EC\_4}, but uses MPI (2 threads).
 
 \subsection{\texttt{test\_EC\_5}}
 This test generates the weight function using the shooting method in conjunction with \texttt{pong\_down} barrier
-dynamics and Boltzmann sampling. The simulation consists of 1,000,000 sweeps. Two further files are created 
+dynamics and canonical sampling. The simulation consists of 1,000,000 sweeps. Two further files are created 
 during this test: \texttt{M\_vs\_t.dat} gives the value of the order parameter vs. sweep number (data points 
 every 100 sweeps), and \texttt{macro\_vs\_t.dat} similarly gives the macrostate number, i.e., the bin in the 
 order parameter histogram for the system, vs. sweep number. Both plots should resemble a sawtooth.
@@ -2242,7 +2326,7 @@ mobile barrier methods), calculation of free energy differences, and calculation
 \subsection{\texttt{test\_EC\_NPT\_1}}
 This test calculates the free energy difference between two phases with different $\alpha$ and $\gamma$,
 as well as the mean-squared displacements and mean energies of both crystals. Here $\alpha_1=1000$, $\gamma_1=2$,
-$\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$ and $P=0.25$. The calculation in this test is performed using Boltzmann 
+$\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$ and $P=0.25$. The calculation in this test is performed using canonical
 sampling (i.e., not multicanonical sampling), for a one particle supercell, and consists of 10,000,000 sweeps 
 using \textbf{part\_step} set to 0.03 and \textbf{vol\_step} set to 3.0.
 
