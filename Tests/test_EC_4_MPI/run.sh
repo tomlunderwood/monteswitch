@@ -1,5 +1,5 @@
 echo "Running simulation to generate weight function"
-mpiexec -n 2 ../../monteswitch_mpi -new
+mpiexec -n 2 ../../monteswitch_mpi 
 # Alter the state file to prepare for the production run
 sed -i '' 's/stop_sweeps=      1000000/stop_sweeps=    10000000/' state
 sed -i '' 's/update_eta=  T/update_eta=  F/' state

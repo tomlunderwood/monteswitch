@@ -27,9 +27,8 @@
 !! system is that specified in the 'init' file (for a new simulation) or the 'state' file (for a resumed simulation). Each
 !! task has a separate 'data' file to which information is output during its simulation: file 'data_n' corresponds to task 
 !! 'n', where n=0,1,2,...  When all tasks are completed, the results are combined in a manner described below, and exported
-!! to the file 'state'. Furthermore, if the second command line argument is "-explicit", then the state at the end of each 
-!! task is output to a file 'state_n', where 'n' denotes the task number. If the second command line argument is absent,
-!! then the files are created, but they are empty. The files can be quite large; hence the default being that they are empty.
+!! to the file 'state'. Furthermore, the state at the end of each task is output to a file 'state_n', where 'n' denotes the 
+!! task number. Be aware that these files can be quite large.
 !! </p>
 !! <p>
 !! Details of the parallelisation are as follows. All tasks are initialised to have an identical 'starting state'. For a new simulation this
@@ -77,8 +76,6 @@ program monteswitch_mpi
   character(len=20) :: filename_data
   ! The string of the 'state' file for the current task
   character(len=20) :: filename_state
-  ! The checkpoint_period flag 'for the whole simulation'
-  integer(ik) :: checkpoint_period_overall
   ! The seed to be used for the random number generator. In the module 'rng_mod', if a specific seed is not given,
   ! then a random one is chosen - the value of the system clock. One cannot rely on the clock being different
   ! when the initalisation procedure in 'rng_mod' is called by each task; hence one should explicitly give the
@@ -138,8 +135,6 @@ program monteswitch_mpi
      
      ! Assign sweeps according to the task ID
      call assign_sweeps()
-     ! Assign checkpoint_period according to the second command line argument
-     call assign_checkpoint_period()
      ! Run
      call run(filename_data,filename_state,.false.,seed)
      ! Wait for all tasks to complete before proceeding
@@ -159,8 +154,6 @@ program monteswitch_mpi
      if(task_id/=0) then
          call initialise_counters()
      end if
-     ! Assign checkpoint_period according to the second command line argument
-     call assign_checkpoint_period()
      ! Run
      call run(filename_data,filename_state,.false.,seed)
      ! Wait for all tasks to complete before proceeding
@@ -177,8 +170,6 @@ program monteswitch_mpi
 
      ! Assign sweeps according to the task ID
      call assign_sweeps()
-     ! Assign checkpoint_period according to the second command line argument
-     call assign_checkpoint_period()
      ! Run
      call run(filename_data,filename_state,.false.,seed)
      ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
@@ -207,25 +198,6 @@ program monteswitch_mpi
 
 contains
 
-  
-  ! This subroutine examines the second command argument. If it is
-  ! "-explicit", then we are in explicit mode, and checkpoint_period takes the expected value; if it is absent then
-  ! we want empty state files exported by all tasks, and hence we set checkpoint_period to be -1.
-  subroutine assign_checkpoint_period()
-    ! Get the original value for 'checkpoint_period'
-    checkpoint_period_overall=checkpoint_period
-    ! Read the second command line argument, and set 'explicit mode' accordingly.
-    call getarg(2,char)
-    if(trim(char)=="-explicit") then     
-       ! Do nothing (checkpoint_period for all tasks is that specified in the imported 'state' or 'init')
-    else if(char=="") then
-       ! Have empty state files
-       checkpoint_period=-1
-    else 
-       write(0,*) "monteswitch_mpi: Error. Unrecognised second argument detected."
-       stop 1
-    end if
-  end subroutine assign_checkpoint_period
 
 
 
@@ -543,10 +515,6 @@ contains
        call run(filename_data,"state",.true.)
        ! Set stop_sweeps back to the value before parallelisation, which is stored in stop_sweeps_total
        stop_sweeps=stop_sweeps_total
-       ! Set checkpoint_period back to the value before parallelisation, which is stored 
-       ! in checkpoint_period_overall. Recall that 'checkpoint_period' was modified to be -1, unless we
-       ! are in explicit mode.
-       checkpoint_period=checkpoint_period_overall
        ! Export the simulation to 'state'
        call export("state")
     end if

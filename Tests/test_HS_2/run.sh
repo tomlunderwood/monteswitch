@@ -1,2 +1,2 @@
-mpiexec -n 4 ../../monteswitch_mpi -new -explicit
+mpiexec -n 4 ../../monteswitch_mpi -new 
 

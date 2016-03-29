@@ -1,5 +1,5 @@
 echo "Running test_EC_8_MPI..."
-mpiexec -n 4 ../../monteswitch_mpi -new -explicit
+mpiexec -n 4 ../../monteswitch_mpi -new 
 echo
 echo "* equil_Delta_F should be -0.0415888:"
 grep ' equil_DeltaF' state
