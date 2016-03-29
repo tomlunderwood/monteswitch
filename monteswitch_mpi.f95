@@ -50,148 +50,229 @@
 !!
 program monteswitch_mpi
 
-  !! <h2> Dependencies </h2>
-  !! <p> 
-  !! <ul>
-  !!  <li> <code> kinds_mod </code> </li>
-  !!  <li> <code> monteswitch_mod </code> </li>
-  !! </ul>
-  !! </p>
-  use kinds_mod
-  use monteswitch_mod
+    !! <h2> Dependencies </h2>
+    !! <p> 
+    !! <ul>
+    !!  <li> <code> kinds_mod </code> </li>
+    !!  <li> <code> monteswitch_mod </code> </li>
+    !! </ul>
+    !! </p>
+    use kinds_mod
+    use monteswitch_mod
 
-  implicit none
-
-
-  ! MPI header
-  include 'mpif.h'
-
-  ! MPI-related variables
-  integer :: task_id ! The task ID
-  integer :: num_tasks ! The number of tasks
-
-  ! The total number of sweeps to be performed - the same as 'stop_sweeps' in the 'init' or 'state' file
-  integer(ik) :: stop_sweeps_total
-  ! The string of the 'data' file for the current task
-  character(len=20) :: filename_data
-  ! The string of the 'state' file for the current task
-  character(len=20) :: filename_state
-  ! The seed to be used for the random number generator. In the module 'rng_mod', if a specific seed is not given,
-  ! then a random one is chosen - the value of the system clock. One cannot rely on the clock being different
-  ! when the initalisation procedure in 'rng_mod' is called by each task; hence one should explicitly give the
-  ! random number generators for each task different seeds. Otherwise it is possible that two or more tasks have
-  ! the same stream of random numbers.
-  integer :: seed
-  
-  ! Unimportant variables
-  character(len=20) :: char
-  character(len=20) :: char_int
-  integer(ik) :: error
-
-  ! THE PROGRAM
-  
- 
-  ! Initialise the MPI environment
-  call MPI_INIT(error)
-  if(error/=0) then
-     write(0,*) "monteswitch_mpi: Error. There was a problem initialising the MPI environment."
-     stop 1
-  end if
-
-  ! Find out the task ID and the number of processes which were started
-  call MPI_COMM_RANK(MPI_COMM_WORLD,task_id,error)
-  call MPI_COMM_SIZE(MPI_COMM_WORLD, num_tasks,error)
-
-  ! Set the filenames for this task
-  write(char_int,*) task_id
-  filename_data='data_'//trim(adjustl(char_int))
-  filename_state='state_'//trim(adjustl(char_int))
-
-  ! Set the seed (different values for each task)
-  ! Note that different MPI threads may be called at exactly the same time on the system clock,
-  ! yielding identical values for 'seed' immediately after the next line. Add task_id*100000 to
-  ! set different seeds for each thread even if this occurs; it is extremely unlikely, though
-  ! theoretically possible, that any two threads will have the same seed after this (it would
-  ! require an unrealistically large delay between calling the next line between different
-  ! threads)
-  call system_clock(count=seed)
-  if(seed < huge(seed) - (num_tasks-1)*100000) then
-      seed = seed + task_id*100000
-  else
-      seed = seed - task_id*100000
-  end if
-
-  ! Read the first command line argument 
-  call getarg(1,char)
-  if(char=="") then
-     write(0,*) "monteswitch_mpi: Error. No command line argument detected."
-     stop 1
-  else if(trim(char)=="-new") then
-
-     ! CODE FOR A NEW SIMULATION
-
-     ! Import the appropriate variables from the 3 input files
-     call initialise_from_files("params_in","lattices_in")
-     
-     ! Assign sweeps according to the task ID
-     call assign_sweeps()
-     ! Run
-     call run(filename_data,filename_state,.false.,seed)
-     ! Wait for all tasks to complete before proceeding
-     call MPI_BARRIER(MPI_COMM_WORLD,error) 
-     ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
-     call combine()
-
-  else if(trim(char)=="-resume") then
-
-     ! CODE FOR A RESUMED SIMULATION
-     
-     call import("state")
-
-     ! Assign sweeps according to the task ID
-     call assign_sweeps()
-     ! Reset counters for all tasks other than task 0
-     if(task_id/=0) then
-         call initialise_counters()
-     end if
-     ! Run
-     call run(filename_data,filename_state,.false.,seed)
-     ! Wait for all tasks to complete before proceeding
-     call MPI_BARRIER(MPI_COMM_WORLD,error) 
-     ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
-     call combine()
-
-  else if(trim(char)=="-reset") then
-     
-     ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
-     
-     call import("state")
-     call initialise_counters()
-
-     ! Assign sweeps according to the task ID
-     call assign_sweeps()
-     ! Run
-     call run(filename_data,filename_state,.false.,seed)
-     ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
-     call combine()
-
-  else
-
-     ! CODE FOR ANY OTHER COMMAND LINE ARGUMENTS
-
-     write(0,*) "monteswitch_mpi: Error. Unrecognised first command line argument."
-     stop 1
-
-  end if
+    implicit none
 
 
+    ! MPI header
+    include 'mpif.h'
 
-  ! Finalise the MPI environment
-  call MPI_FINALIZE(error)
-  if(error/=0) then
-     write(0,*) "monteswitch_mpi: Error. There was a problem finalising the MPI environment."
-     stop 1
-  end if
+    ! MPI-related variables
+    integer :: task_id ! The task ID
+    integer :: num_tasks ! The number of tasks
+
+    ! The total number of sweeps to be performed - the same as 'stop_sweeps' in the 'init' or 'state' file
+    integer(ik) :: stop_sweeps_total
+    ! The string of the 'data' file for the current task
+    character(len=20) :: filename_data
+    ! The string of the 'state' file for the current task
+    character(len=20) :: filename_state
+    ! The 'master' seed to be used for the random number generator. This is used to create different seeds 
+    ! MPI task.
+    integer :: seed
+
+    ! This is .true. if the argument "-seed" is present
+    logical :: seed_specified
+    ! The command line argument we are on for reading: we have read n-1 command line arguments so far
+    integer :: n
+
+    ! Unimportant variables
+    character(len=20) :: char
+    character(len=20) :: char_int
+    integer(ik) :: error
+
+
+    ! Initialise the MPI environment
+    call MPI_INIT(error)
+    if(error/=0) then
+        write(0,*) "monteswitch_mpi_mpi: Error. There was a problem initialising the MPI environment."
+        stop 1
+    end if
+
+    ! Find out the task ID and the number of processes which were started
+    call MPI_COMM_RANK(MPI_COMM_WORLD,task_id,error)
+    call MPI_COMM_SIZE(MPI_COMM_WORLD, num_tasks,error)
+
+    ! Set the filenames for this task
+    write(char_int,*) task_id
+    filename_data='data_'//trim(adjustl(char_int))
+    filename_state='state_'//trim(adjustl(char_int))
+
+
+    seed_specified = .false.
+    n=1
+
+    ! Get the 1st command line argument
+    call getarg(n,char)
+    n = n+1
+
+    ! Check that there actually is an argument
+    if(trim(char)=="") then
+
+        write(0,*) "monteswitch_mpi: Error. No command line argument detected."
+        stop 1
+
+    end if
+
+    ! If the 1st argument is "-seed" then read the next argument and use it as the master RNG seed.
+    ! Otherwise get the master seed from the system clock
+    if(trim(char)=="-seed") then
+
+        seed_specified = .true.
+
+        call getarg(n,char)
+        n = n+1
+
+        read(char,*,iostat=error) seed
+
+        ! Check that the seed is sensible
+        if(error/=0) then
+            write(0,*) "monteswitch_mpi: Error. Problem reading integer after the command line argument '-seed'"
+            stop 1
+        end if
+        if(seed==0) then
+            write(0,*) "monteswitch_mpi: Error. The RNG seed must be non-zero."
+            stop 1
+        end if
+
+        ! Read the next command line argument: we are still expecting one of "-new", "-resume" or "-reset"
+        call getarg(n,char)
+        n = n+1
+
+    else 
+
+        call system_clock(count=seed)
+
+    end if
+
+
+    ! Use the master seed to set different seeds for each task. Note that if "-seed" is not present then
+    ! the variable 'seed' for each task at this point refects the time on the system clock. This will
+    ! usually be different for different tasks, but not necessarily. Hence we add/subtract task_id*100000
+    ! to 'seed' to ensure the seeds are different for each task. (Actually it is still theoretically 
+    ! possible, though extremely unlikely, that two or more tasks would have the same seed after this).
+    ! This also ensures the seeds are different if "-seed" is present.
+    if(seed < huge(seed) - (num_tasks-1)*100000) then
+        seed = seed + task_id*100000
+    else
+        seed = seed - task_id*100000
+    end if
+
+
+    ! If the 1st argument (or 3rd argument if the 1st argument is "-seed") is "-new", "-resume", 
+    ! "-reset" or something else
+    select case(trim(char))
+
+    case("-new")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-new' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR A NEW SIMULATION
+
+        ! Import the appropriate variables from the input files
+        call initialise_from_files("params_in","lattices_in")
+
+        ! Assign sweeps according to the task ID
+        call assign_sweeps()
+        ! Run
+        call run(filename_data,filename_state,.false.,seed)
+        ! Wait for all tasks to complete before proceeding
+        call MPI_BARRIER(MPI_COMM_WORLD,error) 
+        ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
+        call combine()
+
+
+    case("-resume")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-resume' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR A RESUMED SIMULATION
+
+        call import("state")
+
+        ! Assign sweeps according to the task ID
+        call assign_sweeps()
+        ! Reset counters for all tasks other than task 0
+        if(task_id/=0) then
+            call initialise_counters()
+        end if
+        ! Run
+        call run(filename_data,filename_state,.false.,seed)
+        ! Wait for all tasks to complete before proceeding
+        call MPI_BARRIER(MPI_COMM_WORLD,error) 
+        ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
+        call combine()
+
+
+    case("-reset")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-reset' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
+
+        call import("state")
+        call initialise_counters()
+
+        ! Assign sweeps according to the task ID
+        call assign_sweeps()
+        ! Run
+        call run(filename_data,filename_state,.false.,seed)
+        ! Combine the counter variables in all simulations into task 0, process, then export to 'state'
+        call combine()
+
+
+    case("")
+
+        ! Code for missing 3rd argument if "-seed" is present
+
+        write(0,*) "monteswitch_mpi: Error. Failed to detect argument '-new', '-resume' or '-reset'"
+        stop 1
+
+
+    case default
+
+        ! Code for unknown 1st (or 3rd if "-seed" is present) argument
+
+        write(0,*) "monteswitch_mpi: Error. Unrecognised command line argument '",trim(char),"'"
+        stop 1
+
+    end select
+
+
+
+    ! Finalise the MPI environment
+    call MPI_FINALIZE(error)
+    if(error/=0) then
+        write(0,*) "monteswitch_mpi: Error. There was a problem finalising the MPI environment."
+        stop 1
+    end if
 
 
 
@@ -201,325 +282,329 @@ contains
 
 
 
-  ! This subroutine sets stop_sweeps for the current task: for each task we perform stop_sweeps_total/num_tasks sweeps; 
-  ! with any extra sweeps required to bring us to a total of stop_sweeps_total assigned to the master task (task 0)
-  subroutine assign_sweeps()
-    stop_sweeps_total=stop_sweeps
-    stop_sweeps=stop_sweeps_total/num_tasks
-    if(task_id==0) then
-       stop_sweeps = stop_sweeps + ( stop_sweeps_total-(stop_sweeps_total/num_tasks)*num_tasks )
-    end if
-  end subroutine assign_sweeps
+    ! This subroutine sets stop_sweeps for the current task: for each task we perform stop_sweeps_total/num_tasks sweeps; 
+    ! with any extra sweeps required to bring us to a total of stop_sweeps_total assigned to the master task (task 0)
+    subroutine assign_sweeps()
+        stop_sweeps_total=stop_sweeps
+        stop_sweeps=stop_sweeps_total/num_tasks
+        if(task_id==0) then
+            stop_sweeps = stop_sweeps + ( stop_sweeps_total-(stop_sweeps_total/num_tasks)*num_tasks )
+        end if
+    end subroutine assign_sweeps
 
 
 
 
-  ! This subroutine combines 'counter' variables from all tasks with those in the master task. Note that
-  ! 'intrablock' sum variables are not combined - since they shouldn't be. It then runs task 0 for 0 sweeps 
-  ! in order to recalculate weight functions, and finally exports the final master task 
-  ! variables to the file 'state'.
-  ! Note that the data type used in MPI_REDUCE for the real variables is MPI_DOUBLE_PRECISION. Using MPI_REAL,
-  ! with real(rk) amounting to double precision, caused errors.
-  subroutine combine()
-    integer(ik) :: sum_int
-    real(rk) :: sum_real
-    integer(ik), dimension(:), allocatable :: sum_int_array
-    real(rk), dimension(:), allocatable :: sum_real_array
-    real(rk), dimension(:,:), allocatable :: trans_sum
+    ! This subroutine combines 'counter' variables from all tasks with those in the master task. Note that
+    ! 'intrablock' sum variables are not combined - since they shouldn't be. It then runs task 0 for 0 sweeps 
+    ! in order to recalculate weight functions, and finally exports the final master task 
+    ! variables to the file 'state'.
+    ! Note that the data type used in MPI_REDUCE for the real variables is MPI_DOUBLE_PRECISION. Using MPI_REAL,
+    ! with real(rk) amounting to double precision, caused errors.
+    subroutine combine()
+        integer(ik) :: sum_int
+        real(rk) :: sum_real
+        integer(ik), dimension(:), allocatable :: sum_int_array
+        real(rk), dimension(:), allocatable :: sum_real_array
+        real(rk), dimension(:,:), allocatable :: trans_sum
 
-    ! Block the current task until all other tasks get to this point
-    call MPI_BARRIER(MPI_COMM_WORLD,error)
+        ! Block the current task until all other tasks get to this point
+        call MPI_BARRIER(MPI_COMM_WORLD,error)
 
-    ! For each counter variable, sum over all variables in each task, and store them in the relevant 'sum' variable 
-    ! in process 0.
+        ! For each counter variable, sum over all variables in each task, and store them in the relevant 'sum' variable 
+        ! in process 0.
 
-    ! M_counts_1
-    allocate(sum_int_array(size(M_counts_1)))
-    sum_int_array=0
-    call MPI_REDUCE(M_counts_1,sum_int_array,size(sum_int_array),MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       M_counts_1=sum_int_array
-    end if
-    deallocate(sum_int_array)
-    ! M_counts_2
-    allocate(sum_int_array(size(M_counts_2)))
-    sum_int_array=0
-    call MPI_REDUCE(M_counts_2,sum_int_array,size(sum_int_array),MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       M_counts_2=sum_int_array
-    end if
-    deallocate(sum_int_array)
-    ! sweeps
-    sum_int=0
-    call MPI_REDUCE(sweeps,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       sweeps=sum_int
-    end if
-    ! moves
-    sum_int=0
-    call MPI_REDUCE(moves,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       moves=sum_int
-    end if
-    ! moves_lattice
-    sum_int=0
-    call MPI_REDUCE(moves_lattice,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       moves_lattice=sum_int
-    end if
-    ! accepted_moves_lattice
-    sum_int=0
-    call MPI_REDUCE(accepted_moves_lattice,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       accepted_moves_lattice=sum_int
-    end if
-    ! moves_part
-    sum_int=0
-    call MPI_REDUCE(moves_part,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       moves_part=sum_int
-    end if
-    ! accepted_moves_part
-    sum_int=0
-    call MPI_REDUCE(accepted_moves_part,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       accepted_moves_part=sum_int
-    end if
-    ! moves_vol
-    sum_int=0
-    call MPI_REDUCE(moves_vol,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       moves_vol=sum_int
-    end if
-    ! accepted_moves_vol
-    sum_int=0
-    call MPI_REDUCE(accepted_moves_vol,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       accepted_moves_vol=sum_int
-    end if
-    ! rejected_moves_M_OOB
-    sum_int=0
-    call MPI_REDUCE(rejected_moves_M_OOB,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       rejected_moves_M_OOB=sum_int
-    end if
-    ! melts
-    sum_int=0
-    call MPI_REDUCE(melts,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       melts=sum_int
-    end if
-    ! trans
-    allocate(  trans_sum( size(trans,1) , size(trans,2) )  )
-    trans_sum=0.0_rk
-    call MPI_REDUCE(trans,trans_sum,size(trans_sum),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       trans=trans_sum
-    end if
-    deallocate(trans_sum)
-    ! block_counts
-    sum_int=0
-    call MPI_REDUCE(block_counts,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts=sum_int
-    end if
-    ! interblock_sum_DeltaF
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_DeltaF,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_DeltaF=sum_real
-    end if
-    ! interblock_sum_DeltaF_sqrd
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_DeltaF_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_DeltaF_sqrd=sum_real
-    end if
-    ! block_counts_DeltaF
-    sum_int=0
-    call MPI_REDUCE(block_counts_DeltaF,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_DeltaF=sum_int
-    end if
-    ! interblock_sum_H_1
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_H_1,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_H_1=sum_real
-    end if
-    ! interblock_sum_H_2
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_H_2,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_H_2=sum_real
-    end if
-    ! interblock_sum_H_1_sqrd
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_H_1_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_H_1_sqrd=sum_real
-    end if
-    ! interblock_sum_H_2_sqrd
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_H_2_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_H_2_sqrd=sum_real
-    end if
-    ! block_counts_H_1
-    sum_int=0
-    call MPI_REDUCE(block_counts_H_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_H_1=sum_int
-    end if
-    ! block_counts_H_2
-    sum_int=0
-    call MPI_REDUCE(block_counts_H_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_H_2=sum_int
-    end if
-    ! interblock_sum_V_1
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_V_1,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_V_1=sum_real
-    end if
-    ! interblock_sum_V_2
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_V_2,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_V_2=sum_real
-    end if
-    ! interblock_sum_V_1_sqrd
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_V_1_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_V_1_sqrd=sum_real
-    end if
-    ! interblock_sum_V_2_sqrd
-    sum_real=0.0_rk
-    call MPI_REDUCE(interblock_sum_V_2_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-      interblock_sum_V_2_sqrd=sum_real
-    end if
-    ! block_counts_V_1
-    sum_int=0
-    call MPI_REDUCE(block_counts_V_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_V_1=sum_int
-    end if
-    ! block_counts_V_2
-    sum_int=0
-    call MPI_REDUCE(block_counts_V_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_V_2=sum_int
-    end if
-    ! interblock_sum_umsd_1
-    allocate(sum_real_array(n_part))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_umsd_1,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_umsd_1=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_umsd_2
-    allocate(sum_real_array(n_part))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_umsd_2,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_umsd_2=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_umsd_1_sqrd
-    allocate(sum_real_array(n_part))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_umsd_1_sqrd,sum_real_array,size(sum_real_array), &
-         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_umsd_1_sqrd=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_umsd_2_sqrd
-    allocate(sum_real_array(n_part))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_umsd_2_sqrd,sum_real_array,size(sum_real_array), &
-         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_umsd_2_sqrd=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! block_counts_umsd_1
-    sum_int=0
-    call MPI_REDUCE(block_counts_umsd_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_umsd_1=sum_int
-    end if
-    ! block_counts_umsd_2
-    sum_int=0
-    call MPI_REDUCE(block_counts_umsd_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_umsd_2=sum_int
-    end if
-    ! interblock_sum_L_1
-    allocate(sum_real_array(3))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_L_1,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_L_1=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_L_2
-    allocate(sum_real_array(3))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_L_2,sum_real_array,size(sum_real_array),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_L_2=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_L_1_sqrd
-    allocate(sum_real_array(3))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_L_1_sqrd,sum_real_array,size(sum_real_array), &
-         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_L_1_sqrd=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! interblock_sum_L_2_sqrd
-    allocate(sum_real_array(3))
-    sum_real_array=0
-    call MPI_REDUCE(interblock_sum_L_2_sqrd,sum_real_array,size(sum_real_array), &
-         MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       interblock_sum_L_2_sqrd=sum_real_array
-    end if
-    deallocate(sum_real_array)
-    ! block_counts_L_1
-    sum_int=0
-    call MPI_REDUCE(block_counts_L_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_L_1=sum_int
-    end if
-    ! block_counts_L_2
-    sum_int=0
-    call MPI_REDUCE(block_counts_L_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
-    if(task_id==0) then
-       block_counts_L_2=sum_int
-    end if
+        ! M_counts_1
+        allocate(sum_int_array(size(M_counts_1)))
+        sum_int_array=0
+        call MPI_REDUCE(M_counts_1,sum_int_array,size(sum_int_array),MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            M_counts_1=sum_int_array
+        end if
+        deallocate(sum_int_array)
+        ! M_counts_2
+        allocate(sum_int_array(size(M_counts_2)))
+        sum_int_array=0
+        call MPI_REDUCE(M_counts_2,sum_int_array,size(sum_int_array),MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            M_counts_2=sum_int_array
+        end if
+        deallocate(sum_int_array)
+        ! sweeps
+        sum_int=0
+        call MPI_REDUCE(sweeps,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            sweeps=sum_int
+        end if
+        ! moves
+        sum_int=0
+        call MPI_REDUCE(moves,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            moves=sum_int
+        end if
+        ! moves_lattice
+        sum_int=0
+        call MPI_REDUCE(moves_lattice,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            moves_lattice=sum_int
+        end if
+        ! accepted_moves_lattice
+        sum_int=0
+        call MPI_REDUCE(accepted_moves_lattice,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            accepted_moves_lattice=sum_int
+        end if
+        ! moves_part
+        sum_int=0
+        call MPI_REDUCE(moves_part,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            moves_part=sum_int
+        end if
+        ! accepted_moves_part
+        sum_int=0
+        call MPI_REDUCE(accepted_moves_part,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            accepted_moves_part=sum_int
+        end if
+        ! moves_vol
+        sum_int=0
+        call MPI_REDUCE(moves_vol,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            moves_vol=sum_int
+        end if
+        ! accepted_moves_vol
+        sum_int=0
+        call MPI_REDUCE(accepted_moves_vol,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            accepted_moves_vol=sum_int
+        end if
+        ! rejected_moves_M_OOB
+        sum_int=0
+        call MPI_REDUCE(rejected_moves_M_OOB,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            rejected_moves_M_OOB=sum_int
+        end if
+        ! melts
+        sum_int=0
+        call MPI_REDUCE(melts,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            melts=sum_int
+        end if
+        ! trans
+        allocate(  trans_sum( size(trans,1) , size(trans,2) )  )
+        trans_sum=0.0_rk
+        call MPI_REDUCE(trans,trans_sum,size(trans_sum),MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            trans=trans_sum
+        end if
+        deallocate(trans_sum)
+        ! block_counts
+        sum_int=0
+        call MPI_REDUCE(block_counts,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts=sum_int
+        end if
+        ! interblock_sum_DeltaF
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_DeltaF,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_DeltaF=sum_real
+        end if
+        ! interblock_sum_DeltaF_sqrd
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_DeltaF_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_DeltaF_sqrd=sum_real
+        end if
+        ! block_counts_DeltaF
+        sum_int=0
+        call MPI_REDUCE(block_counts_DeltaF,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_DeltaF=sum_int
+        end if
+        ! interblock_sum_H_1
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_H_1,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_H_1=sum_real
+        end if
+        ! interblock_sum_H_2
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_H_2,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_H_2=sum_real
+        end if
+        ! interblock_sum_H_1_sqrd
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_H_1_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_H_1_sqrd=sum_real
+        end if
+        ! interblock_sum_H_2_sqrd
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_H_2_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_H_2_sqrd=sum_real
+        end if
+        ! block_counts_H_1
+        sum_int=0
+        call MPI_REDUCE(block_counts_H_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_H_1=sum_int
+        end if
+        ! block_counts_H_2
+        sum_int=0
+        call MPI_REDUCE(block_counts_H_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_H_2=sum_int
+        end if
+        ! interblock_sum_V_1
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_V_1,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_V_1=sum_real
+        end if
+        ! interblock_sum_V_2
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_V_2,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_V_2=sum_real
+        end if
+        ! interblock_sum_V_1_sqrd
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_V_1_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_V_1_sqrd=sum_real
+        end if
+        ! interblock_sum_V_2_sqrd
+        sum_real=0.0_rk
+        call MPI_REDUCE(interblock_sum_V_2_sqrd,sum_real,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_V_2_sqrd=sum_real
+        end if
+        ! block_counts_V_1
+        sum_int=0
+        call MPI_REDUCE(block_counts_V_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_V_1=sum_int
+        end if
+        ! block_counts_V_2
+        sum_int=0
+        call MPI_REDUCE(block_counts_V_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_V_2=sum_int
+        end if
+        ! interblock_sum_umsd_1
+        allocate(sum_real_array(n_part))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_umsd_1,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_umsd_1=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_umsd_2
+        allocate(sum_real_array(n_part))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_umsd_2,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_umsd_2=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_umsd_1_sqrd
+        allocate(sum_real_array(n_part))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_umsd_1_sqrd,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_umsd_1_sqrd=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_umsd_2_sqrd
+        allocate(sum_real_array(n_part))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_umsd_2_sqrd,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_umsd_2_sqrd=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! block_counts_umsd_1
+        sum_int=0
+        call MPI_REDUCE(block_counts_umsd_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_umsd_1=sum_int
+        end if
+        ! block_counts_umsd_2
+        sum_int=0
+        call MPI_REDUCE(block_counts_umsd_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_umsd_2=sum_int
+        end if
+        ! interblock_sum_L_1
+        allocate(sum_real_array(3))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_L_1,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_L_1=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_L_2
+        allocate(sum_real_array(3))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_L_2,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_L_2=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_L_1_sqrd
+        allocate(sum_real_array(3))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_L_1_sqrd,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_L_1_sqrd=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! interblock_sum_L_2_sqrd
+        allocate(sum_real_array(3))
+        sum_real_array=0
+        call MPI_REDUCE(interblock_sum_L_2_sqrd,sum_real_array,size(sum_real_array), &
+            MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            interblock_sum_L_2_sqrd=sum_real_array
+        end if
+        deallocate(sum_real_array)
+        ! block_counts_L_1
+        sum_int=0
+        call MPI_REDUCE(block_counts_L_1,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_L_1=sum_int
+        end if
+        ! block_counts_L_2
+        sum_int=0
+        call MPI_REDUCE(block_counts_L_2,sum_int,1,MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,error)
+        if(task_id==0) then
+            block_counts_L_2=sum_int
+        end if
 
 
-    ! In task 0, perform the final things
-    if(task_id==0) then
-       ! Run the simulation once with a stop_sweeps of 0 to update the weight function and
-       ! equilibrium properties.
-       stop_sweeps=0
-       call run(filename_data,"state",.true.)
-       ! Set stop_sweeps back to the value before parallelisation, which is stored in stop_sweeps_total
-       stop_sweeps=stop_sweeps_total
-       ! Export the simulation to 'state'
-       call export("state")
-    end if
+        ! In task 0, perform the final things
+        if(task_id==0) then
+            ! Run the simulation once with a stop_sweeps of 0 to update the weight function and
+            ! equilibrium properties.
+            stop_sweeps=0
+            call run(filename_data,"state",.true.)
+            ! Set stop_sweeps back to the value before parallelisation, which is stored in stop_sweeps_total
+            stop_sweeps=stop_sweeps_total
+            ! Export the simulation to 'state'
+            call export("state")
+        end if
 
-  end subroutine combine
+    end subroutine combine
 
 
 

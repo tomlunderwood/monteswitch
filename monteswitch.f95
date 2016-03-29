@@ -218,7 +218,7 @@ program monteswitch
 
         ! Code for unknown 1st (or 3rd if "-seed" is present) argument
 
-        write(0,*) "monteswitch: Error. Unrecognised command line argument ",trim(char)
+        write(0,*) "monteswitch: Error. Unrecognised command line argument '",trim(char),"'"
         stop 1
 
     end select
