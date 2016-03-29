@@ -43,34 +43,39 @@
 !!   </td>
 !!  </tr>
 !!  <tr>
-!!   <td> -extract_pos </td>
+!!   <td> -extract_pos [<i>species</i>] </td>
 !!   <td>
 !!   Extract the positions of the particles, and output them to stdout. In the output
 !!   the first, second and third tokens on each line are the x-, y- and z-coordinates respectively
-!!   for a particle.
+!!   for a particle. <i>species</i> is an optional argument. If absent then particle positions for all species are output;
+!!   if specified then only positions for particles belonging to species <i>species</i> are output.
 !!   </td>
 !!  </tr>
-!!   <td> -extract_R_1 </td>
+!!   <td> -extract_R_1 [<i>species</i>] </td>
 !!   <td>
 !!   Extract the positions of the lattice vectors for lattice type 1, and output them to stdout. In 
 !!   the output the first, second and third tokens on each line are the x-, y- and z-coordinates respectively
-!!   for a particle.
+!!   for a particle. <i>species</i> is an optional argument. If absent then vectors for particles of all species are output;
+!!   if specified then only vectors for particles belonging to species <i>species</i> in lattice 1 are output.
 !!   </td>
 !!  </tr>
 !!  </tr>
-!!   <td> -extract_R_2 </td>
+!!   <td> -extract_R_2 [<i>species</i>] </td>
 !!   <td>
 !!   Extract the positions of the lattice vectors for lattice type 2, and output them to stdout. In 
 !!   the output the first, second and third tokens on each line are the x-, y- and z-coordinates respectively
-!!   for a particle.
+!!   for a particle. <i>species</i> is an optional argument. If absent then vectors for particles of all species are output;
+!!   if specified then only vectors for particles belonging to species <i>species</i> in lattice 2 are output.
 !!   </td>
 !!  </tr>
 !!  <tr>
-!!   <td> -extract_u </td>
+!!   <td> -extract_u [<i>species</i> <i>lattice</i>] </td>
 !!   <td>
 !!   Extract the displacements of the particles, and output them to stdout. In the output
 !!   the first, second and third tokens on each line are the x-, y- and z-displacements respectively
-!!   for a particle.
+!!   for a particle. <i>species</i> and <i>lattice</i> are optional arguments. If absent then displacements for particles of
+!!   all species are output; if specified then only displacements for particles belonging to species 
+!!   <i>species</i> in lattice <i>lattice</i> are output.
 !!   </td>
 !!  </tr>
 !!  <tr>
@@ -116,6 +121,16 @@
 !!   otherwise), and the second, third, fourth and fifth tokens are the x-, y- and z-coordinates respectively.
 !!   </td>
 !!  </tr>
+!!  <tr>
+!!   <td> -set_wf <i>wf_file<i></td>
+!!   <td>
+!!   Alters the weight function in the 'state' file to correspond to that specified in the file <i>wf_file</i>. The format of the file
+!!   must be analogous to the format of the weight function output by this program via the '-extract_wf' argument: the file
+!!   must contain <code>M_grid_size</code> lines, each containing two tokens (extra lines and tokens are ignored). 
+!!   Both tokens should be of type <code>real</code>.
+!!   The first token on line <i>i</i> is ignored, and the second is the new value of the weight function for macrostate <i>i</i>.
+!!   </td>
+!!  </tr>
 !! </table>
 !! </p>
 !! <p>
@@ -148,7 +163,7 @@ program monteswitch_post
 
     if(char=="") then
 
-        write(0,*) "Error: No command line argument detected."
+        write(0,*) "monteswitch_post: Error: No command line argument detected."
         stop 1
 
     else if(trim(char)=="-extract_wf") then
@@ -191,9 +206,13 @@ program monteswitch_post
 
         call extract_pos_xyz()
 
+    else if(trim(char)=="-set_wf") then
+
+        call set_wf()
+
     else
 
-        write(0,*) "Error: Unrecognised command line argument."
+        write(0,*) "monteswitch_post: Error: Unrecognised command line argument."
         stop 1
 
     end if
@@ -242,21 +261,46 @@ contains
     subroutine extract_pos()
 
         real(rk), dimension(:,:), allocatable :: pos
-        integer(ik) :: i
+        integer(ik), dimension(:), allocatable :: spec
+        
+        integer(ik) :: i, error, species
 
         call import("state")
 
-        allocate(pos(n_part,3))
+        allocate(pos(n_part,3))    
+        allocate(spec(n_part))
+
         select case(lattice)
         case(1)
             pos = pos_1
+            spec = spec_1
         case(2)
             pos = pos_2
+            spec = spec_2
         end select
 
-        do i=1,n_part
-            write(*,*) pos(i,:)
-        end do
+        call getarg(2,char)
+        if(char=="") then
+
+            ! If there is no command line argument then print the positions of all particles
+            do i=1,n_part
+                write(*,*) pos(i,:)
+            end do
+
+        else
+
+            ! Otherwise print only the positions of the particles belonging to the specified (integer) species
+            read(char,*,iostat=error) species
+            if(error/=0) then
+                write(0,*) "monteswitch_post: Error. Problem reading integer after the command line argument '-extract_pos'"
+                stop 1
+            end if
+
+            do i=1,n_part
+                if(spec(i)==species) write(*,*) pos(i,:)
+            end do
+
+        end if
 
     end subroutine extract_pos
 
@@ -266,14 +310,32 @@ contains
     ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 1
     subroutine extract_R_1()
 
-        integer(ik) :: i
+        integer(ik) :: i, species, error
 
         call import("state")
 
-        do i=1,n_part
-            write(*,*) R_1(i,:)
-        end do
+        call getarg(2,char)
+        if(char=="") then
 
+            ! If there is no command line argument then print the lattice vectors for all particles
+            do i=1,n_part
+                write(*,*) R_1(i,:)
+            end do
+
+        else
+
+            ! Otherwise print only the lattice vectors of the particles belonging to the specified (integer) species
+            read(char,*,iostat=error) species
+            if(error/=0) then
+                write(0,*) "monteswitch_post: Error. Problem reading integer after the command line argument '-extract_R_1'"
+                stop 1
+            end if
+
+            do i=1,n_part
+                if(spec_1(i)==species) write(*,*) R_1(i,:)
+            end do
+
+        end if
 
     end subroutine extract_R_1
 
@@ -283,13 +345,32 @@ contains
     ! CODE FOR EXTRACTING THE LATTICE VECTORS FOR LATTICE TYPE 2
     subroutine extract_R_2()
 
-        integer(ik) :: i
+        integer(ik) :: i, species, error
 
         call import("state")
 
-        do i=1,n_part
-            write(*,*) R_2(i,:)
-        end do
+        call getarg(2,char)
+        if(char=="") then
+
+            ! If there is no command line argument then print the lattice vectors for all particles
+            do i=1,n_part
+                write(*,*) R_2(i,:)
+            end do
+
+        else
+
+            ! Otherwise print only the lattice vectors of the particles belonging to the specified (integer) species
+            read(char,*,iostat=error) species
+            if(error/=0) then
+                write(0,*) "monteswitch_post: Error. Problem reading integer after the command line argument '-extract_R_2'"
+                stop 1
+            end if
+
+            do i=1,n_part
+                if(spec_2(i)==species) write(*,*) R_2(i,:)
+            end do
+
+        end if
 
     end subroutine extract_R_2
 
@@ -299,13 +380,54 @@ contains
     ! CODE FOR EXTRACTING THE PARTICLE DISPLACEMENTS
     subroutine extract_u()
 
-        integer(ik) :: i
+        integer(ik) :: i, species, l, error
 
         call import("state")
 
-        do i=1,n_part
-            write(*,*) u(i,:)
-        end do
+        call getarg(2,char)
+        if(char=="") then
+
+            ! If there is no command line argument then print the displacements for all particles
+            do i=1,n_part
+                write(*,*) u(i,:)
+            end do
+
+        else
+
+            ! Otherwise print only the displacements of the particles belonging to the specified (integer) species
+            ! in the specified (integer) lattice - which is the next argument
+            read(char,*,iostat=error) species
+            if(error/=0) then
+                write(0,*) "monteswitch_post: Error. Problem reading integer after the command line argument '-extract_u'"
+                stop 1
+            end if
+
+            call getarg(3,char)
+            if(char=="") then
+                write(0,*) "monteswitch_post: Error. No 3rd command line argument detected for '-extract_u'"
+                stop 1
+            end if
+            read(char,*,iostat=error) l
+            if(error/=0) then
+                write(0,*) "monteswitch_post: Error. Problem reading 2nd integer after the command line argument '-extract_u'"
+                stop 1
+            end if
+            if(l/=1 .and. l/=2) then
+                write(0,*) "monteswitch_post: Error. Lattice/phase specified for '-extract_u' is not 1 or 2"
+                stop 1
+            end if
+            
+            do i=1,n_part
+                select case(l)
+                case(1)
+                    if(spec_1(i)==species) write(*,*) u(i,:)
+                case(2)
+                    if(spec_2(i)==species) write(*,*) u(i,:)
+                end select
+            end do
+
+        end if
+
 
     end subroutine extract_u
 
@@ -324,14 +446,14 @@ contains
 
         call getarg(2,char)
         if(char=="") then
-            write(0,*) "Error: No 2nd command line argument detected (the 'bins' file name for -calc_rad_dist)."
+            write(0,*) "monteswitch_post: Error: No 2nd command line argument detected (the 'bins' file name for -calc_rad_dist)."
             stop 1
         end if
 
         read(char,*) bins
 
         if(bins<=0) then
-            write(0,*) "Error: 'bins' is <=0."
+            write(0,*) "monteswitch_post: Error: 'bins' is <=0."
             stop 1
         end if
 
@@ -387,17 +509,17 @@ contains
 
         call getarg(2,state_in_1)
         if(state_in_1=="") then
-            write(0,*) "Error: No 2nd command line argument detected (the 'state_in_1' file name for -merge_trans)."
+            write(0,*) "monteswitch_post: Error: No 2nd command line argument detected for -merge_trans."
             stop 1
         end if
         call getarg(3,state_in_2)
         if(state_in_2=="") then
-            write(0,*) "Error: No 3rd command line argument detected (the 'state_in_2' file name for -merge_trans)."
+            write(0,*) "monteswitch_post: Error: No 3rd command line argument detected for -merge_trans."
             stop 1
         end if
         call getarg(4,state_out)
         if(state_out=="") then
-            write(0,*) "Error: No 3rd command line argument detected (the 'state_out' file name for -merge_trans)."
+            write(0,*) "monteswitch_post: Error: No 4th command line argument detected for -merge_trans."
             stop 1
         end if
 
@@ -438,10 +560,10 @@ contains
         else if(trim(vector_in_1)=="R") then
             pos_1_temp = R_1
         else if(vector_in_1=="") then
-            write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_1' flag for -extract_lattices_in)."
+            write(0,*) "monteswitch_post: Error: No 2nd command line argument detected for -extract_lattices_in."
             stop 1
         else
-            write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+            write(0,*) "monteswitch_post: Error: Unrecognised 2nd command line argument to -extract_lattices_in."
             stop 1
         end if
 
@@ -451,10 +573,10 @@ contains
         else if(trim(vector_in_2)=="R") then
             pos_2_temp = R_2
         else if(vector_in_2=="") then
-            write(0,*) "Error: No 2nd command line argument detected (the 'vector_in_2' flag for -extract_lattices_in)."
+            write(0,*) "monteswitch_post: Error: No 2nd command line argument detected for -extract_lattices_in."
             stop 1
         else
-            write(0,*) "Error: Unrecognised 2nd command line argument to -extract_lattices_in ('pos' or 'R' only please)."
+            write(0,*) "monteswitch_post: Error: Unrecognised 2nd command line argument for -extract_lattices_in."
             stop 1
         end if
 
@@ -481,7 +603,7 @@ contains
 
 
 
-    ! CODE FOR EXTRACTING THE PARTICLE POSITIONS
+    ! CODE FOR EXTRACTING THE PARTICLE POSITIONS IN XYZ FORMAT
     subroutine extract_pos_xyz()
 
         real(rk), dimension(:,:), allocatable :: pos
@@ -521,6 +643,47 @@ contains
         end do
 
     end subroutine extract_pos_xyz
+
+
+
+
+    ! CODE FOR SETTING THE WEIGHT FUNCTION IN THE 'STATE' FILE
+    subroutine set_wf()
+
+        integer(ik) :: i, error
+        real(rk) :: x
+
+        call import("state")
+
+        ! Get the name of the file to read the weight function from
+        call getarg(2,char)
+        if(char=="") then
+            write(0,*) "monteswitch_post: Error. No 2nd command line argument detected for '-set_wf'"
+            stop 1
+        end if
+
+        ! Open the file
+        open(unit=10,file=trim(char),iostat=error,status="old")
+        if(error/=0) then
+            write(0,*) "monteswitch_post: Error. Problem opening file '",trim(char),"'"
+            stop 1
+        end if
+
+        ! Read the weight function from the file and set the weight function in 'state' accordingly        
+        do i=1,M_grid_size
+            read(10,*,iostat=error) x, eta_grid(i)
+            if(error/=0) then
+                write(0,*) "monteswitch_mod: Error. Problem reading weight function from line ",i," in file '",trim(char),"'"
+                stop 1
+            end if
+        end do
+
+        close(unit=10)
+
+        ! Overwrite the old 'state' file with the new weight function
+        call export("state")
+
+    end subroutine set_wf
 
 
 

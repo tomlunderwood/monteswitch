@@ -1535,18 +1535,18 @@ cells can be obtained by invoking the programs with \texttt{<nx>}, \texttt{<ny>}
 The unit cell here contains 12 particles. The particles are spread over 6 planes in the z-direction; each plane contains two particles. The positions
 of the particles corresponds to a stacking sequence for the planes of ABCABC for the fcc unit cell, and  ABABAB for the hcp unit cell. 
 Note that the unit cell is far longer in the z-directon than the x- and y-directions. Hence one should normally use more unit cells in 
-the x- and y-directions than the z-direction to construct the supercells. In the output of this program lattice 1 corresponds to hcp and
-lattice 2 corresponds to fcc.
+the x- and y-directions than the z-direction to construct the supercells. In the output of this program phase 1 corresponds to hcp and
+phase 2 corresponds to fcc.
 
 \subsection{\texttt{lattices\_in\_bcc\_fcc}}
 The unit cell here is the conventional 2-particle body-centred tetragonal (bct) unit cell; for the bcc(fcc) lattice the relative dimensions of 
 the bct unit cell in each Cartesian direction correspond to the bct representation of the bcc(fcc) lattice. In the output of this program
-lattice 1 corresponds to bcc and lattice 2 corresponds to fcc.
+phase 1 corresponds to bcc and phase 2 corresponds to fcc.
 
 \subsection{\texttt{lattices\_in\_bcc\_hcp}}
 The unit cell here contains 4 particles. The bcc unit cell is the 4-particle face-centred tetragonal (fct) corresponding to the fct representation of 
 the bcc lattice. The hcp unit cell is the `fct-like' representation of the hcp lattice. In the output of this program
-lattice 1 corresponds to bcc and lattice 2 corresponds to hcp.
+phase 1 corresponds to bcc and phase 2 corresponds to hcp.
 
 
 \section{Post-processing \texttt{state} files: \texttt{monteswitch\_post}}\label{sec:monteswitch_post}
@@ -1557,14 +1557,15 @@ of each command-line argument is described below:
 \begin{verbatim}
 monteswitch_post -extract_wf
 monteswitch_post -extract_M_counts
-monteswitch_post -extract_pos
-monteswitch_post -extract_R_1
-monteswitch_post -extract_R_2
-monteswitch_post -extract_u
+monteswitch_post -extract_pos [<species>]
+monteswitch_post -extract_R_1 [<species>]
+monteswitch_post -extract_R_2 [<species>]
+monteswitch_post -extract_u [<species> <phase>]
 monteswitch_post -calc_rad_dist <bins>
 monteswitch_post -merge_trans <state_in_1> <state_in_2> <state_out>
 monteswitch_post -extract_lattices_in <vectors_in_1> <vectors_in_2>
 monteswitch_post -extract_pos_xyz
+monteswitch_post -set_wf <wf_file>
 \end{verbatim}
 
 \subsection{\texttt{-extract\_wf}}
@@ -1573,24 +1574,28 @@ and the second is the corresponding value of the weight function.
 
 \subsection{\texttt{-extract\_M\_counts}}
 Extract order parameter histograms from \texttt{state} and output them to stdout. In the output the first token on each line is the order 
-parameter, the second is the corresponding number of counts for lattice type 1, and the third is the corresponding number of counts for 
-lattice type 2. 
+parameter, the second is the corresponding number of counts for phase 1, and the third is the corresponding number of counts for 
+phase 2. 
 
-\subsection{\texttt{-extract\_pos}}
+\subsection{\texttt{-extract\_pos [<species>]}}
 Extract the current positions of the particles, and output them to stdout. In the output the first, second and third tokens on each line 
-are the x-, y- and z-coordinates respectively for a particle. 
+are the x-, y- and z-coordinates respectively for a particle. If the optional argument \texttt{<species>} is present then only the positions
+for particles belonging to species \texttt{<species>} are output.
 
-\subsection{\texttt{-extract\_R\_1}}
-Extract the current positions of the lattice sites for lattice type 1, and output them to stdout. In the output the first, second and third 
-tokens on each line are the x-, y- and z-coordinates respectively for a particle. 
+\subsection{\texttt{-extract\_R\_1 [<species>]}}
+Extract the current positions of the lattice sites for phase 1, and output them to stdout. In the output the first, second and third 
+tokens on each line are the x-, y- and z-coordinates respectively for a particle. If the optional argument \texttt{<species>} is present 
+then only the sites for particles belonging to species \texttt{<species>} in phase 1 are output.
 
-\subsection{\texttt{-extract\_R\_2}}
-Extract the current positions of the lattice sites for lattice type 2, and output them to stdout. In the output the first, second and third 
-tokens on each line are the x-, y- and z-coordinates respectively for a particle.
+\subsection{\texttt{-extract\_R\_2 [<species>]}}
+Extract the current positions of the lattice sites for phase 2, and output them to stdout. In the output the first, second and third 
+tokens on each line are the x-, y- and z-coordinates respectively for a particle. If the optional argument \texttt{<species>} is present 
+then only the sites for particles belonging to species \texttt{<species>} in phase 2 are output.
 
-\subsection{\texttt{-extract\_u}}
+\subsection{\texttt{-extract\_u [<species> <phase>]}}
 Extract the displacements of the particles, and output them to stdout. In the output the first, second and third tokens on each line are 
-the x-, y- and z-displacements respectively for a particle. 
+the x-, y- and z-displacements respectively for a particle. If the optional arguments \texttt{<species>} and \texttt{<phase>} are present 
+then only the displacements for particles belonging to species \texttt{<species>} in phase \texttt{<phase>} are output.
 
 \subsection{\texttt{-calc\_rad\_dist <bins>}}
 Calculate the radial distribution function, based on the current state, and output it to stdout. In the output, each line corresponds 
@@ -1604,9 +1609,9 @@ the histogram is specified in the second argument \texttt{<bins>}. Note that the
 \subsection{\texttt{-merge\_trans} \texttt{<state\_in\_1>}  \texttt{<state\_in\_2>} \texttt{<state\_out>}}
 Combine the \textbf{trans} matrices from the files \texttt{<state\_in\_1>} and \texttt{<state\_in\_2>}, and store the result in the 
 file \texttt{<state\_out>}, where all variables in \texttt{<state\_out>} other than the matrix \textbf{trans} are inherited from 
-\texttt{<state\_in\_1>}. Note that \textbf{M\_grid} must be the same for both input files (in which case the matrices \textbf{trans} for
+\texttt{<state\_in\_1>}. Note that \textbf{M\_grid\_size} must be the same for both input files (in which case the matrices \textbf{trans} for
 each are of the same size). This argument can be used for pooling the results of multiple simulations which utilise the same underlying
-`order parameter grid' \textbf{M\_grid}.
+`order parameter grid' \textbf{M\_grid\_size}.
 
 \subsection{\texttt{-extract\_lattices\_in <vectors\_in\_1> <vectors\_in\_2>}}
 Output the geometrical properties of the system in the format of a \texttt{lattices\_in} file. The arguments \texttt{<vectors\_in\_1>}
@@ -1621,6 +1626,15 @@ Extract the positions of the particles, and output them to stdout in `.xyz' form
 particles, the second line is a comment line, and the subsequent lines contain the particle positions and species: the first token is 
 the `element' (set to `A' for species `1', `B' for species `2', ..., `Z' for species 26, and `?' otherwise), and the second, third, 
 fourth and fifth tokens are the x-, y- and z-coordinates respectively.
+
+\subsection{\texttt{-set\_wf <wf\_file>}}
+Alters the weight function in \texttt{state} to correspond to that specified in the file \texttt{<wf\_file>}. The format of the file
+\texttt{<wf\_file>} must be analogous to the format of the weight function output by this program via the \texttt{-extract\_wf} argument
+described above: the file must contain \textbf{M\_grid\_size} lines, each containing two tokens (extra lines and tokens are ignored),
+which both should be of type \texttt{REAL}. The first token on each line is ignored, while the second tokens are treated as the new
+weight function: the value of the weight function for macrostate $i$ is set to the value of the second token on line $i$ in
+\texttt{<wf\_file>}. We recommend care be taken while using this command-line option, since it irretrievably overwrites the weight 
+function in \texttt{state}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
