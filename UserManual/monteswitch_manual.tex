@@ -68,32 +68,29 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
-[REFERENCE MY CONFERENCE PAPER?]
+[REFERENCE MY CONFERENCE PAPER? PARRINELO-RAHMAN MOVES?]
 
-%[FREE ENERGY DIFFERENCES ARE IMPORTANT; THERE ARE A PLETHORA OF METHODS AVAILABLE, EACH SUITABLE FOR DIFFERENT TASKS; LSMC IS GOOD FOR...]
-Calculating the free energy difference between two given phases is one of the most fundamental problems in materials science.
-A plethora of different methods have been developed to this end, each designed with a particlular problem in mind.
+Calculating free energies is one of the most fundamental problems in materials science.
+A plethora of different methods have been developed to this end, each designed with a particlular problem in mind [REF].
 %
 \emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
-\footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo. Furthermore the
-term \emph{phase switch Monte Carlo}, which is discussed in a moment, is usually used in the literature to refer to the derivative of
-LSMC suitable for calculating the free energy difference between a solid and a fluid phase.}
-is a method for calculating the free energy difference between two solid phases.
+\footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo.}
+is a method for calculating the free energy difference between two solid phases. [WHAT IS A PHASE?]
 \nomenclature{LSMC}{Lattice-switch Monte Carlo}%
 It has been applied to a wide range of systems \cite{Bruce_1997,Bruce_2000,Pronk_1999,Mau_1999,Jackson_2002,Wilms_2012,Jackson_2007,Yang_2008,
 Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014},
 beginning with the hard-sphere solid, where it was used to determine the free energy difference
-between the fcc and hcp phases \cite{Bruce_1997,Bruce_2000}, as well as the free energy cost of stacking faults
+between the fcc and hcp phases \cite{Bruce_1997,Bruce_2000} and free energy cost of stacking faults
 \cite{Pronk_1999,Mau_1999}. The method was later generalised to treat soft interatomic potentials \cite{Jackson_2002,Wilms_2012}, systems containing multiple
-species of particle \cite{Jackson_2007,Yang_2008}, and molecular systems \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
+particle species \cite{Jackson_2007,Yang_2008}, and molecular systems \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
 LSMC has also inspired \emph{phase switch Monte Carlo}, a method for calculating the free energy difference between a solid and a
 fluid phase \cite{Wilding_2000}, which has also seen widespread use
 \cite{Wilding_2000,Errington_2004,McNeil-Watson_2006,Wilding_2009_MP,Wilding_2009_JCP,Sollich_2010,Wilding_2010}.
 %
 The strength of LSMC is its efficiency: for the purposes of evaluating the free energy difference between pairs of solid phases LSMC is ostensibly
-more efficient than other existing methods [REFS]. 
-However it should be noted that this remains somewhat of an open question [REFS]; nevertheless one can say that LSMC is \emph{at least} 
-as efficient as existing methods. 
+more efficient than other existing methods \cite{Wilms_2012,Marechal_2008}. 
+However it should be noted that this remains somewhat of an open question \cite{Pronk_1999}. Nevertheless one can say that LSMC is 
+\emph{at least} as efficient as existing methods. 
 
 Despite its strengths, LSMC has unfortunately yet to have gained widespread popularity. This 
 presumably stems, at least in part, from the lack of an LSMC code which is both versatile and widely available.
@@ -106,17 +103,20 @@ free energy cost associated with crystallographic defects. Furthermore \emph{mon
 However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent 
 particles do not have rotational degrees of freedom), and pairs of phases which can be represented by orthorhombic unit cells.
 
-While steps have been recently been taken to implement LSMC in existing general-purpose Monte Carlo codes, we believe that \emph{monteswitch} will fulfill
-an important `gap in the market' for the foreseeable future for two reasons. Firstly, \emph{monteswitch} is a bespoke LSMC code, and as such
-one would expect it to require less computational resources than general-purpose codes for similar LSMC calculations. Secondly, the package
-was designed from the outset to be highly-customisable with regards to the interatomic potential. This is achieved by locating all of the source code
-pertaining to the interatomic potential within a signle Fortran module housed within a single file \texttt{interactions.f95}. While various
-versions of this file are included with \emph{monteswitch}, each corresponding to a commonly-used class of interatomic potential, 
-users are encouraged to write their own version of \texttt{interactions.f95} which implements the interatomic potential they are interested in
-\emph{monteswitch}.
-To this end templates and examples provided with \emph{monteswitch} for guidance. Of course, in writing their own version of \texttt{interactions.f95} users 
-are free to interface with external Fortran modules, or even external programs. After compiling the package with the desired version of 
-\texttt{interactions.f95}, the end result is a version of \emph{monteswitch} in which the desired interatomic potential is `hard-coded'.
+While steps have been recently been taken to implement LSMC in existing general-purpose codes,
+\footnote{Specifically, LSMC is earmarked for inclusion in the general-purpose Monte Carlo code \emph{DL\_MONTE} \cite{Purton_2013}.}
+we believe that \emph{monteswitch} will fulfill
+an important `gap in the market' for the foreseeable future because it was designed from the outset to be highly-customisable with regards to the 
+interatomic potential. By contrast general-purpose codes tend to have a fixed set of interatomic potentials to draw upon.
+In \emph{monteswitch} all of the procedures pertaining to the interatomic potential called by the rest of the code are housed within 
+a single Fortran module, which itself is housed in a file \texttt{interactions.f95}. 
+Users are encouraged to write their own version of \texttt{interactions.f95} which implements the interatomic potential they are interested in.
+(Of course, in writing their own version of \texttt{interactions.f95} users are free to interface with external Fortran modules, or even external 
+programs). 
+Templates are provided with \emph{monteswitch} to assist with this. Furthermore versions of \texttt{interactions.f95} are included
+with \emph{monteswitch} which correspond to some commonly-used interatomic potentials, which can serve as examples.
+After compiling the package with the desired version of \texttt{interactions.f95}, the end result is a version of \emph{monteswitch} 
+in which the desired interatomic potential is `hard-coded'.
 [A similar scheme is utilised in the molecular dynamics program MOLDY [REF]]
 
 This document describes how to use \emph{monteswitch}. Note that this document does not provide details regarding the structure of the source code. 
@@ -625,16 +625,16 @@ are unlikely to be visited in the canonical ensemble.
 package should then be compiled using the Make utility: see the `README' section in the file \texttt{Makefile}, which contains details regarding how to
 specify the Fortran and MPI compiler and any flags used during compilation, as well as how to compile only the serial (i.e., non-MPI) programs
 if the user's platform does not contain MPI.
-The default paths to the Fortran and MPI compilers in \texttt{Makefile} are \texttt{gfortran} and \texttt{mpif90} respectively; for platforms in which
+The default paths to the Fortran and MPI compilers in \texttt{Makefile} are \texttt{gfortran} and \texttt{mpif90} respectively. For platforms in which
 these paths apply \emph{monteswitch} can be compiled `out of the box' by invoking the command 
 \begin{verbatim}
 $ make serial
 \end{verbatim} 
-(to compile only serial executables) or 
+to compile only serial executables, or 
 \begin{verbatim}
 $ make mpi
 \end{verbatim}
-(to compile \emph{all} executables).
+to compile \emph{all} executables.
 
 
 \section{Differences in \emph{monteswitch} between platforms and compilers}
@@ -679,10 +679,11 @@ of Chapter \ref{chapter:example}.
 The directory \texttt{Interactions} contains Fortran files corresponding to various interatomic potentials. However, only one of these can be implemented 
 by \texttt{monteswitch} at a time. The module which is implemented is stored in the file \texttt{interactions.f95} in the main directory; it is only the 
 contents of this file which is used in the package -- after compilation. Hence to implement a specific interatomic potential one must copy
-the desired `\texttt{interactions\_} file' in \texttt{Interactions} to \texttt{interactions.f95}, and then (re-)compile the package.
+the desired \texttt{interactions.f95} file in \texttt{Interactions} (which will be named \texttt{interactions\_X.f95}, where `\texttt{X}' labels
+the type of interatomic potential the file corresponds to) to \texttt{interactions.f95} in the main directory, and then compile the package.
 
-Note that by default the \texttt{interactions.f95} is identical to the file \texttt{interactions\_EAM.f95}, and hence compiling \emph{monteswitch}
-out-of-the-box yields a version which pertains to EAM potentials.
+Note that by default the \texttt{interactions.f95} is identical to the file \texttt{Interactions/interactions\_EAM.f95}, and hence compiling 
+\emph{monteswitch} out-of-the-box yields a version which implements EAM potentials.
 
 Further information regarding interatomic potentials is provided in Chapter \ref{chapter:interactions}.
 
@@ -851,7 +852,8 @@ onsideration are metastable, and that particles will not move too far from their
 22 & \textbf{melt\_option}  &  \texttt{CHARACTER(30)}  & Flag determining what the simulation does if the system has `melted': \texttt{zero\_1} and 
 \texttt{zero\_2} move the system to the zero-displacement states in phases 1 and 2, respectively; \texttt{zero\_current} does the same but for 
 the current phase; \texttt{stop} stops the simulation with an exit status of 2. For \texttt{zero\_1}, \texttt{zero\_2}, \texttt{zero\_current} the 
-system is allowed to re-equilibrate before statistics are gathered. Also, the current block is disregarded for the purposes of block averaging. \\
+system is allowed to re-equilibrate before statistics are gathered for bock averaging. Also, the current block is disregarded for the purposes of 
+block averaging. \\
 23 & \textbf{enable\_divergence\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the energy of the system is correct. 
 To elaborate, for particle 
 moves, the energy of the trial state is not calculated exactly because it is very computationally expensive and unnecessary. Instead the energy 
@@ -1218,7 +1220,7 @@ It is identical to the program \texttt{monteswitch}, except that instead of a si
 \texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, each being approximately \textbf{stop\_sweeps}$/n$ sweeps in 
 length. Accordingly, during the simulation multiple \texttt{data}- and \texttt{state}-format files are created -- one for each replica. These 
 are named \texttt{state\_0}, \texttt{state\_1}, \texttt{state\_2}, etc., and similarly for the \texttt{data}-format files. At the completion of 
-all replicas, the statistics from all are combined, and the results are stored in the file \texttt{state}. The state stored in state
+all replicas, the results of block averaging from all replicas are combined and stored in the file \texttt{state}. The state stored in state
 corresponds to the state in \texttt{state\_0}. 
 Note that, since \texttt{state}-format files can be large, by default the files \texttt{state\_0}, \texttt{state\_1}, 
 \texttt{state\_2}, etc. created by \texttt{monteswitch\_mpi} are empty. This can be disabled if \texttt{-explicit} is used as the second command line 
@@ -1249,17 +1251,21 @@ exported to the file \texttt{state}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Interatomic potentials}\label{chapter:interactions}
-As mentioned in Chapter \ref{chapter:preliminaries}, the file \texttt{interactions.f95} determines the interatomic potential implemented by
-\emph{monteswitch}. The \texttt{Interactions} directory contains files which correspond to a number of interatomic potentials. For example, copying
-\texttt{interactions\_LJ.f95} to \texttt{interactions.f95} in the main directory, and then (re-)compiling \emph{monteswitch}, results in a version 
+As mentioned in Section \ref{sec:plugins}, the file \texttt{interactions.f95} determines the interatomic potential implemented within
+\emph{monteswitch}. The \texttt{Interactions} directory contains files which correspond to a number of interatomic potentials. Recall that
+copying one of these files to \texttt{interactions.f95} in the main directory, and then compiling \emph{monteswitch}, results in a version 
+of \emph{monteswitch} in which the particles interact via the corresponding interatomic potential. 
+For example, copying \texttt{interactions\_LJ.f95} to \texttt{interactions.f95} and then compiling \emph{monteswitch} results in a version 
 of \emph{monteswitch} in which the particles interact via a Lennard-Jones potential. 
-In this chapter we first describe these potentials, as well as the input files which must be used in conjunction with each potential in order to
-specify the free parameters for the potential.
-Then in Section \ref{sec:user_defined} we describe how users can write their own `\texttt{interactions\_}' files to implement their own potentials.
+In this chapter we first describe the potentials implemented by each of the \texttt{interactions.f95} included with \emph{monteswitch} in the
+\texttt{Interactions} directory. We also describe the input files for \texttt{monteswitch} and \texttt{monteswitch\_mpi} which must be
+in conjunction with each in order to specify the free parameters for the interatomic potential under consideration.
+Then in Section \ref{sec:user_defined} we describe how users can write their own \texttt{interactions.f95} files to implement their own potentials.
 
-Note that most potentials included with \emph{monteswitch} are for single-species systems, and do not exploit the ability of \emph{monteswitch} to 
-treat multicomponent systems. Furthermore, the potentials included with \emph{monteswitch} all use a single input file named \texttt{interactions\_in}
-to specify the potential's free parameters. In time we expect more potentials to be added to \emph{monteswitch}. 
+Note that most \texttt{interactions.f95} files included with \emph{monteswitch} are applicable only for single-species systems. The exception is 
+\texttt{interactions\_HS\_multi.f95}, which can treat multiple-component hard-sphere mixtures.
+Furthermore, the potentials included with \emph{monteswitch} all use a single input file named \texttt{interactions\_in} for \texttt{monteswitch} 
+and \texttt{monteswitch\_mpi} to specify the potential's free parameters. In time we expect to include more interatomic potentials with \emph{monteswitch}. 
 
 \section{Embedded atom model}
 The file \texttt{interactions\_EAM.f95} implements the embedded atom model (EAM) \cite{Daw_1984}. Here the energy of the system 
@@ -1275,18 +1281,18 @@ and constitute the parametrisation of the EAM potential. If \texttt{interactions
 file must be a description of the potential in DYNAMO/LAMMPS `setfl' format. A file with this format is often indicated with the 
 suffix `\texttt{.eam.alloy}', and a description of the format can be found at \url{http://lammps.sandia.gov/doc/pair\_eam.html}. 
 
-Note that \texttt{interactions\_EAM.f95} currently only supports single-component systems, and hence \texttt{interactions\_in} must not correspond to a 
-multicomponent system. An error is returned if this is the case. Furthermore, at initialisation three additional files are created by the
+We emphasise that \texttt{interactions\_EAM.f95} currently only supports single-component systems, and hence \texttt{interactions\_in} must 
+not correspond to a multicomponent system. An error is returned if this is the case. Furthermore, at initialisation three additional files are 
+created by the
 Monte Carlo programs in \emph{monteswitch} if \texttt{interactions\_EAM.f95} is used: \texttt{F.dat}, \texttt{rho.dat} and \texttt{rphi.dat}. 
 \texttt{F.dat} and \texttt{rho.dat} contain plots of the functions $F$ and $\rho$ read from \texttt{interactions\_in}, while 
 \texttt{rphi.dat} contains a plot of $r\times\phi(r)$ vs. $r$ read from \texttt{interactions\_in}. 
 
 By default \texttt{interactions.f95} is the same as \texttt{interactions\_EAM.f95}.
 
-\section{Analytical pair potentials [TOO MANY!]}\label{section:pair_potentials}
-Table \ref{table:pair_potentials} gives a list of analytical (as opposed to tabulated) 
-pair potentials included with \emph{monteswitch}, and the name of the corresponding
-\texttt{interactions\_} file in \texttt{Interactions}. All of these potentials are implemented in the same way.
+\section{Soft pair potentials}\label{section:pair_potentials}
+Table \ref{table:pair_potentials} gives a list of soft pair potentials included with \emph{monteswitch}, and the name 
+of the corresponding \texttt{interactions.f95} file in \texttt{Interactions}. All of these potentials are implemented in the same way.
 Firstly, the pair potential $\phi(r)$ is assumed to be 0 for inter-particle separations $r$ greater than some cut-off distance $r_{\text{c}}$. In other
 words the potential is \emph{truncated} at $r_{\text{c}}$.
 Secondly, only pairs of particles within a distance $r_{\text{list}}$ of each other \emph{in the reference states of the simulation} interact
@@ -1334,7 +1340,7 @@ unnecessarily.
 \begin{landscape}
 \begin{center}\label{table:pair_potentials}
 \begin{longtable}{ l l l p{5cm} }
-\caption{Pair potentials included with \emph{monteswitch}}
+\caption{Soft pair potentials included with \emph{monteswitch}}
 \\
 Potential & File name & Expression for potential & Order of variables in \texttt{interactions\_in}  \\
 
@@ -1375,11 +1381,31 @@ Yukawa & \texttt{interactions\_Yukawa.f95} & $\phi(r)=A\exp(-kr)/r$
 \end{landscape}
 
 
+\section{User-defined pair potentials}\label{sec:user_defined}
+The file \texttt{interactions\_TEMPLATE\_pair.f95} is a template which can be used to easily create \texttt{interactions.f95} files for user-defined
+pair potentials. In fact this template was used to create the files for almost all of the potentials described in Section
+\ref{section:pair_potentials}. Instructions are provided in the file regarding how the file should be modified to realise the user's potential
+of interest. The resulting implementation of the potential, and the required format of the \texttt{interactions\_in} file, will be the same as described 
+in Section \ref{section:pair_potentials}. Regarding the order in which the variables which parametrise the potential are read from 
+\texttt{interactions\_in}, the user-defined variables are read first, and then the variables \textbf{cutoff}, \textbf{list\_cutoff}, 
+\textbf{list\_size} are read.
+
+Note that one is by no means limited to using \texttt{interactions\_TEMPLATE\_pair.f95} to create `analytical' pair potentials. For instance
+piecewise pair potentials could be created from \texttt{interactions\_TEMPLATE\_pair.f95}, e.g., the soft sphere model:
+\begin{equation}
+\phi(r)=
+\begin{cases} 
+\epsilon(\sigma/r)^n & \text{if }r\leq\sigma \\
+0 & \text{if }r>\sigma.
+\end{cases}
+\end{equation}
+
+
 \section{Hard/penetrable spheres}
 There are two implementations of the penetrable (including hard) spheres model included with \emph{monteswitch}.
 \texttt{interactions\_HS.f95} implements the penetrable spheres model for single-species systems only; while 
 \texttt{interactions\_HS\_multi.f95} supports multiple-species systems. The latter file supercedes the former, but we retain
-the former for legacy reasons: some of the test cases included with \emph{monteswitch} utilise \texttt{interactions\_HS.f95}.
+the former for legacy reasons -- some of the test cases included with \emph{monteswitch} utilise \texttt{interactions\_HS.f95}.
 We now describe both implementations.
 
 \subsection{\texttt{interactions\_HS.f95}}
@@ -1427,54 +1453,31 @@ The order of variables as they should occur in \texttt{interactions\_in} is \tex
 \textbf{list\_cutoff}, then \textbf{list\_size}.
 
 
-
-
-\section{Other potentials included with \emph{monteswitch}}
-Some other \texttt{interactions\_} files are included in the directory \texttt{Interactions}, namely \texttt{interactions\_EC.f95}, 
-\texttt{interactions\_EC\_NPT.f95}, \texttt{interactions\_LJ\_hcp\_fcc.f95}, \texttt{interactions\_TEMPLATE\_pair.f95} and
-\texttt{interactions\_TEMPLATE\_minimal.f95}. The last two of are templates to assist users in creating an \texttt{interactions.f95} 
-files of their own design, and will be discussed in more detail in a moment. The other files correspond to potentials which we do not anticipate will
-be of any interest to most users. These files were used to validate \emph{monteswitch} via test cases which are described in Chapter
-\ref{chapter:tests}. Hence we do not describe them here. Interested parties should inspect the files themselves for further information,
-as well as Chapter \ref{chapter:tests}.
-
-
-\section{User-defined pair potentials}\label{sec:user_defined}
-The file \texttt{interactions\_TEMPLATE\_pair.f95} is a template which can be used to easily create \texttt{interactions.f95} files for `new'
-pair potentials. In fact this template was used to create the files for almost all of the potentials described in Section
-\ref{section:pair_potentials}. Instructions are provided in the file regarding how the file should be modified to realise the user's potential
-of interest. The resulting implementation of the potential, and the required format of the \texttt{interactions\_in} file, will be the same as described 
-in Section \ref{section:pair_potentials}. Regarding the order in which the variables which parametrise the potential are read from 
-\texttt{interactions\_in}, the user-defined variables are read first, and then the variables \textbf{cutoff}, \textbf{list\_cutoff}, 
-\textbf{list\_size} are read.
-
-Note that one is by no means limited to using \texttt{interactions\_TEMPLATE\_pair.f95} to create `analytical' pair potentials. For instance
-piecewise pair potentials could be created from \texttt{interactions\_TEMPLATE\_pair.f95}, e.g., the soft sphere model:
-\begin{equation}
-\phi(r)=
-\begin{cases} 
-\epsilon(\sigma/r)^n & \text{if }r\leq\sigma \\
-0 & \text{if }r>\sigma.
-\end{cases}
-\end{equation}
-
-
 \section{General user-defined potentials}
 The file \texttt{interactions\_TEMPLATE\_minimal.f95} is a template which can be built upon by users to implement their own potentials
 in \emph{monteswitch}. The template includes empty Fortran procedures which must be filled in by the user. Comments within the template
-act as a guide for the user, who may also find it useful to examine the \texttt{interactions\_} files included with \emph{monteswitch} in the 
+act as a guide for the user, who may also find it useful to examine the \texttt{interactions.f95} files included with \emph{monteswitch} in the 
 \texttt{Interactions} directory as examples. The user is of course free to add their own functions and variables within their custom
-\texttt{interactions\_} file. Furthermore they can use external Fortran modules in the usual manner. 
+\texttt{interactions.f95} file. Furthermore they can use external Fortran modules in the usual manner. 
 %
 Note that there is no universal procedure for determining the separation between two particles in \emph{monteswitch}. Separations are
 required only in that they are used to determine the energy of the system, something is within the remit of the file 
-\texttt{interactions.f95}. Hence when making a custom \texttt{interactions\_} file it is up to the user to calculate the separations
+\texttt{interactions.f95}. Hence when making a custom \texttt{interactions.f95} file it is up to the user to calculate the separations
 between pairs of particles themselves, possibly by adding their own procedure which does this (which takes into account the periodic
 boundary conditions). 
 
-We emphasise that there is considerable flexibility with regards to potentials which can be implemented within an \texttt{interactions\_} file. 
+We emphasise that there is considerable flexibility with regards to potentials which can be implemented within an \texttt{interactions.f95} file. 
 Possibilities include different Hamiltonians for each phase, position-dependent `external' potentials, and many-body potentials.
 However recall that \emph{monteswitch} is limited to `atomic' systems, i.e., particles cannot have rotational degrees of freedom.
+
+
+\section{Other potentials included with \emph{monteswitch}}
+Some other \texttt{interactions.f95} files are included in the directory \texttt{Interactions}, namely \texttt{interactions\_EC.f95}, 
+\texttt{interactions\_EC\_NPT.f95}, \and texttt{interactions\_LJ\_hcp\_fcc.f95}. These other files correspond to potentials which we do 
+not anticipate will be of any interest to most users, and are used in the test cases used to validate \emph{monteswitch} which are described in Chapter
+\ref{chapter:tests}. Hence we do not describe them here. Interested users should inspect the files themselves for further information,
+as well as Chapter \ref{chapter:tests}.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1494,7 +1497,7 @@ For example, to generate a \texttt{lattices\_in} file for hcp--fcc corresponding
 of 2, 3 and 5 unit cells tiled in the z-, y-, and z-directions, the command is (assuming the \texttt{lattices\_in\_hcp\_fcc} executable
 is in the current directory)
 \begin{verbatim}
-$ ./lattices\_in\_hcp\_fcc 0.5 2 3 5 > lattices\_in
+$ ./lattices_in_hcp_fcc 0.5 2 3 5 > lattices_in
 \end{verbatim}
 Note that the \texttt{lattices\_in} files created by these programs have the species of all particles set to `1'.
 
@@ -2109,7 +2112,7 @@ The directory \texttt{Tests} contains a suite of test cases for the main program
 examples.
 
 Each test can be executed by executing the \texttt{run.sh} shell script in the corresponding directory after copying the
-appropriate `\texttt{interactions\_} file' from \texttt{Interactions} to \texttt{interactions.f95}, and then (re-)compiling the
+appropriate \texttt{interactions.f95} file from \texttt{Interactions} to \texttt{interactions.f95}, and then compiling the
 package (see Chapter \ref{chapter:preliminaries}). Note that the \texttt{run.sh} scripts assume that the main programs \texttt{monteswitch}
 and \texttt{monteswitch\_mpi} are located next to the source code in the above directory -- which should be the case by default. Furthermore
 the \texttt{run.sh} files may require some modification to suit your platform; see Chapter \ref{chapter:preliminaries}.
@@ -2121,8 +2124,8 @@ in what follows we use those for the free energy and mean-squared displacement g
 \cite{book:Frenkel}. Here we use the Einstein crystal to test \texttt{monteswitch} and \texttt{monteswitch\_mpi}
 in the NVT ensemble. This includes testing multicanonical sampling and weight function generation (including
 mobile barrier methods), calculation of free energy differences, and calculation of equilibrium properties.
-The relevant \texttt{interactions\_} file for thse tests is \texttt{interactions\_EC.f95}. Before running these 
-tests one should copy \texttt{Interactions/interactions\_EC.f95} to \texttt{interactions.f95}, and then (re-)complile 
+The relevant \texttt{interactions.f95} file for thse tests is \texttt{interactions\_EC.f95}. Before running these 
+tests one should copy \texttt{Interactions/interactions\_EC.f95} to \texttt{interactions.f95}, and then complile 
 \emph{monteswitch}. 
 
 The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC.f95} is 
@@ -2276,9 +2279,9 @@ performed on the \texttt{state} file.
 
 \section{`NPT Einstein crystal' (\texttt{EC\_NPT})}
 The Einstein crystal cannot be used for NPT simulations. Here we consider a modification of the Einstein
-crystal model in which the spring constants have a volume dependence. The relevant \texttt{interactions\_} file for these tests is 
+crystal model in which the spring constants have a volume dependence. The relevant \texttt{interactions.f95} file for these tests is 
 \texttt{interactions\_EC\_NPT.f95}. Before running these tests one should copy 
-\texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then (re-)complile 
+\texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then complile 
 \emph{monteswitch}.
 
 The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC\_NPT.f95} is 
@@ -2397,9 +2400,9 @@ The free energy difference between the two phases should be -0.7860673299.
 \section{Lennard--Jones solid: hcp vs. fcc (\texttt{LJ\_hcp\_fcc})}
 A solid in which particles interact via a Lennard-Jones potential is a more realistic test for \emph{monteswitch}.
 Here we try to reproduce the results of Refs. \cite{thesis:Jackson,Jackson_2002}. Specifically, we calculate the free energy
-difference between hcp and fcc phases of the Lennard-Jones solid. The relevant \texttt{interactions\_} file for these tests is 
+difference between hcp and fcc phases of the Lennard-Jones solid. The relevant \texttt{interactions.f95} file for these tests is 
 \texttt{interactions\_LJ\_hcp\_fcc.f95}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ\_hcp\_fcc.f95}
-to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
 
 The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_LJ\_hcp\_fcc.f95} is applicable only to
 to the hcp--fcc problem. Phase 1 is assumed to be hcp and phase 2 is assumed to be fcc. The Lennard-Jones interactions
@@ -2419,7 +2422,7 @@ using truncated interactions (in the conventional sense, e.g., ignore interactio
 greater than some cut-off), and $E_{\text{GS,hcp}}(\rho)$ is the \emph{exact} energy of the hcp lattice at density $\rho$, i.e., what 
 $\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)$ would be if the cut-off distance were taken to infinity. Similar applies
 for the fcc phase.
-Of course, this approach necessitates a tailor-made \texttt{interactions\_} file for the hcp--fcc. By contrast the \texttt{interactions\_}
+Of course, this approach necessitates a tailor-made \texttt{interactions.f95} file for the hcp--fcc. By contrast the \texttt{interactions.f95}
 file corresponding to the `conventional' Lennard-Jones Hamiltonian can be applied to any pair of phases.
 Note that the usage of \texttt{interactions\_LJ\_hcp\_fcc.f95} is identical to \texttt{interactions\_LJ.f95} -- which is described in
 Chapter \ref{chapter:interactions}.
@@ -2447,9 +2450,9 @@ stored in the \textbf{sigma\_equil\_DeltaF} variable.
 
 \section{Hard spheres (single species) (\texttt{HS})}
 The hard-sphere system has been well studied, and makes an excellent testing ground for \emph{monteswitch}.
-The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_HS.f95}, whose usage is described in Chapter
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_HS.f95}, whose usage is described in Chapter
 \ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS.f95}
-to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}. Note that here we set the energy cost of two spheres overlapping,
+to \texttt{interactions.f95}, and then compile \emph{monteswitch}. Note that here we set the energy cost of two spheres overlapping,
 $\epsilon$, to 100,000, as well as setting $\beta=1$ to realise hard spheres as described in Chapter \ref{chapter:interactions}.
 
 
@@ -2508,9 +2511,9 @@ to give a final mean and standard error.
 
 
 \section{Embedded atom model (\texttt{EAM})}
-The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_EAM.f95}, whose usage is described in Chapter
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EAM.f95}, whose usage is described in Chapter
 \ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_EAM.f95}
-to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
 
 
 \subsection{\texttt{test\_EAM\_1}}
@@ -2526,9 +2529,9 @@ stored in the \textbf{sigma\_equil\_DeltaF} variable.
 
 
 \section{`Conventional' Lennard-Jones (\texttt{LJ})}
-The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_LJ.f95}, whose usage is described in Chapter
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_LJ.f95}, whose usage is described in Chapter
 \ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ.f95}
-to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
 
 
 \subsection{\texttt{test\_LJ\_1}}
@@ -2544,9 +2547,9 @@ specifically, -0.03102(6).
 
 
 \section{Hard spheres (multiple species) (\texttt{HS\_multi})}
-The relevant \texttt{interactions\_} file for these tests is \texttt{interactions\_HS\_multi.f95}, whose usage is described in Chapter
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_HS\_multi.f95}, whose usage is described in Chapter
 \ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS\_multi.f95}
-to \texttt{interactions.f95}, and then (re-)compile \emph{monteswitch}.
+to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
 
 \subsection{\texttt{test\_HS\_multi\_1}}
 This test calculates the free energy difference between two systems each containing two hard spheres, where both systems have identical dimensions
