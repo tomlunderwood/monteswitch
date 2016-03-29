@@ -28,12 +28,19 @@
 !! work for all operating systems or compilers.
 !! </p>
 !! <p>
-!! The command line options are as follows:
+!! The command line argument options are as follows:
 !! </p>
 !! <table border="1">
 !!  <tr>
 !!   <td> <b> Argument </b> </td>
 !!   <td> <b> Description </b> </td>
+!!  </tr>
+!!  <tr>
+!!   <td> -seed <i>seed</i> </td>
+!!   <td>
+!!   Specify the integer seed for the random number generator to be <i>seed</i>. <i>This command line option, if present,
+!!   should precede the other possible arguments below</i>.
+!!   </td>
 !!  </tr>
 !!  <tr>
 !!   <td> -new </td>
@@ -66,62 +73,158 @@
 !!
 program monteswitch
 
-  !! <h2> Dependencies </h2>
-  !! <p> 
-  !! <ul>
-  !!  <li> <code> kinds_mod </code> </li>
-  !!  <li> <code> monteswitch_mod </code> </li>
-  !! </ul>
-  !! </p>
-  use kinds_mod
-  use monteswitch_mod
+    !! <h2> Dependencies </h2>
+    !! <p> 
+    !! <ul>
+    !!  <li> <code> kinds_mod </code> </li>
+    !!  <li> <code> monteswitch_mod </code> </li>
+    !! </ul>
+    !! </p>
+    use kinds_mod
+    use monteswitch_mod
 
-  implicit none
-  
-  ! Unimportant variables
-  character(len=20) :: char
+    implicit none
 
-  ! THE PROGRAM
-  
+    ! Unimportant variables
+    character(len=20) :: char
 
-  ! Read the first command line argument 
-  call getarg(1,char)
-  if(char=="") then
-     write(0,*) "monteswitch: Error. No command line argument detected."
-     stop 1
-  else if(trim(char)=="-new") then
-
-     ! CODE FOR A NEW SIMULATION
-
-     call initialise_from_files("params_in","lattices_in")
-     call run("data","state",.false.)
-
-  else if(trim(char)=="-resume") then
-
-     ! CODE FOR A RESUMED SIMULATION
-     
-     call import("state")
-     call run("data","state",.true.)
-
-  else if(trim(char)=="-reset") then
-     
-     ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
-     
-     call import("state")
-     call initialise_counters()
-     call run("data","state",.false.)
-
-  else
-
-     ! CODE FOR ANY OTHER COMMAND LINE ARGUMENTS
-
-     write(0,*) "monteswitch: Error. Unrecognised first command line argument."
-     stop 1
-
-  end if
+    ! THE PROGRAM
 
 
-end program monteswitch
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    ! This is .true. if the argument "-seed" is present
+    logical :: seed_specified
+    ! The RNG seed if it is specified
+    integer :: seed
+    ! The command line argument we are on for reading: we have read n-1 command line arguments so far
+    integer :: n
+    integer :: error
+
+    seed_specified = .false.
+    n=1
+
+    ! Get the 1st command line argument
+    call getarg(n,char)
+    n = n+1
+
+    ! Check that there actually is an argument
+    if(trim(char)=="") then
+
+        write(0,*) "monteswitch: Error. No command line argument detected."
+        stop 1
+
+    end if
+
+    ! If the 1st argument is "-seed" then read the next argument and use it as the RNG seed
+    if(trim(char)=="-seed") then
+
+        seed_specified = .true.
+
+        call getarg(n,char)
+        n = n+1
+
+        read(char,*,iostat=error) seed
+
+        ! Check that the seed is sensible
+        if(error/=0) then
+            write(0,*) "monteswitch: Error. Problem reading integer after the command line argument '-seed'"
+            stop 1
+        end if
+
+        ! Read the next command line argument: we are still expecting one of "-new", "-resume" or "-reset"
+        call getarg(n,char)
+        n = n+1
+
+    end if
+
+
+    ! If the 1st argument (or 3rd argument if the 1st argument is "-seed") is "-new", "-resume", 
+    ! "-reset" or something else
+    select case(trim(char))
+
+    case("-new")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch: Error. Command line argument detected after '-new' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR A NEW SIMULATION
+
+        call initialise_from_files("params_in","lattices_in")
+
+        if(seed_specified) then
+            call run("data","state",.false.,seed)
+        else
+            call run("data","state",.false.)
+        end if
+
+
+    case("-resume")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch: Error. Command line argument detected after '-resume' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR A RESUMED SIMULATION
+
+        call import("state")
+
+        if(seed_specified) then
+            call run("data","state",.true.,seed)
+        else
+            call run("data","state",.true.)
+        end if
+
+
+    case("-reset")
+
+        ! Check that there aren't any more command line arguments
+        call getarg(n,char)
+        if(trim(char)/="") then
+            write(0,*) "monteswitch: Error. Command line argument detected after '-reset' where there should be none"
+            stop 1
+        end if
+
+
+        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
+
+        call import("state")
+        call initialise_counters()
+
+        if(seed_specified) then
+            call run("data","state",.false.,seed)
+        else
+            call run("data","state",.false.)
+        end if
+
+    case("")
+
+        ! Code for missing 3rd argument if "-seed" is present
+
+        write(0,*) "monteswitch: Error. Failed to detect argument '-new', '-resume' or '-reset'"
+        stop 1
+
+
+    case default
+
+        ! Code for unknown 1st (or 3rd if "-seed" is present) argument
+
+        write(0,*) "monteswitch: Error. Unrecognised command line argument ",trim(char)
+        stop 1
+
+    end select
+
+
+end program
 !!
 !! </body>
 !! </html>
