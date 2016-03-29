@@ -703,14 +703,27 @@ In this chapter we describe the usage of \texttt{monteswitch} in detail. Unless 
 is also pertinent to \texttt{monteswitch\_mpi}. Information specific to \texttt{monteswitch\_mpi} can be found in 
 the final section of this chapter.
 
+The command-line arguments passed to \texttt{monteswitch} determine the nature of the simulation. Usage of \texttt{monteswitch} is: 
+\begin{verbatim}
+monteswitch [-seed <seed>] (-new|-resume|-reset)
+\end{verbatim}
+Note that one, and only one, of the arguments \texttt{-new}, \texttt{-resume} and \texttt{-reset} must be specified,
+while the argument \texttt{-seed} is optional. Note also that if \texttt{-seed} is present then it must come before \texttt{-new}, 
+\texttt{-resume} or \texttt{-reset}. We now describe the function of each of these  arguments.
+
+
+\section{Seeding the random number generator}
+\texttt{monteswitch} uses the Mersenne Twister random number generator (MT19937) \cite{Matsumoto_1998} as implemented in Fortran 90 
+by Mark Iredell (see the source code file \texttt{mersenne\_twister.f90} for details). This random number generator takes
+a single non-zero integer as its seed. The command-line argument \texttt{-seed} allows the user to specify the 
+seed for the forthcoming simulation explicitly. If \texttt{-seed} is present, then the following argument \texttt{<seed>}
+\texttt{-seed} is taken to be the seed. For example, to set the seed to 12345 for a simulation using the \texttt{-new}
+argument (whose function will be explained in a moment) the appropriate command is \texttt{monteswitch -seed 12345 -new}.
+If the argument \texttt{-seed} is absent then a seed is generated using the system clock.
+
+
 \section{Starting a new simulation: the argument \texttt{-new}}
-There are three allowed command-line arguments to \texttt{monteswitch}: 
-\begin{itemize}
-\item\texttt{-new}
-\item\texttt{-resume}
-\item\texttt{-reset}
-\end{itemize}
-The command-line argument \texttt{-new} (Example usage: \texttt{monteswitch -new}) runs a new simulation. 
+The command-line argument \texttt{-new} invokes a new simulation from scratch. 
 The simulation is initialised using information contained in input files located in the current directory. There are two input files
 which are required for all simulations. These are \texttt{lattices\_in} and \texttt{params\_in}. 
 The file \texttt{lattices\_in} contains specifications of two states. This file determines the two phases which will be 
@@ -1199,7 +1212,7 @@ For a simulation invoked using the argument \texttt{-resume}, the file \texttt{d
 \section{`Resetting' a simulation: the argument \texttt{-reset}}\label{sec:reset}
 The command-line argument \texttt{-reset} invokes a simulation from an old \texttt{state} file similarly to \texttt{-resume}, except that it
 resets all `counter variables' to zero. This has the effect of starting a `new' simulation whose nature corresponds to the old simulation, 
-but instead uses the state of the system specified in \texttt{state}. By contrast, the command-line argument \texttt{-new} initialises the 
+but instead uses the state of the system specified in \texttt{state}. By contrast, the argument \texttt{-new} initialises the 
 state to be such that the particles form a perfect crystal lattice, which usually does not correspond to an equilibrated state.
 By `counter variables' we mean those such as variables describing the number of moves performed for each move type, the number of accepted moves 
 for each move type, and variables pertaining to equilibrium quantities. However, note that the weight function (\textbf{eta\_grid}) and the
@@ -1208,6 +1221,7 @@ if one uses the \texttt{-reset} argument.
 
 Note that for a simulation invoked using the argument \texttt{-reset}, the file \texttt{data} is overwritten, i.e., the information from the `old'
 simulation is not retained.
+
 
 \section{Exit statuses}
 \texttt{monteswitch} exits with a non-zero exit status of 1 for most errors. However, if the system has melted, and \textbf{melt\_option} is set to
@@ -1220,32 +1234,35 @@ It is identical to the program \texttt{monteswitch}, except that instead of a si
 \texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, each being approximately \textbf{stop\_sweeps}$/n$ sweeps in 
 length. Accordingly, during the simulation multiple \texttt{data}- and \texttt{state}-format files are created -- one for each replica. These 
 are named \texttt{state\_0}, \texttt{state\_1}, \texttt{state\_2}, etc., and similarly for the \texttt{data}-format files. At the completion of 
-all replicas, the results of block averaging from all replicas are combined and stored in the file \texttt{state}. The state stored in state
+all replicas, the results of block averaging from all replicas are combined and stored in the file \texttt{state}. The state stored in \texttt{state}
 corresponds to the state in \texttt{state\_0}. 
-Note that, since \texttt{state}-format files can be large, by default the files \texttt{state\_0}, \texttt{state\_1}, 
-\texttt{state\_2}, etc. created by \texttt{monteswitch\_mpi} are empty. This can be disabled if \texttt{-explicit} is used as the second command line 
-argument to \texttt{monteswitch\_mpi}, e.g., \texttt{mpiexec -n 4 monteswitch\_mpi -new -explicit}. Similar applies to the arguments \texttt{-resume} and 
-\texttt{-reset}.
+The user should bear in mind that \texttt{state}-format files can be large, and hence one may need to ensure that storage limits are not exceeded when
+invoking \texttt{monteswitch\_mpi} with a large number of replicas $n$.
 
 Further details of the parallelisation are as follows. All replicas are always initialised to be in the same state. For a new simulation this is 
 determined by the \textbf{init\_lattice} variable in \texttt{params\_in} similarly to \texttt{monteswitch}. For a resumed simulation this is the state 
 contained in the \texttt{state} file from which the simulation is to be resumed. We emphasise that \emph{all replicas of the system are initialised with 
-the same state} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. In future we hope to allow `true' checkpointing 
-whereby a simulation picks up exactly where it left off , i.e., by having the $n$th replica initialised from the file \texttt{state\_}$n$ instead of having
-all replicas initialised from \texttt{state}, and to ammend \texttt{data\_}$n$ with information pertaining to replica $n$ during the resumed
-simulation. Note that the files \texttt{data\_}$n$ are thus always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
+the same state} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. 
+The files \texttt{data\_}$n$ are therefore always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
 invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The excpetion is replica `0',
 whose state is always stored in the file \texttt{state}, as well as \texttt{state\_0}.
 
 To expand upon what was just said, in a resumed simulation, only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
 simulation via the file \texttt{state}. All other replicas have counter variables initialised to zero at the start of the resumed simulation.
-During the simulation, the counter variables for each replica are of course ammended according to the evolution of the replica. Once all replicas have
+During the simulation, the counter variables for each replica are of course ammended according to the evolution of that replica. Once all replicas have
 completed their allocated number of sweeps, the variables for the $n$th replica are exported to the file \texttt{state\_}$n$. Then 
 the counter variables of all replicas, other than replica 0, are summed and ammended to replica 0. At the end of the simulation replica 0 thus has
 variables which corresponding to an evolution of, if there are $N$ tasks, approximately \textbf{stop\_sweeps}$/N$ sweeps from the starting state, 
 but with counter variables which correspond to \textbf{stop\_sweeps} sweeps worth of information. The variables in replica 0 are then updated to reflect 
 its new counters, e.g., the weight function is recalculated using the information from the new counters. Finally, the variables are
-exported to the file \texttt{state}. 
+exported to the file \texttt{state}.
+
+Regarding the seeding of the random number generator for each replica, \texttt{monteswitch\_mpi} takes steps to ensure that the seeds are
+different for each replica. To elaborate, if a seed is specified via the command-line argument \texttt{-seed}, then this seed is
+used as the `parent seed' for the simulation. The parent seed is used to derive different seeds for each replica via a simple function. If the
+argument \texttt{-seed} is not present, then the seed for each replica is initially taken from the system clock, before being transformed
+in a manner which ensures that no two replicas have the same seed. See the source code of \texttt{monteswitch\_mpi.f95} or its documentation
+for more details.
 
 
 
@@ -1486,12 +1503,22 @@ In this chapter we describe the utility programs included in the package, which 
 of input files.
 
 \section{Programs for generating \texttt{lattices\_in} files}
-The programs \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} generate \texttt{lattices\_in} 
-files corresponding to, respectively, hcp--fcc, bcc--fcc and bcc--hcp pairs of phases.
-Each program takes four arguments. The first is the density, i.e., the number of atoms per unit volume, of the pair of states to
-construct. The second, third and fourth arguments are the integers which correspond
-to the number of unit cells (described in a moment) which will be tiled in the x-, y- and z-directions respectively to construct the
-supercell for each phase. The program outputs the text for the \texttt{lattices\_in} file to stdout. Hence one must redirect the output
+The programs \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} 
+create \texttt{lattices\_in} files containing reference states corresponding to, respectively, hcp--fcc, bcc--fcc and bcc--hcp lattice switches.
+Usage of these programs is:
+\begin{verbatim}
+lattices_in_hcp_fcc <rho> <nx> <ny> <nz>
+lattices_in_bcc_fcc <rho> <nx> <ny> <nz>
+lattices_in_bcc_hcp <rho> <nx> <ny> <nz>
+\end{verbatim}
+The command-line arguments \texttt{<rho>}, \texttt{<nx>}, \texttt{<ny>} and \texttt{<nz>} constitute the free parameters for the 
+\texttt{lattices\_in} file to be created.
+The first argument \texttt{<rho>} is the density (i.e., the number of particles per unit volume) of the reference states to
+construct. (Note that both states necessarily have the same density). The second, third and fourth arguments \texttt{<nx>}, 
+\texttt{<ny>} and \texttt{<nz>} are integers which correspond to the number of unit cells (described in a moment) which will 
+be tiled in the x-, y- and z-directions respectively to construct the supercell for each phase. 
+
+The programs output the desired \texttt{lattices\_in} file to stdout. Hence one must redirect the output
 to create the required \texttt{lattices\_in} file.
 For example, to generate a \texttt{lattices\_in} file for hcp--fcc corresponding to a density of 0.25, consisting
 of 2, 3 and 5 unit cells tiled in the z-, y-, and z-directions, the command is (assuming the \texttt{lattices\_in\_hcp\_fcc} executable
@@ -1502,22 +1529,22 @@ $ ./lattices_in_hcp_fcc 0.5 2 3 5 > lattices_in
 Note that the \texttt{lattices\_in} files created by these programs have the species of all particles set to `1'.
 
 What follows is a description of the unit cells for each pair of phases for each program. More specific information regarding the unit
-cells can be obtained by invoking the programs with `1' for the second, third and fourth arguments. 
+cells can be obtained by invoking the programs with \texttt{<nx>}, \texttt{<ny>} and \texttt{<nz>} all set to 1. 
 
 \subsection{\texttt{lattices\_in\_hcp\_fcc}}
-The unit cell here contains 12 atoms. The atoms are spread over 6 planes in the z-direction; each plane contains two atoms. The positions
-of the atoms corresponds to a stacking sequence for the planes of ABCABC for the fcc unit cell, and  ABABAB for the hcp unit cell. 
+The unit cell here contains 12 particles. The particles are spread over 6 planes in the z-direction; each plane contains two particles. The positions
+of the particles corresponds to a stacking sequence for the planes of ABCABC for the fcc unit cell, and  ABABAB for the hcp unit cell. 
 Note that the unit cell is far longer in the z-directon than the x- and y-directions. Hence one should normally use more unit cells in 
 the x- and y-directions than the z-direction to construct the supercells. In the output of this program lattice 1 corresponds to hcp and
 lattice 2 corresponds to fcc.
 
 \subsection{\texttt{lattices\_in\_bcc\_fcc}}
-The unit cell here is the conventional 2-atom body-centred tetragonal (bct) unit cell; for the bcc(fcc) lattice the relative dimensions of 
+The unit cell here is the conventional 2-particle body-centred tetragonal (bct) unit cell; for the bcc(fcc) lattice the relative dimensions of 
 the bct unit cell in each Cartesian direction correspond to the bct representation of the bcc(fcc) lattice. In the output of this program
 lattice 1 corresponds to bcc and lattice 2 corresponds to fcc.
 
 \subsection{\texttt{lattices\_in\_bcc\_hcp}}
-The unit cell here contains 4 atoms. The bcc unit cell is the 4-atom face-centred tetragonal (fct) corresponding to the fct representation of 
+The unit cell here contains 4 particles. The bcc unit cell is the 4-particle face-centred tetragonal (fct) corresponding to the fct representation of 
 the bcc lattice. The hcp unit cell is the `fct-like' representation of the hcp lattice. In the output of this program
 lattice 1 corresponds to bcc and lattice 2 corresponds to hcp.
 
@@ -1525,7 +1552,20 @@ lattice 1 corresponds to bcc and lattice 2 corresponds to hcp.
 \section{Post-processing \texttt{state} files: \texttt{monteswitch\_post}}\label{sec:monteswitch_post}
 \texttt{monteswitch\_post} is for post-processing a file \texttt{state} generated by \texttt{monteswitch} or \texttt{monteswitch\_mpi}, and can
 be used to extract useful information from that file. The \texttt{state} file which the program operates on is that in the current directory.
-The command-line arguments determine the task performed by the program, and are as follows.
+The command-line arguments determine the task performed by the program. Usage of \texttt{monteswitch\_post} is as follows, where the function 
+of each command-line argument is described below:
+\begin{verbatim}
+monteswitch_post -extract_wf
+monteswitch_post -extract_M_counts
+monteswitch_post -extract_pos
+monteswitch_post -extract_R_1
+monteswitch_post -extract_R_2
+monteswitch_post -extract_u
+monteswitch_post -calc_rad_dist <bins>
+monteswitch_post -merge_trans <state_in_1> <state_in_2> <state_out>
+monteswitch_post -extract_lattices_in <vectors_in_1> <vectors_in_2>
+monteswitch_post -extract_pos_xyz
+\end{verbatim}
 
 \subsection{\texttt{-extract\_wf}}
 Extract the weight function from \texttt{state} and output it to stdout. In the output the first token on each line is the order parameter, 
@@ -1552,34 +1592,34 @@ tokens on each line are the x-, y- and z-coordinates respectively for a particle
 Extract the displacements of the particles, and output them to stdout. In the output the first, second and third tokens on each line are 
 the x-, y- and z-displacements respectively for a particle. 
 
-\subsection{\texttt{-calc\_rad\_dist bins}}
+\subsection{\texttt{-calc\_rad\_dist <bins>}}
 Calculate the radial distribution function, based on the current state, and output it to stdout. In the output, each line corresponds 
 to a distance, which is the first token, and the second token contains the average number of particles at this distance from a particle. The 
 output is like a histogram, with each line corresponding to a bin, the first token corresponding to the minimum of the range covered by the 
 bin, and the second token corresponding to the number of counts for that bin. The range of the bin is inclusive at its minimum, and 
 exclusive at its maximum. The upper distance considered for the radial distribution function is the lowest of $L_x/2$, $L_y/2$ and $L_z/2$,
 where $L_x$ denotes the length of the current supercell in the x-direction, and similarly for $L_y$ and $L_z$; and the number of bins for 
-the histogram is specified in the second argument \texttt{bins}. Note that the upper distance corresponds to the 'limit of periodicity' for the system. 
+the histogram is specified in the second argument \texttt{<bins>}. Note that the upper distance corresponds to the `limit of periodicity' for the system. 
 
-\subsection{\texttt{-merge\_trans} \texttt{state\_in\_1}  \texttt{state\_in\_2} \texttt{state\_out}}
-Combine the \textbf{trans} matrices from the files \texttt{state\_in\_1} and \texttt{state\_in\_2}, and store the result in the 
-file \texttt{state\_out}, where all variables in \texttt{state\_out} other than the matrix \textbf{trans} are inherited from 
-\texttt{state\_in\_1}. Note that \textbf{M\_grid} must be the same for both input files (in which case the matrices \textbf{trans} for
+\subsection{\texttt{-merge\_trans} \texttt{<state\_in\_1>}  \texttt{<state\_in\_2>} \texttt{<state\_out>}}
+Combine the \textbf{trans} matrices from the files \texttt{<state\_in\_1>} and \texttt{<state\_in\_2>}, and store the result in the 
+file \texttt{<state\_out>}, where all variables in \texttt{<state\_out>} other than the matrix \textbf{trans} are inherited from 
+\texttt{<state\_in\_1>}. Note that \textbf{M\_grid} must be the same for both input files (in which case the matrices \textbf{trans} for
 each are of the same size). This argument can be used for pooling the results of multiple simulations which utilise the same underlying
 `order parameter grid' \textbf{M\_grid}.
 
-\subsection{\texttt{-extract\_lattices\_in vectors\_in\_1 vectors\_in\_2}}
-Output the geometrical properties of the system in the format of a \texttt{lattices\_in} file. The arguments \texttt{vectors\_in\_1}
-and \texttt{vectors\_in\_2} can be either \texttt{pos} or \texttt{R}. If \texttt{vectors\_in\_1} is \texttt{pos}, then
+\subsection{\texttt{-extract\_lattices\_in <vectors\_in\_1> <vectors\_in\_2>}}
+Output the geometrical properties of the system in the format of a \texttt{lattices\_in} file. The arguments \texttt{<vectors\_in\_1>}
+and \texttt{<vectors\_in\_2>} can be either \texttt{pos} or \texttt{R}. If \texttt{<vectors\_in\_1>} is \texttt{pos}, then
 the positions of the particles in phase 1 of the forthcomning \texttt{lattices\_in} file will be the positions of the particles in phase 1
-in the \texttt{state} file; if \texttt{vectors\_in\_1} is \texttt{R}, then the positions of the particles in phase 1 of the 
+in the \texttt{state} file; if \texttt{<vectors\_in\_1>} is \texttt{R}, then the positions of the particles in phase 1 of the 
 \texttt{lattices\_in} file will be the current lattice vectors (i.e., \textbf{R\_1}) corresponding to phase 1 in the \texttt{state} file.
-Similar applies for \texttt{vectors\_in\_2} with phase 2.
+Similar applies for \texttt{<vectors\_in\_2>} with phase 2.
 
 \subsection{\texttt{-extract\_pos\_xyz}}
 Extract the positions of the particles, and output them to stdout in `.xyz' format. In the output the first line contains the number of 
 particles, the second line is a comment line, and the subsequent lines contain the particle positions and species: the first token is 
-the `element' (set to `A' for species `1`, `B' for species 2, ..., `Z` for species 26, and `?` otherwise), and the second, third, 
+the `element' (set to `A' for species `1', `B' for species `2', ..., `Z' for species 26, and `?' otherwise), and the second, third, 
 fourth and fifth tokens are the x-, y- and z-coordinates respectively.
 
 
