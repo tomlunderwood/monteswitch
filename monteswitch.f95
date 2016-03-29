@@ -39,7 +39,7 @@
 !!   <td> -seed <i>seed</i> </td>
 !!   <td>
 !!   Specify the integer seed for the random number generator to be <i>seed</i>. <i>This command line option, if present,
-!!   should precede the other possible arguments below</i>.
+!!   should precede the other possible arguments below</i>. Note that the seed must be non-zero.
 !!   </td>
 !!  </tr>
 !!  <tr>
@@ -84,14 +84,6 @@ program monteswitch
     use monteswitch_mod
 
     implicit none
-
-    ! Unimportant variables
-    character(len=20) :: char
-
-    ! THE PROGRAM
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     ! This is .true. if the argument "-seed" is present
     logical :: seed_specified
@@ -99,7 +91,11 @@ program monteswitch
     integer :: seed
     ! The command line argument we are on for reading: we have read n-1 command line arguments so far
     integer :: n
+
+    ! Unimportant variables
+    character(len=20) :: char
     integer :: error
+
 
     seed_specified = .false.
     n=1
@@ -129,6 +125,10 @@ program monteswitch
         ! Check that the seed is sensible
         if(error/=0) then
             write(0,*) "monteswitch: Error. Problem reading integer after the command line argument '-seed'"
+            stop 1
+        end if
+        if(seed==0) then
+            write(0,*) "monteswitch: Error. The RNG seed must be non-zero."
             stop 1
         end if
 
