@@ -68,21 +68,27 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
-[REFERENCE MY CONFERENCE PAPER? PARRINELO-RAHMAN MOVES?]
-
 Calculating free energies is one of the most fundamental problems in materials science.
-A plethora of different methods have been developed to this end, each designed with a particlular problem in mind [REF].
+A plethora of different methods have been developed to this end, each designed with a particlular problem in mind (see, e.g., Ref. \cite{book:Frenkel}).
 %
 \emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
 \footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo.}
-is a method for calculating the free energy difference between two solid phases. [WHAT IS A PHASE?]
+is a method for calculating the free energy difference between two solid phases.
+\footnote{Here we use the term `phase' rather loosely. By `phase' here we simply mean `some system' we are interested 
+in measuring the free energy of relative to `some other system' via LSMC. A `phase' could be a solid phase in the conventional sense. For 
+example we could use LSMC to evaluate the free energy difference between the fcc and hcp crystals (taking into account the vibrations of particles 
+about their lattice sites), or the NaCl and CsCl crystals. However one phase could be the fcc crystal while the other could be the fcc crystal 
+exhibiting some concentration $c$ of a certain crystallographic defect. In this case the free energy difference between the two `phases' would be
+the free energy cost associated with adding a concentration $c$ of defects to the fcc crystal (where one must be careful to correctly account
+for the positional entropy of the defects).}
 \nomenclature{LSMC}{Lattice-switch Monte Carlo}%
-It has been applied to a wide range of systems \cite{Bruce_1997,Bruce_2000,Pronk_1999,Mau_1999,Jackson_2002,Wilms_2012,Jackson_2007,Yang_2008,
-Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014},
+It has been applied to a wide range of systems \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000,Jackson_2002,Jackson_2007,Yang_2008,
+Marechal_2008,Raiteri_2010,Wilms_2012,Quigley_2014,Bridgwater_2014,Underwood_2015},
 beginning with the hard-sphere solid, where it was used to determine the free energy difference
 between the fcc and hcp phases \cite{Bruce_1997,Bruce_2000} and free energy cost of stacking faults
-\cite{Pronk_1999,Mau_1999}. The method was later generalised to treat soft interatomic potentials \cite{Jackson_2002,Wilms_2012}, systems containing multiple
-particle species \cite{Jackson_2007,Yang_2008}, and molecular systems \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
+\cite{Pronk_1999,Mau_1999}. The method was later applied to soft interatomic potentials \cite{Jackson_2002,Wilms_2012,Underwood_2015}, 
+systems containing multiple particle species \cite{Jackson_2007,Yang_2008}, and molecular systems 
+\cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
 LSMC has also inspired \emph{phase switch Monte Carlo}, a method for calculating the free energy difference between a solid and a
 fluid phase \cite{Wilding_2000}, which has also seen widespread use
 \cite{Wilding_2000,Errington_2004,McNeil-Watson_2006,Wilding_2009_MP,Wilding_2009_JCP,Sollich_2010,Wilding_2010}.
@@ -98,6 +104,8 @@ presumably stems, at least in part, from the lack of an LSMC code which is both 
 With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can 
 be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
 package contains a version of the main executable which is parallelised using MPI for HPC applications.
+\nomenclature{MPI}{Message Passing Interface}%
+\nomenclature{HPC}{High-performance computing}%
 Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the 
 free energy cost associated with crystallographic defects. Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
 However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent 
@@ -117,7 +125,7 @@ Templates are provided with \emph{monteswitch} to assist with this. Furthermore 
 with \emph{monteswitch} which correspond to some commonly-used interatomic potentials, which can serve as examples.
 After compiling the package with the desired version of \texttt{interactions.f95}, the end result is a version of \emph{monteswitch} 
 in which the desired interatomic potential is `hard-coded'.
-[A similar scheme is utilised in the molecular dynamics program MOLDY [REF]]
+(A similar scheme is utilised in the molecular dynamics program MOLDY \cite{Ackland_2011}).
 
 This document describes how to use \emph{monteswitch}. Note that this document does not provide details regarding the structure of the source code. 
 We direct readers interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
@@ -148,20 +156,21 @@ for users.
 In this chapter we describe the LSMC methodology as relevant to \emph{monteswitch}. Further information regarding different incarnations of
 LSMC can be found in the LSMC studies cited in the previous chapter.
 
-\section{What do we mean by `phase'?}\label{sec:phase}
-LSMC is a method to calculate the free energy difference between two phases. The term `phase' could mean a number of things. However, here
-we use the following definition, which is convenient for our purposes. We define a phase using some state of the system
-which is \emph{representative} of the phase in question. We refer to such a state as a \emph{representative state}: phase $\alpha$ is the 
-set of all states of the system which are `reachable' from the chosen representative state for $\alpha$ on the timescale of the simulation. 
-For example, if one is interested in the `fcc phase', i.e., the set of states 
-corresponding to thermodynamic fluctuations in the particle positions about their average positions (which form an fcc crystal
-lattice), then a suitable choice of representative state would be that in which the particle positions form an ideal fcc crystal lattice. A
-simulation initialised in this state would, on the timescales of the simulation, explore the configurations which
-constitute the fcc phase.
+\section{What do we mean by `solid phase'?}\label{sec:phase}
+LSMC is a method to calculate the free energy difference between two solid phases. The term `solid phase' could mean a number of things;
+it is worth clarifying exactly what we mean by this term before proceeding. Here we use the following definition, which is convenient for our 
+purposes. We define a solid phase (henceforth we omit the word `solid' for the sake of brevity)
+using some state of the system which is \emph{representative} of the phase in question. We refer to such a state 
+as a \emph{representative state}: phase $\alpha$ is the set of all states of the system which are `reachable' from the chosen representative 
+state for $\alpha$ on the timescale of the simulation. 
+For example, if one is interested in the `fcc phase', i.e., the set of states corresponding to thermodynamic fluctuations in the particle 
+positions about their average positions (which form an fcc crystal lattice), then a suitable choice of representative state would be that 
+in which the particle positions form an ideal fcc crystal lattice. A simulation initialised in this state would, on the timescale of the 
+simulation, explore the configurations which constitute the fcc phase.
 
 
 \section{Calculating free energy differences}
-Now that we have defined what we mean by a `phase', consider now a system which is free to visit two phases 1 and 2 (and only phases 1 and 2).
+Consider now a system which is free to visit two phases 1 and 2 (and only phases 1 and 2).
 Of phases 1 and 2, the equilibrium phase is that with the lower free energy $\mathcal{F}$, where $\mathcal{F}$ is the Helmholtz free energy $F$ in the 
 NVT ensemble and the Gibbs free energy $G$ in the NPT ensemble. It is the free energy difference between the phases 
 $\Delta\mathcal{F}\equiv \mathcal{F}_1-\mathcal{F}_2$ which we wish to evaluate, where $\mathcal{F}_1$ and $\mathcal{F}_2$ denote the free energies of 
