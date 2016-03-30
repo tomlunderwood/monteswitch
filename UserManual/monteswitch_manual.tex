@@ -1366,46 +1366,42 @@ unnecessarily.
 \begin{landscape}
 \begin{center}\label{table:pair_potentials}
 \begin{longtable}{ l l l p{5cm} }
-\caption{Soft pair potentials included with \emph{monteswitch}}
+\caption{Soft interatomic pair potentials included with \emph{monteswitch}}
 \\
 Potential & File name & Expression for potential & Order of variables in \texttt{interactions\_in}  \\
 
 \hline
 
-12-10 & \texttt{interactions\_12-10.f95} & $\phi(r)=A/r^{12}-B/r^{10}$ 
+12-10 & \texttt{interactions\_12-10.f95} & $A/r^{12}-B/r^{10}$ 
 & \textbf{A}, \textbf{B}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-12-6  &  \texttt{interactions\_12-6.f95} & $\phi(r)=A/r^{12}-B/r^{6}$ 
+12-6  &  \texttt{interactions\_12-6.f95} & $A/r^{12}-B/r^{6}$ 
 & \textbf{A}, \textbf{B}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Buckingham & \texttt{interactions\_Buckingham.f95} & $\phi(r)=A\exp(-r/\rho)-C/r^6$ 
+Buckingham & \texttt{interactions\_Buckingham.f95} & $A\exp(-r/\rho)-C/r^6$ 
 & \textbf{A}, \textbf{rho}, \textbf{C}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Gaussian & \texttt{interactions\_Gaussian.f95} & $\phi(r)=-A\exp(-Br^2)$ 
+Gaussian & \texttt{interactions\_Gaussian.f95} & $-A\exp(-Br^2)$ 
 & \textbf{A}, \textbf{B}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Lennard-Jones & \texttt{interactions\_LJ.f95} & $\phi(r)=\phi_{\text{LJ}}(r)=4\epsilon\bigl[(\sigma/r)^{12}-(\sigma/r)^6\bigr]$
+Lennard-Jones & \texttt{interactions\_LJ.f95} & $4\epsilon\bigl[(\sigma/r)^{12}-(\sigma/r)^6\bigr]$
 & \textbf{lj\_epsilon} ($\epsilon$), \textbf{lj\_sigma} ($\sigma$), \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Lennard-Jones - shifted  & \texttt{interactions\_LJ\_shifted.f95} & $\phi(r)=\phi_{\text{LJ}}(r)-\phi_{\text{LJ}}(r_{\text{c}})$ 
-& \textbf{lj\_epsilon} ($\epsilon$), \textbf{lj\_sigma} ($\sigma$), \textbf{lj\_cutoff} ($r_{\text{c}}$), \textbf{list\_cutoff}, \textbf{list\_size} \\
-
-Lennard-Jones - 9-6 & \texttt{interactions\_LJ\_9-6.f95} & $\phi(r)=4\epsilon\bigl[(\sigma/r)^9-(\sigma/r)^6\bigr]$
+9-6 Lennard-Jones & \texttt{interactions\_LJ\_9-6.f95} & $4\epsilon\bigl[(\sigma/r)^9-(\sigma/r)^6\bigr]$
 & \textbf{lj\_epsilon} ($\epsilon$), \textbf{lj\_sigma} ($\sigma$), \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Morse & \texttt{interactions\_Morse.f95} & $\phi(r)=E_0\bigg\lbrace \Bigl[1-\exp\bigl(-k(r-r_0)\bigr)\Bigr]^2 -1 \biggr\rbrace$ 
+Morse & \texttt{interactions\_Morse.f95} & $E_0\bigg\lbrace \Bigl[1-\exp\bigl(-k(r-r_0)\bigr)\Bigr]^2 -1 \biggr\rbrace$ 
 & \textbf{E0}, \textbf{k}, \textbf{r0}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-$n$-$m$ & \texttt{interactions\_n-m.f95} & $\displaystyle\phi(r)=\bigl[E_0/(n-m)\bigr]\bigl[m(r_0/r)^n-n(r_0/r)^m\bigr]$
+$n$-$m$ & \texttt{interactions\_n-m.f95} & $\displaystyle\bigl[E_0/(n-m)\bigr]\bigl[m(r_0/r)^n-n(r_0/r)^m\bigr]$
 & \textbf{E0}, \textbf{npot} ($n$), \textbf{mpot} ($m$), \textbf{r0}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
-Yukawa & \texttt{interactions\_Yukawa.f95} & $\phi(r)=A\exp(-kr)/r$ 
+Yukawa & \texttt{interactions\_Yukawa.f95} & $A\exp(-kr)/r$ 
 & \textbf{A}, \textbf{k}, \textbf{cutoff}, \textbf{list\_cutoff}, \textbf{list\_size} \\
 
 \end{longtable}
 \end{center}
 \end{landscape}
-
 
 \section{User-defined pair potentials}\label{sec:user_defined}
 The file \texttt{interactions\_TEMPLATE\_pair.f95} is a template which can be used to easily create \texttt{interactions.f95} files for user-defined
@@ -1474,7 +1470,7 @@ and the implementation of the potential is similar to \texttt{interactions\_HS.f
 \texttt{INTEGER} variable \textbf{n\_species} is introduced, which specifies the number of different species in the system,
 and \textbf{sigma} is now a \texttt{REAL(n\_species)} array which contains the hard sphere diameters for each species. Note
 that the $i$th value in \textbf{sigma} is the diameter for species $i$: the species labels range from 1 to 
-\textbf{n\_species}, e.g., species '0' or '-2' are not used).
+\textbf{n\_species}, e.g., species `0' or `-2' are not used).
 The order of variables as they should occur in \texttt{interactions\_in} is \textbf{epsilon}, \textbf{n\_species}, \textbf{sigma}, 
 \textbf{list\_cutoff}, then \textbf{list\_size}.
 
@@ -1499,7 +1495,7 @@ However recall that \emph{monteswitch} is limited to `atomic' systems, i.e., par
 
 \section{Other potentials included with \emph{monteswitch}}
 Some other \texttt{interactions.f95} files are included in the directory \texttt{Interactions}, namely \texttt{interactions\_EC.f95}, 
-\texttt{interactions\_EC\_NPT.f95}, \and texttt{interactions\_LJ\_hcp\_fcc.f95}. These other files correspond to potentials which we do 
+\texttt{interactions\_EC\_NPT.f95}, \and \texttt{interactions\_LJ\_hcp\_fcc.f95}. These other files correspond to potentials which we do 
 not anticipate will be of any interest to most users, and are used in the test cases used to validate \emph{monteswitch} which are described in Chapter
 \ref{chapter:tests}. Hence we do not describe them here. Interested users should inspect the files themselves for further information,
 as well as Chapter \ref{chapter:tests}.
@@ -2598,7 +2594,7 @@ to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
 
 
 \subsection{\texttt{test\_LJ\_1}}
-This test calculates the potential energy per particle of the Lennard-Jones fluid in the NVT ensemble, with a cut-off (not shifted) of
+This test calculates the potential energy per particle of the Lennard-Jones fluid in the NVT ensemble, with a cut-off of
 $3\sigma$, $\epsilon=\sigma=1$, at a temperature of 0.85 and density of 0.003.
 
 Checks to perform:

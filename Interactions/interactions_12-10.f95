@@ -1,7 +1,20 @@
-! 'interactions.f95' file for monteswitch for the Lennard-Jones potential in conjunction with a cut-off and 
+! 'interactions.f95' file for monteswitch for the 12-10 potential in conjunction with a cut-off and 
 ! fixed neighbour lists.
 !
 ! Author: Tom L Underwood
+!
+! This file was created from the template 'interactions_TEMPLATE_pair.f95'. Below is the preamble inherited
+! from that file. Note that here the variables are instead (in the following order) 'A' and 'B'. The form of
+! the potential is (A/r^12)-(B/r^10).
+! 
+! *************** PREAMBLE FOR 'interactions_TEMPLATE_pair.f95' *************** 
+!
+! This file corresponds to the Lennard-Jones potential until modified by the user. Search for 
+! 'USER-DEFINED CODE' to find the relevant parts to modify. What follows is a description of functionality
+! for the Lennard-Jones potential. The functionality will be similar if the 'USER-DEFINED CODE' blocks
+! are altered, except the variables 'lj_epsilon' and 'lj_sigma' will be replaced by user-defined variables.
+!
+! Description of functionality of this file if it is unaltered by the user...
 !
 ! This file implements a Lennard-Jones potential with truncated interactions, and a fixed neighbour list for
 ! each particle. The variables for this module are imported from a file 'interactions_in', and the format of 
@@ -33,6 +46,8 @@
 ! Regarding checkpointing, the variables in this module are stored in the 'state' file used to checkpoint all
 ! other monteswitch variables; see the comments for 'export_interactions' for more details.
 !
+! *************** END OF PREAMBLE FOR 'interactions_TEMPLATE_pair.f95' *************** 
+!
 module interactions_mod
 
 
@@ -43,9 +58,15 @@ module interactions_mod
     
     implicit none
 
-    ! Lennard-Jones variables
-    real(rk) :: lj_epsilon
-    real(rk) :: lj_sigma
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code defining the free parameters for the potential here.
+    ! Example (for Lennard-Jones potential):
+    !  real(rk) :: lj_epsilon
+    !  real(rk) :: lj_sigma
+    !
+    real(rk) :: A
+    real(rk) :: B
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     ! Variables for the potential cutoff and lists of interacting particles
     real(rk) :: cutoff
@@ -96,16 +117,35 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
        stop 1
     end if
 
-    read(10,*,iostat=error) string, lj_epsilon
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are written - in the USER-DEFINED CODE block below.
+    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
+    ! an error):
+    !  read(10,*,iostat=error) string, lj_epsilon
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+    !     stop 1
+    !  end if
+    !  read(10,*,iostat=error) string, lj_sigma
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+    !     stop 1
+    !  end if
+    !
+
+    read(10,*,iostat=error) string, A
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'A' from file 'interactions_in'"
         stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, B
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'B' from file 'interactions_in'"
         stop 1
     end if
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -170,8 +210,17 @@ end subroutine initialise_interactions
 ! must correspond to the format read in from these files by the procedure 'import_interactions()'.
 subroutine export_interactions()
 
-    write(10,*) "lj_epsilon= ",lj_epsilon
-    write(10,*) "lj_sigma= ",lj_sigma
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code which writes the free parameters for the potential to unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are read - in the USER-DEFINED CODE block above.
+    ! Example (for Lennard-Jones potential):
+    !  write(10,*) "lj_epsilon= ",lj_epsilon
+    !  write(10,*) "lj_sigma= ",lj_sigma
+    !
+    write(10,*) "A= ",A
+    write(10,*) "B= ",B
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     write(10,*) "cutoff= ",cutoff
     write(10,*) "list_cutoff= ",list_cutoff
@@ -210,16 +259,34 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     character(len=20) string
     integer(ik) :: error, n_part
     
-    read(10,*,iostat=error) string, lj_epsilon
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>>
+    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are written - in the USER-DEFINED CODE block below.
+    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
+    ! an error):
+    !  read(10,*,iostat=error) string, lj_epsilon
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
+    !     stop 1
+    !  end if
+    !  read(10,*,iostat=error) string, lj_sigma
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
+    !     stop 1
+    !  end if
+    !
+    read(10,*,iostat=error) string, A
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'A' from unit 10"
        stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, B
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'B' from unit 10"
        stop 1
     end if
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -515,7 +582,14 @@ function pair_potential(r, species1, species2)
 
     real(rk) :: pair_potential
 
-    pair_potential = 4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code corresponding to the 'pure' pair potential, without truncation,
+    ! and using the free parameters defined above.
+    ! Example (for Lennard-Jones potential):
+    !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    !
+    pair_potential=(A/r**12)-(B/r**10)
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
 end function pair_potential
 

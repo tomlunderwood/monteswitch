@@ -117,12 +117,12 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     ! an error):
     !  read(10,*,iostat=error) string, lj_epsilon
     !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file '",filename,"'"
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
     !     stop 1
     !  end if
     !  read(10,*,iostat=error) string, lj_sigma
     !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file '",filename,"'"
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
     !     stop 1
     !  end if
     !
@@ -258,12 +258,12 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     ! an error):
     !  read(10,*,iostat=error) string, lj_epsilon
     !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit ",unit
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
     !     stop 1
     !  end if
     !  read(10,*,iostat=error) string, lj_sigma
     !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit ",unit
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
     !     stop 1
     !  end if
     !
