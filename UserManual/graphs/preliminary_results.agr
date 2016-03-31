@@ -1,0 +1,6866 @@
+# Grace project file
+#
+@version 50125
+@page size 612, 792
+@page scroll 5%
+@page inout 5%
+@link page off
+@map font 0 to "Times-Roman", "Times-Roman"
+@map font 1 to "Times-Italic", "Times-Italic"
+@map font 2 to "Times-Bold", "Times-Bold"
+@map font 3 to "Times-BoldItalic", "Times-BoldItalic"
+@map font 4 to "Helvetica", "Helvetica"
+@map font 5 to "Helvetica-Oblique", "Helvetica-Oblique"
+@map font 6 to "Helvetica-Bold", "Helvetica-Bold"
+@map font 7 to "Helvetica-BoldOblique", "Helvetica-BoldOblique"
+@map font 8 to "Courier", "Courier"
+@map font 9 to "Courier-Oblique", "Courier-Oblique"
+@map font 10 to "Courier-Bold", "Courier-Bold"
+@map font 11 to "Courier-BoldOblique", "Courier-BoldOblique"
+@map font 12 to "Symbol", "Symbol"
+@map font 13 to "ZapfDingbats", "ZapfDingbats"
+@map color 0 to (255, 255, 255), "white"
+@map color 1 to (0, 0, 0), "black"
+@map color 2 to (255, 0, 0), "red"
+@map color 3 to (0, 255, 0), "green"
+@map color 4 to (0, 0, 255), "blue"
+@map color 5 to (255, 255, 0), "yellow"
+@map color 6 to (188, 143, 143), "brown"
+@map color 7 to (220, 220, 220), "grey"
+@map color 8 to (148, 0, 211), "violet"
+@map color 9 to (0, 255, 255), "cyan"
+@map color 10 to (255, 0, 255), "magenta"
+@map color 11 to (255, 165, 0), "orange"
+@map color 12 to (114, 33, 188), "indigo"
+@map color 13 to (103, 7, 72), "maroon"
+@map color 14 to (64, 224, 208), "turquoise"
+@map color 15 to (0, 139, 0), "green4"
+@reference date 0
+@date wrap off
+@date wrap year 1950
+@default linewidth 1.0
+@default linestyle 1
+@default color 1
+@default pattern 1
+@default font 0
+@default char size 1.000000
+@default symbol size 1.000000
+@default sformat "%.8g"
+@background color 0
+@page background fill on
+@timestamp off
+@timestamp 0.03, 0.03
+@timestamp color 1
+@timestamp rot 0
+@timestamp font 0
+@timestamp char size 1.000000
+@timestamp def "Wed Mar 30 19:40:42 2016"
+@r0 off
+@link r0 to g0
+@r0 type above
+@r0 linestyle 1
+@r0 linewidth 1.0
+@r0 color 1
+@r0 line 0, 0, 0, 0
+@r1 off
+@link r1 to g0
+@r1 type above
+@r1 linestyle 1
+@r1 linewidth 1.0
+@r1 color 1
+@r1 line 0, 0, 0, 0
+@r2 off
+@link r2 to g0
+@r2 type above
+@r2 linestyle 1
+@r2 linewidth 1.0
+@r2 color 1
+@r2 line 0, 0, 0, 0
+@r3 off
+@link r3 to g0
+@r3 type above
+@r3 linestyle 1
+@r3 linewidth 1.0
+@r3 color 1
+@r3 line 0, 0, 0, 0
+@r4 off
+@link r4 to g0
+@r4 type above
+@r4 linestyle 1
+@r4 linewidth 1.0
+@r4 color 1
+@r4 line 0, 0, 0, 0
+@g0 on
+@g0 hidden false
+@g0 type XY
+@g0 stacked false
+@g0 bar hgap 0.000000
+@g0 fixedpoint off
+@g0 fixedpoint type 0
+@g0 fixedpoint xy 0.000000, 0.000000
+@g0 fixedpoint format general general
+@g0 fixedpoint prec 6, 6
+@with g0
+@    world 0, -2500, 1000, -2380
+@    stack world 0, 0, 0, 0
+@    znorm 1
+@    view 0.150000, 0.862567, 0.900000, 1.194118
+@    title ""
+@    title font 0
+@    title size 1.500000
+@    title color 1
+@    subtitle ""
+@    subtitle font 0
+@    subtitle size 1.000000
+@    subtitle color 1
+@    xaxes scale Normal
+@    yaxes scale Normal
+@    xaxes invert off
+@    yaxes invert off
+@    xaxis  on
+@    xaxis  type zero false
+@    xaxis  offset 0.000000 , 0.000000
+@    xaxis  bar on
+@    xaxis  bar color 1
+@    xaxis  bar linestyle 1
+@    xaxis  bar linewidth 1.0
+@    xaxis  label ""
+@    xaxis  label layout para
+@    xaxis  label place auto
+@    xaxis  label char size 1.000000
+@    xaxis  label font 0
+@    xaxis  label color 1
+@    xaxis  label place normal
+@    xaxis  tick on
+@    xaxis  tick major 200
+@    xaxis  tick minor ticks 1
+@    xaxis  tick default 6
+@    xaxis  tick place rounded true
+@    xaxis  tick in
+@    xaxis  tick major size 1.000000
+@    xaxis  tick major color 1
+@    xaxis  tick major linewidth 1.0
+@    xaxis  tick major linestyle 1
+@    xaxis  tick major grid off
+@    xaxis  tick minor color 1
+@    xaxis  tick minor linewidth 1.0
+@    xaxis  tick minor linestyle 1
+@    xaxis  tick minor grid off
+@    xaxis  tick minor size 0.500000
+@    xaxis  ticklabel off
+@    xaxis  ticklabel format general
+@    xaxis  ticklabel prec 5
+@    xaxis  ticklabel formula ""
+@    xaxis  ticklabel append ""
+@    xaxis  ticklabel prepend ""
+@    xaxis  ticklabel angle 0
+@    xaxis  ticklabel skip 0
+@    xaxis  ticklabel stagger 0
+@    xaxis  ticklabel place normal
+@    xaxis  ticklabel offset auto
+@    xaxis  ticklabel offset 0.000000 , 0.010000
+@    xaxis  ticklabel start type auto
+@    xaxis  ticklabel start 0.000000
+@    xaxis  ticklabel stop type auto
+@    xaxis  ticklabel stop 0.000000
+@    xaxis  ticklabel char size 1.000000
+@    xaxis  ticklabel font 0
+@    xaxis  ticklabel color 1
+@    xaxis  tick place normal
+@    xaxis  tick spec type none
+@    yaxis  on
+@    yaxis  type zero false
+@    yaxis  offset 0.000000 , 0.000000
+@    yaxis  bar on
+@    yaxis  bar color 1
+@    yaxis  bar linestyle 1
+@    yaxis  bar linewidth 1.0
+@    yaxis  label "Energy (eV)"
+@    yaxis  label layout para
+@    yaxis  label place auto
+@    yaxis  label char size 1.000000
+@    yaxis  label font 0
+@    yaxis  label color 1
+@    yaxis  label place normal
+@    yaxis  tick on
+@    yaxis  tick major 20
+@    yaxis  tick minor ticks 1
+@    yaxis  tick default 6
+@    yaxis  tick place rounded true
+@    yaxis  tick in
+@    yaxis  tick major size 1.000000
+@    yaxis  tick major color 1
+@    yaxis  tick major linewidth 1.0
+@    yaxis  tick major linestyle 1
+@    yaxis  tick major grid off
+@    yaxis  tick minor color 1
+@    yaxis  tick minor linewidth 1.0
+@    yaxis  tick minor linestyle 1
+@    yaxis  tick minor grid off
+@    yaxis  tick minor size 0.500000
+@    yaxis  ticklabel on
+@    yaxis  ticklabel format general
+@    yaxis  ticklabel prec 5
+@    yaxis  ticklabel formula ""
+@    yaxis  ticklabel append ""
+@    yaxis  ticklabel prepend ""
+@    yaxis  ticklabel angle 0
+@    yaxis  ticklabel skip 0
+@    yaxis  ticklabel stagger 0
+@    yaxis  ticklabel place normal
+@    yaxis  ticklabel offset auto
+@    yaxis  ticklabel offset 0.000000 , 0.010000
+@    yaxis  ticklabel start type auto
+@    yaxis  ticklabel start 0.000000
+@    yaxis  ticklabel stop type auto
+@    yaxis  ticklabel stop 0.000000
+@    yaxis  ticklabel char size 0.800000
+@    yaxis  ticklabel font 0
+@    yaxis  ticklabel color 1
+@    yaxis  tick place both
+@    yaxis  tick spec type none
+@    altxaxis  off
+@    altyaxis  off
+@    legend off
+@    legend loctype view
+@    legend 0.85, 0.8
+@    legend box color 1
+@    legend box pattern 1
+@    legend box linewidth 1.0
+@    legend box linestyle 1
+@    legend box fill color 0
+@    legend box fill pattern 1
+@    legend font 0
+@    legend char size 1.000000
+@    legend color 1
+@    legend length 4
+@    legend vgap 1
+@    legend hgap 1
+@    legend invert false
+@    frame type 0
+@    frame linestyle 1
+@    frame linewidth 1.0
+@    frame color 1
+@    frame pattern 1
+@    frame background color 0
+@    frame background pattern 0
+@    s0 hidden false
+@    s0 type xy
+@    s0 symbol 0
+@    s0 symbol size 1.000000
+@    s0 symbol color 1
+@    s0 symbol pattern 1
+@    s0 symbol fill color 1
+@    s0 symbol fill pattern 0
+@    s0 symbol linewidth 1.0
+@    s0 symbol linestyle 1
+@    s0 symbol char 65
+@    s0 symbol char font 0
+@    s0 symbol skip 0
+@    s0 line type 1
+@    s0 line linestyle 1
+@    s0 line linewidth 1.0
+@    s0 line color 1
+@    s0 line pattern 1
+@    s0 baseline type 0
+@    s0 baseline off
+@    s0 dropline off
+@    s0 fill type 0
+@    s0 fill rule 0
+@    s0 fill color 1
+@    s0 fill pattern 1
+@    s0 avalue off
+@    s0 avalue type 2
+@    s0 avalue char size 1.000000
+@    s0 avalue font 0
+@    s0 avalue color 1
+@    s0 avalue rot 0
+@    s0 avalue format general
+@    s0 avalue prec 3
+@    s0 avalue prepend ""
+@    s0 avalue append ""
+@    s0 avalue offset 0.000000 , 0.000000
+@    s0 errorbar on
+@    s0 errorbar place both
+@    s0 errorbar color 1
+@    s0 errorbar pattern 1
+@    s0 errorbar size 1.000000
+@    s0 errorbar linewidth 1.0
+@    s0 errorbar linestyle 1
+@    s0 errorbar riser linewidth 1.0
+@    s0 errorbar riser linestyle 1
+@    s0 errorbar riser clip off
+@    s0 errorbar riser clip length 0.100000
+@    s0 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/bcc_preliminary/E_vs_t.dat"
+@    s0 legend  ""
+@    s1 hidden false
+@    s1 type xy
+@    s1 symbol 0
+@    s1 symbol size 1.000000
+@    s1 symbol color 2
+@    s1 symbol pattern 1
+@    s1 symbol fill color 2
+@    s1 symbol fill pattern 0
+@    s1 symbol linewidth 1.0
+@    s1 symbol linestyle 1
+@    s1 symbol char 65
+@    s1 symbol char font 0
+@    s1 symbol skip 0
+@    s1 line type 1
+@    s1 line linestyle 1
+@    s1 line linewidth 1.0
+@    s1 line color 2
+@    s1 line pattern 1
+@    s1 baseline type 0
+@    s1 baseline off
+@    s1 dropline off
+@    s1 fill type 0
+@    s1 fill rule 0
+@    s1 fill color 1
+@    s1 fill pattern 1
+@    s1 avalue off
+@    s1 avalue type 2
+@    s1 avalue char size 1.000000
+@    s1 avalue font 0
+@    s1 avalue color 1
+@    s1 avalue rot 0
+@    s1 avalue format general
+@    s1 avalue prec 3
+@    s1 avalue prepend ""
+@    s1 avalue append ""
+@    s1 avalue offset 0.000000 , 0.000000
+@    s1 errorbar on
+@    s1 errorbar place both
+@    s1 errorbar color 2
+@    s1 errorbar pattern 1
+@    s1 errorbar size 1.000000
+@    s1 errorbar linewidth 1.0
+@    s1 errorbar linestyle 1
+@    s1 errorbar riser linewidth 1.0
+@    s1 errorbar riser linestyle 1
+@    s1 errorbar riser clip off
+@    s1 errorbar riser clip length 0.100000
+@    s1 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/hcp_preliminary/E_vs_t.dat"
+@    s1 legend  ""
+@g1 on
+@g1 hidden false
+@g1 type XY
+@g1 stacked false
+@g1 bar hgap 0.000000
+@g1 fixedpoint off
+@g1 fixedpoint type 0
+@g1 fixedpoint xy 0.000000, 0.000000
+@g1 fixedpoint format general general
+@g1 fixedpoint prec 6, 6
+@with g1
+@    world 0, 8900, 1000, 9300
+@    stack world 0, 0, 0, 0
+@    znorm 1
+@    view 0.150000, 0.481283, 0.900000, 0.812834
+@    title ""
+@    title font 0
+@    title size 1.500000
+@    title color 1
+@    subtitle ""
+@    subtitle font 0
+@    subtitle size 1.000000
+@    subtitle color 1
+@    xaxes scale Normal
+@    yaxes scale Normal
+@    xaxes invert off
+@    yaxes invert off
+@    xaxis  on
+@    xaxis  type zero false
+@    xaxis  offset 0.000000 , 0.000000
+@    xaxis  bar on
+@    xaxis  bar color 1
+@    xaxis  bar linestyle 1
+@    xaxis  bar linewidth 1.0
+@    xaxis  label ""
+@    xaxis  label layout para
+@    xaxis  label place auto
+@    xaxis  label char size 1.000000
+@    xaxis  label font 0
+@    xaxis  label color 1
+@    xaxis  label place normal
+@    xaxis  tick on
+@    xaxis  tick major 200
+@    xaxis  tick minor ticks 1
+@    xaxis  tick default 6
+@    xaxis  tick place rounded true
+@    xaxis  tick in
+@    xaxis  tick major size 1.000000
+@    xaxis  tick major color 1
+@    xaxis  tick major linewidth 1.0
+@    xaxis  tick major linestyle 1
+@    xaxis  tick major grid off
+@    xaxis  tick minor color 1
+@    xaxis  tick minor linewidth 1.0
+@    xaxis  tick minor linestyle 1
+@    xaxis  tick minor grid off
+@    xaxis  tick minor size 0.500000
+@    xaxis  ticklabel off
+@    xaxis  ticklabel format general
+@    xaxis  ticklabel prec 5
+@    xaxis  ticklabel formula ""
+@    xaxis  ticklabel append ""
+@    xaxis  ticklabel prepend ""
+@    xaxis  ticklabel angle 0
+@    xaxis  ticklabel skip 0
+@    xaxis  ticklabel stagger 0
+@    xaxis  ticklabel place normal
+@    xaxis  ticklabel offset auto
+@    xaxis  ticklabel offset 0.000000 , 0.010000
+@    xaxis  ticklabel start type auto
+@    xaxis  ticklabel start 0.000000
+@    xaxis  ticklabel stop type auto
+@    xaxis  ticklabel stop 0.000000
+@    xaxis  ticklabel char size 1.000000
+@    xaxis  ticklabel font 0
+@    xaxis  ticklabel color 1
+@    xaxis  tick place normal
+@    xaxis  tick spec type none
+@    yaxis  on
+@    yaxis  type zero false
+@    yaxis  offset 0.000000 , 0.000000
+@    yaxis  bar on
+@    yaxis  bar color 1
+@    yaxis  bar linestyle 1
+@    yaxis  bar linewidth 1.0
+@    yaxis  label "Volume (\cE\C\S3\N)"
+@    yaxis  label layout para
+@    yaxis  label place auto
+@    yaxis  label char size 1.000000
+@    yaxis  label font 0
+@    yaxis  label color 1
+@    yaxis  label place normal
+@    yaxis  tick on
+@    yaxis  tick major 100
+@    yaxis  tick minor ticks 1
+@    yaxis  tick default 6
+@    yaxis  tick place rounded true
+@    yaxis  tick in
+@    yaxis  tick major size 1.000000
+@    yaxis  tick major color 1
+@    yaxis  tick major linewidth 1.0
+@    yaxis  tick major linestyle 1
+@    yaxis  tick major grid off
+@    yaxis  tick minor color 1
+@    yaxis  tick minor linewidth 1.0
+@    yaxis  tick minor linestyle 1
+@    yaxis  tick minor grid off
+@    yaxis  tick minor size 0.500000
+@    yaxis  ticklabel on
+@    yaxis  ticklabel format general
+@    yaxis  ticklabel prec 5
+@    yaxis  ticklabel formula ""
+@    yaxis  ticklabel append ""
+@    yaxis  ticklabel prepend ""
+@    yaxis  ticklabel angle 0
+@    yaxis  ticklabel skip 0
+@    yaxis  ticklabel stagger 0
+@    yaxis  ticklabel place normal
+@    yaxis  ticklabel offset auto
+@    yaxis  ticklabel offset 0.000000 , 0.010000
+@    yaxis  ticklabel start type auto
+@    yaxis  ticklabel start 0.000000
+@    yaxis  ticklabel stop type auto
+@    yaxis  ticklabel stop 0.000000
+@    yaxis  ticklabel char size 0.800000
+@    yaxis  ticklabel font 0
+@    yaxis  ticklabel color 1
+@    yaxis  tick place both
+@    yaxis  tick spec type none
+@    altxaxis  off
+@    altyaxis  off
+@    legend off
+@    legend loctype view
+@    legend 0.5, 0.8
+@    legend box color 1
+@    legend box pattern 1
+@    legend box linewidth 1.0
+@    legend box linestyle 1
+@    legend box fill color 0
+@    legend box fill pattern 1
+@    legend font 0
+@    legend char size 1.000000
+@    legend color 1
+@    legend length 4
+@    legend vgap 1
+@    legend hgap 1
+@    legend invert false
+@    frame type 0
+@    frame linestyle 1
+@    frame linewidth 1.0
+@    frame color 1
+@    frame pattern 1
+@    frame background color 0
+@    frame background pattern 0
+@    s0 hidden false
+@    s0 type xy
+@    s0 symbol 0
+@    s0 symbol size 1.000000
+@    s0 symbol color 1
+@    s0 symbol pattern 1
+@    s0 symbol fill color 1
+@    s0 symbol fill pattern 0
+@    s0 symbol linewidth 1.0
+@    s0 symbol linestyle 1
+@    s0 symbol char 65
+@    s0 symbol char font 0
+@    s0 symbol skip 0
+@    s0 line type 1
+@    s0 line linestyle 1
+@    s0 line linewidth 1.0
+@    s0 line color 1
+@    s0 line pattern 1
+@    s0 baseline type 0
+@    s0 baseline off
+@    s0 dropline off
+@    s0 fill type 0
+@    s0 fill rule 0
+@    s0 fill color 1
+@    s0 fill pattern 1
+@    s0 avalue off
+@    s0 avalue type 2
+@    s0 avalue char size 1.000000
+@    s0 avalue font 0
+@    s0 avalue color 1
+@    s0 avalue rot 0
+@    s0 avalue format general
+@    s0 avalue prec 3
+@    s0 avalue prepend ""
+@    s0 avalue append ""
+@    s0 avalue offset 0.000000 , 0.000000
+@    s0 errorbar on
+@    s0 errorbar place both
+@    s0 errorbar color 1
+@    s0 errorbar pattern 1
+@    s0 errorbar size 1.000000
+@    s0 errorbar linewidth 1.0
+@    s0 errorbar linestyle 1
+@    s0 errorbar riser linewidth 1.0
+@    s0 errorbar riser linestyle 1
+@    s0 errorbar riser clip off
+@    s0 errorbar riser clip length 0.100000
+@    s0 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/bcc_preliminary/V_vs_t.dat"
+@    s0 legend  ""
+@    s1 hidden false
+@    s1 type xy
+@    s1 symbol 0
+@    s1 symbol size 1.000000
+@    s1 symbol color 2
+@    s1 symbol pattern 1
+@    s1 symbol fill color 2
+@    s1 symbol fill pattern 0
+@    s1 symbol linewidth 1.0
+@    s1 symbol linestyle 1
+@    s1 symbol char 65
+@    s1 symbol char font 0
+@    s1 symbol skip 0
+@    s1 line type 1
+@    s1 line linestyle 1
+@    s1 line linewidth 1.0
+@    s1 line color 2
+@    s1 line pattern 1
+@    s1 baseline type 0
+@    s1 baseline off
+@    s1 dropline off
+@    s1 fill type 0
+@    s1 fill rule 0
+@    s1 fill color 1
+@    s1 fill pattern 1
+@    s1 avalue off
+@    s1 avalue type 2
+@    s1 avalue char size 1.000000
+@    s1 avalue font 0
+@    s1 avalue color 1
+@    s1 avalue rot 0
+@    s1 avalue format general
+@    s1 avalue prec 3
+@    s1 avalue prepend ""
+@    s1 avalue append ""
+@    s1 avalue offset 0.000000 , 0.000000
+@    s1 errorbar on
+@    s1 errorbar place both
+@    s1 errorbar color 2
+@    s1 errorbar pattern 1
+@    s1 errorbar size 1.000000
+@    s1 errorbar linewidth 1.0
+@    s1 errorbar linestyle 1
+@    s1 errorbar riser linewidth 1.0
+@    s1 errorbar riser linestyle 1
+@    s1 errorbar riser clip off
+@    s1 errorbar riser clip length 0.100000
+@    s1 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/hcp_preliminary/V_vs_t.dat"
+@    s1 legend  ""
+@g2 on
+@g2 hidden false
+@g2 type XY
+@g2 stacked false
+@g2 bar hgap 0.000000
+@g2 fixedpoint off
+@g2 fixedpoint type 0
+@g2 fixedpoint xy 0.000000, 0.000000
+@g2 fixedpoint format general general
+@g2 fixedpoint prec 6, 6
+@with g2
+@    world 0, -80, 1000, 50
+@    stack world 0, 0, 0, 0
+@    znorm 1
+@    view 0.150000, 0.100000, 0.900000, 0.431551
+@    title ""
+@    title font 0
+@    title size 1.500000
+@    title color 1
+@    subtitle ""
+@    subtitle font 0
+@    subtitle size 1.000000
+@    subtitle color 1
+@    xaxes scale Normal
+@    yaxes scale Normal
+@    xaxes invert off
+@    yaxes invert off
+@    xaxis  on
+@    xaxis  type zero false
+@    xaxis  offset 0.000000 , 0.000000
+@    xaxis  bar on
+@    xaxis  bar color 1
+@    xaxis  bar linestyle 1
+@    xaxis  bar linewidth 1.0
+@    xaxis  label "Simulation tme (sweeps)"
+@    xaxis  label layout para
+@    xaxis  label place auto
+@    xaxis  label char size 1.000000
+@    xaxis  label font 0
+@    xaxis  label color 1
+@    xaxis  label place normal
+@    xaxis  tick on
+@    xaxis  tick major 200
+@    xaxis  tick minor ticks 1
+@    xaxis  tick default 6
+@    xaxis  tick place rounded true
+@    xaxis  tick in
+@    xaxis  tick major size 1.000000
+@    xaxis  tick major color 1
+@    xaxis  tick major linewidth 1.0
+@    xaxis  tick major linestyle 1
+@    xaxis  tick major grid off
+@    xaxis  tick minor color 1
+@    xaxis  tick minor linewidth 1.0
+@    xaxis  tick minor linestyle 1
+@    xaxis  tick minor grid off
+@    xaxis  tick minor size 0.500000
+@    xaxis  ticklabel on
+@    xaxis  ticklabel format general
+@    xaxis  ticklabel prec 5
+@    xaxis  ticklabel formula ""
+@    xaxis  ticklabel append ""
+@    xaxis  ticklabel prepend ""
+@    xaxis  ticklabel angle 0
+@    xaxis  ticklabel skip 0
+@    xaxis  ticklabel stagger 0
+@    xaxis  ticklabel place normal
+@    xaxis  ticklabel offset auto
+@    xaxis  ticklabel offset 0.000000 , 0.010000
+@    xaxis  ticklabel start type auto
+@    xaxis  ticklabel start 0.000000
+@    xaxis  ticklabel stop type auto
+@    xaxis  ticklabel stop 0.000000
+@    xaxis  ticklabel char size 1.000000
+@    xaxis  ticklabel font 0
+@    xaxis  ticklabel color 1
+@    xaxis  tick place normal
+@    xaxis  tick spec type none
+@    yaxis  on
+@    yaxis  type zero false
+@    yaxis  offset 0.000000 , 0.000000
+@    yaxis  bar on
+@    yaxis  bar color 1
+@    yaxis  bar linestyle 1
+@    yaxis  bar linewidth 1.0
+@    yaxis  label "Order parameter (eV)"
+@    yaxis  label layout para
+@    yaxis  label place auto
+@    yaxis  label char size 1.000000
+@    yaxis  label font 0
+@    yaxis  label color 1
+@    yaxis  label place normal
+@    yaxis  tick on
+@    yaxis  tick major 20
+@    yaxis  tick minor ticks 1
+@    yaxis  tick default 6
+@    yaxis  tick place rounded true
+@    yaxis  tick in
+@    yaxis  tick major size 1.000000
+@    yaxis  tick major color 1
+@    yaxis  tick major linewidth 1.0
+@    yaxis  tick major linestyle 1
+@    yaxis  tick major grid off
+@    yaxis  tick minor color 1
+@    yaxis  tick minor linewidth 1.0
+@    yaxis  tick minor linestyle 1
+@    yaxis  tick minor grid off
+@    yaxis  tick minor size 0.500000
+@    yaxis  ticklabel on
+@    yaxis  ticklabel format general
+@    yaxis  ticklabel prec 5
+@    yaxis  ticklabel formula ""
+@    yaxis  ticklabel append ""
+@    yaxis  ticklabel prepend ""
+@    yaxis  ticklabel angle 0
+@    yaxis  ticklabel skip 0
+@    yaxis  ticklabel stagger 0
+@    yaxis  ticklabel place normal
+@    yaxis  ticklabel offset auto
+@    yaxis  ticklabel offset 0.000000 , 0.010000
+@    yaxis  ticklabel start type auto
+@    yaxis  ticklabel start 0.000000
+@    yaxis  ticklabel stop type auto
+@    yaxis  ticklabel stop 0.000000
+@    yaxis  ticklabel char size 0.800000
+@    yaxis  ticklabel font 0
+@    yaxis  ticklabel color 1
+@    yaxis  tick place both
+@    yaxis  tick spec type none
+@    altxaxis  off
+@    altyaxis  off
+@    legend on
+@    legend loctype view
+@    legend 0.72, 0.99
+@    legend box color 1
+@    legend box pattern 1
+@    legend box linewidth 1.0
+@    legend box linestyle 1
+@    legend box fill color 0
+@    legend box fill pattern 1
+@    legend font 0
+@    legend char size 1.000000
+@    legend color 1
+@    legend length 4
+@    legend vgap 1
+@    legend hgap 1
+@    legend invert false
+@    frame type 0
+@    frame linestyle 1
+@    frame linewidth 1.0
+@    frame color 1
+@    frame pattern 1
+@    frame background color 0
+@    frame background pattern 0
+@    s0 hidden false
+@    s0 type xy
+@    s0 symbol 0
+@    s0 symbol size 1.000000
+@    s0 symbol color 1
+@    s0 symbol pattern 1
+@    s0 symbol fill color 1
+@    s0 symbol fill pattern 0
+@    s0 symbol linewidth 1.0
+@    s0 symbol linestyle 1
+@    s0 symbol char 65
+@    s0 symbol char font 0
+@    s0 symbol skip 0
+@    s0 line type 1
+@    s0 line linestyle 1
+@    s0 line linewidth 1.0
+@    s0 line color 1
+@    s0 line pattern 1
+@    s0 baseline type 0
+@    s0 baseline off
+@    s0 dropline off
+@    s0 fill type 0
+@    s0 fill rule 0
+@    s0 fill color 1
+@    s0 fill pattern 1
+@    s0 avalue off
+@    s0 avalue type 2
+@    s0 avalue char size 1.000000
+@    s0 avalue font 0
+@    s0 avalue color 1
+@    s0 avalue rot 0
+@    s0 avalue format general
+@    s0 avalue prec 3
+@    s0 avalue prepend ""
+@    s0 avalue append ""
+@    s0 avalue offset 0.000000 , 0.000000
+@    s0 errorbar on
+@    s0 errorbar place both
+@    s0 errorbar color 1
+@    s0 errorbar pattern 1
+@    s0 errorbar size 1.000000
+@    s0 errorbar linewidth 1.0
+@    s0 errorbar linestyle 1
+@    s0 errorbar riser linewidth 1.0
+@    s0 errorbar riser linestyle 1
+@    s0 errorbar riser clip off
+@    s0 errorbar riser clip length 0.100000
+@    s0 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/bcc_preliminary/M_vs_t.dat"
+@    s0 legend  "bcc"
+@    s1 hidden false
+@    s1 type xy
+@    s1 symbol 0
+@    s1 symbol size 1.000000
+@    s1 symbol color 2
+@    s1 symbol pattern 1
+@    s1 symbol fill color 2
+@    s1 symbol fill pattern 0
+@    s1 symbol linewidth 1.0
+@    s1 symbol linestyle 1
+@    s1 symbol char 65
+@    s1 symbol char font 0
+@    s1 symbol skip 0
+@    s1 line type 1
+@    s1 line linestyle 1
+@    s1 line linewidth 1.0
+@    s1 line color 2
+@    s1 line pattern 1
+@    s1 baseline type 0
+@    s1 baseline off
+@    s1 dropline off
+@    s1 fill type 0
+@    s1 fill rule 0
+@    s1 fill color 1
+@    s1 fill pattern 1
+@    s1 avalue off
+@    s1 avalue type 2
+@    s1 avalue char size 1.000000
+@    s1 avalue font 0
+@    s1 avalue color 1
+@    s1 avalue rot 0
+@    s1 avalue format general
+@    s1 avalue prec 3
+@    s1 avalue prepend ""
+@    s1 avalue append ""
+@    s1 avalue offset 0.000000 , 0.000000
+@    s1 errorbar on
+@    s1 errorbar place both
+@    s1 errorbar color 2
+@    s1 errorbar pattern 1
+@    s1 errorbar size 1.000000
+@    s1 errorbar linewidth 1.0
+@    s1 errorbar linestyle 1
+@    s1 errorbar riser linewidth 1.0
+@    s1 errorbar riser linestyle 1
+@    s1 errorbar riser clip off
+@    s1 errorbar riser clip length 0.100000
+@    s1 comment "/Users/tlu20/monteswitch/monteswitch_git/Examples/EAM_Zr_bcc_hcp/hcp_preliminary/M_vs_t.dat"
+@    s1 legend  "hcp"
+@target G0.S0
+@type xy
+1 -2451.7883
+2 -2444.2252
+3 -2439.1152
+4 -2436.2383
+5 -2432.49
+6 -2428.205
+7 -2426.9282
+8 -2424.716
+9 -2421.0081
+10 -2421.1452
+11 -2419.7475
+12 -2419.7571
+13 -2416.0519
+14 -2415.4039
+15 -2415.0363
+16 -2415.7707
+17 -2414.5171
+18 -2412.8462
+19 -2410.7926
+20 -2411.6292
+21 -2412.3856
+22 -2410.5811
+23 -2408.1774
+24 -2405.2779
+25 -2407.1445
+26 -2408.1137
+27 -2406.3038
+28 -2404.6472
+29 -2406.3198
+30 -2407.6317
+31 -2408.6379
+32 -2408.9511
+33 -2408.0084
+34 -2408.3907
+35 -2406.9142
+36 -2407.1221
+37 -2406.6065
+38 -2405.5806
+39 -2405.7301
+40 -2403.9549
+41 -2405.461
+42 -2405.2195
+43 -2406.1224
+44 -2404.615
+45 -2403.8134
+46 -2405.0549
+47 -2404.269
+48 -2405.6763
+49 -2406.6404
+50 -2406.3108
+51 -2406.4825
+52 -2404.898
+53 -2404.4404
+54 -2404.4265
+55 -2404.3164
+56 -2402.3557
+57 -2405.8361
+58 -2405.8289
+59 -2404.8792
+60 -2401.6082
+61 -2400.4514
+62 -2402.3519
+63 -2404.5456
+64 -2404.1489
+65 -2404.9197
+66 -2405.8913
+67 -2405.5161
+68 -2402.8278
+69 -2401.6975
+70 -2400.5506
+71 -2403.5073
+72 -2403.6044
+73 -2401.7033
+74 -2402.5668
+75 -2402.8515
+76 -2399.6692
+77 -2400.024
+78 -2400.2125
+79 -2400.1617
+80 -2401.4129
+81 -2401.4014
+82 -2401.9148
+83 -2401.3731
+84 -2402.3052
+85 -2401.8028
+86 -2399.4076
+87 -2399.3188
+88 -2401.8171
+89 -2401.1061
+90 -2401.1251
+91 -2400.8782
+92 -2402.5923
+93 -2402.7383
+94 -2402.6787
+95 -2403.0198
+96 -2403.4073
+97 -2401.8705
+98 -2401.4234
+99 -2401.7101
+100 -2403.8825
+101 -2404.673
+102 -2403.8311
+103 -2402.9939
+104 -2402.7919
+105 -2402.8439
+106 -2404.29
+107 -2402.0494
+108 -2401.0555
+109 -2402.4203
+110 -2403.2973
+111 -2404.763
+112 -2404.7155
+113 -2404.0273
+114 -2404.7469
+115 -2403.3346
+116 -2402.8994
+117 -2402.6284
+118 -2398.8568
+119 -2397.9557
+120 -2398.8237
+121 -2396.9154
+122 -2397.6601
+123 -2399.6224
+124 -2399.3406
+125 -2398.5664
+126 -2398.0455
+127 -2397.841
+128 -2399.4357
+129 -2398.1411
+130 -2400.8421
+131 -2401.8296
+132 -2402.6415
+133 -2403.405
+134 -2402.5968
+135 -2404.9042
+136 -2405.5003
+137 -2405.3276
+138 -2406.4209
+139 -2406.8663
+140 -2408.2861
+141 -2406.1532
+142 -2406.1099
+143 -2406.3141
+144 -2405.2595
+145 -2404.968
+146 -2405.2575
+147 -2403.1237
+148 -2401.3995
+149 -2402.7438
+150 -2400.9834
+151 -2400.5455
+152 -2397.4427
+153 -2399.1676
+154 -2400.2863
+155 -2401.5269
+156 -2401.9113
+157 -2402.1655
+158 -2401.8207
+159 -2400.2962
+160 -2400.0191
+161 -2398.3194
+162 -2401.1894
+163 -2402.3088
+164 -2402.8564
+165 -2403.3636
+166 -2404.1506
+167 -2406.3167
+168 -2406.4962
+169 -2407.7581
+170 -2407.6105
+171 -2406.5126
+172 -2407.8602
+173 -2407.8001
+174 -2407.663
+175 -2409.5438
+176 -2408.4749
+177 -2405.6287
+178 -2406.2976
+179 -2405.4654
+180 -2406.5466
+181 -2406.1726
+182 -2405.2231
+183 -2405.02
+184 -2405.7592
+185 -2406.2371
+186 -2407.0797
+187 -2407.5546
+188 -2408.7384
+189 -2406.1857
+190 -2406.3431
+191 -2405.6172
+192 -2404.6001
+193 -2403.076
+194 -2404.9804
+195 -2403.7648
+196 -2401.9662
+197 -2402.0352
+198 -2402.2529
+199 -2402.3261
+200 -2401.3137
+201 -2399.6749
+202 -2398.9674
+203 -2400.1575
+204 -2401.6879
+205 -2402.0475
+206 -2403.5936
+207 -2403.9634
+208 -2402.6621
+209 -2401.0222
+210 -2400.5717
+211 -2402.3499
+212 -2403.3943
+213 -2403.9337
+214 -2404.2514
+215 -2405.4611
+216 -2407.7445
+217 -2408.1832
+218 -2409.1707
+219 -2409.4893
+220 -2409.8951
+221 -2408.8025
+222 -2408.142
+223 -2407.9028
+224 -2405.8404
+225 -2406.2123
+226 -2405.3223
+227 -2404.5559
+228 -2405.8424
+229 -2404.4987
+230 -2404.3725
+231 -2403.9439
+232 -2402.9672
+233 -2404.9503
+234 -2404.3786
+235 -2403.0103
+236 -2404.3033
+237 -2402.7089
+238 -2402.3901
+239 -2404.6072
+240 -2404.2383
+241 -2404.5238
+242 -2403.2346
+243 -2401.5812
+244 -2402.292
+245 -2403.4957
+246 -2402.6993
+247 -2401.2979
+248 -2401.4017
+249 -2402.6954
+250 -2401.4993
+251 -2401.6881
+252 -2402.0519
+253 -2403.7579
+254 -2407.0383
+255 -2405.7084
+256 -2404.3086
+257 -2404.8694
+258 -2403.2731
+259 -2402.7405
+260 -2401.0275
+261 -2398.1371
+262 -2398.8377
+263 -2397.8986
+264 -2400.0035
+265 -2401.6867
+266 -2401.8333
+267 -2404.6947
+268 -2406.1015
+269 -2405.1429
+270 -2403.7278
+271 -2403.3306
+272 -2406.4317
+273 -2405.052
+274 -2406.6762
+275 -2406.739
+276 -2405.805
+277 -2403.3296
+278 -2400.9901
+279 -2400.0463
+280 -2402.1396
+281 -2400.7781
+282 -2400.4535
+283 -2399.0024
+284 -2401.2624
+285 -2400.7916
+286 -2402.8208
+287 -2402.4949
+288 -2401.6984
+289 -2403.1907
+290 -2403.1971
+291 -2404.6336
+292 -2407.6236
+293 -2405.2724
+294 -2408.156
+295 -2409.1111
+296 -2408.9086
+297 -2406.9886
+298 -2405.3231
+299 -2407.2292
+300 -2406.3569
+301 -2404.6935
+302 -2403.6849
+303 -2405.1555
+304 -2403.9923
+305 -2405.5776
+306 -2404.2233
+307 -2405.508
+308 -2404.907
+309 -2404.3693
+310 -2403.5454
+311 -2401.6081
+312 -2402.3398
+313 -2402.2205
+314 -2404.1161
+315 -2404.0392
+316 -2403.9799
+317 -2400.7753
+318 -2402.9188
+319 -2403.2999
+320 -2401.6554
+321 -2401.722
+322 -2402.4867
+323 -2402.2567
+324 -2403.8045
+325 -2402.93
+326 -2402.515
+327 -2404.1501
+328 -2405.9268
+329 -2406.3505
+330 -2403.9199
+331 -2404.0654
+332 -2404.0345
+333 -2405.2477
+334 -2406.4449
+335 -2408.8161
+336 -2408.7052
+337 -2407.3193
+338 -2407.6116
+339 -2407.0291
+340 -2407.3567
+341 -2408.2495
+342 -2408.7104
+343 -2408.2713
+344 -2409.5729
+345 -2410.2657
+346 -2408.1946
+347 -2408.7825
+348 -2406.1756
+349 -2406.9649
+350 -2406.242
+351 -2409.0861
+352 -2408.4104
+353 -2411.4615
+354 -2409.2141
+355 -2409.09
+356 -2407.4364
+357 -2406.7799
+358 -2404.6406
+359 -2403.5864
+360 -2403.278
+361 -2404.2182
+362 -2405.5737
+363 -2406.4618
+364 -2406.6739
+365 -2405.7909
+366 -2403.4593
+367 -2402.6858
+368 -2403.8706
+369 -2403.9053
+370 -2403.2733
+371 -2404.9705
+372 -2403.3324
+373 -2402.7458
+374 -2400.4551
+375 -2401.6936
+376 -2401.1228
+377 -2402.9791
+378 -2402.8849
+379 -2402.9238
+380 -2403.388
+381 -2404.7053
+382 -2404.5011
+383 -2405.9352
+384 -2406.2068
+385 -2405.3065
+386 -2405.0606
+387 -2404.6183
+388 -2403.5951
+389 -2403.7287
+390 -2403.5167
+391 -2403.1989
+392 -2403.7798
+393 -2403.2431
+394 -2402.5196
+395 -2401.0929
+396 -2403.2199
+397 -2403.3318
+398 -2404.733
+399 -2403.4858
+400 -2405.1012
+401 -2406.5348
+402 -2404.5234
+403 -2403.3369
+404 -2404.2141
+405 -2402.2932
+406 -2401.8695
+407 -2400.9365
+408 -2400.7242
+409 -2402.3914
+410 -2399.7869
+411 -2400.2691
+412 -2399.9778
+413 -2402.4553
+414 -2402.1363
+415 -2402.6744
+416 -2404.103
+417 -2403.4599
+418 -2402.28
+419 -2402.126
+420 -2403.9745
+421 -2404.6958
+422 -2402.9017
+423 -2401.6787
+424 -2400.6034
+425 -2402.6688
+426 -2401.062
+427 -2402.2664
+428 -2403.6359
+429 -2405.066
+430 -2406.2972
+431 -2405.5416
+432 -2405.7261
+433 -2408.0102
+434 -2408.0178
+435 -2405.5889
+436 -2405.2756
+437 -2405.885
+438 -2407.8891
+439 -2404.5967
+440 -2404.6367
+441 -2404.9762
+442 -2404.9892
+443 -2406.0164
+444 -2405.6652
+445 -2405.6882
+446 -2406.5355
+447 -2406.499
+448 -2406.298
+449 -2404.6526
+450 -2403.3258
+451 -2402.2327
+452 -2403.0651
+453 -2404.2666
+454 -2405.1431
+455 -2404.9109
+456 -2404.7812
+457 -2403.0235
+458 -2403.0746
+459 -2404.0569
+460 -2405.7496
+461 -2405.8094
+462 -2403.4495
+463 -2403.1678
+464 -2404.436
+465 -2407.3756
+466 -2406.5785
+467 -2405.8684
+468 -2405.0837
+469 -2402.8178
+470 -2401.9474
+471 -2400.6195
+472 -2399.0376
+473 -2398.5906
+474 -2402.4247
+475 -2402.4196
+476 -2402.5425
+477 -2404.4941
+478 -2407.2867
+479 -2407.0441
+480 -2408.0069
+481 -2408.4977
+482 -2408.6322
+483 -2408.9145
+484 -2409.3395
+485 -2406.5774
+486 -2408.0354
+487 -2406.8948
+488 -2404.4727
+489 -2405.9242
+490 -2407.2226
+491 -2406.0288
+492 -2404.6041
+493 -2406.2074
+494 -2406.0493
+495 -2405.4167
+496 -2404.9145
+497 -2405.6225
+498 -2405.0469
+499 -2402.7649
+500 -2403.954
+501 -2403.601
+502 -2404.6765
+503 -2404.7878
+504 -2404.9185
+505 -2405.0556
+506 -2403.8028
+507 -2404.5373
+508 -2402.1834
+509 -2403.1147
+510 -2406.1621
+511 -2406.2026
+512 -2405.7362
+513 -2404.0666
+514 -2406.047
+515 -2406.6932
+516 -2407.4414
+517 -2405.8866
+518 -2405.9025
+519 -2403.1819
+520 -2404.56
+521 -2404.9122
+522 -2404.2612
+523 -2406.136
+524 -2405.2799
+525 -2404.3712
+526 -2405.5159
+527 -2404.6019
+528 -2405.4827
+529 -2404.8925
+530 -2405.7312
+531 -2405.5904
+532 -2404.7757
+533 -2405.7535
+534 -2405.9256
+535 -2409.1504
+536 -2407.2287
+537 -2405.2863
+538 -2405.9408
+539 -2404.6939
+540 -2405.4999
+541 -2404.385
+542 -2403.8683
+543 -2400.6078
+544 -2403.5233
+545 -2401.394
+546 -2405.2087
+547 -2404.8269
+548 -2403.46
+549 -2402.8178
+550 -2402.9546
+551 -2404.7321
+552 -2404.2243
+553 -2403.3898
+554 -2402.4805
+555 -2403.0317
+556 -2402.2983
+557 -2402.6665
+558 -2403.7247
+559 -2403.9289
+560 -2404.2131
+561 -2404.4385
+562 -2403.9308
+563 -2402.9274
+564 -2402.8168
+565 -2403.0089
+566 -2402.8608
+567 -2401.0667
+568 -2400.9556
+569 -2402.9259
+570 -2402.5734
+571 -2400.237
+572 -2400.5636
+573 -2401.1649
+574 -2400.1022
+575 -2400.5629
+576 -2398.4434
+577 -2397.8166
+578 -2403.1557
+579 -2402.8369
+580 -2401.3494
+581 -2399.5848
+582 -2399.8797
+583 -2397.8888
+584 -2398.0867
+585 -2397.9373
+586 -2401.1856
+587 -2402.8758
+588 -2403.7924
+589 -2405.796
+590 -2403.1209
+591 -2400.8068
+592 -2399.8329
+593 -2401.4511
+594 -2403.1251
+595 -2402.7455
+596 -2403.4763
+597 -2405.889
+598 -2403.9322
+599 -2402.4395
+600 -2404.3349
+601 -2408.5694
+602 -2407.1536
+603 -2407.1947
+604 -2403.6845
+605 -2406.1223
+606 -2406.7567
+607 -2405.2251
+608 -2405.045
+609 -2405.6777
+610 -2405.9382
+611 -2406.0725
+612 -2405.1049
+613 -2404.3233
+614 -2405.0585
+615 -2407.8766
+616 -2409.1646
+617 -2405.1375
+618 -2406.8129
+619 -2406.8181
+620 -2406.3445
+621 -2404.7909
+622 -2405.2562
+623 -2407.1129
+624 -2406.6087
+625 -2406.3756
+626 -2403.877
+627 -2402.9675
+628 -2403.8997
+629 -2406.4889
+630 -2408.0504
+631 -2409.4103
+632 -2406.3292
+633 -2405.3616
+634 -2405.2147
+635 -2404.94
+636 -2405.256
+637 -2405.3118
+638 -2404.5562
+639 -2404.3249
+640 -2401.8085
+641 -2403.4955
+642 -2404.6686
+643 -2403.2635
+644 -2401.5976
+645 -2401.117
+646 -2400.8127
+647 -2399.0782
+648 -2400.4249
+649 -2401.9602
+650 -2402.49
+651 -2405.8034
+652 -2404.5483
+653 -2404.2829
+654 -2402.5457
+655 -2402.1748
+656 -2400.9662
+657 -2402.5818
+658 -2401.7027
+659 -2402.0657
+660 -2403.4561
+661 -2403.1857
+662 -2403.754
+663 -2405.6536
+664 -2405.3097
+665 -2405.2383
+666 -2404.6279
+667 -2404.4263
+668 -2403.617
+669 -2403.4265
+670 -2402.3811
+671 -2402.4743
+672 -2401.2064
+673 -2401.443
+674 -2401.4564
+675 -2401.3181
+676 -2402.1705
+677 -2402.2091
+678 -2401.6213
+679 -2400.0685
+680 -2398.5594
+681 -2397.2272
+682 -2398.089
+683 -2400.0756
+684 -2399.6961
+685 -2400.4083
+686 -2401.1698
+687 -2402.9219
+688 -2400.4737
+689 -2398.9196
+690 -2400.8906
+691 -2400.0769
+692 -2398.0615
+693 -2399.1142
+694 -2400.015
+695 -2401.191
+696 -2401.105
+697 -2403.318
+698 -2405.3255
+699 -2404.3337
+700 -2405.3387
+701 -2405.0663
+702 -2406.2175
+703 -2406.6304
+704 -2405.5904
+705 -2406.6202
+706 -2406.2733
+707 -2405.5415
+708 -2404.9758
+709 -2403.2481
+710 -2404.82
+711 -2404.6644
+712 -2404.639
+713 -2403.8847
+714 -2404.5486
+715 -2405.7749
+716 -2408.1703
+717 -2408.311
+718 -2407.6546
+719 -2407.2205
+720 -2408.4567
+721 -2408.6645
+722 -2407.3733
+723 -2408.5687
+724 -2406.8976
+725 -2410.0668
+726 -2409.3791
+727 -2408.9615
+728 -2407.1037
+729 -2406.2921
+730 -2403.784
+731 -2406.537
+732 -2405.9585
+733 -2406.0439
+734 -2406.341
+735 -2406.5467
+736 -2405.4008
+737 -2406.351
+738 -2405.7264
+739 -2403.7179
+740 -2403.1771
+741 -2402.8976
+742 -2402.8479
+743 -2402.404
+744 -2405.8766
+745 -2405.8078
+746 -2406.1365
+747 -2405.9089
+748 -2405.9511
+749 -2408.1305
+750 -2408.3897
+751 -2407.2676
+752 -2408.7101
+753 -2408.0995
+754 -2408.486
+755 -2408.7937
+756 -2409.8981
+757 -2408.5693
+758 -2408.3697
+759 -2406.71
+760 -2409.6406
+761 -2406.6551
+762 -2406.9065
+763 -2406.5726
+764 -2407.4092
+765 -2406.7248
+766 -2405.5655
+767 -2405.0461
+768 -2403.9967
+769 -2404.1966
+770 -2403.5424
+771 -2404.8093
+772 -2405.207
+773 -2404.7143
+774 -2406.9048
+775 -2406.1006
+776 -2408.7067
+777 -2407.7608
+778 -2407.7291
+779 -2407.2985
+780 -2407.3321
+781 -2407.437
+782 -2407.9845
+783 -2407.4437
+784 -2407.0374
+785 -2406.6189
+786 -2405.2213
+787 -2402.1726
+788 -2403.2965
+789 -2405.1241
+790 -2406.5229
+791 -2407.6089
+792 -2407.8287
+793 -2404.3151
+794 -2402.2888
+795 -2403.2386
+796 -2404.1737
+797 -2404.9564
+798 -2402.2022
+799 -2398.8061
+800 -2398.4452
+801 -2399.4122
+802 -2400.619
+803 -2401.2735
+804 -2401.5224
+805 -2401.3464
+806 -2399.5151
+807 -2399.3996
+808 -2397.7472
+809 -2398.5798
+810 -2397.5781
+811 -2397.506
+812 -2396.3614
+813 -2398.8155
+814 -2397.9182
+815 -2397.7712
+816 -2397.98
+817 -2399.9509
+818 -2400.8223
+819 -2402.672
+820 -2404.341
+821 -2403.4313
+822 -2403.5405
+823 -2403.0027
+824 -2400.7704
+825 -2398.6564
+826 -2399.5802
+827 -2399.7754
+828 -2400.2479
+829 -2400.1151
+830 -2400.5359
+831 -2400.2584
+832 -2400.8727
+833 -2400.7785
+834 -2401.8998
+835 -2403.3047
+836 -2401.8324
+837 -2402.1224
+838 -2399.8131
+839 -2398.7842
+840 -2398.0901
+841 -2400.9335
+842 -2400.515
+843 -2400.5943
+844 -2400.119
+845 -2400.5945
+846 -2400.0814
+847 -2399.994
+848 -2401.0349
+849 -2402.3434
+850 -2401.6982
+851 -2402.2802
+852 -2400.5767
+853 -2399.4462
+854 -2398.9987
+855 -2401.3616
+856 -2404.1802
+857 -2405.1041
+858 -2406.6171
+859 -2408.2536
+860 -2407.8003
+861 -2407.6883
+862 -2406.5289
+863 -2405.6131
+864 -2406.5199
+865 -2406.7336
+866 -2404.6825
+867 -2402.7167
+868 -2401.9227
+869 -2402.6919
+870 -2402.3389
+871 -2400.7763
+872 -2399.2435
+873 -2399.8448
+874 -2399.645
+875 -2401.4972
+876 -2401.9038
+877 -2400.4422
+878 -2401.4268
+879 -2401.3556
+880 -2400.9353
+881 -2401.9009
+882 -2398.5202
+883 -2399.4902
+884 -2398.2882
+885 -2399.0425
+886 -2402.4842
+887 -2403.8184
+888 -2403.0513
+889 -2401.0097
+890 -2400.438
+891 -2403.3544
+892 -2402.5634
+893 -2402.5674
+894 -2401.4855
+895 -2403.3716
+896 -2405.4769
+897 -2406.322
+898 -2403.3636
+899 -2401.8965
+900 -2401.3573
+901 -2397.9278
+902 -2399.1607
+903 -2397.1508
+904 -2396.7802
+905 -2397.2048
+906 -2398.3296
+907 -2401.9676
+908 -2401.3399
+909 -2400.2826
+910 -2398.2776
+911 -2399.8391
+912 -2399.5632
+913 -2400.9476
+914 -2401.0396
+915 -2400.6475
+916 -2402.4831
+917 -2401.7515
+918 -2401.4769
+919 -2405.2061
+920 -2405.3751
+921 -2403.1389
+922 -2402.1529
+923 -2401.1216
+924 -2403.0278
+925 -2404.1334
+926 -2402.8006
+927 -2402.7928
+928 -2402.7522
+929 -2404.0221
+930 -2403.956
+931 -2403.7807
+932 -2403.9666
+933 -2404.8232
+934 -2407.1142
+935 -2405.5236
+936 -2406.0509
+937 -2406.7971
+938 -2405.4692
+939 -2404.911
+940 -2404.5561
+941 -2406.6444
+942 -2405.5591
+943 -2406.5156
+944 -2407.1193
+945 -2406.4857
+946 -2407.4261
+947 -2405.9802
+948 -2404.4066
+949 -2405.6449
+950 -2406.1667
+951 -2407.4105
+952 -2406.7893
+953 -2406.2015
+954 -2406.2584
+955 -2406.9435
+956 -2408.5309
+957 -2408.2392
+958 -2408.202
+959 -2408.6756
+960 -2407.2077
+961 -2408.7239
+962 -2408.5011
+963 -2406.7249
+964 -2407.8394
+965 -2407.2794
+966 -2407.8355
+967 -2406.0331
+968 -2406.2119
+969 -2404.8633
+970 -2407.0916
+971 -2407.7411
+972 -2407.2517
+973 -2407.5709
+974 -2408.356
+975 -2408.0581
+976 -2407.9145
+977 -2409.0141
+978 -2407.7103
+979 -2408.2152
+980 -2408.2052
+981 -2408.0368
+982 -2406.8124
+983 -2405.8583
+984 -2406.5459
+985 -2407.1625
+986 -2407.8343
+987 -2407.0792
+988 -2407.277
+989 -2404.5109
+990 -2403.1826
+991 -2402.5517
+992 -2401.961
+993 -2400.6925
+994 -2402.2159
+995 -2406.6294
+996 -2406.1577
+997 -2407.393
+998 -2408.6605
+999 -2409.0048
+1000 -2409.0344
+&
+@target G0.S1
+@type xy
+1 -2478.0234
+2 -2470.7701
+3 -2464.3357
+4 -2459.446
+5 -2455.4687
+6 -2451.5736
+7 -2446.1624
+8 -2443.7373
+9 -2441.6681
+10 -2437.3065
+11 -2435.3923
+12 -2435.1302
+13 -2436.4698
+14 -2434.7945
+15 -2433.8527
+16 -2430.7855
+17 -2430.7159
+18 -2430.3468
+19 -2430.0393
+20 -2427.342
+21 -2425.1185
+22 -2425.0907
+23 -2424.6895
+24 -2425.3646
+25 -2423.1023
+26 -2420.4095
+27 -2419.6711
+28 -2420.0736
+29 -2420.0677
+30 -2418.4819
+31 -2415.939
+32 -2419.1754
+33 -2418.2464
+34 -2419.878
+35 -2420.3286
+36 -2419.9646
+37 -2419.7503
+38 -2417.7925
+39 -2417.2382
+40 -2418.1769
+41 -2417.9419
+42 -2418.5489
+43 -2417.1279
+44 -2419.7526
+45 -2418.0696
+46 -2417.5434
+47 -2417.8695
+48 -2417.2219
+49 -2416.9586
+50 -2415.0068
+51 -2413.7621
+52 -2415.2746
+53 -2416.7161
+54 -2417.6884
+55 -2417.3692
+56 -2419.5932
+57 -2419.1328
+58 -2417.6073
+59 -2417.3943
+60 -2417.9116
+61 -2416.728
+62 -2416.5778
+63 -2416.9957
+64 -2415.3239
+65 -2419.7604
+66 -2420.5403
+67 -2421.6934
+68 -2422.1174
+69 -2419.2173
+70 -2418.8117
+71 -2420.1765
+72 -2422.2118
+73 -2420.3197
+74 -2421.4853
+75 -2421.1509
+76 -2419.0429
+77 -2416.6317
+78 -2415.565
+79 -2415.8459
+80 -2415.3355
+81 -2417.1831
+82 -2417.1188
+83 -2417.5625
+84 -2418.8958
+85 -2418.2291
+86 -2418.4788
+87 -2417.2186
+88 -2418.9149
+89 -2417.7326
+90 -2417.7378
+91 -2416.8225
+92 -2418.8198
+93 -2419.4251
+94 -2419.5244
+95 -2420.3235
+96 -2418.3433
+97 -2420.533
+98 -2421.3581
+99 -2421.9767
+100 -2420.1078
+101 -2420.0358
+102 -2421.045
+103 -2421.8642
+104 -2420.4993
+105 -2419.2338
+106 -2419.7626
+107 -2420.5969
+108 -2419.6652
+109 -2416.7906
+110 -2420.5842
+111 -2418.1336
+112 -2417.6078
+113 -2417.9173
+114 -2418.0853
+115 -2418.4632
+116 -2417.6108
+117 -2417.838
+118 -2419.1538
+119 -2419.5657
+120 -2418.8218
+121 -2416.0764
+122 -2415.8625
+123 -2417.8755
+124 -2417.4853
+125 -2419.499
+126 -2418.7116
+127 -2416.9035
+128 -2417.9897
+129 -2419.464
+130 -2421.0222
+131 -2419.7244
+132 -2419.7927
+133 -2419.5074
+134 -2419.2673
+135 -2419.0588
+136 -2419.8353
+137 -2418.8275
+138 -2416.0879
+139 -2418.8337
+140 -2418.7603
+141 -2417.6786
+142 -2417.1179
+143 -2416.1459
+144 -2416.49
+145 -2415.6106
+146 -2418.2654
+147 -2416.8313
+148 -2416.861
+149 -2417.7527
+150 -2417.5227
+151 -2415.7574
+152 -2415.7593
+153 -2416.3506
+154 -2417.4127
+155 -2418.7736
+156 -2417.5975
+157 -2419.5082
+158 -2420.0904
+159 -2420.6966
+160 -2421.2657
+161 -2421.4039
+162 -2423.2863
+163 -2424.2944
+164 -2424.1822
+165 -2425.1918
+166 -2422.6215
+167 -2417.56
+168 -2420.0468
+169 -2419.8005
+170 -2417.632
+171 -2418.8618
+172 -2417.8651
+173 -2417.9952
+174 -2419.1554
+175 -2419.3061
+176 -2419.994
+177 -2419.6696
+178 -2418.4474
+179 -2418.1227
+180 -2418.0927
+181 -2419.586
+182 -2419.3668
+183 -2419.8636
+184 -2419.9941
+185 -2419.7937
+186 -2421.3869
+187 -2420.328
+188 -2418.1008
+189 -2418.1625
+190 -2419.0093
+191 -2418.7669
+192 -2419.3617
+193 -2419.6172
+194 -2420.992
+195 -2420.4131
+196 -2423.3676
+197 -2423.606
+198 -2424.565
+199 -2427.5363
+200 -2426.9824
+201 -2424.5013
+202 -2424.602
+203 -2424.3914
+204 -2423.8035
+205 -2423.6333
+206 -2423.9755
+207 -2421.4947
+208 -2422.3722
+209 -2421.5292
+210 -2421.8596
+211 -2422.2289
+212 -2421.9924
+213 -2420.2631
+214 -2420.7846
+215 -2419.8225
+216 -2419.6814
+217 -2418.1758
+218 -2418.8714
+219 -2419.4793
+220 -2419.3854
+221 -2418.9041
+222 -2420.2575
+223 -2418.0115
+224 -2419.5544
+225 -2419.6765
+226 -2420.0141
+227 -2421.2907
+228 -2421.5868
+229 -2423.0062
+230 -2423.0245
+231 -2420.738
+232 -2420.9657
+233 -2421.023
+234 -2422.6705
+235 -2423.3505
+236 -2423.0384
+237 -2422.6538
+238 -2419.5319
+239 -2416.7547
+240 -2415.334
+241 -2416.0455
+242 -2416.6461
+243 -2418.9867
+244 -2416.7546
+245 -2415.6445
+246 -2415.5547
+247 -2414.7781
+248 -2415.1575
+249 -2416.1267
+250 -2413.7617
+251 -2414.7322
+252 -2415.3281
+253 -2416.093
+254 -2414.2213
+255 -2413.5786
+256 -2413.8395
+257 -2413.9458
+258 -2416.5094
+259 -2417.9372
+260 -2419.8486
+261 -2417.825
+262 -2420.731
+263 -2423.5595
+264 -2423.0784
+265 -2421.7758
+266 -2421.5585
+267 -2421.6471
+268 -2420.3855
+269 -2420.3845
+270 -2421.1078
+271 -2419.4792
+272 -2421.4728
+273 -2419.0139
+274 -2417.4007
+275 -2418.5222
+276 -2420.7059
+277 -2423.027
+278 -2424.9578
+279 -2422.6948
+280 -2422.2573
+281 -2420.5755
+282 -2421.0033
+283 -2421.434
+284 -2420.8397
+285 -2420.1561
+286 -2420.9427
+287 -2419.9908
+288 -2421.2283
+289 -2422.3092
+290 -2423.2596
+291 -2422.3503
+292 -2418.8153
+293 -2418.0084
+294 -2415.4039
+295 -2415.8754
+296 -2417.3167
+297 -2417.9621
+298 -2421.1571
+299 -2420.0503
+300 -2420.4377
+301 -2419.2391
+302 -2420.0786
+303 -2419.6384
+304 -2420.4044
+305 -2423.5812
+306 -2425.7361
+307 -2424.7891
+308 -2424.194
+309 -2422.5453
+310 -2424.2625
+311 -2421.1356
+312 -2422.9985
+313 -2424.0237
+314 -2427.207
+315 -2426.5067
+316 -2425.2592
+317 -2424.7413
+318 -2422.1938
+319 -2423.1176
+320 -2421.338
+321 -2419.7633
+322 -2417.567
+323 -2415.0479
+324 -2416.1459
+325 -2417.5491
+326 -2419.8077
+327 -2420.3236
+328 -2420.8697
+329 -2420.0473
+330 -2420.0524
+331 -2416.3888
+332 -2417.4533
+333 -2420.3862
+334 -2415.8761
+335 -2416.4525
+336 -2416.8116
+337 -2414.9489
+338 -2418.7602
+339 -2417.1767
+340 -2414.3952
+341 -2414.4305
+342 -2416.2202
+343 -2416.9182
+344 -2416.4338
+345 -2415.3351
+346 -2416.9391
+347 -2416.3945
+348 -2417.5229
+349 -2418.5427
+350 -2418.2537
+351 -2417.8705
+352 -2420.5338
+353 -2419.7501
+354 -2418.481
+355 -2419.7442
+356 -2418.6293
+357 -2416.1353
+358 -2417.3104
+359 -2417.639
+360 -2420.7875
+361 -2419.3765
+362 -2419.5218
+363 -2416.9592
+364 -2415.8751
+365 -2415.7211
+366 -2415.3163
+367 -2415.6752
+368 -2414.2243
+369 -2414.7586
+370 -2416.3094
+371 -2415.9514
+372 -2414.8303
+373 -2413.7305
+374 -2413.5606
+375 -2412.9103
+376 -2413.3374
+377 -2414.2941
+378 -2409.6721
+379 -2411.5334
+380 -2408.8681
+381 -2408.1449
+382 -2409.5798
+383 -2409.7635
+384 -2410.0058
+385 -2410.7289
+386 -2412.3074
+387 -2414.2335
+388 -2412.0365
+389 -2413.0143
+390 -2412.6675
+391 -2414.8454
+392 -2412.8396
+393 -2414.0509
+394 -2415.3415
+395 -2415.2533
+396 -2413.9365
+397 -2414.7153
+398 -2416.0527
+399 -2418.1443
+400 -2418.3108
+401 -2417.9249
+402 -2416.9408
+403 -2418.2064
+404 -2420.3011
+405 -2418.0041
+406 -2418.0348
+407 -2416.551
+408 -2417.5691
+409 -2415.3172
+410 -2417.6445
+411 -2416.434
+412 -2417.617
+413 -2415.651
+414 -2415.5968
+415 -2419.0183
+416 -2419.0926
+417 -2420.7194
+418 -2419.5847
+419 -2418.98
+420 -2416.8715
+421 -2418.5744
+422 -2416.5921
+423 -2416.3813
+424 -2416.6351
+425 -2415.8929
+426 -2415.6282
+427 -2415.9389
+428 -2415.2924
+429 -2416.7905
+430 -2420.7261
+431 -2419.9738
+432 -2418.7457
+433 -2417.3594
+434 -2415.6985
+435 -2417.8142
+436 -2416.4564
+437 -2415.0893
+438 -2415.9299
+439 -2415.2365
+440 -2416.7513
+441 -2416.8462
+442 -2417.1637
+443 -2418.8971
+444 -2418.5464
+445 -2419.9704
+446 -2419.6384
+447 -2419.3947
+448 -2421.0684
+449 -2421.8412
+450 -2420.6108
+451 -2421.6112
+452 -2420.3855
+453 -2420.8103
+454 -2423.0892
+455 -2422.5635
+456 -2421.726
+457 -2421.5076
+458 -2418.6513
+459 -2417.478
+460 -2415.8388
+461 -2414.3768
+462 -2415.3855
+463 -2416.6653
+464 -2416.0927
+465 -2418.0331
+466 -2416.5727
+467 -2415.8447
+468 -2415.5898
+469 -2417.8854
+470 -2417.5202
+471 -2419.9731
+472 -2420.1677
+473 -2419.1562
+474 -2420.5981
+475 -2419.6343
+476 -2417.7428
+477 -2417.9701
+478 -2415.6699
+479 -2415.7211
+480 -2417.5425
+481 -2416.2979
+482 -2418.0635
+483 -2418.9544
+484 -2419.1601
+485 -2415.9132
+486 -2417.1154
+487 -2418.9573
+488 -2417.8452
+489 -2419.6909
+490 -2418.8879
+491 -2415.5778
+492 -2417.4082
+493 -2418.3445
+494 -2416.3137
+495 -2415.2437
+496 -2415.0828
+497 -2416.0815
+498 -2417.4924
+499 -2416.3565
+500 -2418.8971
+501 -2420.7695
+502 -2419.0619
+503 -2419.8822
+504 -2418.7694
+505 -2417.8661
+506 -2419.6019
+507 -2419.9902
+508 -2418.8905
+509 -2418.7797
+510 -2418.075
+511 -2416.985
+512 -2417.7049
+513 -2415.667
+514 -2416.6777
+515 -2416.6792
+516 -2414.5968
+517 -2414.0282
+518 -2413.9557
+519 -2414.9861
+520 -2417.0257
+521 -2418.1735
+522 -2418.8842
+523 -2418.8645
+524 -2416.8604
+525 -2417.7433
+526 -2415.2967
+527 -2415.6377
+528 -2417.2317
+529 -2416.335
+530 -2419.1531
+531 -2420.7541
+532 -2420.641
+533 -2418.5317
+534 -2420.0152
+535 -2420.5317
+536 -2418.62
+537 -2418.1389
+538 -2418.8779
+539 -2418.3213
+540 -2418.985
+541 -2417.7255
+542 -2417.9907
+543 -2420.6513
+544 -2422.2254
+545 -2421.2994
+546 -2421.4494
+547 -2419.4855
+548 -2417.0061
+549 -2417.9812
+550 -2415.0522
+551 -2415.721
+552 -2416.9714
+553 -2416.9769
+554 -2418.5823
+555 -2420.2422
+556 -2418.388
+557 -2418.996
+558 -2419.0189
+559 -2417.9579
+560 -2417.4535
+561 -2417.6864
+562 -2415.7417
+563 -2415.4481
+564 -2415.9119
+565 -2416.7426
+566 -2418.193
+567 -2419.1107
+568 -2418.7261
+569 -2419.1805
+570 -2418.5943
+571 -2418.6074
+572 -2419.2483
+573 -2419.3303
+574 -2422.125
+575 -2421.767
+576 -2421.0892
+577 -2419.1164
+578 -2418.1424
+579 -2417.9672
+580 -2417.9169
+581 -2419.0431
+582 -2419.9041
+583 -2418.4885
+584 -2416.2308
+585 -2416.2481
+586 -2415.4222
+587 -2412.8582
+588 -2414.5863
+589 -2414.6637
+590 -2414.3578
+591 -2413.4315
+592 -2413.9906
+593 -2414.1769
+594 -2413.0335
+595 -2414.8024
+596 -2414.7665
+597 -2416.1013
+598 -2415.9013
+599 -2412.0159
+600 -2411.8078
+601 -2411.9303
+602 -2413.0349
+603 -2414.9499
+604 -2412.2346
+605 -2412.5465
+606 -2415.4747
+607 -2417.4354
+608 -2418.2676
+609 -2417.0366
+610 -2417.82
+611 -2414.7882
+612 -2415.0843
+613 -2416.9259
+614 -2415.5689
+615 -2416.9074
+616 -2419.0688
+617 -2420.1002
+618 -2419.6517
+619 -2419.7214
+620 -2420.75
+621 -2421.9867
+622 -2421.4605
+623 -2422.9212
+624 -2423.2142
+625 -2422.2288
+626 -2421.2062
+627 -2421.1302
+628 -2421.731
+629 -2418.6052
+630 -2418.9548
+631 -2416.7222
+632 -2414.9597
+633 -2414.1172
+634 -2413.8832
+635 -2415.2163
+636 -2416.4881
+637 -2416.1188
+638 -2416.5795
+639 -2417.0708
+640 -2413.1506
+641 -2413.4253
+642 -2412.1707
+643 -2410.612
+644 -2409.8613
+645 -2410.0625
+646 -2414.2272
+647 -2416.5476
+648 -2418.0765
+649 -2419.6262
+650 -2418.2857
+651 -2419.2437
+652 -2420.9188
+653 -2422.4238
+654 -2420.9754
+655 -2420.2032
+656 -2420.5839
+657 -2421.4722
+658 -2420.7453
+659 -2418.8228
+660 -2417.981
+661 -2419.6744
+662 -2420.772
+663 -2419.8508
+664 -2417.966
+665 -2417.1626
+666 -2417.5188
+667 -2418.3833
+668 -2418.614
+669 -2418.0649
+670 -2414.8904
+671 -2413.3339
+672 -2414.8632
+673 -2416.7066
+674 -2415.4917
+675 -2418.8364
+676 -2418.2386
+677 -2419.2931
+678 -2418.3028
+679 -2419.2941
+680 -2421.1612
+681 -2421.4801
+682 -2422.1568
+683 -2422.8774
+684 -2423.2412
+685 -2423.0186
+686 -2422.3221
+687 -2421.7767
+688 -2421.0237
+689 -2420.7199
+690 -2419.2897
+691 -2419.017
+692 -2420.1413
+693 -2421.0367
+694 -2421.1212
+695 -2419.3801
+696 -2421.2988
+697 -2422.8335
+698 -2424.5935
+699 -2423.4899
+700 -2422.663
+701 -2421.5039
+702 -2420.5502
+703 -2420.335
+704 -2421.8613
+705 -2421.7961
+706 -2420.2037
+707 -2420.2767
+708 -2420.1874
+709 -2420.714
+710 -2420.3931
+711 -2419.5123
+712 -2418.1414
+713 -2417.1747
+714 -2419.3682
+715 -2417.3829
+716 -2417.3805
+717 -2417.9428
+718 -2417.3567
+719 -2417.7527
+720 -2416.6654
+721 -2415.9502
+722 -2416.9808
+723 -2417.538
+724 -2415.8619
+725 -2415.1069
+726 -2417.736
+727 -2418.3026
+728 -2417.872
+729 -2416.9107
+730 -2419.0973
+731 -2417.9866
+732 -2418.5844
+733 -2417.4422
+734 -2418.9652
+735 -2416.9294
+736 -2418.216
+737 -2419.5863
+738 -2420.9373
+739 -2418.7919
+740 -2419.1506
+741 -2418.5392
+742 -2417.5979
+743 -2416.4725
+744 -2415.1212
+745 -2416.0299
+746 -2416.1337
+747 -2416.5439
+748 -2418.4962
+749 -2417.8323
+750 -2419.1004
+751 -2417.9642
+752 -2419.9231
+753 -2421.9047
+754 -2422.09
+755 -2420.9282
+756 -2421.4034
+757 -2421.5742
+758 -2420.3311
+759 -2421.4762
+760 -2421.5714
+761 -2420.4808
+762 -2419.8067
+763 -2422.0148
+764 -2423.2897
+765 -2421.6324
+766 -2422.2085
+767 -2422.2916
+768 -2420.2608
+769 -2421.8975
+770 -2420.6488
+771 -2421.5915
+772 -2422.9879
+773 -2422.2219
+774 -2418.9906
+775 -2419.4693
+776 -2419.6699
+777 -2423.1423
+778 -2422.4816
+779 -2422.864
+780 -2423.9045
+781 -2422.4464
+782 -2421.702
+783 -2422.021
+784 -2421.6351
+785 -2419.193
+786 -2416.8398
+787 -2415.2085
+788 -2415.1982
+789 -2416.6143
+790 -2416.6026
+791 -2418.8932
+792 -2419.9569
+793 -2414.499
+794 -2417.6899
+795 -2416.4088
+796 -2417.7298
+797 -2418.2899
+798 -2419.5891
+799 -2418.3652
+800 -2421.898
+801 -2425.7875
+802 -2425.2101
+803 -2426.9322
+804 -2426.9256
+805 -2426.6636
+806 -2423.3463
+807 -2420.5257
+808 -2420.0792
+809 -2420.1139
+810 -2421.9998
+811 -2421.8175
+812 -2420.292
+813 -2420.7459
+814 -2421.8804
+815 -2423.0545
+816 -2423.2119
+817 -2420.3548
+818 -2418.8991
+819 -2418.1712
+820 -2421.0409
+821 -2421.8621
+822 -2421.1769
+823 -2421.1959
+824 -2420.969
+825 -2419.0017
+826 -2420.7606
+827 -2420.5516
+828 -2419.845
+829 -2418.089
+830 -2418.1693
+831 -2414.9976
+832 -2414.3084
+833 -2415.2075
+834 -2416.1385
+835 -2417.5243
+836 -2417.7533
+837 -2420.4501
+838 -2421.1972
+839 -2423.9607
+840 -2422.5777
+841 -2422.3639
+842 -2425.0608
+843 -2423.2304
+844 -2421.8304
+845 -2420.4021
+846 -2420.868
+847 -2422.2753
+848 -2422.2189
+849 -2424.3349
+850 -2423.3674
+851 -2422.5789
+852 -2422.2834
+853 -2424.5334
+854 -2425.5776
+855 -2420.4704
+856 -2420.7507
+857 -2420.9722
+858 -2422.8071
+859 -2420.6979
+860 -2418.9781
+861 -2420.0069
+862 -2418.745
+863 -2419.3851
+864 -2421.8546
+865 -2421.8259
+866 -2423.5425
+867 -2423.3779
+868 -2423.1055
+869 -2424.2969
+870 -2424.2716
+871 -2423.3174
+872 -2423.9456
+873 -2423.3
+874 -2424.8077
+875 -2425.3532
+876 -2425.3213
+877 -2425.4178
+878 -2425.6582
+879 -2425.9367
+880 -2422.1068
+881 -2421.3651
+882 -2420.2679
+883 -2419.7148
+884 -2419.2567
+885 -2421.9195
+886 -2420.6743
+887 -2422.4663
+888 -2421.8709
+889 -2419.4184
+890 -2419.5178
+891 -2417.1089
+892 -2414.0081
+893 -2415.357
+894 -2416.5038
+895 -2413.7673
+896 -2412.5114
+897 -2416.4741
+898 -2416.0113
+899 -2418.7825
+900 -2418.3647
+901 -2418.8603
+902 -2418.0987
+903 -2417.4329
+904 -2418.2712
+905 -2418.2145
+906 -2417.463
+907 -2417.6726
+908 -2417.2397
+909 -2417.5128
+910 -2418.111
+911 -2416.8353
+912 -2417.9312
+913 -2416.7527
+914 -2419.0495
+915 -2417.2661
+916 -2418.4783
+917 -2416.7424
+918 -2418.3961
+919 -2417.6197
+920 -2418.6141
+921 -2416.7808
+922 -2415.3006
+923 -2414.6284
+924 -2415.1729
+925 -2417.6939
+926 -2419.9563
+927 -2418.1591
+928 -2418.7044
+929 -2416.2829
+930 -2418.5408
+931 -2422.5719
+932 -2424.8714
+933 -2425.2381
+934 -2425.0271
+935 -2425.1841
+936 -2424.7391
+937 -2423.865
+938 -2422.9722
+939 -2424.0935
+940 -2423.5454
+941 -2422.5095
+942 -2421.4414
+943 -2423.5445
+944 -2421.6101
+945 -2420.4344
+946 -2421.1394
+947 -2418.3102
+948 -2418.2062
+949 -2418.8628
+950 -2420.4477
+951 -2420.873
+952 -2418.6604
+953 -2418.3533
+954 -2418.3889
+955 -2419.2728
+956 -2417.2049
+957 -2416.8293
+958 -2414.5968
+959 -2416.2272
+960 -2414.0111
+961 -2413.3238
+962 -2414.3207
+963 -2417.0411
+964 -2418.6135
+965 -2417.8104
+966 -2417.3196
+967 -2417.5122
+968 -2417.3189
+969 -2416.4962
+970 -2417.2853
+971 -2417.5406
+972 -2416.9404
+973 -2417.7388
+974 -2418.7303
+975 -2417.2622
+976 -2414.473
+977 -2415.3733
+978 -2415.8079
+979 -2415.6769
+980 -2416.0119
+981 -2417.8595
+982 -2417.9307
+983 -2417.9893
+984 -2419.5379
+985 -2418.9332
+986 -2419.5911
+987 -2422.7221
+988 -2422.904
+989 -2422.7925
+990 -2421.445
+991 -2418.7173
+992 -2416.7664
+993 -2418.1056
+994 -2418.4297
+995 -2419.7713
+996 -2418.8928
+997 -2419.8846
+998 -2420.5293
+999 -2423.0848
+1000 -2421.4242
+&
+@target G1.S0
+@type xy
+1 8978.6288
+2 8978.6288
+3 8978.6288
+4 8978.6288
+5 8978.6288
+6 8978.6288
+7 8978.6288
+8 8978.6288
+9 8978.6288
+10 8978.6288
+11 8978.6288
+12 9052.376
+13 9052.376
+14 9057.5265
+15 9057.5265
+16 9057.5265
+17 9057.5265
+18 9057.5265
+19 9057.5265
+20 9057.5265
+21 9057.5265
+22 9057.5265
+23 9113.8596
+24 9113.8596
+25 9113.8596
+26 9113.8596
+27 9145.1665
+28 9145.1665
+29 9145.1665
+30 9145.1665
+31 9145.1665
+32 9049.403
+33 9049.403
+34 9049.403
+35 9072.775
+36 9072.775
+37 9098.5314
+38 9098.5314
+39 9098.5314
+40 9117.2027
+41 9117.2027
+42 9117.2027
+43 9006.9165
+44 9006.9165
+45 9006.9165
+46 9006.9165
+47 9006.9165
+48 9006.9165
+49 9006.9165
+50 9006.9165
+51 9006.9165
+52 9006.9165
+53 9084.0275
+54 9084.0275
+55 9084.0275
+56 9084.0275
+57 9063.6227
+58 9063.6227
+59 9053.8976
+60 9066.1413
+61 9066.1413
+62 9066.1413
+63 9066.1413
+64 9066.1413
+65 9059.9785
+66 8997.9797
+67 8997.9797
+68 8997.9797
+69 9116.6634
+70 9116.6634
+71 9116.6634
+72 9110.7945
+73 9110.7945
+74 9110.7945
+75 9113.0624
+76 9113.0624
+77 9113.0624
+78 9135.8488
+79 9135.8488
+80 9135.8488
+81 9135.8488
+82 9135.8488
+83 9066.1472
+84 9066.1472
+85 9066.1472
+86 9066.1472
+87 9066.1472
+88 9066.1472
+89 9066.1472
+90 9020.7295
+91 9020.7295
+92 9020.7295
+93 9020.7295
+94 9020.7295
+95 9020.7295
+96 9020.7295
+97 9020.7295
+98 9020.7295
+99 9020.7295
+100 9020.7295
+101 9020.7295
+102 9020.7295
+103 9020.7295
+104 9020.7295
+105 9020.7295
+106 9020.7295
+107 9020.7295
+108 9020.7295
+109 9086.0425
+110 9086.0425
+111 9086.0425
+112 9086.0425
+113 9086.0425
+114 9122.3487
+115 9122.3487
+116 9122.3487
+117 9122.3487
+118 9162.6319
+119 9162.6319
+120 9162.6319
+121 9162.6319
+122 9162.6319
+123 9162.6319
+124 9162.6319
+125 9162.6319
+126 9162.6319
+127 9050.1626
+128 9050.1626
+129 9050.1626
+130 9050.1626
+131 9015.8847
+132 9015.8847
+133 9015.8847
+134 9015.8847
+135 9015.8847
+136 9015.8847
+137 9015.8847
+138 9015.8847
+139 9015.8847
+140 9015.8847
+141 9015.8847
+142 9015.8847
+143 9015.8847
+144 9015.8847
+145 9015.8847
+146 9015.8847
+147 9060.2902
+148 9187.2013
+149 9187.2013
+150 9105.3219
+151 9105.3219
+152 9105.3219
+153 9144.4285
+154 9144.4285
+155 9144.4285
+156 9102.5668
+157 9102.5668
+158 9102.5668
+159 9102.5668
+160 9102.5668
+161 9102.5668
+162 9021.3147
+163 9021.3147
+164 9021.3147
+165 9021.3147
+166 9046.6256
+167 9046.6256
+168 9046.6256
+169 9046.6256
+170 9012.0068
+171 9012.0068
+172 9012.0068
+173 9012.0068
+174 9012.0068
+175 9012.0068
+176 9012.0068
+177 9057.8105
+178 9057.8105
+179 9057.8105
+180 9078.8829
+181 9100.161
+182 9100.161
+183 9100.161
+184 9100.161
+185 9100.161
+186 9100.161
+187 9100.161
+188 9100.161
+189 9100.161
+190 9100.161
+191 9100.161
+192 9100.161
+193 9100.161
+194 9065.16
+195 9065.16
+196 9072.7852
+197 9062.5137
+198 9062.5137
+199 9062.5137
+200 9062.5137
+201 9071.0109
+202 9115.8561
+203 9088.4271
+204 9088.4271
+205 9088.4271
+206 9088.4271
+207 9088.4271
+208 9073.1074
+209 9073.1074
+210 9073.1074
+211 9073.1074
+212 9073.1074
+213 9073.1074
+214 9073.1074
+215 9073.1074
+216 9073.1074
+217 9073.1074
+218 9073.1074
+219 9073.9546
+220 9073.9546
+221 9071.4591
+222 9071.4591
+223 9071.4591
+224 9071.4591
+225 9071.4591
+226 9071.4591
+227 9071.4591
+228 9071.4591
+229 9071.4591
+230 9071.4591
+231 9071.4591
+232 9071.4591
+233 9071.4591
+234 9071.4591
+235 9071.4591
+236 9071.4591
+237 9071.4591
+238 9071.4591
+239 9071.4591
+240 9071.4591
+241 9071.4591
+242 9071.5667
+243 9071.5667
+244 9081.0737
+245 9081.0737
+246 9081.0737
+247 9081.0737
+248 9081.0737
+249 9081.0737
+250 9110.551
+251 9156.3541
+252 9156.3541
+253 9156.3541
+254 9130.0597
+255 9130.0597
+256 9130.0597
+257 9130.0597
+258 9130.0597
+259 9130.0597
+260 9130.0597
+261 9130.0597
+262 9130.0597
+263 9130.0597
+264 9126.7133
+265 9058.9843
+266 9058.9843
+267 9058.9843
+268 9058.9843
+269 9058.9843
+270 9058.9843
+271 9058.9843
+272 9058.9843
+273 9032.9409
+274 9017.8481
+275 9017.8481
+276 9017.8481
+277 9017.8481
+278 8987.3327
+279 8987.3327
+280 8987.3327
+281 9093.1016
+282 9093.1016
+283 9093.1016
+284 9093.1016
+285 9082.5103
+286 9082.5103
+287 9082.5103
+288 9082.5103
+289 9007.899
+290 9007.899
+291 9007.899
+292 9003.752
+293 9003.752
+294 9003.752
+295 9003.752
+296 9003.752
+297 9021.0505
+298 9021.0505
+299 9013.8905
+300 9013.8905
+301 9013.8905
+302 9013.8905
+303 9013.8905
+304 9013.8905
+305 9013.8905
+306 9123.4717
+307 9123.4717
+308 9123.4717
+309 9100.2035
+310 9100.2035
+311 9100.2035
+312 9023.8663
+313 9023.8663
+314 9125.0847
+315 9125.0847
+316 9125.0847
+317 9107.0958
+318 9097.3647
+319 9097.3647
+320 9097.3647
+321 9097.3647
+322 9097.3647
+323 9097.3647
+324 9097.3647
+325 9143.6283
+326 9143.6283
+327 9024.5873
+328 9024.5873
+329 9024.5873
+330 9024.5873
+331 9024.5873
+332 9024.5873
+333 9013.368
+334 9013.368
+335 9039.4252
+336 9039.4252
+337 9027.7495
+338 9070.656
+339 9042.5841
+340 9042.5841
+341 9033.3981
+342 9033.3981
+343 9033.3981
+344 9033.3981
+345 9033.3981
+346 9068.8145
+347 9068.8145
+348 9068.8145
+349 9043.0114
+350 9043.0114
+351 9030.0227
+352 8992.6786
+353 8992.6786
+354 8992.6786
+355 8992.6786
+356 9158.5474
+357 9158.5474
+358 9158.5474
+359 9158.5474
+360 9170.4806
+361 9170.4806
+362 9170.4806
+363 9044.0052
+364 9044.0052
+365 9044.0052
+366 9077.0579
+367 9032.8045
+368 9036.7905
+369 9036.7905
+370 9036.7905
+371 9036.7905
+372 9027.9699
+373 9027.9699
+374 9027.9699
+375 9027.9699
+376 9027.9699
+377 9039.0487
+378 9039.0487
+379 9039.0487
+380 9039.0487
+381 9039.0487
+382 9039.0487
+383 9039.0487
+384 9039.0487
+385 9039.0487
+386 9052.0052
+387 9037.1751
+388 9037.1751
+389 9072.2437
+390 9072.2437
+391 9072.2437
+392 9072.2437
+393 9072.2437
+394 9050.2016
+395 9050.2016
+396 8991.5158
+397 8991.5158
+398 8991.5158
+399 8991.5158
+400 8991.5158
+401 8991.5158
+402 8991.5158
+403 9088.8887
+404 9088.8887
+405 9088.8887
+406 9088.8887
+407 9111.1781
+408 9111.1781
+409 9111.1781
+410 9111.1781
+411 9146.7974
+412 9146.7974
+413 9146.7974
+414 9146.7974
+415 9036.419
+416 9043.5161
+417 9043.5161
+418 9093.143
+419 9150.7621
+420 9150.7621
+421 9150.7621
+422 9150.7621
+423 9111.6663
+424 9111.6663
+425 9111.6663
+426 9111.6663
+427 9111.6663
+428 9111.6663
+429 9111.6663
+430 9111.6663
+431 9111.6663
+432 9111.6663
+433 9111.6663
+434 9111.6663
+435 9111.6663
+436 9111.6663
+437 9111.6663
+438 9097.3375
+439 9097.3375
+440 9097.3375
+441 9097.3375
+442 9092.1396
+443 9091.4152
+444 9091.4152
+445 9096.3322
+446 9096.3322
+447 9096.3322
+448 9096.3322
+449 9096.3322
+450 9054.537
+451 9134.8097
+452 9134.8097
+453 9134.8097
+454 9134.8097
+455 9134.8097
+456 9134.8097
+457 9134.8097
+458 9134.8097
+459 9124.9138
+460 9124.9138
+461 9124.9138
+462 9124.9138
+463 9124.9138
+464 9037.4441
+465 9037.4441
+466 9037.4441
+467 9037.4441
+468 9037.4441
+469 9037.4441
+470 9037.4441
+471 9074.4644
+472 9074.4644
+473 9074.4644
+474 9074.4644
+475 9074.4644
+476 9073.8998
+477 9073.8998
+478 9039.2516
+479 9039.2516
+480 9039.2516
+481 9039.2516
+482 9039.2516
+483 9039.2516
+484 9039.2516
+485 9039.2516
+486 9039.2516
+487 9039.2516
+488 9039.2516
+489 9039.2516
+490 9039.2516
+491 9039.2516
+492 9039.2516
+493 9039.2516
+494 9039.2516
+495 9039.2516
+496 9039.2516
+497 9039.2516
+498 9039.2516
+499 9036.7144
+500 9036.7144
+501 9036.7144
+502 9036.7144
+503 9054.1823
+504 9054.1823
+505 9054.1823
+506 9054.1823
+507 9054.1823
+508 9054.1823
+509 9054.1823
+510 9054.1823
+511 9054.1823
+512 9054.1823
+513 9054.1823
+514 9054.1823
+515 9054.1823
+516 9054.1823
+517 9054.1823
+518 9054.1823
+519 9054.1823
+520 9054.1823
+521 9054.1823
+522 9105.9109
+523 9105.9109
+524 9105.9109
+525 9105.9109
+526 9105.9109
+527 9105.9109
+528 9105.9109
+529 9105.9109
+530 9105.9109
+531 9105.9109
+532 9077.8068
+533 9077.8068
+534 9077.8068
+535 9077.8068
+536 9077.8068
+537 9077.8068
+538 9077.8068
+539 9077.8068
+540 9077.8068
+541 9077.8068
+542 9077.8068
+543 9077.8068
+544 9077.8068
+545 9077.8068
+546 9077.8068
+547 9077.8068
+548 9077.8068
+549 9077.8068
+550 9077.8068
+551 9077.8068
+552 9077.8068
+553 9077.8068
+554 9077.8068
+555 9108.4919
+556 9108.4919
+557 9108.4919
+558 9108.4919
+559 9099.531
+560 9073.1523
+561 9073.1523
+562 9106.0357
+563 9106.0357
+564 9060.4938
+565 9060.4938
+566 9060.4938
+567 9060.4938
+568 9060.4938
+569 9060.4938
+570 9060.4938
+571 9060.4938
+572 9060.4938
+573 9118.0453
+574 9118.0453
+575 9118.0453
+576 9118.0453
+577 9118.0453
+578 9076.1895
+579 9072.6592
+580 9072.6592
+581 9072.6592
+582 9072.6592
+583 9072.6592
+584 9072.6592
+585 9072.6592
+586 9072.6592
+587 9030.8604
+588 9030.8604
+589 9008.8533
+590 9008.8533
+591 9008.8533
+592 9008.8533
+593 9008.8533
+594 9059.6228
+595 9080.355
+596 9086.3855
+597 9086.3855
+598 9134.5749
+599 9134.5749
+600 9134.5749
+601 9028.7892
+602 9028.7892
+603 9028.7892
+604 9028.7892
+605 9028.7892
+606 9028.7892
+607 9028.7892
+608 9028.7892
+609 9028.7892
+610 9028.7892
+611 9028.7892
+612 9028.7892
+613 9028.7892
+614 9070.2202
+615 9070.2202
+616 9070.2202
+617 9070.2202
+618 9070.2202
+619 9120.7086
+620 9120.7086
+621 9120.7086
+622 9120.7086
+623 9120.7086
+624 9120.7086
+625 9120.7086
+626 9120.7086
+627 9120.7086
+628 9120.7086
+629 9120.7086
+630 9120.7086
+631 9120.7086
+632 9120.7086
+633 9110.8414
+634 9110.8414
+635 9088.6032
+636 9151.4786
+637 9138.5838
+638 9138.5838
+639 9138.5838
+640 9138.5838
+641 9138.5838
+642 9138.5838
+643 9138.5838
+644 9138.5838
+645 9138.5838
+646 9134.6249
+647 9177.3088
+648 9177.3088
+649 9177.3088
+650 9177.3088
+651 9115.4677
+652 9115.4677
+653 9115.4677
+654 9115.4677
+655 9115.4677
+656 9115.4677
+657 9115.4677
+658 9014.3371
+659 9014.3371
+660 9014.3371
+661 9085.1983
+662 9085.1983
+663 9085.1983
+664 9085.1983
+665 9085.1983
+666 9085.1983
+667 9085.1983
+668 9085.1983
+669 9043.181
+670 9043.181
+671 9043.181
+672 9042.7651
+673 9042.7651
+674 9042.7651
+675 9042.7651
+676 9042.7651
+677 9042.7651
+678 9042.7651
+679 9042.7651
+680 9042.7651
+681 9040.0072
+682 9040.0072
+683 9040.0072
+684 9040.0072
+685 9040.0072
+686 9040.0072
+687 9040.0072
+688 8987.8081
+689 8987.8081
+690 8987.8081
+691 8987.8081
+692 8997.258
+693 8997.258
+694 8997.258
+695 8997.258
+696 8997.258
+697 8997.258
+698 9000.5042
+699 9035.8667
+700 9035.8667
+701 9035.8667
+702 9035.8667
+703 9035.8667
+704 9035.8667
+705 9035.8667
+706 9035.8667
+707 9035.8667
+708 9109.176
+709 9109.176
+710 9109.176
+711 9109.176
+712 9109.176
+713 9109.176
+714 9109.176
+715 9044.7777
+716 9044.7777
+717 9044.7777
+718 9044.7777
+719 9044.7777
+720 9062.0642
+721 9062.0642
+722 8983.7302
+723 8983.7302
+724 8983.7302
+725 8983.7302
+726 9044.8486
+727 9051.7979
+728 9051.7979
+729 9051.7979
+730 9000.6972
+731 9000.6972
+732 9000.6972
+733 9132.9582
+734 8977.8932
+735 8977.8932
+736 8977.8932
+737 8977.8932
+738 9008.5123
+739 9008.5123
+740 9008.9862
+741 9008.9862
+742 9008.9862
+743 9008.9862
+744 9008.9862
+745 9008.9862
+746 9008.9862
+747 9008.9862
+748 9008.9862
+749 9008.9862
+750 9008.9862
+751 9008.9862
+752 9008.9862
+753 9008.9862
+754 8994.6979
+755 9067.7737
+756 9067.7737
+757 9087.9036
+758 9087.9036
+759 9087.9036
+760 9087.9036
+761 9087.9036
+762 9087.9036
+763 9087.9036
+764 9087.9036
+765 9087.9036
+766 9087.9036
+767 9087.9036
+768 9087.9036
+769 9087.9036
+770 9087.9036
+771 9087.9036
+772 9087.9036
+773 9087.9036
+774 9087.9036
+775 9087.9036
+776 9048.1341
+777 9048.1341
+778 9095.7848
+779 9095.7848
+780 9095.7848
+781 9095.7848
+782 9095.7848
+783 9095.7848
+784 9095.7848
+785 9095.7848
+786 9095.7848
+787 9095.7848
+788 9095.7848
+789 9095.7848
+790 9095.7848
+791 9058.8166
+792 9058.8166
+793 9058.8166
+794 9058.8166
+795 9058.8166
+796 9058.8166
+797 9058.8166
+798 9136.9693
+799 9136.9693
+800 9136.9693
+801 9136.9693
+802 9136.9693
+803 9136.9693
+804 9136.9693
+805 9136.9693
+806 9136.9693
+807 9136.9693
+808 9136.9693
+809 9136.9693
+810 9136.9693
+811 9136.9693
+812 9136.9693
+813 9049.1565
+814 9046.2836
+815 9046.2836
+816 9046.2836
+817 9048.7377
+818 9048.7377
+819 9109.9001
+820 9015.3914
+821 9015.3914
+822 9091.9239
+823 9107.5571
+824 9107.5571
+825 9107.5571
+826 9107.5571
+827 9107.5571
+828 9107.5571
+829 9107.5571
+830 9047.6022
+831 9047.6022
+832 9094.3932
+833 9094.3932
+834 9008.9766
+835 9008.9766
+836 9008.9766
+837 9103.6257
+838 9103.6257
+839 9103.6257
+840 9103.6257
+841 9103.6257
+842 9103.6257
+843 9103.6257
+844 9103.6257
+845 9103.6257
+846 9103.6257
+847 9103.6257
+848 9103.6257
+849 9019.3017
+850 9019.3017
+851 9019.3017
+852 9019.3017
+853 9019.3017
+854 9019.3017
+855 9019.3017
+856 9019.3017
+857 9019.3017
+858 9019.3017
+859 9019.3017
+860 9019.3017
+861 9019.3017
+862 9019.3017
+863 9019.3017
+864 9019.3017
+865 9019.3017
+866 9019.3017
+867 9019.3017
+868 9019.3017
+869 9019.3017
+870 9019.3017
+871 9019.3017
+872 9104.4009
+873 9104.4009
+874 9141.5479
+875 9141.5479
+876 9147.4132
+877 9147.4132
+878 9114.7569
+879 9114.7569
+880 9114.7569
+881 9114.7569
+882 9114.7569
+883 9114.7569
+884 9114.7569
+885 9114.7569
+886 9114.7569
+887 9114.7569
+888 9114.7569
+889 9114.7569
+890 9114.7569
+891 9114.7569
+892 9114.7569
+893 9114.7569
+894 9092.6556
+895 9092.6556
+896 9092.6556
+897 9092.6556
+898 9092.6556
+899 9092.6556
+900 9127.6844
+901 9127.6844
+902 9127.6844
+903 9127.6844
+904 9127.6844
+905 9127.6844
+906 9127.6844
+907 9022.8058
+908 9022.8058
+909 9022.8058
+910 9022.8058
+911 9022.8058
+912 9022.8058
+913 8995.7152
+914 8995.7152
+915 8995.7152
+916 8995.7152
+917 8995.7152
+918 8995.7152
+919 8995.7152
+920 8995.7152
+921 9042.1456
+922 9042.1456
+923 9013.4457
+924 9013.4457
+925 9013.4457
+926 8999.6093
+927 8999.6093
+928 8999.6093
+929 8999.6093
+930 8999.6093
+931 8968.2137
+932 8968.2137
+933 8968.2137
+934 8968.2137
+935 9119.0014
+936 9119.0014
+937 9119.0014
+938 9119.0014
+939 9119.0014
+940 9119.0014
+941 9019.1638
+942 9019.1638
+943 9019.1638
+944 9019.1638
+945 9019.1638
+946 9019.1638
+947 9019.1638
+948 8986.9161
+949 9071.632
+950 9071.632
+951 9071.632
+952 9071.632
+953 9071.632
+954 9071.632
+955 9071.632
+956 9071.632
+957 9071.632
+958 9071.632
+959 9071.632
+960 9071.632
+961 9071.632
+962 9071.632
+963 9071.632
+964 9071.632
+965 9071.632
+966 9071.632
+967 9071.632
+968 9071.632
+969 9071.632
+970 9071.632
+971 9071.632
+972 9071.632
+973 9071.632
+974 9071.632
+975 9071.632
+976 9071.632
+977 9071.632
+978 9151.8128
+979 9151.8128
+980 9151.8128
+981 9151.8128
+982 9151.8128
+983 9151.8128
+984 9151.8128
+985 9151.8128
+986 9074.3711
+987 9074.3711
+988 9108.0581
+989 9108.0581
+990 9070.6681
+991 9070.6681
+992 9070.6681
+993 9070.6681
+994 9070.6681
+995 9070.6681
+996 9070.6681
+997 9070.6681
+998 9070.6681
+999 9070.6681
+1000 9070.6681
+&
+@target G1.S1
+@type xy
+1 9010.3016
+2 8993.0959
+3 8993.0959
+4 9043.5923
+5 9116.2187
+6 9116.2187
+7 9116.2187
+8 9116.2187
+9 9116.2187
+10 9116.2187
+11 9116.2187
+12 9116.2187
+13 9116.2187
+14 9116.2187
+15 9106.2864
+16 9106.2864
+17 9106.2864
+18 9106.2864
+19 9021.5324
+20 9021.5324
+21 9031.6424
+22 9031.6424
+23 9031.6424
+24 9031.6424
+25 9031.6424
+26 9031.6424
+27 9031.6424
+28 9031.6424
+29 9031.6424
+30 9031.6424
+31 9031.6424
+32 9031.6424
+33 9031.6424
+34 9031.6424
+35 9031.6424
+36 9031.6424
+37 9234.6939
+38 9234.6939
+39 9234.6939
+40 9160.0373
+41 9160.0373
+42 9160.0373
+43 9160.0373
+44 9160.0373
+45 9160.0373
+46 9160.0373
+47 9160.0373
+48 9160.0373
+49 9160.0373
+50 9160.0373
+51 9160.0373
+52 9160.0373
+53 9139.822
+54 9155.1291
+55 9155.1291
+56 9155.1291
+57 9100.752
+58 9241.1123
+59 9241.1123
+60 9241.1123
+61 9241.1123
+62 9233.0594
+63 9233.0594
+64 9229.9684
+65 9217.4942
+66 9217.4942
+67 9217.4942
+68 9239.558
+69 9239.558
+70 9239.558
+71 9119.8961
+72 9119.8961
+73 9119.8961
+74 9119.8961
+75 9119.8961
+76 9119.8961
+77 9119.8961
+78 9119.8961
+79 9119.8961
+80 9119.8961
+81 9119.8961
+82 9119.8961
+83 9119.8961
+84 9066.8404
+85 9185.098
+86 9185.098
+87 9185.098
+88 9185.098
+89 9185.098
+90 9185.098
+91 9185.098
+92 9185.098
+93 9185.098
+94 9185.098
+95 9185.098
+96 9185.098
+97 9185.098
+98 9175.2506
+99 9204.4906
+100 9204.4906
+101 9204.4906
+102 9204.4906
+103 9158.1506
+104 9135.189
+105 9135.189
+106 9115.8746
+107 9157.609
+108 9157.609
+109 9157.609
+110 9157.609
+111 9157.609
+112 9157.609
+113 9157.609
+114 9157.609
+115 9157.609
+116 9171.3155
+117 9171.3155
+118 9171.3155
+119 9171.3155
+120 9171.3155
+121 9171.3155
+122 9171.3155
+123 9171.3155
+124 9171.3155
+125 9171.3155
+126 9171.3155
+127 9171.3155
+128 9127.6834
+129 9127.6834
+130 9127.6834
+131 9127.6834
+132 9127.6834
+133 9127.6834
+134 9127.6834
+135 9127.6834
+136 9127.6834
+137 9127.6834
+138 9189.5863
+139 9189.5863
+140 9189.5863
+141 9189.5863
+142 9189.5863
+143 9189.5863
+144 9189.5863
+145 9105.3935
+146 9105.3935
+147 9105.3935
+148 9105.3935
+149 9105.3935
+150 9105.3935
+151 9105.3935
+152 9105.3935
+153 9066.1116
+154 9066.1116
+155 9066.1116
+156 9066.1116
+157 9066.1116
+158 9066.1116
+159 9066.1116
+160 9066.1116
+161 9081.6873
+162 9081.6873
+163 9072.6023
+164 9072.6023
+165 9072.6023
+166 9072.6023
+167 9200.3184
+168 9200.3184
+169 9200.3184
+170 9169.5317
+171 9145.7706
+172 9159.1467
+173 9159.1467
+174 9159.1467
+175 9159.1467
+176 9159.1467
+177 9159.1467
+178 9159.1467
+179 9159.1467
+180 9159.1467
+181 9159.1467
+182 9159.1467
+183 9159.1467
+184 9220.3502
+185 9220.3502
+186 9220.3502
+187 9220.3502
+188 9103.7026
+189 9103.7026
+190 9103.7026
+191 9103.7026
+192 9103.7026
+193 9103.7026
+194 9079.5043
+195 9079.5043
+196 9079.5043
+197 9079.5043
+198 9079.5043
+199 9079.5043
+200 9079.5043
+201 9079.5043
+202 9079.5043
+203 9079.5043
+204 9079.5043
+205 9204.081
+206 9204.081
+207 9204.081
+208 9204.081
+209 9213.531
+210 9213.531
+211 9213.531
+212 9190.5409
+213 9190.5409
+214 9190.5409
+215 9190.5409
+216 9190.5409
+217 9190.5409
+218 9190.5409
+219 9190.5409
+220 9190.5409
+221 9228.2846
+222 9138.458
+223 9138.458
+224 9138.458
+225 9138.458
+226 9138.458
+227 9138.458
+228 9138.458
+229 9138.458
+230 9138.458
+231 9137.6315
+232 9137.6315
+233 9137.6315
+234 9137.6315
+235 9137.6315
+236 9137.6315
+237 9137.6315
+238 9137.6315
+239 9137.6315
+240 9137.6315
+241 9137.6315
+242 9136.5477
+243 9168.0533
+244 9168.0533
+245 9168.0533
+246 9168.0533
+247 9168.0533
+248 9168.0533
+249 9168.0533
+250 9168.0533
+251 9168.0533
+252 9168.0533
+253 9117.1812
+254 9203.0613
+255 9203.0613
+256 9203.0613
+257 9203.0613
+258 9203.0613
+259 9203.0613
+260 9203.0613
+261 9203.0613
+262 9203.0613
+263 9203.0613
+264 9203.0613
+265 9203.0613
+266 9203.0613
+267 9166.5087
+268 9166.5087
+269 9166.5087
+270 9166.5087
+271 9166.5087
+272 9166.5087
+273 9166.5087
+274 9166.5087
+275 9166.5087
+276 9166.5087
+277 9166.5087
+278 9166.5087
+279 9166.5087
+280 9166.5087
+281 9166.5087
+282 9166.5087
+283 9166.5087
+284 9166.5087
+285 9147.1885
+286 9147.1885
+287 9147.1885
+288 9147.1885
+289 9147.1885
+290 9147.1885
+291 9147.1885
+292 9147.1885
+293 9213.8893
+294 9213.8893
+295 9213.8893
+296 9213.8893
+297 9213.8893
+298 9135.7495
+299 9135.7495
+300 9135.7495
+301 9197.5823
+302 9197.5823
+303 9196.1243
+304 9196.1243
+305 9196.1243
+306 9196.1243
+307 9196.1243
+308 9196.1243
+309 9196.1243
+310 9196.1243
+311 9196.1243
+312 9146.5883
+313 9146.5883
+314 9146.5883
+315 9124.9781
+316 9115.9868
+317 9115.9868
+318 9115.9868
+319 9115.9868
+320 9115.9868
+321 9115.9868
+322 9115.9868
+323 9115.9868
+324 9112.196
+325 9112.196
+326 9112.196
+327 9112.196
+328 9112.196
+329 9112.196
+330 9112.196
+331 9112.196
+332 9112.196
+333 9112.196
+334 9112.196
+335 9112.196
+336 9112.196
+337 9112.196
+338 9112.196
+339 9112.196
+340 9131.1611
+341 9131.1611
+342 9131.1611
+343 9148.9052
+344 9148.9052
+345 9148.9052
+346 9148.9052
+347 9126.7089
+348 9118.2556
+349 9118.2556
+350 9118.2556
+351 9118.2556
+352 9118.2556
+353 9118.2556
+354 9118.2556
+355 9118.2556
+356 9118.2556
+357 9118.2556
+358 9156.4312
+359 9156.4312
+360 9156.4312
+361 9156.4312
+362 9156.4312
+363 9156.4312
+364 9209.5474
+365 9086.2166
+366 9165.1258
+367 9165.1258
+368 9165.1258
+369 9165.1258
+370 9165.1258
+371 9165.1258
+372 9165.1258
+373 9165.1258
+374 9165.1258
+375 9138.8709
+376 9138.8709
+377 9138.8709
+378 9138.8709
+379 9174.6099
+380 9174.6099
+381 9174.6099
+382 9174.6099
+383 9174.6099
+384 9174.6099
+385 9174.6099
+386 9174.6099
+387 9174.6099
+388 9174.6099
+389 9174.6099
+390 9174.6099
+391 9174.6099
+392 9174.6099
+393 9174.6099
+394 9174.6099
+395 9174.6099
+396 9174.6099
+397 9174.6099
+398 9174.6099
+399 9174.6099
+400 9169.0299
+401 9169.0299
+402 9169.0299
+403 9169.0299
+404 9147.765
+405 9147.765
+406 9147.765
+407 9147.765
+408 9181.0438
+409 9183.4851
+410 9183.4851
+411 9183.4851
+412 9183.4851
+413 9183.4851
+414 9183.4851
+415 9183.4851
+416 9183.4851
+417 9183.4851
+418 9183.4851
+419 9181.783
+420 9181.783
+421 9181.783
+422 9181.783
+423 9181.783
+424 9181.783
+425 9181.783
+426 9181.783
+427 9181.783
+428 9125.9515
+429 9125.9515
+430 9125.9515
+431 9125.9515
+432 9125.9515
+433 9125.9515
+434 9167.991
+435 9167.991
+436 9167.991
+437 9167.991
+438 9169.687
+439 9169.687
+440 9169.687
+441 9169.687
+442 9169.687
+443 9169.687
+444 9149.873
+445 9174.4986
+446 9156.1057
+447 9156.1057
+448 9156.1057
+449 9156.1057
+450 9156.1057
+451 9156.1057
+452 9156.1057
+453 9156.1057
+454 9156.1057
+455 9156.1057
+456 9156.1057
+457 9156.1057
+458 9156.1057
+459 9156.1057
+460 9156.1057
+461 9156.1057
+462 9199.3233
+463 9199.3233
+464 9199.3233
+465 9199.3233
+466 9199.3233
+467 9199.3233
+468 9198.7337
+469 9198.7337
+470 9198.7337
+471 9198.7337
+472 9198.7337
+473 9198.7337
+474 9152.2065
+475 9152.2065
+476 9152.2065
+477 9152.2065
+478 9152.2065
+479 9152.2065
+480 9152.2065
+481 9122.6655
+482 9122.6655
+483 9122.6655
+484 9122.6655
+485 9110.0528
+486 9110.0528
+487 9110.0528
+488 9110.0528
+489 9110.0528
+490 9110.0528
+491 9110.0528
+492 9110.0528
+493 9136.32
+494 9136.32
+495 9139.5268
+496 9216.3602
+497 9253.241
+498 9253.241
+499 9253.241
+500 9253.241
+501 9253.241
+502 9158.7476
+503 9158.7476
+504 9158.7476
+505 9124.4965
+506 9124.4965
+507 9124.4965
+508 9124.4965
+509 9160.7835
+510 9160.7835
+511 9144.7494
+512 9144.7494
+513 9144.7494
+514 9144.7494
+515 9144.7494
+516 9144.7494
+517 9144.7494
+518 9144.7494
+519 9144.7494
+520 9144.7494
+521 9201.9725
+522 9201.9725
+523 9201.9725
+524 9201.9725
+525 9201.9725
+526 9201.9725
+527 9201.9725
+528 9201.9725
+529 9201.9725
+530 9201.9725
+531 9201.9725
+532 9201.9725
+533 9150.1142
+534 9118.6254
+535 9118.6254
+536 9132.2184
+537 9132.2184
+538 9132.2184
+539 9132.2184
+540 9132.2184
+541 9132.2184
+542 9132.2184
+543 9132.2184
+544 9132.2184
+545 9132.2184
+546 9132.2184
+547 9132.2184
+548 9132.2184
+549 9132.2184
+550 9132.2184
+551 9132.2184
+552 9132.2184
+553 9132.2184
+554 9132.2184
+555 9130.5951
+556 9130.5951
+557 9095.9188
+558 9019.9335
+559 9160.8908
+560 9160.8908
+561 9160.8908
+562 9160.8908
+563 9160.8908
+564 9160.8908
+565 9160.8908
+566 9160.8908
+567 9160.8908
+568 9160.8908
+569 9160.8908
+570 9160.8908
+571 9116.8881
+572 9116.8881
+573 9116.8881
+574 9116.8881
+575 9116.8881
+576 9116.8881
+577 9116.8881
+578 9116.8881
+579 9116.8881
+580 9116.8881
+581 9116.8881
+582 9116.8881
+583 9116.8881
+584 9116.8881
+585 9183.7778
+586 9183.7778
+587 9183.7778
+588 9183.7778
+589 9183.7778
+590 9183.7778
+591 9183.7778
+592 9180.5022
+593 9180.5022
+594 9180.5022
+595 9180.5022
+596 9180.5022
+597 9226.7316
+598 9226.7316
+599 9226.7316
+600 9226.7316
+601 9226.7316
+602 9226.7316
+603 9197.8718
+604 9197.8718
+605 9197.8718
+606 9197.8718
+607 9197.8718
+608 9197.8718
+609 9197.8718
+610 9182.4353
+611 9182.4353
+612 9182.4353
+613 9182.4353
+614 9182.4353
+615 9182.4353
+616 9182.4353
+617 9168.8598
+618 9168.8598
+619 9168.8598
+620 9168.8598
+621 9174.3151
+622 9174.3151
+623 9174.3151
+624 9174.3151
+625 9174.3151
+626 9174.3151
+627 9174.3151
+628 9174.3151
+629 9174.3151
+630 9174.3151
+631 9174.3151
+632 9174.3151
+633 9174.3151
+634 9174.3151
+635 9174.3151
+636 9174.3151
+637 9200.7857
+638 9200.7857
+639 9200.7857
+640 9187.5004
+641 9187.5004
+642 9187.5004
+643 9187.5004
+644 9187.5004
+645 9187.5004
+646 9187.5004
+647 9187.5004
+648 9187.5004
+649 9187.5004
+650 9071.5635
+651 9112.522
+652 9112.522
+653 9112.522
+654 9112.522
+655 9112.522
+656 9112.522
+657 9112.522
+658 9112.522
+659 9112.522
+660 9112.522
+661 9112.522
+662 9112.522
+663 9112.522
+664 9129.2422
+665 9129.2422
+666 9129.2422
+667 9129.2422
+668 9129.2422
+669 9129.2422
+670 9129.2422
+671 9129.2422
+672 9129.2422
+673 9129.2422
+674 9129.2422
+675 9129.2422
+676 9129.2422
+677 9129.2422
+678 9129.2422
+679 9129.2422
+680 9196.3437
+681 9196.3437
+682 9160.8387
+683 9121.3844
+684 9121.3844
+685 9121.3844
+686 9121.3844
+687 9178.395
+688 9171.3615
+689 9171.3615
+690 9171.3615
+691 9171.3615
+692 9171.3615
+693 9150.0097
+694 9150.0097
+695 9150.0097
+696 9150.0097
+697 9150.0097
+698 9150.0097
+699 9150.0097
+700 9150.0097
+701 9184.3922
+702 9184.3922
+703 9184.3922
+704 9184.3922
+705 9184.3922
+706 9184.3922
+707 9184.3922
+708 9184.3922
+709 9184.3922
+710 9184.3922
+711 9139.3895
+712 9139.3895
+713 9139.3895
+714 9139.3895
+715 9132.7016
+716 9171.1064
+717 9171.1064
+718 9171.1064
+719 9044.0771
+720 9030.4862
+721 9030.4862
+722 9030.4862
+723 9030.4862
+724 9125.9188
+725 9130.0543
+726 9130.0543
+727 9167.1235
+728 9167.1235
+729 9167.1235
+730 9167.1235
+731 9167.1235
+732 9167.1235
+733 9167.1235
+734 9167.1235
+735 9167.1235
+736 9167.1235
+737 9103.5644
+738 9103.5644
+739 9144.2589
+740 9144.2589
+741 9164.211
+742 9164.211
+743 9164.211
+744 9164.211
+745 9164.211
+746 9164.211
+747 9164.211
+748 9164.211
+749 9164.211
+750 9164.211
+751 9164.211
+752 9164.211
+753 9164.211
+754 9164.211
+755 9164.211
+756 9244.4359
+757 9244.4359
+758 9244.4359
+759 9244.4359
+760 9244.4359
+761 9244.4359
+762 9244.4359
+763 9244.4359
+764 9244.4359
+765 9167.9198
+766 9167.9198
+767 9213.4741
+768 9213.4741
+769 9213.4741
+770 9213.4741
+771 9213.4741
+772 9108.129
+773 9108.129
+774 9108.129
+775 9108.129
+776 9108.129
+777 9108.129
+778 9108.129
+779 9108.129
+780 9108.129
+781 9108.129
+782 9108.129
+783 9148.6626
+784 9148.6626
+785 9216.1072
+786 9216.1072
+787 9216.1072
+788 9216.1072
+789 9216.1072
+790 9216.1072
+791 9216.1072
+792 9216.1072
+793 9216.1072
+794 9216.1072
+795 9216.1072
+796 9216.1072
+797 9216.1072
+798 9216.1072
+799 9216.1072
+800 9104.6235
+801 9104.6235
+802 9106.242
+803 9106.242
+804 9106.242
+805 9146.4855
+806 9146.4855
+807 9179.6542
+808 9179.6542
+809 9219.3862
+810 9219.3862
+811 9219.3862
+812 9219.3862
+813 9219.3862
+814 9219.3862
+815 9219.3862
+816 9219.3862
+817 9219.3862
+818 9219.3862
+819 9219.3862
+820 9219.3862
+821 9219.3862
+822 9219.3862
+823 9219.3862
+824 9219.3862
+825 9219.3862
+826 9219.3862
+827 9219.3862
+828 9219.3862
+829 9219.3862
+830 9219.3862
+831 9219.3862
+832 9219.3862
+833 9219.3862
+834 9219.3862
+835 9219.3862
+836 9219.3862
+837 9219.3862
+838 9219.3862
+839 9173.1745
+840 9173.1745
+841 9173.1745
+842 9173.1745
+843 9173.1745
+844 9173.1745
+845 9173.1745
+846 9173.1745
+847 9173.1745
+848 9153.3312
+849 9153.3312
+850 9153.3312
+851 9153.3312
+852 9153.3312
+853 9153.3312
+854 9153.3312
+855 9153.3312
+856 9153.3312
+857 9185.2966
+858 9141.5671
+859 9141.5671
+860 9141.5671
+861 9141.5671
+862 9141.5671
+863 9141.5671
+864 9141.5671
+865 9141.5671
+866 9141.5671
+867 9141.5671
+868 9141.5671
+869 9141.5671
+870 9141.5671
+871 9141.5671
+872 9141.5671
+873 9141.5671
+874 9141.5671
+875 9141.5671
+876 9141.5671
+877 9141.5671
+878 9141.5671
+879 9141.5671
+880 9141.5671
+881 9141.5671
+882 9141.5671
+883 9141.5671
+884 9141.5671
+885 9141.5671
+886 9141.5671
+887 9141.5671
+888 9125.8038
+889 9125.8038
+890 9125.8038
+891 9191.9719
+892 9191.9719
+893 9191.8825
+894 9191.8825
+895 9191.8825
+896 9191.8825
+897 9191.8825
+898 9191.8825
+899 9171.0334
+900 9180.5918
+901 9180.5918
+902 9180.5918
+903 9180.5918
+904 9180.5918
+905 9180.5918
+906 9180.5918
+907 9180.5918
+908 9174.0901
+909 9174.0901
+910 9174.0901
+911 9174.0901
+912 9174.0901
+913 9215.829
+914 9151.4074
+915 9151.4074
+916 9138.587
+917 9138.587
+918 9138.587
+919 9138.587
+920 9138.587
+921 9138.587
+922 9138.587
+923 9138.587
+924 9138.587
+925 9138.587
+926 9138.587
+927 9144.6297
+928 9144.6297
+929 9073.3844
+930 9073.3844
+931 9073.3844
+932 9073.3844
+933 9073.3844
+934 9073.3844
+935 9073.3844
+936 9073.3844
+937 9073.3844
+938 9208.2736
+939 9208.2736
+940 9177.0682
+941 9177.0682
+942 9177.0682
+943 9165.7284
+944 9165.7284
+945 9157.8461
+946 9157.8461
+947 9157.8461
+948 9157.8461
+949 9157.8461
+950 9184.0605
+951 9184.0605
+952 9184.0605
+953 9184.0605
+954 9184.0605
+955 9184.0605
+956 9184.0605
+957 9219.6425
+958 9219.6425
+959 9219.6425
+960 9219.6425
+961 9219.6425
+962 9219.6425
+963 9219.6425
+964 9219.6425
+965 9219.6425
+966 9219.6425
+967 9219.6425
+968 9219.6425
+969 9219.6425
+970 9219.6425
+971 9219.6425
+972 9219.6425
+973 9219.6425
+974 9219.6425
+975 9219.6425
+976 9249.8959
+977 9249.8959
+978 9137.1446
+979 9137.1446
+980 9137.1446
+981 9137.1446
+982 9256.6175
+983 9162.3519
+984 9162.3519
+985 9162.3519
+986 9162.3519
+987 9162.3519
+988 9167.1428
+989 9167.1428
+990 9167.1428
+991 9167.1428
+992 9167.1428
+993 9167.1428
+994 9167.1428
+995 9167.1428
+996 9167.1428
+997 9167.1428
+998 9167.1428
+999 9167.1428
+1000 9167.1428
+&
+@target G2.S0
+@type xy
+1 18.528489
+2 13.83993
+3 9.7789214
+4 6.6498979
+5 3.2200816
+6 -0.30033804
+7 -4.7942871
+8 -6.890109
+9 -8.9144428
+10 -10.563426
+11 -11.770073
+12 -14.949826
+13 -15.421149
+14 -17.832341
+15 -18.428853
+16 -21.698344
+17 -22.762532
+18 -24.634627
+19 -25.29138
+20 -28.316042
+21 -27.983652
+22 -29.781225
+23 -27.924638
+24 -28.32
+25 -28.852658
+26 -30.48295
+27 -32.913608
+28 -28.288266
+29 -28.337191
+30 -28.155982
+31 -29.469345
+32 -32.362087
+33 -35.042256
+34 -37.338246
+35 -36.904368
+36 -35.132148
+37 -34.487634
+38 -34.940657
+39 -33.489985
+40 -32.757298
+41 -33.933681
+42 -37.471834
+43 -41.244195
+44 -41.390266
+45 -39.802178
+46 -36.604692
+47 -39.370849
+48 -41.507245
+49 -36.444186
+50 -36.830302
+51 -34.710874
+52 -35.573229
+53 -32.889845
+54 -32.129176
+55 -31.981295
+56 -33.815568
+57 -32.99862
+58 -30.32716
+59 -32.679329
+60 -30.820124
+61 -32.608927
+62 -33.245802
+63 -32.717333
+64 -33.668323
+65 -29.282767
+66 -30.455376
+67 -37.216843
+68 -37.258939
+69 -34.323505
+70 -37.349632
+71 -40.749036
+72 -42.18515
+73 -43.626096
+74 -42.746369
+75 -44.527001
+76 -47.260043
+77 -46.986798
+78 -40.757276
+79 -40.725786
+80 -42.488108
+81 -45.753831
+82 -42.247639
+83 -44.206411
+84 -44.47244
+85 -45.399862
+86 -46.689186
+87 -44.561771
+88 -43.34915
+89 -44.480247
+90 -44.606786
+91 -41.647371
+92 -38.730506
+93 -41.671671
+94 -40.987243
+95 -38.843286
+96 -36.26692
+97 -35.55985
+98 -35.237468
+99 -34.183627
+100 -31.8515
+101 -34.436072
+102 -31.964456
+103 -31.021965
+104 -34.196528
+105 -34.79355
+106 -36.762869
+107 -41.923795
+108 -43.342556
+109 -46.535982
+110 -46.626864
+111 -46.598239
+112 -45.6956
+113 -43.131017
+114 -43.567038
+115 -40.93731
+116 -37.718492
+117 -40.860598
+118 -44.139579
+119 -47.002795
+120 -49.840535
+121 -57.277473
+122 -54.29101
+123 -55.295817
+124 -58.961344
+125 -53.290646
+126 -53.369516
+127 -62.013529
+128 -60.143835
+129 -59.05816
+130 -60.487011
+131 -60.672179
+132 -59.442079
+133 -60.267508
+134 -62.863315
+135 -59.393865
+136 -57.366053
+137 -59.921958
+138 -58.939171
+139 -65.299196
+140 -68.955865
+141 -71.645999
+142 -65.416801
+143 -63.007555
+144 -68.368394
+145 -61.573015
+146 -61.517977
+147 -65.096816
+148 -60.219769
+149 -58.166681
+150 -62.884367
+151 -61.938887
+152 -62.797527
+153 -61.228225
+154 -58.042713
+155 -59.99791
+156 -63.848729
+157 -60.90924
+158 -53.136288
+159 -55.881414
+160 -56.756882
+161 -61.498036
+162 -61.460113
+163 -58.213651
+164 -59.841009
+165 -51.832477
+166 -48.527814
+167 -47.16396
+168 -43.882326
+169 -47.136721
+170 -46.359701
+171 -44.079179
+172 -42.905173
+173 -41.268156
+174 -40.038304
+175 -37.286772
+176 -36.401301
+177 -36.661153
+178 -33.774353
+179 -37.772569
+180 -41.373058
+181 -41.566889
+182 -43.344835
+183 -42.653728
+184 -39.023649
+185 -40.324247
+186 -41.994354
+187 -39.857695
+188 -42.011675
+189 -46.628479
+190 -43.162726
+191 -43.552485
+192 -47.868227
+193 -49.282558
+194 -42.678015
+195 -45.369217
+196 -43.405095
+197 -45.038087
+198 -48.13233
+199 -44.116459
+200 -45.422649
+201 -44.247135
+202 -43.000763
+203 -40.400407
+204 -42.62608
+205 -43.375953
+206 -41.410488
+207 -40.430473
+208 -40.492649
+209 -41.565725
+210 -45.265367
+211 -46.279514
+212 -48.64692
+213 -44.041742
+214 -40.382383
+215 -36.196363
+216 -37.067469
+217 -38.435346
+218 -39.09923
+219 -38.361779
+220 -40.408033
+221 -38.073209
+222 -41.994883
+223 -46.640124
+224 -43.41828
+225 -37.03863
+226 -36.546079
+227 -37.417384
+228 -40.420638
+229 -40.598823
+230 -37.524605
+231 -41.549862
+232 -39.73742
+233 -40.687509
+234 -39.901313
+235 -44.101997
+236 -48.059059
+237 -52.237574
+238 -52.011305
+239 -52.762516
+240 -54.382922
+241 -55.701847
+242 -61.324412
+243 -64.493385
+244 -59.161234
+245 -56.21977
+246 -49.500274
+247 -51.347962
+248 -47.645631
+249 -45.681417
+250 -42.837431
+251 -41.303886
+252 -39.096276
+253 -37.291334
+254 -34.131993
+255 -35.554975
+256 -39.418655
+257 -42.704366
+258 -43.43884
+259 -47.559588
+260 -41.90437
+261 -42.13124
+262 -39.047464
+263 -39.846384
+264 -40.712161
+265 -42.472624
+266 -44.945569
+267 -47.846132
+268 -48.735186
+269 -49.891778
+270 -46.023625
+271 -47.769386
+272 -49.782014
+273 -51.429114
+274 -48.798016
+275 -46.005805
+276 -47.947451
+277 -46.459677
+278 -50.818752
+279 -48.638649
+280 -50.489367
+281 -47.416153
+282 -44.683867
+283 -47.535404
+284 -46.784052
+285 -49.114153
+286 -48.614297
+287 -45.537032
+288 -46.037418
+289 -48.020223
+290 -46.204087
+291 -47.035792
+292 -39.899974
+293 -41.789
+294 -42.987128
+295 -41.717447
+296 -42.022808
+297 -43.387775
+298 -35.4106
+299 -34.424575
+300 -33.612206
+301 -38.036338
+302 -37.830754
+303 -41.606868
+304 -38.734522
+305 -37.409485
+306 -34.295975
+307 -34.088759
+308 -37.343121
+309 -39.546178
+310 -39.531959
+311 -40.840666
+312 -41.653568
+313 -43.279958
+314 -37.413849
+315 -39.339328
+316 -39.203306
+317 -37.862475
+318 -40.952607
+319 -39.219254
+320 -43.659718
+321 -39.737601
+322 -40.455855
+323 -41.041423
+324 -34.685186
+325 -36.306129
+326 -35.634013
+327 -34.109999
+328 -34.931339
+329 -38.569056
+330 -39.929948
+331 -36.566658
+332 -38.223178
+333 -40.078428
+334 -40.15753
+335 -38.750143
+336 -33.569853
+337 -35.795092
+338 -35.883948
+339 -34.099882
+340 -35.033206
+341 -37.069926
+342 -38.794948
+343 -38.81485
+344 -37.414339
+345 -35.903762
+346 -37.94477
+347 -39.495052
+348 -37.446934
+349 -33.269371
+350 -40.651085
+351 -43.496022
+352 -43.236241
+353 -40.994998
+354 -42.569168
+355 -44.699295
+356 -42.970274
+357 -39.161371
+358 -39.86254
+359 -40.074817
+360 -39.985536
+361 -40.942867
+362 -43.972245
+363 -45.28736
+364 -38.509787
+365 -37.950329
+366 -37.382084
+367 -38.822714
+368 -39.320644
+369 -42.078368
+370 -43.135848
+371 -45.441765
+372 -47.124848
+373 -47.200865
+374 -48.367467
+375 -46.794834
+376 -41.82655
+377 -44.759131
+378 -50.236356
+379 -46.82573
+380 -49.567319
+381 -45.557394
+382 -43.841432
+383 -40.599688
+384 -39.615096
+385 -39.366746
+386 -40.714034
+387 -37.485442
+388 -34.376556
+389 -34.431798
+390 -34.086601
+391 -36.162706
+392 -34.659566
+393 -33.938706
+394 -35.875282
+395 -34.305594
+396 -35.586109
+397 -35.181772
+398 -35.794028
+399 -35.341171
+400 -34.583942
+401 -37.219644
+402 -39.125241
+403 -38.939964
+404 -42.839451
+405 -42.281016
+406 -42.961746
+407 -37.302423
+408 -37.344204
+409 -38.674505
+410 -44.652689
+411 -49.440835
+412 -48.717504
+413 -48.260921
+414 -45.197168
+415 -47.271817
+416 -45.84352
+417 -45.053277
+418 -45.690702
+419 -45.763899
+420 -44.464841
+421 -42.410132
+422 -40.833386
+423 -42.050801
+424 -44.215586
+425 -41.840875
+426 -40.898736
+427 -43.265649
+428 -39.722254
+429 -40.163059
+430 -41.711387
+431 -42.357793
+432 -42.697842
+433 -43.717363
+434 -37.952703
+435 -38.528243
+436 -40.607457
+437 -40.639553
+438 -39.509064
+439 -38.996586
+440 -40.21188
+441 -34.20146
+442 -36.200748
+443 -35.953877
+444 -38.42121
+445 -41.557067
+446 -41.793449
+447 -38.57115
+448 -43.279996
+449 -45.006733
+450 -43.868012
+451 -42.095212
+452 -40.690497
+453 -42.044541
+454 -40.344833
+455 -41.3687
+456 -40.006578
+457 -39.974116
+458 -38.240613
+459 -40.6712
+460 -36.904688
+461 -36.322537
+462 -41.976668
+463 -47.159561
+464 -47.338079
+465 -45.553306
+466 -48.244735
+467 -46.363772
+468 -47.26477
+469 -48.001003
+470 -49.815545
+471 -49.321047
+472 -47.330417
+473 -46.971747
+474 -45.406293
+475 -48.177821
+476 -53.681879
+477 -52.641264
+478 -51.030036
+479 -46.497168
+480 -48.206197
+481 -46.114403
+482 -42.895015
+483 -44.599445
+484 -43.598883
+485 -47.194601
+486 -45.02261
+487 -46.97172
+488 -45.079291
+489 -39.231781
+490 -44.556201
+491 -44.745076
+492 -43.902749
+493 -47.040136
+494 -45.841139
+495 -45.582427
+496 -47.611288
+497 -50.136625
+498 -51.482947
+499 -50.29448
+500 -50.94644
+501 -53.241163
+502 -51.085156
+503 -52.93298
+504 -50.041433
+505 -44.480533
+506 -41.480658
+507 -37.738546
+508 -38.004138
+509 -36.154218
+510 -34.684911
+511 -31.269743
+512 -31.600328
+513 -29.709729
+514 -29.811681
+515 -30.362435
+516 -32.529292
+517 -29.57711
+518 -32.394596
+519 -32.754351
+520 -36.809382
+521 -39.106448
+522 -39.484288
+523 -38.62076
+524 -37.901492
+525 -43.320518
+526 -43.018971
+527 -42.019271
+528 -35.554998
+529 -34.365554
+530 -34.319422
+531 -33.382459
+532 -29.992
+533 -32.356527
+534 -36.052076
+535 -36.198405
+536 -37.084287
+537 -39.614465
+538 -36.955683
+539 -35.426927
+540 -39.970677
+541 -40.715991
+542 -43.67545
+543 -46.074031
+544 -47.040384
+545 -47.354366
+546 -49.951356
+547 -48.129936
+548 -47.415136
+549 -48.410811
+550 -50.041369
+551 -47.302264
+552 -44.899065
+553 -42.164819
+554 -44.430433
+555 -39.908364
+556 -40.739707
+557 -38.297371
+558 -41.497379
+559 -40.551568
+560 -41.609989
+561 -41.089704
+562 -38.705156
+563 -41.346838
+564 -40.904521
+565 -43.906343
+566 -40.627964
+567 -36.896243
+568 -40.885754
+569 -38.174362
+570 -37.40007
+571 -38.513413
+572 -40.177995
+573 -39.41321
+574 -35.108975
+575 -32.188424
+576 -34.583374
+577 -37.218667
+578 -39.764614
+579 -33.90086
+580 -32.270303
+581 -33.906598
+582 -29.44077
+583 -30.606845
+584 -33.724305
+585 -34.926481
+586 -34.067025
+587 -34.378568
+588 -39.112349
+589 -43.315124
+590 -44.140298
+591 -46.854386
+592 -44.51869
+593 -43.482676
+594 -45.712136
+595 -45.283919
+596 -43.509795
+597 -45.893356
+598 -43.395059
+599 -46.915292
+600 -47.377186
+601 -45.254656
+602 -45.385632
+603 -42.296714
+604 -38.419331
+605 -37.752274
+606 -36.05111
+607 -36.039475
+608 -35.646558
+609 -36.169656
+610 -39.764615
+611 -40.141459
+612 -40.742763
+613 -40.493224
+614 -38.852348
+615 -37.871712
+616 -37.096137
+617 -42.754415
+618 -41.127433
+619 -36.473901
+620 -39.894429
+621 -39.963257
+622 -36.721529
+623 -37.231421
+624 -37.772875
+625 -40.35647
+626 -38.861607
+627 -42.982469
+628 -46.801548
+629 -45.557968
+630 -43.403337
+631 -42.87856
+632 -42.717118
+633 -47.1207
+634 -45.513864
+635 -39.908636
+636 -40.229781
+637 -41.845133
+638 -37.917384
+639 -39.797057
+640 -40.214699
+641 -39.188088
+642 -39.258356
+643 -43.704674
+644 -44.311058
+645 -45.056969
+646 -50.425949
+647 -61.981154
+648 -60.89344
+649 -62.100063
+650 -62.574848
+651 -54.366526
+652 -53.857971
+653 -51.547082
+654 -54.184254
+655 -53.973333
+656 -51.375188
+657 -47.237594
+658 -47.9928
+659 -41.437052
+660 -41.385571
+661 -38.79909
+662 -39.224028
+663 -38.699865
+664 -41.25903
+665 -39.31502
+666 -39.493101
+667 -39.722574
+668 -39.97293
+669 -41.96797
+670 -43.401132
+671 -45.627896
+672 -49.023037
+673 -49.001204
+674 -50.61876
+675 -49.141108
+676 -48.808086
+677 -48.060474
+678 -48.882831
+679 -45.939284
+680 -50.07593
+681 -54.480395
+682 -55.254007
+683 -52.987132
+684 -52.95889
+685 -56.220844
+686 -54.337003
+687 -54.796925
+688 -57.939639
+689 -51.481372
+690 -46.068522
+691 -47.503815
+692 -44.277524
+693 -41.816611
+694 -43.771747
+695 -41.266835
+696 -37.652285
+697 -35.557661
+698 -36.837244
+699 -37.075578
+700 -35.847074
+701 -37.114294
+702 -35.956596
+703 -36.201523
+704 -37.086306
+705 -36.983426
+706 -35.350113
+707 -36.259754
+708 -36.909447
+709 -31.278572
+710 -31.538363
+711 -29.855668
+712 -29.614978
+713 -29.529399
+714 -31.189539
+715 -34.149537
+716 -35.159125
+717 -33.249913
+718 -36.972883
+719 -34.961143
+720 -35.654263
+721 -30.39767
+722 -31.548142
+723 -35.508774
+724 -30.779296
+725 -31.625434
+726 -28.454239
+727 -29.630576
+728 -28.687545
+729 -31.766286
+730 -34.06427
+731 -35.921095
+732 -34.358242
+733 -39.172605
+734 -40.364992
+735 -40.677524
+736 -42.073187
+737 -42.27715
+738 -44.495341
+739 -48.241665
+740 -46.810277
+741 -49.399273
+742 -48.112547
+743 -42.536706
+744 -44.386052
+745 -46.922781
+746 -46.33622
+747 -48.711569
+748 -52.471787
+749 -48.577961
+750 -46.268573
+751 -49.192518
+752 -46.074465
+753 -43.891004
+754 -42.307067
+755 -39.594822
+756 -40.815314
+757 -39.454223
+758 -41.877645
+759 -44.094691
+760 -41.495493
+761 -44.092907
+762 -42.088797
+763 -40.51948
+764 -37.535114
+765 -33.881999
+766 -34.262053
+767 -35.73726
+768 -36.103619
+769 -37.511702
+770 -38.172339
+771 -36.865931
+772 -36.705113
+773 -37.96733
+774 -35.8778
+775 -33.717384
+776 -33.751031
+777 -35.135706
+778 -34.079643
+779 -32.946754
+780 -34.310993
+781 -35.226274
+782 -39.146866
+783 -42.9699
+784 -44.984955
+785 -43.205607
+786 -44.50173
+787 -47.475884
+788 -47.286259
+789 -49.470241
+790 -51.40191
+791 -46.372051
+792 -43.649898
+793 -48.173937
+794 -45.049932
+795 -44.707793
+796 -40.453608
+797 -39.758444
+798 -38.880767
+799 -43.23104
+800 -42.822714
+801 -46.831225
+802 -50.316497
+803 -52.916349
+804 -54.017959
+805 -47.391722
+806 -45.014664
+807 -44.956143
+808 -42.000813
+809 -39.161548
+810 -38.071323
+811 -37.656914
+812 -39.627121
+813 -39.671948
+814 -45.535182
+815 -46.272684
+816 -47.136851
+817 -45.462766
+818 -54.317851
+819 -51.615463
+820 -54.496604
+821 -43.944088
+822 -47.198663
+823 -53.114578
+824 -56.582968
+825 -55.827312
+826 -53.592548
+827 -53.263106
+828 -43.098417
+829 -46.245806
+830 -44.259764
+831 -45.067647
+832 -42.412881
+833 -46.076821
+834 -48.132803
+835 -48.7283
+836 -53.401548
+837 -53.54177
+838 -55.348956
+839 -53.537736
+840 -48.000868
+841 -50.425092
+842 -51.841142
+843 -53.619931
+844 -51.427318
+845 -51.763341
+846 -53.444131
+847 -55.391704
+848 -50.005367
+849 -50.742787
+850 -55.022129
+851 -56.191097
+852 -55.036606
+853 -50.727645
+854 -51.663845
+855 -53.605903
+856 -51.912643
+857 -49.369932
+858 -48.427548
+859 -46.937696
+860 -44.158806
+861 -45.845344
+862 -49.778494
+863 -47.221453
+864 -51.274979
+865 -52.195263
+866 -52.243786
+867 -52.905414
+868 -52.428363
+869 -61.125964
+870 -61.580557
+871 -63.792148
+872 -55.540725
+873 -58.034338
+874 -54.06216
+875 -59.167206
+876 -53.975605
+877 -57.132786
+878 -61.424773
+879 -62.083072
+880 -53.885299
+881 -58.672673
+882 -57.286715
+883 -58.127362
+884 -54.09706
+885 -55.794505
+886 -52.749475
+887 -58.074649
+888 -57.67417
+889 -56.752658
+890 -57.2225
+891 -55.575312
+892 -56.343517
+893 -51.415842
+894 -51.649265
+895 -51.40198
+896 -47.714409
+897 -47.983531
+898 -47.602598
+899 -44.66414
+900 -44.247851
+901 -51.312818
+902 -51.351446
+903 -54.420178
+904 -55.359839
+905 -50.229197
+906 -53.635028
+907 -55.149563
+908 -54.041951
+909 -53.317108
+910 -56.508114
+911 -60.915539
+912 -62.573078
+913 -65.417026
+914 -51.363766
+915 -50.53139
+916 -49.191957
+917 -49.379035
+918 -49.088193
+919 -50.955112
+920 -50.059905
+921 -53.279584
+922 -49.971337
+923 -46.288536
+924 -47.751213
+925 -47.125394
+926 -43.733444
+927 -42.523399
+928 -45.407673
+929 -44.755992
+930 -46.828815
+931 -46.537657
+932 -46.287693
+933 -49.861096
+934 -50.887306
+935 -46.129283
+936 -43.497055
+937 -42.547024
+938 -41.363552
+939 -44.428359
+940 -38.493079
+941 -38.419926
+942 -38.940078
+943 -41.980513
+944 -44.4226
+945 -45.038114
+946 -48.069546
+947 -48.206155
+948 -46.256917
+949 -45.627292
+950 -42.664241
+951 -48.693718
+952 -47.30733
+953 -40.793684
+954 -39.931605
+955 -44.12211
+956 -46.937426
+957 -47.044036
+958 -48.252421
+959 -45.441144
+960 -45.085055
+961 -41.957893
+962 -41.885169
+963 -36.723076
+964 -38.330522
+965 -38.460843
+966 -38.228755
+967 -39.36071
+968 -41.720961
+969 -42.09191
+970 -41.566244
+971 -44.845572
+972 -40.805503
+973 -40.23804
+974 -40.369161
+975 -40.332863
+976 -42.623586
+977 -42.506391
+978 -38.644285
+979 -40.95161
+980 -42.539179
+981 -41.437876
+982 -41.634694
+983 -38.523451
+984 -39.984794
+985 -39.195067
+986 -42.276686
+987 -44.199398
+988 -43.041866
+989 -40.54161
+990 -39.245677
+991 -38.229211
+992 -39.280412
+993 -38.720213
+994 -32.210574
+995 -34.58688
+996 -36.231667
+997 -37.895052
+998 -36.33626
+999 -36.388238
+1000 -39.213109
+&
+@target G2.S1
+@type xy
+1 21.316642
+2 19.008328
+3 17.652442
+4 17.861506
+5 18.493426
+6 16.818258
+7 17.470938
+8 17.737273
+9 17.516994
+10 15.575873
+11 15.375419
+12 17.148686
+13 18.124796
+14 17.069491
+15 17.288462
+16 17.553882
+17 19.932081
+18 20.695109
+19 18.01364
+20 18.376681
+21 19.434551
+22 18.065754
+23 19.589149
+24 16.401931
+25 17.189402
+26 17.767149
+27 18.272106
+28 19.641977
+29 20.380742
+30 20.614737
+31 19.122216
+32 20.582703
+33 19.807298
+34 20.14566
+35 20.130605
+36 19.22531
+37 21.766044
+38 21.138311
+39 22.929561
+40 21.033668
+41 20.521906
+42 20.127033
+43 17.08744
+44 20.325144
+45 21.738971
+46 20.826488
+47 21.55327
+48 20.926261
+49 22.259436
+50 20.975773
+51 23.96491
+52 23.062907
+53 23.418313
+54 23.842233
+55 22.001748
+56 21.463524
+57 22.118063
+58 19.947973
+59 20.477286
+60 20.086267
+61 22.91094
+62 21.581019
+63 19.892148
+64 20.188229
+65 19.586868
+66 18.983495
+67 20.359711
+68 21.493617
+69 20.418316
+70 22.04243
+71 22.95576
+72 21.922567
+73 22.075894
+74 25.721083
+75 25.58622
+76 23.718247
+77 23.54735
+78 24.22462
+79 24.21792
+80 22.554504
+81 22.923922
+82 23.662558
+83 25.221698
+84 24.269868
+85 20.783694
+86 23.526762
+87 24.254918
+88 24.658223
+89 24.8643
+90 28.236876
+91 26.9798
+92 25.532341
+93 25.427619
+94 26.765203
+95 28.334073
+96 23.224525
+97 24.267958
+98 26.64346
+99 27.542441
+100 24.338862
+101 22.064428
+102 22.719462
+103 21.872246
+104 23.586348
+105 23.315523
+106 23.376052
+107 24.121288
+108 24.830662
+109 25.249043
+110 25.764069
+111 25.254277
+112 25.537372
+113 22.668329
+114 22.676329
+115 24.649059
+116 23.424419
+117 24.312744
+118 22.427452
+119 22.749532
+120 21.42067
+121 20.993124
+122 19.405874
+123 18.056047
+124 20.879015
+125 21.019141
+126 21.975614
+127 22.483795
+128 21.404449
+129 21.463088
+130 22.320154
+131 22.792653
+132 23.212503
+133 21.057602
+134 22.528141
+135 20.686696
+136 20.071632
+137 19.828188
+138 21.549057
+139 21.107134
+140 20.876519
+141 19.818478
+142 21.099811
+143 21.001074
+144 22.446532
+145 20.243648
+146 18.305363
+147 21.612716
+148 22.535122
+149 22.894885
+150 22.862484
+151 22.349954
+152 22.568799
+153 23.364936
+154 23.891931
+155 22.158787
+156 21.060204
+157 23.593332
+158 21.760359
+159 22.957547
+160 22.507278
+161 23.437037
+162 23.248461
+163 22.343852
+164 23.738174
+165 25.018383
+166 24.864107
+167 23.908639
+168 25.352314
+169 23.372366
+170 22.403984
+171 23.228473
+172 21.945488
+173 22.613267
+174 22.697183
+175 22.220511
+176 24.901891
+177 25.923169
+178 26.804804
+179 25.527721
+180 28.497516
+181 25.492445
+182 22.148549
+183 22.090897
+184 21.863942
+185 25.430724
+186 25.889259
+187 23.955432
+188 23.423236
+189 23.76275
+190 24.695292
+191 23.330617
+192 22.867427
+193 23.350204
+194 25.698821
+195 26.282451
+196 25.727803
+197 26.107685
+198 28.216715
+199 26.74212
+200 26.768387
+201 25.593034
+202 24.30976
+203 24.00069
+204 25.241182
+205 26.606802
+206 24.83933
+207 24.130233
+208 22.800304
+209 25.321587
+210 25.585415
+211 26.120631
+212 26.121042
+213 25.777616
+214 23.189597
+215 21.528469
+216 19.658859
+217 21.769291
+218 20.874274
+219 21.165552
+220 22.451425
+221 21.777559
+222 22.323375
+223 20.585265
+224 21.022772
+225 22.817098
+226 21.62164
+227 22.821358
+228 24.220513
+229 23.376221
+230 22.471929
+231 23.660943
+232 21.218929
+233 22.718352
+234 23.016135
+235 24.273131
+236 21.791328
+237 23.255861
+238 23.46385
+239 25.872101
+240 26.323039
+241 30.01865
+242 27.029357
+243 27.999376
+244 27.073917
+245 29.76895
+246 28.998979
+247 27.154347
+248 29.656433
+249 27.313102
+250 24.960412
+251 26.290866
+252 25.423207
+253 24.192039
+254 25.741346
+255 24.875246
+256 26.558122
+257 30.221513
+258 32.669006
+259 31.748467
+260 31.693359
+261 30.387629
+262 27.365882
+263 26.685874
+264 25.274849
+265 25.047559
+266 26.424329
+267 27.230753
+268 27.060998
+269 25.033848
+270 30.272711
+271 25.522058
+272 28.456143
+273 23.163217
+274 22.989827
+275 23.364674
+276 21.603288
+277 20.894188
+278 19.443936
+279 18.163858
+280 16.646828
+281 17.916119
+282 22.535552
+283 21.22751
+284 23.027963
+285 18.680366
+286 20.143159
+287 19.452267
+288 19.801061
+289 19.656183
+290 20.483297
+291 21.392791
+292 22.134327
+293 23.460242
+294 22.988114
+295 22.954007
+296 20.669591
+297 19.200671
+298 18.604294
+299 19.174204
+300 19.526382
+301 22.320319
+302 24.136666
+303 23.032136
+304 22.128542
+305 23.355667
+306 21.513941
+307 20.914717
+308 19.801187
+309 21.870328
+310 19.557234
+311 19.140786
+312 19.372627
+313 18.826255
+314 20.985885
+315 20.532103
+316 20.176356
+317 21.164859
+318 20.945873
+319 23.521526
+320 23.155228
+321 22.178089
+322 20.364674
+323 18.618106
+324 19.780666
+325 20.11597
+326 22.492686
+327 23.879719
+328 24.380533
+329 25.614447
+330 25.025544
+331 25.367605
+332 24.674012
+333 22.66161
+334 21.485883
+335 23.344035
+336 21.044959
+337 23.382662
+338 22.339646
+339 22.329374
+340 20.449864
+341 18.880807
+342 20.568798
+343 20.585488
+344 21.33419
+345 23.347474
+346 23.078209
+347 23.673704
+348 24.363432
+349 22.747623
+350 23.918588
+351 23.790901
+352 26.400527
+353 25.494921
+354 26.442738
+355 27.25424
+356 28.176341
+357 28.751373
+358 28.846708
+359 26.522829
+360 27.045535
+361 27.542071
+362 29.078355
+363 29.330215
+364 31.703249
+365 31.791533
+366 32.17228
+367 29.069881
+368 28.158841
+369 26.741205
+370 27.905808
+371 27.43859
+372 27.372067
+373 25.879035
+374 25.493104
+375 25.335344
+376 29.484629
+377 28.590331
+378 27.984937
+379 28.415414
+380 28.179034
+381 27.92232
+382 27.801815
+383 27.843095
+384 26.946713
+385 28.411262
+386 28.456299
+387 26.933339
+388 29.19781
+389 26.991905
+390 31.373227
+391 31.505209
+392 31.541965
+393 31.211487
+394 32.178335
+395 34.028999
+396 28.488903
+397 24.804287
+398 21.97674
+399 22.953654
+400 23.159071
+401 24.672899
+402 24.333843
+403 25.315753
+404 23.890704
+405 23.206596
+406 24.866757
+407 23.881491
+408 23.235785
+409 22.24234
+410 24.819638
+411 22.422908
+412 22.888241
+413 23.21392
+414 22.458678
+415 24.456236
+416 26.49707
+417 26.639349
+418 27.238257
+419 25.715159
+420 26.238272
+421 25.715938
+422 25.118424
+423 22.572566
+424 21.948843
+425 20.867636
+426 20.747407
+427 21.659607
+428 20.382908
+429 21.856837
+430 21.51955
+431 22.75283
+432 23.768499
+433 22.089298
+434 21.778125
+435 24.169436
+436 26.934192
+437 24.212047
+438 25.314219
+439 23.955083
+440 26.115992
+441 25.906141
+442 26.66956
+443 26.468811
+444 25.618876
+445 22.681706
+446 22.333189
+447 23.985266
+448 23.663672
+449 21.739032
+450 25.013377
+451 23.500333
+452 21.915281
+453 22.29752
+454 21.882103
+455 20.572711
+456 21.202873
+457 21.055034
+458 22.125862
+459 22.000057
+460 22.003167
+461 22.68225
+462 23.494491
+463 21.8413
+464 22.170783
+465 21.988442
+466 22.418403
+467 20.969143
+468 19.579095
+469 23.443833
+470 24.089483
+471 23.741674
+472 23.214504
+473 23.10031
+474 22.07892
+475 23.616321
+476 21.338855
+477 20.160075
+478 19.350203
+479 18.791642
+480 20.736784
+481 20.355408
+482 22.694761
+483 21.493131
+484 22.199024
+485 21.320145
+486 21.707897
+487 21.034732
+488 18.82946
+489 19.39103
+490 20.331884
+491 19.545894
+492 17.849757
+493 19.00326
+494 21.043347
+495 22.01386
+496 23.511237
+497 24.307981
+498 23.167542
+499 23.437322
+500 22.972584
+501 24.553802
+502 23.412244
+503 21.447938
+504 20.647999
+505 22.633437
+506 19.958233
+507 22.363336
+508 21.124949
+509 21.815096
+510 20.337339
+511 22.853837
+512 22.957559
+513 23.010154
+514 23.32891
+515 23.23214
+516 22.85952
+517 21.904824
+518 21.624027
+519 23.018572
+520 26.14237
+521 26.50661
+522 28.269102
+523 26.9763
+524 25.812548
+525 25.771914
+526 26.993384
+527 27.867232
+528 22.480633
+529 21.758866
+530 21.042438
+531 23.728531
+532 22.453084
+533 18.904054
+534 20.443482
+535 20.769047
+536 23.722869
+537 23.497498
+538 23.256332
+539 24.258323
+540 22.611126
+541 22.73113
+542 22.373025
+543 22.929671
+544 24.522764
+545 22.982623
+546 22.243845
+547 24.397139
+548 25.973981
+549 24.77828
+550 24.107803
+551 24.602608
+552 23.656981
+553 22.532514
+554 24.056752
+555 19.9716
+556 20.815817
+557 19.624206
+558 19.197534
+559 23.414743
+560 22.640126
+561 21.000487
+562 22.239344
+563 22.292194
+564 20.804067
+565 22.292906
+566 21.944289
+567 22.972992
+568 23.096209
+569 24.25956
+570 24.19626
+571 21.98441
+572 22.881101
+573 23.600785
+574 24.906212
+575 26.861306
+576 24.299793
+577 24.757296
+578 21.410093
+579 22.029238
+580 23.114131
+581 22.417551
+582 22.276656
+583 23.525745
+584 24.664652
+585 27.094192
+586 25.970126
+587 28.778551
+588 29.865946
+589 30.104516
+590 27.389662
+591 27.382618
+592 28.794152
+593 30.235361
+594 30.150611
+595 33.930049
+596 33.116257
+597 32.799969
+598 34.401928
+599 34.249508
+600 37.033777
+601 28.525331
+602 27.092591
+603 25.474997
+604 26.729413
+605 24.641526
+606 25.440794
+607 29.648538
+608 28.70576
+609 27.469806
+610 26.861746
+611 24.379115
+612 23.204944
+613 22.822424
+614 25.156781
+615 24.623362
+616 23.721313
+617 22.381684
+618 22.401522
+619 21.513716
+620 22.853595
+621 23.154712
+622 23.505842
+623 24.103448
+624 21.983236
+625 20.973653
+626 22.485348
+627 23.605406
+628 23.440126
+629 24.367094
+630 24.962873
+631 26.745583
+632 26.748891
+633 23.769112
+634 25.886634
+635 25.128177
+636 22.227743
+637 23.082131
+638 23.507845
+639 24.987315
+640 24.215423
+641 22.129226
+642 22.6426
+643 25.331507
+644 24.795677
+645 24.231623
+646 24.320775
+647 25.442657
+648 25.290042
+649 25.872216
+650 24.520489
+651 25.553374
+652 24.745622
+653 25.933246
+654 27.454602
+655 28.45028
+656 25.222323
+657 26.038091
+658 28.163242
+659 32.00094
+660 30.558647
+661 27.843568
+662 27.88423
+663 31.929202
+664 29.267835
+665 31.067333
+666 30.505758
+667 29.494691
+668 30.255333
+669 27.049868
+670 26.685868
+671 24.285868
+672 24.152933
+673 27.107898
+674 26.326023
+675 24.189179
+676 25.476933
+677 26.258688
+678 24.150633
+679 26.701602
+680 27.809319
+681 29.163417
+682 29.244235
+683 27.325308
+684 28.250348
+685 26.013527
+686 26.365221
+687 27.489066
+688 27.874688
+689 26.523575
+690 24.592703
+691 25.818001
+692 27.958059
+693 28.997315
+694 29.832847
+695 29.475013
+696 30.190637
+697 29.173278
+698 27.758881
+699 27.564862
+700 26.875162
+701 26.656328
+702 27.330806
+703 26.688165
+704 27.163988
+705 26.643045
+706 25.347442
+707 25.557733
+708 25.476706
+709 22.038233
+710 25.939079
+711 22.975851
+712 22.915343
+713 22.427889
+714 22.908548
+715 21.89482
+716 20.306904
+717 20.587684
+718 20.344392
+719 21.118374
+720 24.298451
+721 27.621138
+722 22.588272
+723 23.864545
+724 22.784325
+725 20.989568
+726 19.464355
+727 19.413816
+728 19.963849
+729 18.711369
+730 18.547019
+731 17.564131
+732 21.245026
+733 22.915829
+734 23.683631
+735 23.529282
+736 23.609294
+737 22.266731
+738 23.226603
+739 25.836394
+740 25.350554
+741 25.780922
+742 27.299004
+743 28.727548
+744 29.000462
+745 28.51151
+746 26.473939
+747 25.364358
+748 23.079703
+749 28.091172
+750 25.749688
+751 27.54306
+752 23.90988
+753 21.763155
+754 22.35967
+755 22.260979
+756 26.138224
+757 24.092056
+758 24.805081
+759 24.154533
+760 23.280084
+761 22.596976
+762 24.083364
+763 24.727683
+764 27.183991
+765 27.030492
+766 25.824213
+767 26.098418
+768 23.092215
+769 23.766329
+770 23.024967
+771 23.752166
+772 26.426026
+773 25.94236
+774 24.085
+775 27.64011
+776 29.144638
+777 27.697657
+778 26.408803
+779 25.954989
+780 23.771848
+781 24.360846
+782 25.200964
+783 25.278871
+784 24.39501
+785 23.610064
+786 23.65481
+787 24.538769
+788 21.831922
+789 23.133759
+790 22.938288
+791 23.499489
+792 20.040762
+793 18.882421
+794 18.944509
+795 22.778662
+796 22.074278
+797 21.844813
+798 18.991165
+799 19.89973
+800 18.926806
+801 19.638144
+802 18.135394
+803 20.777549
+804 20.968869
+805 22.903245
+806 22.545184
+807 23.238571
+808 21.960651
+809 22.438754
+810 22.523414
+811 22.66233
+812 21.874405
+813 22.957377
+814 22.100131
+815 20.36446
+816 21.833088
+817 23.16634
+818 22.039797
+819 21.330987
+820 20.836759
+821 23.836306
+822 22.40949
+823 21.119693
+824 24.062387
+825 22.800161
+826 24.933095
+827 26.380302
+828 25.255582
+829 26.510151
+830 26.093292
+831 23.36409
+832 22.333434
+833 25.325816
+834 25.699645
+835 24.371676
+836 25.024799
+837 23.845106
+838 21.776465
+839 22.344634
+840 19.681305
+841 20.086858
+842 21.789165
+843 22.608009
+844 25.084113
+845 23.846885
+846 22.750379
+847 20.703473
+848 17.948174
+849 18.053527
+850 17.979269
+851 17.995975
+852 17.628342
+853 18.530992
+854 18.801908
+855 20.162295
+856 19.06327
+857 20.119987
+858 22.002887
+859 23.660804
+860 23.165251
+861 24.426692
+862 23.701716
+863 24.116033
+864 24.10115
+865 26.593688
+866 26.303695
+867 26.359068
+868 23.133661
+869 22.478237
+870 23.149681
+871 21.257317
+872 20.941724
+873 21.799115
+874 22.071338
+875 24.049441
+876 23.443929
+877 23.63699
+878 21.935156
+879 22.322182
+880 21.272339
+881 21.774309
+882 21.225293
+883 20.08134
+884 19.342691
+885 19.80214
+886 18.822842
+887 17.844427
+888 17.043732
+889 17.922577
+890 21.952469
+891 19.271393
+892 21.478093
+893 22.443769
+894 22.80375
+895 25.097589
+896 23.566276
+897 25.15964
+898 22.497086
+899 23.620616
+900 22.962106
+901 22.881337
+902 23.358657
+903 23.211864
+904 22.734693
+905 24.676162
+906 24.05412
+907 24.27472
+908 24.55836
+909 21.76087
+910 21.842482
+911 21.366859
+912 21.510544
+913 22.404788
+914 22.630898
+915 22.645423
+916 18.928125
+917 20.697689
+918 23.010283
+919 27.238762
+920 24.678212
+921 26.170482
+922 24.563344
+923 26.941692
+924 29.252644
+925 32.655118
+926 30.481931
+927 23.433047
+928 22.976976
+929 19.910168
+930 22.839151
+931 24.786154
+932 23.995218
+933 23.202999
+934 22.857354
+935 25.475444
+936 23.751643
+937 22.704267
+938 21.827648
+939 22.593594
+940 21.390221
+941 22.140673
+942 20.675199
+943 22.962967
+944 23.702781
+945 26.139219
+946 28.513534
+947 27.608269
+948 26.15825
+949 27.252623
+950 27.038658
+951 28.339208
+952 26.046489
+953 28.163528
+954 30.52776
+955 31.5307
+956 31.021279
+957 35.180576
+958 37.173603
+959 36.818036
+960 41.490794
+961 37.589215
+962 35.357332
+963 35.712679
+964 33.902204
+965 34.318042
+966 36.370856
+967 36.237488
+968 35.832832
+969 32.88849
+970 28.682704
+971 30.068082
+972 28.911691
+973 32.47591
+974 28.876224
+975 28.764875
+976 29.538072
+977 32.032243
+978 27.518392
+979 29.006858
+980 26.152723
+981 28.334212
+982 29.632999
+983 30.727195
+984 29.242714
+985 29.074415
+986 31.000727
+987 31.601013
+988 30.76023
+989 30.689942
+990 28.356658
+991 25.699057
+992 26.05623
+993 28.202349
+994 29.344594
+995 27.465951
+996 27.931526
+997 28.495469
+998 25.512823
+999 27.746445
+1000 24.929987
+&

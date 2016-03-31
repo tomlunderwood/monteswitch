@@ -1293,7 +1293,7 @@ Note that most \texttt{interactions.f95} files included with \emph{monteswitch} 
 Furthermore, the potentials included with \emph{monteswitch} all use a single input file named \texttt{interactions\_in} for \texttt{monteswitch} 
 and \texttt{monteswitch\_mpi} to specify the potential's free parameters. In time we expect to include more interatomic potentials with \emph{monteswitch}. 
 
-\section{Embedded atom model}
+\section{Embedded atom model}\label{sec:EAM}
 The file \texttt{interactions\_EAM.f95} implements the embedded atom model (EAM) \cite{Daw_1984}. Here the energy of the system 
 is given by
 \begin{equation}
@@ -1644,69 +1644,85 @@ function in \texttt{state}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Worked example}\label{chapter:example}
-We now provide a worked example to elucidate how the \emph{monteswitch} package as a whole can be used to solve a `real' problem.
+We now provide a worked example to elucidate how \emph{monteswitch} can be used to solve a `real' problem.
 Specifically, we use \emph{monteswitch} to calculate the Gibbs free energy difference $\Delta G$ between the bcc and hcp
-phases of Zr, modeled using the EAM potential of Ref. \cite{Mendelev_2007}, at 1234K and 0 pressure. 
-In our calculation we use artificial dynamics to quickly determine a reasonable weight function, and \texttt{monteswitch\_mpi} to
-parallelise the calculations. Below we go through the entire procedure we used to obtain the free energy
-difference. Of course, the procedure here will surely not be applicable to all problems, though it provides a good starting point. 
+phases of Zr, modeled using the EAM potential (see Section \ref{sec:EAM}) of Ref. \cite{Mendelev_2007}, at 1234K and zero pressure. 
+In our calculation we use artificial dynamics (see Section \ref{sec:transition_matrix}) 
+to quickly determine a reasonable weight function, and \texttt{monteswitch\_mpi} to
+parallelise the calculations. Below we go through the entire procedure to obtain $\Delta G$. 
+Of course, the procedure described here will not be applicable to all situations. 
 For this reason we try to anticipate problems that the user may encounter more generally, and provide remarks accordingly.
 
-The example can be found in the \texttt{Examples/EAM\_Zr\_bcc\_hcp} directory of the \emph{monteswitch} package. Within 
-\texttt{Examples/EAM\_Zr\_bcc\_hcp} there are a number of subdirectories which correspond to different simulations, all of which are 
-necessary to obtain the free energy difference. The subdirectories are \texttt{bcc\_preliminary}, \texttt{hcp\_preliminary},
-\texttt{weight\_function\_generation}, \texttt{weight\_function\_verification} and \texttt{production\_simulation}. We will describe the
-purpose of the corresponding simulations in a moment. For now we wish to elaborate upon the contents of the subdirectories. Firstly, each 
-subdirectory contains the input and output files for the corresponding simulation. Recall that the input files for `new' 
-\texttt{monteswitch} and \texttt{monteswitch\_mpi} simulations (i.e., using the \texttt{-new} argument)
-are \texttt{params\_in}, \texttt{interactions\_in} and \texttt{lattices\_in}, and that the output files are \texttt{state} and \texttt{data} 
-for serial simulations (using the \texttt{monteswitch} program), and \texttt{data\_0}, \texttt{state\_0}, \texttt{data\_1}, \texttt{state\_1},
-\texttt{data\_2}, \texttt{state\_2}, etc. and \texttt{state} for MPI simulations (using the \texttt{monteswitch\_mpi} program). Regarding the input
-files, those for new simulations differ only in the \texttt{params\_in} files: the \texttt{interactions\_in} and \texttt{lattices\_in} files,
-which define, respectively, the interatomic potential, and the phases and lattice switch, for a simulation, 
-are the same for all simulations. Hence we have annotated the \texttt{params\_in} file corresponding to each simulation
-to highlight the important variable choices. Recall that for resumed simulations (which use the \texttt{-resume} or \texttt{-reset} arguments)
-an existing \texttt{state} file is the input file. To distinguish the input input state file from the state file output
-by such simulations, we name the input file \texttt{state\_start}. To restate, in directories corresponding to resumed simulations,
-\texttt{state\_start} is the input state file for the simulation, while \texttt{state} is the output state file.
-Recall also that \texttt{monteswitch} and \texttt{monteswitch\_mpi} output information to stdout. 
-In each subdirectory the file \texttt{stdout} contains a copy of the output to stdout -- if there is any. Finally, the 
-subdirectories may contain other files (\texttt{.dat} files) which correspond to data obtained from post-processing. These files,
-and how they were created, will be described.
+\section{Overview}
+The example can be found in the \texttt{Examples/EAM\_Zr\_bcc\_hcp} directory of the \emph{monteswitch} package. Within this directory
+there are a number of subdirectories, each of which corresponds to a different simulation:
+\begin{itemize}
+\item \texttt{bcc\_preliminary} and \texttt{hcp\_preliminary} are short \emph{conventional} Monte Carlo simulations of each phase to determine
+quantities necessary for the forthcoming LSMC simulations;
+\item \texttt{weight\_function\_generation} is the simulation to generate the weight function for use in the forthcoming production simulation to
+calculate $\Delta G$;
+\item \texttt{weight\_function\_verification} is a short multicanonical simulation using the weight function obtained from the 
+\texttt{weight\_function\_generation} simulation to ensure that it looks reasonable;
+\item \texttt{production\_simulation} is the simulation used to calculate $\Delta G$, as well as thermodynamic quantities for each phase.
+\end{itemize} 
+Each of the above subdirectories contains the input and output files for the corresponding simulation -- as if the simulation had been run in that
+subdirectory. 
+Recall that the input files for `new' \texttt{monteswitch} and \texttt{monteswitch\_mpi} simulations (i.e., simulations invoked using the \texttt{-new} argument)
+are \texttt{params\_in}, \texttt{lattices\_in}, and any input files for initialising the interatomic potential -- in this case \texttt{interactions\_in}
+(see Section \ref{sec:EAM}).
+Recall also that the output files for a `new' simulation are \texttt{F.dat}, \texttt{rho.dat} and \texttt{rphi.dat} (see Section \ref{sec:EAM} for a description 
+of these files); \texttt{state} and \texttt{data} for serial simulations (using the \texttt{monteswitch} program); and additionally \texttt{data\_0}, 
+\texttt{state\_0}, \texttt{data\_1}, \texttt{state\_1}, \texttt{data\_2}, \texttt{state\_2}, etc. for MPI simulations (using the \texttt{monteswitch\_mpi} program).
+The simulations \texttt{bcc\_preliminary}, \texttt{hcp\_preliminary} and \texttt{weight\_function\_generation} are `new' simulations. Note that these
+simulations all use identical \texttt{interactions\_in} and \texttt{lattices\_in}, copies of which can be found in the main
+directory for the example. Their input files differ only in that they have different \texttt{params\_in} files. 
+With this in mind we have annotated the \texttt{params\_in} files to highlight the salient variable choices for each simulation.
+
+By contrast the simulations \texttt{weight\_function\_verification} and \texttt{production\_simulation} are `resumed' simulations (i.e., simulations invoked using 
+either the \texttt{-resume} or \texttt{-reset} arguments). Recall that such simulations use an existing \texttt{state} file as input for the simulation, 
+which is overwritten periodically throughout and at the completion of the simulation.
+In subdirectories corresponding to `resumed' simulations we include both the \texttt{state} file used as input to the simulation, as well as the \texttt{state}
+file output at the completion of the simulation. To distinguish between these files we have named the input \texttt{state} files \texttt{state\_start}. To restate, 
+in directories corresponding to `resumed' simulations, \texttt{state\_start} is the input file for the simulation, while \texttt{state} is the output file.
+
+Recall also that \texttt{monteswitch} and \texttt{monteswitch\_mpi} can output information to stdout. For simulations which output information to stdout,
+the file \texttt{stdout} contains a copy of that output.
+Finally, each subdirectory contains files which are the result of post-processing performed on the output files for the corresponding simulation. 
+These files, and how they were created, are described in due course.
 
 
 \section{The \texttt{interactions\_in} and \texttt{lattices\_in} files}
-Before performing any simulations, we must first construct the input files \texttt{interactions\_in} and \texttt{lattices\_in}
-which specify, respectively, the interatomic potential, and pair of supercells we will use in all simulations. 
-For the EAM version of monteswitch (which uses \texttt{interactions\_EAM.f95} as \texttt{interactions.f95} - which is the case by
-default) the \texttt{interactions\_in} file must be a `setfl'-format description of the EAM potential of interest.
+Before performing any simulations, one must first construct the input files \texttt{interactions\_in} and \texttt{lattices\_in}
+which specify, respectively, the EAM potential, and the reference states we will use in all simulations. Recall that the 
+\texttt{interactions\_in} file must be a `setfl'-format description of the EAM potential of interest.
 We wish to use the aforementioned Zr potential. It can be seen by inspecting the \texttt{interactions\_in} in the main
-directory for the worked example that it (and the \texttt{interactions\_in} files in all subdirectories - they 
-are all identical) corresponds to a `setfl'-format description of the aforementioned Zr potential - as required.
+directory for the worked example that it (and the \texttt{interactions\_in} files in all subdirectories -- they 
+are all identical) corresponds to a `setfl'-format description of the aforementioned Zr potential as required.
 
-Consider now the \texttt{lattices\_in} file. Recall that this contains specifications of the supercells for both phases;
-the atomic positions specified in \texttt{lattices\_in} define the crystal lattices which define each phase.
+Consider now the \texttt{lattices\_in} file. Recall that this contains specifications of the reference states for each phase;
+the particle positions specified in \texttt{lattices\_in} determine the two phases which will be considered, as well as the nature of
+the lattice switch move between the phases.
 Given that we are considering the bcc and hcp phases, we can use the \texttt{lattices\_in\_bcc\_hcp} program to generate
-a \texttt{lattices\_in} file, as opposed to creating it from scratch. We know the density of both phases is about
-0.043\AA$^{-3}$ at the temperature under consideration. Hence we use this as the first argument to \texttt{lattices\_in\_bcc\_hcp}.
+a \texttt{lattices\_in} file suitable for our purposes, as opposed to creating it from scratch. We know the density of both phases is about
+0.043\AA$^{-3}$ at the temperature under consideration for Zr. Hence we use this as the first argument to \texttt{lattices\_in\_bcc\_hcp}.
 We generated  \texttt{lattices\_in} using the command
 \begin{verbatim}
 $ ../../lattices_in_bcc_hcp 0.042710367 4 6 4 > lattices_in
 \end{verbatim}
-Recall that the second, third and fourth arguments to \texttt{lattices\_in\_bcc\_hcp} give how many unit cells to tile in the
-x-, y- and z-directions. As can be seen from inspection of the resulting \texttt{lattices\_in} file, a copy of which can be found in
-the current directory, the above command yields a supercell of reasonable size (384 atoms), and supercell
-dimensions which are greater than twice the cut-off of the EAM potential (which is 7.6\AA -- the last value on the second
+Recall that the second, third and fourth arguments to \texttt{lattices\_in\_bcc\_hcp} correspond to how many unit cells to tile in the
+x-, y- and z-directions to create the supercell for each phase. As can be seen from inspection of the resulting \texttt{lattices\_in} 
+file, a copy of which can be found in the main directory for the example, the above command yields a supercell of reasonable size (384 atoms), 
+and supercell dimensions which are greater than twice the cut-off of the EAM potential (which is 7.6\AA, the last value on the second
 line of \texttt{interactions\_in}) as is required to avoid finite size effects associated with `missing' neighbours.
 
 \section{Preliminary simulations}
-Now we turn to simulations. Before performing lattice-switch Monte Carlo simulations, it is necessary to first perform
-preliminary conventional Monte Carlo simulations for each phase, bcc and hcp. The directories \texttt{bcc\_preliminary}
+Now we turn to simulations. Before performing LSMC simulations, it is necessary to first perform
+preliminary conventional Monte Carlo simulations for each phase under consideration, in this case bcc and hcp. The directories \texttt{bcc\_preliminary}
 and \texttt{hcp\_preliminary} correspond to these simulations. The aim of these simulations is to determine:
 \begin{enumerate}
 \item the appropriate Monte Carlo maximum particle and volume move sizes;
-\item an estimate for the equilibration time;
-\item the appropriate range of order parameter to use in subsequent simulations.
+\item an estimate for the equilibration time for the simulation;
+\item the appropriate order-parameter range to use in subsequent simulations.
 \end{enumerate}
 
 \subsection{\texttt{params\_in} files}
@@ -1714,11 +1730,11 @@ The salient features of the \texttt{params\_in} files for these simulations are 
 \begin{itemize}
 \item \textbf{init\_lattice} = 1 for the bcc simulation and 2 for the hcp simulation, since in the \textbf{lattices\_in} file phase 1 corresponds to
   bcc and phase 2 corresponds to hcp.
-\item \textbf{M\_grid\_min} and \textbf{M\_grid\_max} are set to extremely low and extremely high values respectively. This is necessary because
+\item \textbf{M\_grid\_min} and \textbf{M\_grid\_max} are set to be extremely low and extremely high values respectively. This is necessary because
   the simulation automatically constrains the system such that its order parameter lies between \textbf{M\_grid\_min} and \textbf{M\_grid\_max};
   setting them to very low and high values respectively allows the system to have total freedom in order-parameter space --
   which is what we desire for a single phase conventional Monte Carlo simulation. This should always be done if one wishes
-  to perform a conventional Monte Carlo simulation using monteswitch.
+  to perform a conventional Monte Carlo simulation using \emph{monteswitch}.
 \item \textbf{enable\_multicanonical} and \textbf{enable\_lattice\_moves} are set to \texttt{F} for a conventional Monte Carlo simulation. Note that by
   disabling lattice switch moves the system is `locked in' to the phase in which it is initialised.
 \item \textbf{enable\_vol\_moves} is set to \texttt{T}, in which case the simulation corresponds to the NPT ensemble. 
@@ -1726,36 +1742,36 @@ The salient features of the \texttt{params\_in} files for these simulations are 
   to determine a reasonable value for these variables. The values in the \texttt{params\_in} files are 0.3 and 0.03 respectively. These
   were obtained by trial and error. To elaborate, we started the simulation with a guess for these values, and examined the 
   information output to stdout as the simulation was running, specifically the total and accepted number of particle and 
-  volume moves. If \textbf{part\_step} or \textbf{vol\_step} are too high then the number of accepted particle or volume moves will be very low 
+  volume moves (discussed in more detail in a moment). If \textbf{part\_step} or \textbf{vol\_step} are too high then the number of accepted particle 
+  or volume moves will be very low 
   relative to the total number of moves; if they are too low then the number of accepted particle or volume moves will be close
-  to the total number of moves. If either is the case we simply stopped the simulation, and restarted with a new informed guess for
+  to the total number of moves. If either is the case we simply stopped the simulation, and restarted with a better guess for
   \textbf{part\_step} or \textbf{vol\_step}. The whole process does not take very long since it becomes obvious very quickly whether the acceptance
   rates are reasonable. In principle of course one could automate the process of determining the appropriate values of \textbf{part\_step}
   and \textbf{vol\_step}.
 \item \textbf{stop\_sweeps} is set to 1000; the simulation will consist of 1000 sweeps, which is very short, though sufficient (in this system, though
   not in general) to obtain an estimate of 1), 2) and 3) described above. 
 \item \textbf{output\_file\_period} is set to 1, which means information is output to the \texttt{data} file every sweep. Normally outputing information
-  so frequently might be considered excessive, but we need such high resolution information regarding the time evolution of the simulation to 
+  so frequently is excessive, but we need such high-resolution information regarding the time evolution of the simulation to 
   determine the equilibration time.
 \item \textbf{output\_file\_V}, \textbf{output\_file\_E} and \textbf{output\_file\_V} are set to \texttt{T}: the system's volume, energy and order parameter 
   are periodically output 
   to the \texttt{data} file. We will use the first three quantities to determine the equilibration time; we will examine how the order parameter
   varies with time to obtain an idea of the range of order parameters exhibited by each phase at equilibrium, which in turn will inform the
   values of \textbf{M\_grid\_min} and \textbf{M\_grid\_max} to be used in subsequent simulations.
-\item \textbf{output\_stdout\_period} is set to 10; information is output to stdout every 10 sweeps. The information we are interested in while the simulation
+\item \textbf{output\_stdout\_period} is set to 10: information is output to stdout every 10 sweeps. The information we are interested in while the simulation
   is running, for reasons mentioned above, is the acceptance rates of the particle and volume moves for the chosen values of \textbf{part\_step} and 
   \textbf{vol\_step}.
   Accordingly we set \textbf{output\_stdout\_moves\_part}, \textbf{output\_stdout\_accepted\_moves\_part}, \textbf{output\_stdout\_moves\_vol} and 
   \textbf{output\_moves\_accepted\_moves\_vol} to \texttt{T}; with the corresponding variables one can calculate the acceptance rate for the chosen
-  \textbf{part\_step} and \textbf{vol\_step} (acceptance rate = number of
-  accepted moves / total moves)
+  \textbf{part\_step} and \textbf{vol\_step} (acceptance rate = number of accepted moves / total moves)
 \item Finally, \textbf{enable\_barriers} is set to \texttt{F}; otherwise artificial dynamics will be used - which we don't want.
 \end{itemize}
 
 
 \subsection{Running the simulations}
-The simulation is run using the \texttt{-new} argument. Given that the simulation is short, it is unnecessary to use MPI: the \texttt{monteswitch} executable
-should be used. The following command invokes the executable (from within the \texttt{Examples/EAM\_Zr\_bcc\_hcp/bcc\_preliminary} or 
+Each of the preliminary simulations is run using the \texttt{-new} argument. Given that the simulation is short, it is unnecessary to use MPI: the 
+\texttt{monteswitch} executable should be used. The following command invokes the executable (from within the \texttt{Examples/EAM\_Zr\_bcc\_hcp/bcc\_preliminary} or 
 \texttt{Examples/EAM\_Zr\_hcp\_preliminary} directories within the \texttt{monteswitch} package itself):
 \begin{verbatim}
 $ ../../../monteswitch -new
@@ -1774,33 +1790,33 @@ One can create a plot of the order parameter $M$ vs. number of sweeps similarly 
 \begin{verbatim}
 $ grep 'M:' data | awk '{print $2,$3}' > M_vs_t.dat
 \end{verbatim}
-Plotting this file immediately gives an idea of the range of order parameters exhibitted at equilibrium for each phase. We see that for
-bcc the exhibitted range is -62 to 20, and for hcp the range is 14 to 32. Hence the appropriate range of order parameters which encompasses
-both phases is -62 to 32. We will use this in subsequent simulations.
+Plotting this file immediately gives an idea of the range of order parameters exhibited by equilibrium states for each phase. We see that for
+bcc the exhibited range is about -72 to -22, while for hcp the range is about 15 to 42. Hence we estimate that the order-parameter range which encompasses
+equilibrium states belonging to \emph{both} phases is -82 to 48; we will use this order-parameter range in the forthcoming multicanonical simulations.
+Note that we have deliberately `overestimated' the order-parameter range (specifically, by $\approx 15$\%) to take into account the fact that our 
+preliminary simulations are relatively short, and hence only provide a semi-quantitative estimate of the order-parameter range for each phase: we overestimate
+to `be on the safe side'.
 
-Note that the system is constrained to be within the chosen order parameter range. It is therefore possible that imposing this artificial
+Recall that in \emph{monteswitch} the system is constrained to be within the chosen order parameter range. It is therefore possible that imposing this artificial
 constraint on the system could invalidate the results of the simulation. To avoid this, one should choose the maximum and minimum of the order
 parameter range to be values which are `sufficiently unlikely to be realised at equilibrium so not to affect the results'. At this point it is
 not clear whether this is the case for our chosen range. Fortunately we can check this \emph{a postiori} using the results of later simulations 
 (see Section \ref{section:double_check} below). On the other hand the maximum and minimum should not be too far from what is likely to be 
 encountered at equilibrium. 
 Choosing too large an order parameter range lowers the efficiency of the forthcoming multicanonical simulation, or worse, it forces the system to 
-visit `unnatural' states in the multicanonical system, causing the system to melt.
+visit `unnatural' states in the multicanonical system, causing the system to `melt'.
 
-\section{Weight function generation simulations}\label{sec:example_generation}
+\section{Weight function generation}\label{sec:example_generation}
 The preliminary simulations have provided us with appropriate values for the maximum particle and volume move sizes, an estimate for
-the equilibration time, and the range of order parameters which encompass both phases at equilibrium. With this information we can
-now proceed to lattice-switch Monte Carlo simulations. The first such simulation is to generate the weight function. The directory
-\texttt{weight\_function\_generation} corresponds to this simulation. We use the mobile barrier method. Furthermore, we use \texttt{monteswitch\_mpi}
+the equilibration time, and the range of order parameters which encompasses the equilibrium states of both phases. With this information we can
+now proceed to LSMC simulations. The first such simulation is to generate the weight function. The directory
+\texttt{weight\_function\_generation} corresponds to this simulation. We use the artificial dynamics. Furthermore we use \texttt{monteswitch\_mpi}
 to perform a parallelised calculation. Specifically we used 4 threads on a 4-core desktop machine. The following command was used
-to invoke the simulation (from within the \texttt{Examples/weight\_function\_generation} within the \emph{monteswitch} package itself):
+to invoke the simulation (from within the \texttt{Examples/weight\_function\_generation} within the \emph{monteswitch} package itself) on our local machine:
 \begin{verbatim}
-$ nohup mpiexec -n 4 ../../../monteswitch_mpi -new -explicit < 
-/dev/null &
+$ mpiexec -n 4 ../../../monteswitch_mpi -new
 \end{verbatim}
-This command is, of course, specific to our computing platform; one would have to ascertain the analogous command for other platforms. Note, however,
-that we have used the \texttt{-explicit} argument to \texttt{monteswitch\_mpi}, which is necessary for storing the \texttt{data} and \texttt{state} 
-files pertaining to each MPI thread.
+Note that this command may be different for the user's platform.
 
 \subsection{The \texttt{params\_in} file}
 The salient features of the \texttt{params\_in} files for this simulation is as follows:
@@ -1808,7 +1824,7 @@ The salient features of the \texttt{params\_in} files for this simulation is as 
 \item \textbf{init\_lattice} is set to 1, which means the simulation is initialised in the bcc phase. However, the choice of initial phase is 
   unimportant since both phases will be explored during the simulation.
 \item \textbf{M\_grid\_size}, \textbf{M\_grid\_min} and \textbf{M\_grid\_max} define the macrostates. We set \textbf{M\_grid\_min} and \textbf{M\_grid\_max}
-  to -62 and 32, which corresponds to the
+  to -82 and 48, which corresponds to the
   range determined in our preliminary simulations. Furthermore, we set \textbf{M\_grid\_size} to 100: the order parameter range will be divided into
   100 macrostates. The choice of 100 is based upon our previous experience of LSMC simulations (and may not be appropriate for all systems). 
   If the number of macrostates is too high, then the weight function will take longer to generate. On the other hand if the number of macrostates
@@ -1851,7 +1867,7 @@ The salient features of the \texttt{params\_in} files for this simulation is as 
   preliminary simulations was ~100 sweeps, the time to equilibrate \emph{within one macrostate} is expected to be far shorter. Furthermore, the time spent in
   each macrostate if macrostate barriers are enabled will be longer than \textbf{lock\_moves}: \textbf{lock\_moves} is the number of moves before a 
   new macrostate becomes
-  available to the system -- the system still must move into that new macrostate from the `old' macrostate by its own accord. As expected, it takes
+  available to the system; the system still must move into that new macrostate from the `old' macrostate by its own accord. As expected, it takes
   longer for the system to move from old macrostates into new macrostates if the free energy difference difference between the macrostates is high.
 \end{itemize}
 
@@ -1869,8 +1885,7 @@ curve were not smooth, or was constant for large regions of order-parameter spac
 generated. This is perhaps an indication that more time is needed to generate a reasonable weight function. One possible solution is to continue
 the simulation with \texttt{monteswitch\_mpi} using the \texttt{-resume} flag, e.g.
 \begin{verbatim}
-$ nohup mpiexec -n 4 ../../../monteswitch_mpi -resume -explicit <
-/dev/null &
+$ mpiexec -n 4 ../../../monteswitch_mpi -resume
 \end{verbatim}
 
 Of course, just because the weight function has the aforementioned `perfect form' does not guarantee that it is very good. The ideal weight function
@@ -1885,56 +1900,54 @@ to perform a short simulation using the weight function to verify that it is of 
 \subsection{Double-checking the chosen order parameter range}\label{section:double_check}
 The ideal weight function is related to the canonical macrostate probability distribution via Eqn. \eqref{ideal_wf}. Hence one can obtain a probability
 distribution from the weight function. Of course, this will only be the `real' probability distribution if the weight function is ideal, which it
-will not be exactly after our weight function simulation. Nevertheless we can obtain an \emph{approximate} probability distribution from the weight
+will not be exactly the case after our weight function simulation. Nevertheless we can obtain an \emph{approximate} probability distribution from the weight
 function from our simulation. This is useful for double-checking that our chosen range of order parameters to consider is appropriate. We use the
 following command to obtain the probability distribution from the weight function, and output it to the file \texttt{prob.dat}:
 \begin{verbatim}
 $ awk 'FNR==NR {sum=sum+exp(-$2); next} {print $1,exp(-$2)/sum}'
-wf.dat > prob.dat
+wf.dat wf.dat > prob.dat
 \end{verbatim}
-Examining \texttt{prob.dat}, we see two peaks in the probability distribution in order-parameter space, each corresponding to one phase. The order parameter
+(Note that the appearance of \texttt{wf.dat} twice in the above command is deliberate).
+Examining \texttt{prob.dat}, we see two peaks in the probability distribution in order-parameter space, each corresponding to one phase. The order-parameter
 range is suitable only if the probability distribution is effectively zero at the maximum and minimum order parameters considered. If this is not the
-case, then our constraint on the order parameter range results in some states which are significantly likely at equilibrium being `cut out' of the
+case, then our constraint on the order-parameter range results in some states which are significantly likely at equilibrium being `cut out' of the
 calculation. As can be seen from \texttt{prob.dat}, the probability distribution decays to zero within the chosen range as required. If this were not the
 case then we would have to re-run the weight function generation simulation using a larger order parameter range.
 
 \subsection{Estimating $\Delta G$ from the weight function}
-With the macrostate probabilty distribution one can in fact obtain an estimate of the free energy difference between the phases. Recall that the
-Helmholtz free energy difference $\Delta F$ is related to the time spent in each phase via Eqn. \eqref{DeltaF_stat_mech}. 
-An analogous equation can be derived for $\Delta G$ in the NPT ensemble:
-\begin{equation}\label{DeltaG_stat_mech}
-\Delta F=\beta^{-1}\ln\biggl(\frac{t_2}{t_1}\biggr),
-\end{equation}
-where recall that $p_2/p_1$ is equal to $t_2/t_1$, and $t_1$ and $t_2$ are the total canonical time the system spends in phases 1 and 2.
-The time spent in each phase can be deduced by
-integrating the aforementioned peaks in the macrostate probability distribution. The peak for negative order parameters corresponds
+With the macrostate probabilty distribution one can obtain an estimate of the free energy difference between the phases. Recall that the
+free energy difference $\Delta G$ is related to the time spent in each phase via Eqn. \eqref{DeltaF_stat_mech}, where
+where recall that $p_2/p_1$ is equal to $t_2/t_1$, and $t_1$ and $t_2$ are the total \emph{canonical} time the system spends in phases 1 
+and 2. The time spent in each phase can be deduced by
+integrating the aforementioned peaks in the macrostate probability distribution in \texttt{prob.dat}. 
+The peak for negative order parameters corresponds
 to phase 1, and the peak in the positive region corresponds to phase 2: recall our earlier observations that phase 1 (bcc) at equilibrium corresponded to
-a range of order parameters of -62 to 20, while phase 2 (hcp) corresponded to a range of 14 to 32. 
+a range of order parameters of -72 to -22, while phase 2 (hcp) corresponded to a range of 15 to 42. 
 Hence the time spent in phase 1(2) is proportional to the area under the peak in the negative(positive) region. With this in mind the following command 
-applies Eqn. \eqref{DeltaG_stat_mech} to obtain the free energy difference from the weight function:
+applies Eqn. \eqref{DeltaF_stat_mech} to obtain the free energy difference from the weight function:
 \begin{verbatim}
 $ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print
--log(sum1/sum2)/9.403 }'
+-log(sum1/sum2)/9.403 }' prob.dat
 \end{verbatim}
 Recall that 9.403 is the $\beta$ we are considering. The analogous intensive value is obtained by dividing by the number of atoms in the system (384):
 \begin{verbatim}
 $ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print
--log(sum1/sum2)/(9.403*384) }'
+-log(sum1/sum2)/(9.403*384) }' prob.dat
 \end{verbatim}
-In the above commands we have assumed that macrostates with order parameters less than 0 `belong' to phase 1, and those with order parameters greater
-than zero belong to phase 2. 0 seems a sensible choice of `cut-off' between the two peaks; note that the exact choice of cut-off doesn't really matter
-since the probability distribution is essentially 0 near 0 order parameter.
+Using this command gives $\Delta G$ to be 0.00113081eV per particle, which corresponds to the hcp phase being very slightly more favoured than
+the bcc phase. We will compare this value with the `true' value we obtain for $\Delta G$ later.
 
-We emphasise that the method just described provides only a crude estimate of $\Delta G$. One should not rely upon this approach for accurate results; however
-it could be used to examine a wide range of, say, temperatures to quickly deduce the approximate position of the transition temperature if it is not known
-from the outset. Note that, unlike our forthcoming production simulation, this method does not provide an uncertainty for $\Delta G$. 
+We emphasise that the method just described provides only a crude estimate of $\Delta G$. One should not rely upon this approach 
+for accurate results. However this method could be used, e.g., to quickly determine estimates for $\Delta G$ over a wide range of 
+temperatures with the aim of deducing the approximate position of the coexistence temperature (where $\Delta G=0$). 
+Note that, unlike our forthcoming production simulation, this method does not provide an uncertainty for $\Delta G$. 
 
 
 \subsection{Using other weight function generation methods}
 In the above example we used the transition-matrix method in conjunction with artificial dynamics to generate the weight function. This method gives a 
-reasonable weight function very quickly; however, \emph{monteswitch} supports other methods for generating weight functions. These were described in 
+reasonable weight function very quickly. However, \emph{monteswitch} supports other methods for generating weight functions. These were described in 
 Section \ref{sec:weight_generation}, namely the visited states method, and the transition-matrix method in conjunction with \emph{natural} dynamics.
-The values for the control variables required to implement each of the aforementioned methods within \emph{monteswitch} are shown in Table 
+The the control variables required to implement each of the aforementioned methods within \emph{monteswitch} are shown in Table 
 \ref{table:wf_gen_variables}. Recall that for the transition-matrix method with artificial dynamics there are two possibilities: evolving the
 macrostate barriers randomly or systematically.
 Guidelines are also provided in the table regarding values for \textbf{update\_eta\_sweeps} and
@@ -1969,22 +1982,22 @@ Control variable                   & VS                & TM-ND                & 
 `VS' refers to the visited states method; `TM-D' refers to the transition state method with natural dynamics; `TM-AD' refers to the
 transition state method with artificial dynamics. (See Section 
 \ref{sec:weight_generation} for descriptions of these methods). Furthermore, `N/A' signifies that the control variable is not used in the
-method, and hence its value does not matter.}
+method, and hence its value is unimportant}
 \end{table}
 \end{landscape}
 
 
-\section{Weight function verification simulation}
+\section{Weight function verification}
 Assuming that we have a good weight function, one thing remains which is useful to know before we perform our production simulation: the correlation time 
 for the multicanonical simulation using this weight function (and the chosen maximum particle and volume move step sizes)
 \footnote{Presumably one could make the multicanonical simulation more efficient by optimising the maximum particle and volume move step sizes used in the 
 multicanonical simulation, and not simply using the same values as for the canonical simulation. We have never done this, though it is worth investigating.}
-Recall that we obtained an estimate for the equilibration time earlier; however, this pertained only to a one-phase simulation,
-in a canonical ensemble. As we will see in a moment, the equilibration times in a two-phase lattice switch multicanonical simulation are far longer. 
-We need to know this equilibration time because it determines how large the blocks should be in block analysis for determining equilibrium quantities -- 
-in particular for the free energy difference. To determine this we perform a short simulation, using the weight function. This simulation also acts to
+Recall that we obtained an estimate for the equilibration time earlier. However, this pertained only to a one-phase simulation,
+in the canonical ensemble. As we will see in a moment, the equilibration times in the (two-phase, multicanonical) LSMC simulation are far longer. 
+We need to know this equilibration time because it determines how large the blocks should be for block averaging to calculate thermodynamic quantities -- 
+in particular the free energy difference. To determine this we perform a short multicanonical simulation using the weight function. This simulation also acts to
 verify that the weight function is indeed sensible, i.e., that it leads to the entire range of order-parameter space being explored approximately 
-uniformly as expected.
+uniformly.
 
 The directory \texttt{weight\_function\_verification} corresponds to the weight function verification simulation.
 Recall that we can `resume' a simulation whose variables are stored in the \texttt{state} file by invoking \texttt{monteswitch} with the 
@@ -2001,15 +2014,15 @@ after it has been modified for the weight function verification simulation; and 
 corresponds to the output of the weight function verification simulation.
 
 \subsection{Creating the input \texttt{state} file}
-The modifications to the state file can be seen before the weight function verification simulation is run can be seen by invoking the following command
-in the weight\_function\_verification directory:
+The modifications to the \texttt{state} file before the weight function verification simulation is run can be seen by invoking the following command
+in the \texttt{weight\_function\_verification} directory:
 \begin{verbatim}
-$ diff state_in ../weight_function_generation/state
+$ diff state_start ../weight_function_generation/state
 \end{verbatim}
 The key changes are as follows:
 \begin{itemize}
 \item We have changed \textbf{stop\_sweeps} to be 10000, which corresponds to a short simulation.
-\item We have set \textbf{update\_eta} to \texttt{false}, so that the weight function is fixed throughout the simulation.
+\item We have set \textbf{update\_eta} to \texttt{F}, so that the weight function is fixed throughout the simulation.
 \item We have set \textbf{enable\_barriers} to \texttt{F}, since we want `natural' dynamics for the weight function verification simulation.
 \item We have set \textbf{output\_file\_period} to 10 so we have high-resolution information about how order-parameter space is explored.
 \item We have set \textbf{output\_stdout\_period} to 10 so we can keep track of the progress of the simulation.
@@ -2036,15 +2049,14 @@ to phase 1 (see above). Hence the correlation time -- which in this case involve
 block size we use in the
 forthcoming production simulation must therefore be greater than this. Note that after the production run one can retrospectively check that the
 block size was appropriate. We will do this later. Furthermore, one can use the `observations' in the \texttt{data} files output by the production simulation to
-analyse the data -- once the production simulation is complete -- for a variety of block sizes, though software to do this is not currently included in
+analyse the data -- once the production simulation is complete -- for a variety of block sizes, though software to do this is not included in
 \emph{monteswitch}.
 
 It is instructive to plot of how often each macrostate was visited during the weight function verification simulation. \texttt{monteswitch\_post}
-provides an easy way of extracting this information; the following command creates a file \texttt{counts.dat} which is a plot of macrostate index vs. the
-number of times the  macrostate was visited during the entire simulation:
+provides an easy way of extracting this information; the following command creates a file \texttt{counts_vs_M.dat} which is a plot of the order parameter for each macrostate (the lower bound for the macrostate) vs. the number of times the  macrostate was visited during the entire simulation:
 \begin{verbatim}
 $ ../../../monteswitch_post -extract_M_counts | awk '{print 
-NR,$2+$3}' > macro_vs_counts.dat
+$1,$2+$3}' > counts_vs_M.dat
 \end{verbatim}
 From this file we see that all macrostates are visited a reasonable number of times during the simulation. While it is far from the case that the
 histogram is flat -- which an ideal weight function would yield -- it is sufficiently flat for our purposes: for our purposes it is acceptable that
@@ -2059,11 +2071,9 @@ As with the weight function simulation, we use the \texttt{state} file output fr
 for the production simulation. We will modify this file to suit our needs, and then run the simulation, using four MPI threads with \texttt{monteswitch\_mpi},
 using the command
 \begin{verbatim}
-$ nohup mpiexec -n 4 ../../../monteswitch_mpi -reset -explicit <
-/dev/null &
+$ mpiexec -n 4 ../../../monteswitch_mpi -reset
 \end{verbatim}
-Note that again we have used the \texttt{-reset} flag to reset the counter variables at initialisation, and that we have also used the \texttt{-explicit}
-flag to keep the data from all threads.
+Note that again we have used the \texttt{-reset} flag to reset the counter variables at initialisation.
 
 \subsection{Creating the input \texttt{state} file}
 The modifications to the state file can be seen before the weight function verification simulation is run can be seen by invoking the following command
@@ -2079,8 +2089,8 @@ weight function.
 \item We have set \textbf{update\_eta} to \texttt{F}, so that the weight function is fixed throughout the simulation.
 \item We have set \textbf{enable\_barriers} to \texttt{F}, since we want 'natural' dynamics for the production simulation.
 \item \textbf{calc\_equil\_properties} is set to \texttt{T}. This is required for the simulation to calculate equilibrium quantities (the enthalpy, volume and 
-mean-squared displacements of each particle) and their uncertainties using block analysis.
-\item \textbf{block\_sweeps}, the number of sweeps which constitute a block in the block analysis is set to 155000, which is far larger than the 
+mean-squared displacements of each particle) and their uncertainties using block averaging.
+\item \textbf{block\_sweeps}, the number of sweeps which constitute a block in the block averaging is set to 155000, which is far larger than the 
 correlation time of
   ~10000 sweeps determined earlier. Note that, since each MPI thread performs 175000 sweeps, and since each thread will be given 20000 sweeps to 
   equilibrate - during which time the states visited by the system are not used in evaluating equilibrium quantities - setting the block size to 
@@ -2088,9 +2098,9 @@ correlation time of
 \end{itemize}
 
 \subsection{Results}
-At the completion of the simulation the \texttt{state} file contains the equilibrium quantities, evaluated using block analysis. It is these quantities we
+At the completion of the simulation the \texttt{state} file contains the equilibrium quantities, evaluated using block averaging. It is these quantities we
 are interested in, primarily the Gibbs free energy difference $\Delta G$ between the phases. The variables \textbf{equil\_DeltaF} and 
-\textbf{sigma\_equil\_DeltaF} in \texttt{state} contain the free energy difference and its uncertainty evaluated using block analysis.
+\textbf{sigma\_equil\_DeltaF} in \texttt{state} contain the free energy difference and its uncertainty evaluated using block averaging.
 Hence the following command extracts the free energy difference and its uncertainty from the \texttt{state} file:
 \begin{verbatim}
 $ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state
@@ -2101,16 +2111,14 @@ in this case is 384. Hence the following command gives the intensive free energy
 $ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state | awk
 '{print $1,$2/384}'
 \end{verbatim}
-The final value is therefore 0.00004(4)eV, where the units are derived from the convention used in the `setfl' format used in the \texttt{interactions\_in}
-file -- the units used in \emph{monteswitch} are derived entirely from the \texttt{interactions.f95} it is used in conjunction with, in this case 
-\texttt{interactions\_EAM.f95}.
+The final value for $\Delta G$ is therefore 0.00104(2)eV per particle, (c.f. 0.00113eV per particle obtained from the weight function earlier)
 The convention used in \emph{monteswitch} is that the free energy difference is the free energy of phase 1 minus that of phase 2. Hence a positive free energy
-difference, which is the case here, suggests that phase 2 (hcp here as opposed to bcc) is stable at the considered temperature and pressure. 
-However, the uncertainty in our value is of the same magnitude as the value; hence the prefered phase cannot be discerned. This is a moot point though:
-our free energy difference of 0.04(4)meV can be considered zero for all intents and purposes; this temperature and pressure can be considered to be
-a coexistence point to within an error of $\sim 0.04$meV/atom. Thus our results agree with Ref. \cite{Mendelev_2007}.
+difference, which is the case here, suggests that hcp (phase 2 here) is stable over bcc at the considered temperature and pressure. 
+However, note that the free energy difference between the phases is $\sim$1meV, which is very small. Hence this temperature and pressure can be 
+considered to be a coexistence point to within an uncertainty of $\sim 1$meV/atom. This is in agreement with Ref. \cite{Mendelev_2007}, in which
+it was found that this temperature and pressure corresponded to a coexistence point.
 
-Using similar commands to the above, one can extract the volume and enthalpy per atom for each phase.
+Using similar commands to the above, one can extract the volume and enthalpy per atom for each phase:
 \begin{verbatim}
 $ grep -E '( equil_V_1| sigma_equil_V_1)' state | awk '{print $1,
  $2/384}'
@@ -2145,22 +2153,38 @@ Similar commands can be used to obtain the mean-squared displacements and associ
 a lattice-switch simulation to extract such one-phase' quantities; a conventional Monte Carlo simulation will do the job more efficiently.
 Here the quantities are somewhat of a by-product of the lattice-switch simulation to calculate the free energy difference.
 
+\begin{table}
+\begin{tabular}{l | l | l | l | l }
+                                          &  \emph{monteswitch}      & Ref. \cite{Mendelev_2007} \\
+                                                        \hline
+$\Delta G_{hcp\to bcc}$                   & 0.00104(2)               & 0                         \\
+$\Delta H_{hcp\to bcc}$                   & 0.0394(2)                & 0.039                     \\
+$\Delta V_{hcp to bcc}/V_{bcc}$ (\%)      & -0.812(7)                & -0.8                      \\
+\end{tabular}
+\caption{All energies quoted in this table are in eV, and all volumes are in \AA$^3$. All quantities are intensive, i.e., `per atom'.}
+\end{table}
+
+
 \subsection{Consistency checks}
 Once the simulation is complete, it is prudent to perform some checks to ensure that it has gone as expected, and hence that the values for equilibrium
 quantities obtained from the simulation are meaningful. Of course, comparing the final values obtained from the simulation to `known' values is useful.
 Below we describe some less obvious checks to perform.
 
-The free energy difference for a block is given by Eqn. \eqref{DeltaG_stat_mech}, where in this case $t_1$ and $t_2$ are the number of moves which the 
+The free energy difference for a block is given by Eqn. \eqref{DeltaF_stat_mech}, where in this case $t_1$ and $t_2$ are the number of moves which the 
 system spent in phase 1 and phase 2 respectively during the block. Of course, this equation presupposes that both phases are explored during the block. 
 In evaluating $\Delta G$, \emph{monteswitch} only considers blocks during which both phases are explored. This notwithstanding, it is good to check that
 the block size is significantly larger than the time it typically takes the system to explore the whole of order-parameter space -- which in practice
 is an equivalent condition to both phases being thoroughly explored during each block. Of course, this was the point of the weight function verifictaion
-simulation to determine the appropriate block size. However, to check this more explicitly we plot the order parameter vs. simulation time for MPI thread 0:
+simulation to determine the appropriate block size. However, to check this more explicitly we plot the order parameter vs. simulation time for each
+MPI thread:
 \begin{verbatim}
 $ grep 'M:' data_0 | awk '{print $2,$3}' > M_vs_t_0.dat
+$ grep 'M:' data_1 | awk '{print $2,$3}' > M_vs_t_1.dat
+$ grep 'M:' data_2 | awk '{print $2,$3}' > M_vs_t_2.dat
+$ grep 'M:' data_3 | awk '{print $2,$3}' > M_vs_t_3.dat
 \end{verbatim}
-Plotting \texttt{M\_vs\_t\_0.dat} it can be seen that the system traverses the entire range of order-parameter space (-62--32) often within the block size 
-(175000 sweeps), as required.
+Plotting the files \texttt{M\_vs\_t\_0.dat}, \texttt{M\_vs\_t\_1.dat}, \texttt{M\_vs\_t\_2.dat} and \texttt{M\_vs\_t\_3.dat} it can be seen that the 
+system traverses the entire range of order-parameter space (-62--32) often within the block size (175000 sweeps), as required.
 
 
 
