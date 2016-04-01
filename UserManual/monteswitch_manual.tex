@@ -377,7 +377,7 @@ Hence the expression for $\langle X\rangle$ pertaining to a multicanonical simul
 where we have canceled the factors of $\tilde{Z}'^{-1}$ from the numerator and denominator.
 
 
-\section{Multicanonical Monte Carlo in LSMC}
+\section{Multicanonical Monte Carlo in LSMC}\label{sec:multicanonical_LSMC}
 How does multicanonical Monte Carlo resolve the problem that lattice switch moves are too rarely accepted to be useful? To answer this question we must 
 first understand why lattice switches are so rarely accepted. 
 Consider the probability of a lattice switch from state $\sigma$ to $\sigma'$ being accepted. Using the lattice switch scheme implemented in
@@ -449,15 +449,30 @@ space, for a long time. Furthermore, it is not obvious \emph{a priori} what a su
 \emph{generate} a weight function which leads to an efficient sampling of phase space. After this \emph{weight function generation simulation},
 the resulting weight function can be used in a \emph{production simulation} to calculate $\Delta \mathcal{F}$ as described earlier.
 
-Given that we are constraining the weight function to take the same value for all states with the same $M$, it is convenient to define a
-macrostate, which we also denote as $M$, which is comprised of all such states. Thus in implementing multicanonical Monte Carlo
-in the computer, it is sufficient to store the value of the weight function for each $M$ considered, instead of for each state -- which is
-intractable. Of course, it is impossible to treat $M$ as a continuous variable in the computer; in reality the considered range of $M$ will
-be split into $N_{\text{macro}}$ bins each corresponding to a range of $M$. Furthermore only a finite range of $M$ can be considered: one must
-decide upon a suitable maximum and minimum for the problem at hand. Each bin itself corresponds to a macrostate: the macrostate is the
-collection of states corresponding to the range of $M$ covered by the bin. We will henceforth explicitly take the discretisation of $M$ into
-account. Let $\mathcal{M}$ denote the macrostate corresponding to the $\mathcal{M}$th bin, where $\mathcal{M}=1,2,\dotsc,N_{\text{macro}}$.
-Accordingly let $\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$. 
+However in practice one cannot treat $M$ as an unbounded continuous variable as above; one cannot define an arbitrary weight function in computer
+memory via this scheme. Hence in practice one considers a finite range of $M$ which is divided into $N_{\text{macro}}$ bins, each 
+corresponding to a distinct range of `$M$-space'. Each bin itself corresponds to a macrostate: the macrostate is the collection of states corresponding to the 
+range of $M$-space covered by the bin. We will henceforth explicitly take this discretisation of $M$ into account, and let $\mathcal{M}$ denote the 
+macrostate corresponding to the $\mathcal{M}$th bin, where $\mathcal{M}=1,2,\dotsc,N_{\text{macro}}$. Accordingly let 
+$\eta_{\mathcal{M}}$ denote the weight function for macrostate $\mathcal{M}$.
+
+However this raises the question of what range of $M$ should be considered for a given problem, as well as what value $N_{\text{macro}}$ should take.
+With regards to the first question, the range should be large enough to cover all states which are reasonably likely to occur at thermodynamic
+equilibrium for both phases, as well as the gateway states. This is necessary because allowing the production simulation to visit the equilibrium states for 
+both phases is essential in order to accurately determine the free energy difference between the two phases (as well as any thermodynamic quantities 
+associated with each individual phase), while allowing the simulation to visit gateway states is essential to allow transitions between the two phases
+via lattice switches. On the other hand the range should not be too large. Assuming that an ideal weight function is used, in which case the considered
+range of $M$-space is sampled uniformly in the production simulation, then using too large a range lowers the efficiency of the simulation because 
+it forces the system to spend less time in the regions of order-parameter space associated with equilibrium states -- which are the important states with
+regards to evaluating thermodynamic quantities.
+%
+Regarding what value $N_{\text{macro}}$ should take, note that $N_{\text{macro}}$ determines the fineness of the grid on $M$-space upon which
+the weight function is defined. Note also that the weight function is flat over the region of $M$-space corresponding to one macrostate. Furthermore, the higher 
+$N_{\text{macro}}$, the finer the grid. Hence if the grid is coarse, i.e., if $N_{\text{macro}}$ is small, then there will be large regions of $M$-space
+over which the weight function is flat, including near $M=0$. This is problematic because a rapidly-changing weight function is required near $M=0$ to 
+`guide' the system over the free energy barrier. Thus if $N_{\text{macro}}$ is too small then the free energy barrier may prove insurmountable despite the
+use of multicanonical sampling. This problem can be avoided if a sufficiently large $N_{\text{macro}}$ is used, however the larger $N_{\text{macro}}$ the
+longer the simulation time required to generate the weight function. Hence a balance must be struck when choosing an appropriate value of $N_{\text{macro}}$.
 
 
 \section{Weight function generation methods}\label{sec:weight_generation}
@@ -1225,7 +1240,7 @@ but instead uses the state of the system specified in \texttt{state}. By contras
 state to be such that the particles form a perfect crystal lattice, which usually does not correspond to an equilibrated state.
 By `counter variables' we mean those such as variables describing the number of moves performed for each move type, the number of accepted moves 
 for each move type, and variables pertaining to equilibrium quantities. However, note that the weight function (\textbf{eta\_grid}) and the
-collection transition matrix (\textbf{trans}) are \emph{not} regarded as counter variables, and are as such retained from the old simulation
+matrix (\textbf{trans}) are \emph{not} regarded as counter variables, and are as such retained from the old simulation
 if one uses the \texttt{-reset} argument.
 
 Note that for a simulation invoked using the argument \texttt{-reset}, the file \texttt{data} is overwritten, i.e., the information from the `old'
@@ -1788,32 +1803,24 @@ $ ../../../monteswitch -new
 \end{verbatim}
 
 \subsection{Results}
-[DOWN TO HERE]
-In each of the \texttt{bcc\_preliminary} and \texttt{hcp\_preliminary} directories one can post-process the file \texttt{data} to create a plots of 
-the system's energy, volume and order parameter vs. simulation time, where by simulation `time' here we mean the number of completed Monte Carlo sweeps. The 
-files \texttt{E\_vs\_t.dat}, \texttt{V\_vs\_t.dat} and \texttt{M\_vs\_t.dat} in each of the directories correspond to such plots, and were created using the 
-following commands invoked from within the directories:
+Plots of the system's energy, volume and order parameter vs. simulation time (where by simulation `time' here we mean the number of completed Monte Carlo sweeps)
+can be created by post-processing the file \texttt{data} output by each preliminary simulation using the following commands (invoked in each of the
+directories \texttt{bcc\_preliminary} and \texttt{hcp\_preliminary}):
 \begin{verbatim}
 $ grep 'E:' data | awk '{print $2,$3}' > E_vs_t.dat
 $ grep 'V:' data | awk '{print $2,$3}' > V_vs_t.dat
 $ grep 'M:' data | awk '{print $2,$3}' > M_vs_t.dat
 \end{verbatim}
 Fig. \ref{fig:preliminary_results} shows \texttt{E\_vs\_t.dat}, \texttt{V\_vs\_t.dat} and \texttt{M\_vs\_t.dat} for each phase. As can be seen 
-from the figure, the system equilibrates quickly: within 200 sweeps. It can also be seen from the bottom panel in the figure that for
-bcc the exhibited order-parameter range at equilibrium is about -72 to -22, while for hcp it is about 15 to 42. Hence we estimate that the 
-order-parameter range which encompasses equilibrium states belonging to \emph{both} phases is -82 to 48. We will use this order-parameter range 
-in the forthcoming LSMC simulations. Note that we have deliberately `overestimated' the order-parameter range (specifically, by $\approx 15$\%) 
-to take into account the fact that our preliminary simulations are relatively short, and hence only provide a semi-quantitative estimate of 
-the order-parameter range for each phase: we overestimate to `be on the safe side'.
-
-Recall that in \emph{monteswitch} the system is constrained to be within the chosen order parameter range. It is therefore possible that 
-imposing this artificial constraint on the system could invalidate the results of the simulation. To avoid this, one should choose the 
-maximum and minimum of the order-parameter range to be values which are `sufficiently unlikely to be realised at equilibrium so not to affect 
-the results'. At this point it is not clear whether this is the case for our chosen range. Fortunately we can check this \emph{a postiori} 
-using the results of later simulations (see Section \ref{section:double_check} below). On the other hand the maximum and minimum should 
-not be too far from what is likely to be encountered at equilibrium. 
-Choosing too large an order parameter range lowers the efficiency of the forthcoming multicanonical simulation, or worse, it forces the system to 
-visit `unnatural' states in the multicanonical system, causing the system to `melt'.
+from the figure the system equilibrates quickly: within 200 sweeps. We will use this observation later.
+Fig. \ref{fig:preliminary_results} also reveals that for bcc the order-parameter range exhibited at equilibrium in the preliminary simulations is 
+about -72 to -22, while for hcp it is about 15 to 42. Recall (see Section \ref{sec:multicanonical_LSMC}) that we wish to use an order-parameter range
+which is `large enough to cover all states which are reasonably likely to occur at thermodynamic equilibrium for both phases, as well as the gateway states'.
+Hence an order-parameter range of -72 to 42 would seem appropriate. However, our preliminary simulations are relatively short, and hence only provide 
+\emph{estimates} of the order-parameter range likely to be exhibited by each phase at equilibrium. With this in mind we use a slightly larger range than 
+the -72 to 42 observed in the preliminary simulations, namely -82 to 48, to be on the safe side. But we still cannot be certain that 
+this range is large enough. Fortunately though we can check the validity of the chosen range \emph{a postiori} using the results of later simulations (see Section 
+\ref{section:double_check} below).
 
 \begin{figure}
 \centering
@@ -1826,39 +1833,40 @@ The black curves correspond to the bcc preliminary simulation, while the red cur
 
 \section{Weight function generation}\label{sec:example_generation}
 The preliminary simulations have provided us with appropriate values for the maximum particle and volume move sizes, an estimate for
-the equilibration time, and the range of order parameters which encompasses the equilibrium states of both phases. With this information we can
-now proceed to LSMC simulations. The first such simulation is to generate the weight function. The directory
-\texttt{weight\_function\_generation} corresponds to this simulation. We use the artificial dynamics. Furthermore we use \texttt{monteswitch\_mpi}
-to perform a parallelised calculation. Specifically we used 4 threads on a 4-core desktop machine. The following command was used
-to invoke the simulation (from within the \texttt{Examples/weight\_function\_generation} within the \emph{monteswitch} package itself) on our local machine:
+the equilibration time, and an appropriate order-parameter range. With this information we can
+now begin LSMC simulations. The first such simulation is to generate the weight function. The directory
+\texttt{weight\_function\_generation} corresponds to this simulation. We use artificial dynamics to generate the weight function. 
+Furthermore we use \texttt{monteswitch\_mpi} to perform a parallelised calculation. Specifically we used 4 threads on a 4-core desktop machine. 
+The following command was used to invoke the simulation (from within the \texttt{Examples/weight\_function\_generation} within the \emph{monteswitch} 
+package itself) on our desktop machine:
 \begin{verbatim}
 $ mpiexec -n 4 ../../../monteswitch_mpi -new
 \end{verbatim}
-Note that this command may be different for the user's platform.
+The appropriate command may be different for the user's platform.
 
 \subsection{The \texttt{params\_in} file}
-The salient features of the \texttt{params\_in} files for this simulation is as follows:
+The salient features of the \texttt{params\_in} files for this simulation are as follows:
 \begin{itemize}
-\item \textbf{init\_lattice} is set to 1, which means the simulation is initialised in the bcc phase. However, the choice of initial phase is 
+\item \textbf{init\_lattice} is set to 1, which means that the simulation is initialised in the bcc phase. However, the choice of initial phase is 
   unimportant since both phases will be explored during the simulation.
 \item \textbf{M\_grid\_size}, \textbf{M\_grid\_min} and \textbf{M\_grid\_max} define the macrostates. We set \textbf{M\_grid\_min} and \textbf{M\_grid\_max}
-  to -82 and 48, which corresponds to the
-  range determined in our preliminary simulations. Furthermore, we set \textbf{M\_grid\_size} to 100: the order parameter range will be divided into
-  100 macrostates. The choice of 100 is based upon our previous experience of LSMC simulations (and may not be appropriate for all systems). 
-  If the number of macrostates is too high, then the weight function will take longer to generate. On the other hand if the number of macrostates
+  to -82 and 48, which corresponds to the appropriate range determined from our preliminary simulations. 
+  Furthermore, we set \textbf{M\_grid\_size} to 100: the order-parameter range will be divided into
+  100 macrostates. The choice of 100 is based upon our previous experience, and may not be appropriate for all systems. 
+  Recall that if the number of macrostates is too high, then the weight function will take longer to generate. On the other hand if the number of macrostates
   is too low, then the system is unable to explore the whole range of order-parameter space in a reasonable simulation time -- regardless
   of the weight function. This occurs because the order-parameter grid is too coarse to be able to guide the system over any free energy barriers.
-  Often it will be more efficient to use more macrostates (see below).
+  (See Section \ref{sec:multicanonical_LSMC}).
 \item \textbf{enable\_multicanonical} is set to \texttt{T}, which means that the continually updated weight function is used to bias the dynamics of the system.
-  This is actually unnecessary here since we elect to use mobile barriers to guide the system through order-parameter space. The method would
-  work well with canonical sampling. However, using multicanonical sampling in theory should slightly help the system transition between 
-  macrostates with a high free energy difference between them.
+  This is actually unnecessary here since we elect to use artificial dynamics to guide the system through order-parameter space. Artificial dynamics would
+  work well with canonical sampling. However, using multicanonical sampling in theory should result in the system transitioning between adjacent macrostates 
+  more easily, speeding up the exploration of order-parameter space slightly.
 \item \textbf{enable\_lattice\_moves} is set to \texttt{T}: the system can explore both phases using lattice moves.
 \item \textbf{part\_step} and \textbf{vol\_step} are informed by our preliminary simulations
 \item \textbf{stop\_sweeps} is set to 160000. Note that since we are using 4 MPI threads, each thread will perform 40000 sweeps.
 \item \textbf{output\_file\_period} is set to 250. We do this mainly to avoid creating massive output files. At this point we do not need to know 
-  information regarding the time-evolution of the system during the simulation on the scale of less than 250 sweeps -- given that the equilibration time is
-  $\lesssim 100$ sweeps. Note that since we are using \texttt{monteswitch\_mpi} there is one output file for each thread; within each thread $n$, every 
+  information regarding the time-evolution of the system during the simulation on the scale of less than 250 sweeps, given that the equilibration time is
+  $\lesssim 200$ sweeps. Note that since we are using \texttt{monteswitch\_mpi} there is one output file for each thread; for each thread $n$, every 
   250 sweeps information is output to the file \texttt{data\_n}.
 \item \textbf{output\_stdout\_period} is set to -1, which suppresses all output to stdout. This is normally desirable for MPI simulations, since each thread 
   will itself output to stdout every \textbf{output\_stdout\_period} sweeps, which can result in an overwhelming amount of (and confusing) information to 
@@ -1868,25 +1876,23 @@ The salient features of the \texttt{params\_in} files for this simulation is as 
   from the \texttt{data} and \texttt{state} files once it is completed -- no information is output to stdout which cannot be obtained from these files.
 \item \textbf{checkpoint\_period} is set to 2000; every 2000 sweeps the state of each MPI thread $n$ is output to the file \texttt{state\_n}.
 \item \textbf{update\_eta} is set to \texttt{T}, which means that the simulation periodically updates/generates the weight function
-\item \textbf{update\_eta\_sweeps} is set to 2000; we update the weight function (in this case using the transition matrix method, see below) every 2000 
+\item \textbf{update\_eta\_sweeps} is set to 2000; we update the weight function (in this case using the shooting method, see below) every 2000 
   sweeps.
 \item \textbf{update\_eta\_method} is set to \verb|"shooting"|, which means that the weight function is determined from the transition matrix via the 
-  shooting method. This obviously requires the transition collection matrix to be updated during the simulation. 
+  shooting method (see Section \ref{sec:transition_matrix}). This obviously requires the matrix \textbf{trans} to be updated during the simulation. 
   Accordingly we set \textbf{update\_trans} to \texttt{T}, otherwise
   the transition matrix is not updated during the simulation and updating the weight function using the shooting method will not work.
 \item \textbf{enable\_barriers} is set to \texttt{T} since we wish to use artificial dynamics to force the system to quickly explore the whole of
-  order-parameter space.
-  Specifically, we elect to have the system sweep through the macrostates sequentially, proceeding first towards macrostate 1, then from there to
-  macrostate 100, thenback to macrostate 1, etc. Accordingly we set \textbf{barrier\_dynamics} to \verb|"pong\_down"|.
-\item \textbf{lock\_moves} controls how long the system is locked into each macrostate by the macrostate barriers, before the `next' macrostate is 
-  opened to the
-  system. This should be long enough that the system has enough time to equilibrate within the macrostate, but not so long that the system never proceeds
-  to explore all macrostates during the simulation. Our choice of 38400 (=100 sweeps) seems to do the job. Note that while the equilibration time in our 
-  preliminary simulations was ~100 sweeps, the time to equilibrate \emph{within one macrostate} is expected to be far shorter. Furthermore, the time spent in
-  each macrostate if macrostate barriers are enabled will be longer than \textbf{lock\_moves}: \textbf{lock\_moves} is the number of moves before a 
-  new macrostate becomes
-  available to the system; the system still must move into that new macrostate from the `old' macrostate by its own accord. As expected, it takes
-  longer for the system to move from old macrostates into new macrostates if the free energy difference difference between the macrostates is high.
+  order-parameter space. Specifically, we elect to have the system sweep through the macrostates sequentially, proceeding first towards macrostate 1, 
+  then from there to macrostate 100, thenback to macrostate 1, etc. Accordingly we set \textbf{barrier\_dynamics} to \verb|"pong_down"|.
+\item \textbf{lock\_moves} controls how long the system is `locked' into each macrostate by the `macrostate barriers' during artificial dynamics, 
+  before the `next' macrostate is opened to the system. This period should be long enough that the system has enough time to equilibrate locally within the 
+  macrostate, but not so long that the system never ends up exploring all macrostates during the simulation. Our choice of 38400 (=100 sweeps) seems 
+  to do the job. Note that while the equilibration time in our preliminary simulations was $\lesssim 200$ sweeps, the time to equilibrate locally
+  \emph{within one macrostate} is expected to be far shorter. Furthermore, the time spent in each macrostate will actually be longer than 
+  \textbf{lock\_moves}: \textbf{lock\_moves} is the number of moves before a new macrostate becomes available to the system; the system still must 
+  move into that new macrostate from the `old' macrostate by its own accord. As expected, it takes longer for the system to move from old macrostates 
+  into new macrostates if the free energy difference difference between the macrostates is high.
 \end{itemize}
 
 \subsection{Results}
@@ -1894,86 +1900,97 @@ At the completion of the simulation the file \texttt{state} (not \texttt{state\_
 contains the final results of the simulation --
 pooled from all 4 MPI threads. We are obviously interested in the weight function. This can be obtained from the \texttt{state} file using 
 \texttt{monteswitch\_post}.
-After the following command, \texttt{wf.dat} contains the weight function vs. order parameter:
+After the following command (invoked from within the \texttt{weight\_function\_generation} directory), the file \texttt{wf.dat} contains the weight 
+function vs. order parameter:
 \begin{verbatim}
 $ ../../../monteswitch_post -extract_wf > wf.dat
 \end{verbatim}
-Plotting the file \texttt{wf.dat} reveals a smooth curve with two minima separated by a high peak near 0. This is the perfect form for a weight function. If the
-curve were not smooth, or was constant for large regions of order-parameter space, then it is probable that the weight function has not properly been
-generated. This is perhaps an indication that more time is needed to generate a reasonable weight function. One possible solution is to continue
-the simulation with \texttt{monteswitch\_mpi} using the \texttt{-resume} flag, e.g.
+\texttt{wf.dat} is plotted in Fig. \ref{fig:generation_results}. Note that the weight function is a smooth curve with two minima separated by a high peak 
+near $M=0$. This is the expected form for a weight function. If the curve were not smooth, or was constant for large regions of order-parameter space, then 
+it is probable that the weight function has not properly been generated. This is perhaps an indication that more time is needed to generate a 
+reasonable weight function. One possible solution is to continue the simulation with \texttt{monteswitch\_mpi} using the \texttt{-resume} flag, e.g.
 \begin{verbatim}
 $ mpiexec -n 4 ../../../monteswitch_mpi -resume
 \end{verbatim}
 
-Of course, just because the weight function has the aforementioned `perfect form' does not guarantee that it is very good. The ideal weight function
-leads to the whole considered range of order-parameter space being sampled uniformly. A weight function with the `perfect form' could easily lead to
+Of course, just because the weight function has the form described above does not guarantee that it is good. Recall that the ideal weight function
+leads to the whole considered range of order-parameter space being sampled uniformly. A weight function with the form described above could easily lead to
 certain regions of order-parameter space being significantly over- or under-sampled. In principle this is not a problem because the final results -- given
-a long enough production simulation -- do not depend on the weight function used. However the quality of the weight function affects how efficiently 
-phase space is explored in the production simulation. Using a weight function of high quality samples order-parameter space almost uniformly, resulting
-in many accepted lattice switches, and both phases being explored over short timescales. On the other hand if a lower quality weight function is used the
-system will spend more time in certain regions of order-parameter space than others, and the time between lattice-switches will be less. Hence it is prudent
-to perform a short simulation using the weight function to verify that it is of good quality.
+a long enough production simulation -- do not depend on the specific weight function used. However the quality of the weight function does determine how 
+efficiently phase space is explored in the production simulation. Using a weight function of high quality samples order-parameter space almost uniformly, resulting
+in many accepted lattice switches, and both phases being explored over short timescales. On the other hand if a low-quality weight function is used then the
+system would spend more time in certain regions of order-parameter space than others, and the time between lattice-switches would be less. Hence it is prudent
+to perform a short simulation using the weight function to verify that it is of good quality. We do this below.
 
-\subsection{Double-checking the chosen order parameter range}\label{section:double_check}
-The ideal weight function is related to the canonical macrostate probability distribution via Eqn. \eqref{ideal_wf}. Hence one can obtain a probability
-distribution from the weight function. Of course, this will only be the `real' probability distribution if the weight function is ideal, which it
-will not be exactly the case after our weight function simulation. Nevertheless we can obtain an \emph{approximate} probability distribution from the weight
-function from our simulation. This is useful for double-checking that our chosen range of order parameters to consider is appropriate. We use the
-following command to obtain the probability distribution from the weight function, and output it to the file \texttt{prob.dat}:
+\begin{figure}
+\centering
+\includegraphics[height=\textwidth,angle=270]{generation_results}
+\caption
+{Results of the weight function generation simulation. The black curve and square symbols correspond to the weight function, while the red curve and circles 
+corresponds to the probability distribution inferred from the weight function (as described in the main text). Note that the left vertical axis corresponds to the 
+weight function while the right axis corresponds to the probability distribution -- as indicated by the arrows. The regions of order-parameter space 
+corresponding to bcc and hcp are indicated.}
+\label{fig:generation_results}
+\end{figure}
+
+\subsection{Checking the chosen order-parameter range}\label{section:double_check}
+The ideal weight function is related to the canonical macrostate probability distribution via Eqn. \eqref{ideal_wf}. Using this equation one can obtain the
+probability distribution from the weight function. Of course, this will only be the `true' probability distribution if the weight function is ideal, which it
+will not be near given the short length of our weight function generation simulation. Nevertheless we can obtain an \emph{approximate} probability distribution 
+from our weight function using Eqn. \eqref{ideal_wf}. This is useful for checking that our chosen order-parameter range is appropriate. 
+We use the following command to obtain the probability distribution from the weight function, outputting it to the file \texttt{prob.dat}:
 \begin{verbatim}
 $ awk 'FNR==NR {sum=sum+exp(-$2); next} {print $1,exp(-$2)/sum}'
 wf.dat wf.dat > prob.dat
 \end{verbatim}
-(Note that the appearance of \texttt{wf.dat} twice in the above command is deliberate).
-Examining \texttt{prob.dat}, we see two peaks in the probability distribution in order-parameter space, each corresponding to one phase. The order-parameter
+(Note that the appearance of \texttt{wf.dat} twice in the above command is deliberate). \texttt{prob.dat} is plotted in Fig. \ref{fig:generation_results}.
+Note that the probability distribution has two peaks in order-parameter space, each corresponding to one phase. Now, the order-parameter
 range is suitable only if the probability distribution is effectively zero at the maximum and minimum order parameters considered. If this is not the
-case, then our constraint on the order-parameter range results in some states which are significantly likely at equilibrium being `cut out' of the
-calculation. As can be seen from \texttt{prob.dat}, the probability distribution decays to zero within the chosen range as required. If this were not the
-case then we would have to re-run the weight function generation simulation using a larger order parameter range.
+case, then some states which are significantly likely at equilibrium would be `cut out' of the calculation of thermodynamic quantities, because moves which
+take the system outside the order-parameter range are automatically rejected. Fortunately here the probability distribution decays to essentially zero within 
+the considered range as required. If this were not the case then we would have to re-run the weight function generation simulation using a larger 
+order-parameter range.
+
 
 \subsection{Estimating $\Delta G$ from the weight function}
-With the macrostate probabilty distribution one can obtain an estimate of the free energy difference between the phases. Recall that the
-free energy difference $\Delta G$ is related to the time spent in each phase via Eqn. \eqref{DeltaF_stat_mech}, where
-where recall that $p_2/p_1$ is equal to $t_2/t_1$, and $t_1$ and $t_2$ are the total \emph{canonical} time the system spends in phases 1 
-and 2. The time spent in each phase can be deduced by
-integrating the aforementioned peaks in the macrostate probability distribution in \texttt{prob.dat}. 
-The peak for negative order parameters corresponds
-to phase 1, and the peak in the positive region corresponds to phase 2: recall our earlier observations that phase 1 (bcc) at equilibrium corresponded to
-a range of order parameters of -72 to -22, while phase 2 (hcp) corresponded to a range of 15 to 42. 
-Hence the time spent in phase 1(2) is proportional to the area under the peak in the negative(positive) region. With this in mind the following command 
-applies Eqn. \eqref{DeltaF_stat_mech} to obtain the free energy difference from the weight function:
+With the aforementioned probabilty distribution one can obtain an estimate of the free energy difference between the phases. Recall that the
+free energy difference $\Delta G$ is related to the time spent in each phase via Eqn. \eqref{DeltaF_stat_mech}, where $p_2$ and $p_1$ are the (canonical) 
+probabilities that the system is in phase 1 and 2 respectively. 
+$p_1$ and $p_2$ can be deduced by integrating over the corresponding peaks in the probability distribution in \texttt{prob.dat}. 
+Noting that the peak in the negative region of order-parameter space corresponds to bcc, and that the peak in the positive region corresponds to hcp, it
+can be seen that the command applies Eqn. \eqref{DeltaF_stat_mech} to obtain the free energy difference indirectly from the weight function:
 \begin{verbatim}
 $ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print
 -log(sum1/sum2)/9.403 }' prob.dat
 \end{verbatim}
-Recall that 9.403 is the $\beta$ we are considering. The analogous intensive value is obtained by dividing by the number of atoms in the system (384):
+Recall that 9.403 is the value of $\beta$ we are considering.
+The intensive value of $\Delta G$ is obtained by dividing by the extensive value by the number of atoms in the system, which in this case is 384:
 \begin{verbatim}
 $ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print
 -log(sum1/sum2)/(9.403*384) }' prob.dat
 \end{verbatim}
-Using this command gives $\Delta G$ to be 0.00113081eV per particle, which corresponds to the hcp phase being very slightly more favoured than
+This command gives $\Delta G$ to be 0.00113081eV per particle, which corresponds to the hcp phase being very slightly more favoured than
 the bcc phase. We will compare this value with the `true' value we obtain for $\Delta G$ later.
 
-We emphasise that the method just described provides only a crude estimate of $\Delta G$. One should not rely upon this approach 
-for accurate results. However this method could be used, e.g., to quickly determine estimates for $\Delta G$ over a wide range of 
-temperatures with the aim of deducing the approximate position of the coexistence temperature (where $\Delta G=0$). 
-Note that, unlike our forthcoming production simulation, this method does not provide an uncertainty for $\Delta G$. 
+We emphasise that this method provides only an estimate for $\Delta G$. Crucially, unlike $\Delta G$ obtained from the forthcoming production
+simulation, the method does not provide an uncertainty for $\Delta G$. Hence one should not rely upon this method
+for accurate results, though the method could be used, e.g., to quickly determine estimates for $\Delta G$ over a wide range of 
+$T$, perhaps with the aim of deducing the approximate position of the transition temperature (where $\Delta G=0$).
 
 
 \subsection{Using other weight function generation methods}
 In the above example we used the transition-matrix method in conjunction with artificial dynamics to generate the weight function. This method gives a 
 reasonable weight function very quickly. However, \emph{monteswitch} supports other methods for generating weight functions. These were described in 
 Section \ref{sec:weight_generation}, namely the visited states method, and the transition-matrix method in conjunction with \emph{natural} dynamics.
-The the control variables required to implement each of the aforementioned methods within \emph{monteswitch} are shown in Table 
+The variables in \texttt{params\_in} required to implement each of the aforementioned methods within \emph{monteswitch} are shown in Table 
 \ref{table:wf_gen_variables}. Recall that for the transition-matrix method with artificial dynamics there are two possibilities: evolving the
 macrostate barriers randomly or systematically.
 Guidelines are also provided in the table regarding values for \textbf{update\_eta\_sweeps} and
-\textbf{lock\_moves} for each method. The reasoning behind these values is as follows. 
+\textbf{lock\_moves} for each method. The reasoning behind these guidelines is as follows. 
 For the visited states method, \textbf{update\_eta\_sweeps} corresponds to the block size mentioned in
 Section \ref{sec:visited_states}. This should be long enough such that a block is representative of a `long' multicanonical simulation with the 
 current weight function. Furthermore, the closer to the ideal weight function one wishes to get, the longer the blocks should be.
-For the transition matrix method, if multicanonical sampling is used, then one may as well update the weight function `continuously'. In this case
+For the transition-matrix method, if multicanonical sampling is used, then one may as well update the weight function `continuously'. In this case
 the weight function used always reflects all the information gathered so far during the weight function generation simulation, thus enabling the
 system to explore order parameter space as widely as possible in as short a simulation time as possible. Regarding the choice of
 \textbf{lock\_moves}, see the discussion in Section \ref{sec:example_generation}.
@@ -1986,50 +2003,49 @@ Control variable                   & VS                & TM-ND                & 
 \hline 
 \textbf{enable\_multicanonical}    & \texttt{T}        &   \texttt{T}         &  \texttt{F} or \texttt{T}   \\
 \textbf{update\_eta}               & \texttt{T}        &   \texttt{T}         &  \texttt{T}                 \\
-\textbf{update\_eta\_sweeps}       & $\gg$ multicanonical equilibration time (in sweeps)  & $\sim 1$ &   $\sim 1$ if \textbf{enable\_multicanonical}=\texttt{T}; 
-   $\leq$ \texttt{stop\_sweeps} if \textbf{enable\_multicanonical}=\texttt{F} \\
+\textbf{update\_eta\_sweeps}       & $\gg$ multicanonical correlation time (in sweeps)  & $\sim 1$ &   $\sim 1$ if \textbf{enable\_multicanonical}=\texttt{T}; 
+   $\leq$ \textbf{stop\_sweeps} if \textbf{enable\_multicanonical}=\texttt{F} \\
 \textbf{update\_trans}             & N/A               &   \texttt{T}         &  \texttt{T}                 \\
-\textbf{update\_eta\_method}       & \texttt{VS}       &   \texttt{shooting}  &  \texttt{shooting}     \\
+\textbf{update\_eta\_method}       & \texttt{"VS"}       &   \texttt{"shooting"}  &  \texttt{"shooting"}     \\
 \textbf{enable\_barriers}          & \texttt{F}        &   \texttt{F}         &  \texttt{T}                 \\
-\textbf{barrier\_dynamics}         & N/A               &   N/A                &  \texttt{random} for random macrostate barrier evolution;
+\textbf{barrier\_dynamics}         & N/A               &   N/A                &  \texttt{"random"} for random macrostate barrier evolution;
     \texttt{pong\_up} or \texttt{pong\_down} for systematic evolution  \\
 \textbf{lock\_moves}               & N/A               &   N/A                &  $\gtrsim$ time to equilibrate \emph{within a macrostate} (in moves) \\
 \end{tabular}
 \end{center}
-\caption{Values of control variables in \texttt{params\_in} or \texttt{state} required to implement various weight function generation methods.
-`VS' refers to the visited states method; `TM-D' refers to the transition state method with natural dynamics; `TM-AD' refers to the
-transition state method with artificial dynamics. (See Section 
-\ref{sec:weight_generation} for descriptions of these methods). Furthermore, `N/A' signifies that the control variable is not used in the
-method, and hence its value is unimportant}
+\caption{Values for variables in \texttt{params\_in} or \texttt{state} required to implement various weight function generation methods.
+`VS' refers to the visited states method; `TM-D' refers to the transition-matrix method with natural dynamics; `TM-AD' refers to the
+transition-matrix method with artificial dynamics. (See Section \ref{sec:weight_generation} for descriptions of these methods). `N/A' 
+signifies that the variable is not used in the method, and hence its value is unimportant}
 \end{table}
 \end{landscape}
 
 
 \section{Weight function verification}
 Assuming that we have a good weight function, one thing remains which is useful to know before we perform our production simulation: the correlation time 
-for the multicanonical simulation using this weight function (and the chosen maximum particle and volume move step sizes)
+for the multicanonical simulation using this weight function.
 \footnote{Presumably one could make the multicanonical simulation more efficient by optimising the maximum particle and volume move step sizes used in the 
-multicanonical simulation, and not simply using the same values as for the canonical simulation. We have never done this, though it is worth investigating.}
-Recall that we obtained an estimate for the equilibration time earlier. However, this pertained only to a one-phase simulation,
-in the canonical ensemble. As we will see in a moment, the equilibration times in the (two-phase, multicanonical) LSMC simulation are far longer. 
-We need to know this equilibration time because it determines how large the blocks should be for block averaging to calculate thermodynamic quantities -- 
-in particular the free energy difference. To determine this we perform a short multicanonical simulation using the weight function. This simulation also acts to
-verify that the weight function is indeed sensible, i.e., that it leads to the entire range of order-parameter space being explored approximately 
-uniformly.
+multicanonical simulation, and not simply using the same values as for the canonical simulation. We have never done this, though it is something worth 
+investigating.}
+Recall that we obtained an estimate for the equilibration time earlier, and that it was $\lesssim 200$ sweeps. However, this applies only to 
+a one-phase canonical simulation. As we will see in a moment, the correlation time in the two-phase multicanonical LSMC simulation is much longer. 
+We need to know the multicanonical correlation time because it determines how large the blocks should be for block averaging to calculate thermodynamic quantities,
+in particular the free energy difference. To determine this correlation time we perform a short multicanonical simulation using the weight function. This 
+simulation also acts to check verify that the weight function is indeed sensible, i.e., that it leads to the entire range of order-parameter space being 
+explored approximately uniformly.
 
 The directory \texttt{weight\_function\_verification} corresponds to the weight function verification simulation.
 Recall that we can `resume' a simulation whose variables are stored in the \texttt{state} file by invoking \texttt{monteswitch} with the 
 \texttt{-resume} argument. Furthermore
 we can resume a simulation from \texttt{state} but with all counter variables reset to zero by invoking the \texttt{-reset} argument. With this in mind, we
-use the \texttt{state} file from our previous simulation as a starting point. This file contains the weight function we wish to verify. We will modify this
-file to suit our needs, and then run the simulation using the command
+use the \texttt{state} file from our weight function generation simulation as a starting point. This file contains the weight function we wish to verify. 
+We will modify this file to suit our needs, and then run the simulation using the command
 \begin{verbatim}
 $ ../../../monteswitch -reset
 \end{verbatim}
 Note that the file \texttt{state\_start} in the directory \texttt{weight\_function\_verification} contains the \texttt{state} file from the directory 
-\texttt{weight\_function\_generation}
-after it has been modified for the weight function verification simulation; and the file \texttt{state} in the directory \texttt{weight\_function\_verification}
-corresponds to the output of the weight function verification simulation.
+\texttt{weight\_function\_generation} after it has been modified for the weight function verification simulation; and the file \texttt{state} in the 
+directory \texttt{weight\_function\_verification} corresponds to the output of the weight function verification simulation.
 
 \subsection{Creating the input \texttt{state} file}
 The modifications to the \texttt{state} file before the weight function verification simulation is run can be seen by invoking the following command
@@ -2043,10 +2059,11 @@ The key changes are as follows:
 \item We have set \textbf{update\_eta} to \texttt{F}, so that the weight function is fixed throughout the simulation.
 \item We have set \textbf{enable\_barriers} to \texttt{F}, since we want `natural' dynamics for the weight function verification simulation.
 \item We have set \textbf{output\_file\_period} to 10 so we have high-resolution information about how order-parameter space is explored.
-\item We have set \textbf{output\_stdout\_period} to 10 so we can keep track of the progress of the simulation.
+\item We have set \textbf{output\_stdout\_period} to 10 so we can view the progress of the simulation: information is output to stdout every 10 sweeps.
 \end{itemize}
 
 \subsection{Results}
+[DOWN TO HERE]
 After the simulation is complete, as before, we can use \texttt{data} to generate a plot of the order parameter vs. time in the simulation using the
 following command:
 \begin{verbatim}
