@@ -1970,7 +1970,8 @@ $ awk '{if($1<0){sum1=sum1+$2}; if($1>0){sum2=sum2+$2}} END{print
 -log(sum1/sum2)/(9.403*384) }' prob.dat
 \end{verbatim}
 This command gives $\Delta G$ to be 0.00113081eV per particle, which corresponds to the hcp phase being very slightly more favoured than
-the bcc phase. We will compare this value with the `true' value we obtain for $\Delta G$ later.
+the bcc phase (since in \emph{monteswitch} $\Delta G$ is the free energy of phase 1, which is bcc here, relative to phase 2, which is hcp here). 
+We will compare this value with the `true' value we obtain for $\Delta G$ later.
 
 We emphasise that this method provides only an estimate for $\Delta G$. Crucially, unlike $\Delta G$ obtained from the forthcoming production
 simulation, the method does not provide an uncertainty for $\Delta G$. Hence one should not rely upon this method
@@ -2039,7 +2040,7 @@ Recall that we can `resume' a simulation whose variables are stored in the \text
 \texttt{-resume} argument. Furthermore
 we can resume a simulation from \texttt{state} but with all counter variables reset to zero by invoking the \texttt{-reset} argument. With this in mind, we
 use the \texttt{state} file from our weight function generation simulation as a starting point. This file contains the weight function we wish to verify. 
-We will modify this file to suit our needs, and then run the simulation using the command
+We will modify this file to suit our needs, and then run the simulation using the command (from within the directory \texttt{weight\_function\_verification})
 \begin{verbatim}
 $ ../../../monteswitch -reset
 \end{verbatim}
@@ -2063,98 +2064,101 @@ The key changes are as follows:
 \end{itemize}
 
 \subsection{Results}
-[DOWN TO HERE]
-After the simulation is complete, as before, we can use \texttt{data} to generate a plot of the order parameter vs. time in the simulation using the
-following command:
+After the simulation is complete we can use \texttt{data} to generate a plot of the order parameter vs. time in the same manner as for the
+preliminary simulations:
 \begin{verbatim}
 $ grep 'M:' data | awk '{print $2,$3}' > M_vs_t.dat
 \end{verbatim}
-From this we see that the entire range of order-parameter space (-62 to 32) was explored within the simulation. Note that, having realised that the
-10000 sweep simulation was too perhaps short, we ran the simulation for another 10000 sweeps by using the command
+\texttt{M\_vs\_t.dat} is plotted in Fig. \ref{fig:verification_results} -- see the results for the first 10000 sweeps. From the figure it can be seen
+that the entire range of order-parameter space was explored within the simulation. However, a 10000-sweep simulation in this case is too short to
+estimate the correlation time: within the 10000 sweeps the system only makes one significant transition between the phases, from hcp to bcc. For 
+this reason we continued the simulation for another 10000 sweeps by invoking the command
 \begin{verbatim}
 $ ../../../monteswitch -resume
 \end{verbatim}
-Hence the output files \texttt{state} and \texttt{data}, and \texttt{M\_vs\_t.dat} created by the above command correspond to after 20000 sweeps, not 10000 
-sweeps; a copy of the 
-output \texttt{state} file after the first 10000 sweep simulation can be found in the file \texttt{state\_after\_10000\_sweeps}.
+Hence the output files \texttt{state} and \texttt{data}, and \texttt{M\_vs\_t.dat} in the \texttt{weight\_function\_verification} directory correspond
+to 20000 sweeps, not 10000 sweeps. (A copy of the output \texttt{state} file after the first-10000 sweep simulation can be found in the file 
+\texttt{state\_after\_10000\_sweeps}). As can be seen from the figure, there are additional transitions between the phases in the second 10000 sweeps. 
+Hence the correlation time -- which in this case involves both phases being explored -- is $\sim 10000$ sweeps. The 
+block size we use in the forthcoming production simulation must be much greater than this. Note that after the production run one can 
+retrospectively check that the block size was appropriate. We will do this later. Furthermore, one could use the informtion contained in the \texttt{data} 
+file output by the production simulation to perform block averaging for a variety of block sizes, though we do not explain how to do this here.
 
-Plotting \texttt{M\_vs\_t.dat} reveals that the simulation explores the entire range of order-parameter space (-62 to 32) within 20000 sweeps. Note that this
-in practice means that both phases are explored within 20000 sweeps, since high order parameters correspond to phase 2 and low order parameters correspond
-to phase 1 (see above). Hence the correlation time -- which in this case involves both phases being explored -- is ~10000 sweeps. The 
-block size we use in the
-forthcoming production simulation must therefore be greater than this. Note that after the production run one can retrospectively check that the
-block size was appropriate. We will do this later. Furthermore, one can use the `observations' in the \texttt{data} files output by the production simulation to
-analyse the data -- once the production simulation is complete -- for a variety of block sizes, though software to do this is not included in
-\emph{monteswitch}.
-
-It is instructive to plot of how often each macrostate was visited during the weight function verification simulation. \texttt{monteswitch\_post}
-provides an easy way of extracting this information; the following command creates a file \texttt{counts\_vs\_M.dat} which is a plot of the order 
-parameter for each macrostate (the lower bound for the macrostate) vs. the number of times the  macrostate was visited during the entire simulation:
+It is instructive to plot how often each macrostate was visited during the weight function verification simulation. \texttt{monteswitch\_post}
+provides an easy means of doing this: the following command creates a file \texttt{counts\_vs\_M.dat}, which is a plot of the order 
+parameter for each macrostate (the lower bound for the order parameter range covered by the macrostate) vs. the number of times the macrostate 
+was visited during the simulation:
 \begin{verbatim}
 $ ../../../monteswitch_post -extract_M_counts | awk '{print 
 $1,$2+$3}' > counts_vs_M.dat
 \end{verbatim}
-From this file we see that all macrostates are visited a reasonable number of times during the simulation. While it is far from the case that the
-histogram is flat -- which an ideal weight function would yield -- it is sufficiently flat for our purposes: for our purposes it is acceptable that
-all macrostates are visited uniformly to within, say, half an order of magnitude. In fact, we would in fact be very lucky to get a flat histogram
-even with the ideal weight function, given that the simulation is so short: it is of the order of the correlation time, which is nowhere near long
-enough to gather sufficient statistics.
+\texttt{counts\_vs\_M.dat} is plotted in the inset of Fig. \ref{fig:verification_results}. From this we see that all macrostates were visited.
+It is conspicuous that the histogram is not flat. We would in fact be very lucky to get a flat histogram, even with the ideal weight function, given 
+that we only performed 20000 sweeps -- which is the order of the correlation time.
+
+\begin{figure}
+\centering
+\includegraphics[height=\textwidth,angle=270]{verification_results}
+\caption
+{Plot of the order parameter vs. simulation time for the weight function verification simulation. The regions of order-parameter space 
+corresponding to bcc and hcp are indicated. The inset is a histogram of how often each macrostate (identified by its order parameter as described
+in the main text) was visited during the simulation.}
+\label{fig:verification_results}
+\end{figure}
 
 
 \section{Production simulation}
-We are now ready to perform the production simulation. The corresponding directory is \texttt{production\_simulation}.
-As with the weight function simulation, we use the \texttt{state} file output from the weight function generation simulation as the starting point
-for the production simulation. We will modify this file to suit our needs, and then run the simulation, using four MPI threads with \texttt{monteswitch\_mpi},
-using the command
+We are now finally ready to perform the production simulation. The corresponding directory is \texttt{production\_simulation}.
+As with the weight function verification simulation, we use the \texttt{state} file output from the weight function generation simulation as 
+the starting point for the production simulation. We will modify this file to suit our needs, and then run the simulation, using four MPI threads with 
+\texttt{monteswitch\_mpi}, using the command (invoked from within the \texttt{production\_simulation} directory)
 \begin{verbatim}
 $ mpiexec -n 4 ../../../monteswitch_mpi -reset
 \end{verbatim}
 Note that again we have used the \texttt{-reset} flag to reset the counter variables at initialisation.
 
 \subsection{Creating the input \texttt{state} file}
-The modifications to the state file can be seen before the weight function verification simulation is run can be seen by invoking the following command
-in the \texttt{weight\_function\_verification} directory:
+The modifications to the state file can be seen by invoking the following command in the \texttt{production\_simulation} directory:
 \begin{verbatim}
 $ diff state_start ../weight_function_generation/state
 \end{verbatim}
 The key changes are as follows:
 \begin{itemize}
 \item We have changed \textbf{stop\_sweeps} to be 700000, which corresponds to 175000 sweeps to be performed for each MPI thread.
-\item We have set \textbf{equil\_sweeps} to 20000, which is larger than the correlation time we determined for the multicanonical simulation using our 
-weight function.
-\item We have set \textbf{update\_eta} to \texttt{F}, so that the weight function is fixed throughout the simulation.
-\item We have set \textbf{enable\_barriers} to \texttt{F}, since we want 'natural' dynamics for the production simulation.
-\item \textbf{calc\_equil\_properties} is set to \texttt{T}. This is required for the simulation to calculate equilibrium quantities (the enthalpy, volume and 
-mean-squared displacements of each particle) and their uncertainties using block averaging.
+\item We have set \textbf{equil\_sweeps} to 20000, which is larger than the correlation time we determined via the weight function verification
+simulation.
+\item We have set \textbf{update\_eta} to \texttt{F} so that the weight function is fixed throughout the simulation.
+\item We have set \textbf{enable\_barriers} to \texttt{F} since we want 'natural' dynamics for the production simulation.
+\item \textbf{calc\_equil\_properties} is set to \texttt{T}. This is required for the simulation to calculate thermodynamic quantities (in particular
+$\Delta G$, and the enthalpy and volume of each phase) and their uncertainties using block averaging.
 \item \textbf{block\_sweeps}, the number of sweeps which constitute a block in the block averaging is set to 155000, which is far larger than the 
-correlation time of
-  ~10000 sweeps determined earlier. Note that, since each MPI thread performs 175000 sweeps, and since each thread will be given 20000 sweeps to 
-  equilibrate - during which time the states visited by the system are not used in evaluating equilibrium quantities - setting the block size to 
-  155000 sweeps corresponds to each MPI thread performing exactly 1 block. Hence the simulation in total considers 4 blocks.
+correlation time of $\sim 10000$ sweeps determined in the weight function verification simulation. Note that, since each MPI thread performs 
+175000 sweeps, and since each thread will be given 20000 sweeps to equilibrate -- during which time the states visited by the system are not 
+used in block averaging - setting the block size to 155000 sweeps corresponds to each MPI thread performing exactly 1 block. Hence the 
+simulation in total considers 4 blocks.
 \end{itemize}
 
 \subsection{Results}
-At the completion of the simulation the \texttt{state} file contains the equilibrium quantities, evaluated using block averaging. It is these quantities we
-are interested in, primarily the Gibbs free energy difference $\Delta G$ between the phases. The variables \textbf{equil\_DeltaF} and 
-\textbf{sigma\_equil\_DeltaF} in \texttt{state} contain the free energy difference and its uncertainty evaluated using block averaging.
-Hence the following command extracts the free energy difference and its uncertainty from the \texttt{state} file:
+At the completion of the simulation the \texttt{state} file contains the thermodynamic quantities evaluated using block averaging. It is these quantities we
+are interested in, especially $\Delta G$. The variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in \texttt{state} contain 
+$\Delta G$ and its uncertainty evaluated using block averaging. The following command extracts these variables from the \texttt{state} file:
 \begin{verbatim}
 $ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state
-\end{verbatim}
-Recall that all quantities in the \texttt{state} file are extensive; to get the intensive values we must divide them by the number of atoms in the system, which
-in this case is 384. Hence the following command gives the intensive free energy difference between the phases:
+\end{verbatim} 
+Recall that all quantities in the \texttt{state} file are extensive. To get the intensive values we must divide them by the number of atoms in the system, 
+which in this case is 384. Hence the following command gives the intensive free energy difference between the phases:
 \begin{verbatim}
 $ grep -E '( equil_DeltaF| sigma_equil_DeltaF)' state | awk
 '{print $1,$2/384}'
 \end{verbatim}
-The final value for $\Delta G$ is therefore 0.00104(2)eV per particle, (c.f. 0.00113eV per particle obtained from the weight function earlier)
-The convention used in \emph{monteswitch} is that the free energy difference is the free energy of phase 1 minus that of phase 2. Hence a positive free energy
-difference, which is the case here, suggests that hcp (phase 2 here) is stable over bcc at the considered temperature and pressure. 
-However, note that the free energy difference between the phases is $\sim$1meV, which is very small. Hence this temperature and pressure can be 
-considered to be a coexistence point to within an uncertainty of $\sim 1$meV/atom. This is in agreement with Ref. \cite{Mendelev_2007}, in which
-it was found that this temperature and pressure corresponded to a coexistence point.
+Using this we find that $\Delta G$ is 0.00104(2)eV per particle, which implies that hcp is slightly favoured over bcc at this $T$ and $P$.
+Note that this agrees favourably with the $\Delta G$ we obtained from the weight function earlier, namely 0.00113 eV per particle.
+However, note that $\Delta G$ is $\sim$1 meV per particle, which is very small. Thus $T=$1233K is very close to the zero-pressure bcc--hcp transition
+temperature: we are in agreement with Ref. \cite{Mendelev_2007}.
 
-Using similar commands to the above, one can extract the volume and enthalpy per atom for each phase:
+We will now show that we are also in agreement with Ref. \cite{Mendelev_2007} with regards to $\Delta H_{\text{hcp$\to$bcc}}$ and 
+$\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$. Using similar commands to the above, one can extract the volume and enthalpy per atom for each phase
+evaluated using block averaging, as well as their associated uncertainties:
 \begin{verbatim}
 $ grep -E '( equil_V_1| sigma_equil_V_1)' state | awk '{print $1,
  $2/384}'
@@ -2169,59 +2173,65 @@ gives the volume per atom for phase 2;
 $ grep -E '( equil_H_1| sigma_equil_H_1)' state | awk '{print $1,
  $2/384}'
 \end{verbatim}
-gives the enthalpy per atom for phase 1;
+gives the enthalpy per atom for phase 1; and
 \begin{verbatim}
 $ grep -E '( equil_H_2| sigma_equil_H_2)' state | awk '{print $1,
  $2/384}'
 \end{verbatim}
-gives the enthalpy per atom for phase 2. One can also obtain the mean-squared displacements for all atoms in phase 1: the following command extracts
-these quantities from \texttt{state} and outputs the mean-squared displacement vs. atom number:
-\begin{verbatim}
-$ grep -E ' equil_umsd_1' state | awk '{for(i=2; i<=NF; i++){
-print i-1,$i}}'
-\end{verbatim}
-Their uncertainties are similarly given by 
-\begin{verbatim}
-$ grep -E ' sigma_equil_umsd_1' state | awk '{for(i=2; i<=NF; 
-i++){print i-1,$i}}'.
-\end{verbatim}
-Similar commands can be used to obtain the mean-squared displacements and associated uncertainties for phase 2. Of course, it is unnecessary to use
-a lattice-switch simulation to extract such one-phase' quantities; a conventional Monte Carlo simulation will do the job more efficiently.
-Here the quantities are somewhat of a by-product of the lattice-switch simulation to calculate the free energy difference.
+gives the enthalpy per atom for phase 2. Using these quantities one can calculate $\Delta H_{\text{hcp$\to$bcc}}$ and $\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$,
+which are presented in Table \ref{table:production_results} alongside the results of Ref. \cite{Mendelev_2007}. As can be seen from the table
+the quantities obtained from the production simulation are in excellent agreement with those of Ref. \cite{Mendelev_2007}. Of course, it is unnecessary 
+to use an LSMC simulation to extract such one-phase thermodynamic quantities; a pair of conventional Monte Carlo simulations will do the job more 
+efficiently. Here the quantities are somewhat of a by-product of the LSMC simulation, which \emph{is} however required to calculate the \emph{two-phase}
+quantity $\Delta G$.
 
-\begin{table}
-\begin{tabular}{l | l | l | l | l }
+\begin{table}\label{table:production_results}
+\begin{center}
+\begin{tabular}{l | l | l }
                                           &  \emph{monteswitch}      & Ref. \cite{Mendelev_2007} \\
                                                         \hline
-$\Delta G_{hcp\to bcc}$                   & 0.00104(2)               & 0                         \\
-$\Delta H_{hcp\to bcc}$                   & 0.0394(2)                & 0.039                     \\
-$\Delta V_{hcp to bcc}/V_{bcc}$ (\%)      & -0.812(7)                & -0.8                      \\
+$\Delta H_{\text{hcp$\to$bcc}}$ (eV)                 & 0.0394(2)                & 0.039                     \\
+$\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$ (\%)          & -0.812(7)                & -0.8                      \\
 \end{tabular}
-\caption{All energies quoted in this table are in eV, and all volumes are in \AA$^3$. All quantities are intensive, i.e., `per atom'.}
+\caption{Thermodynamics quantities obtained from the production simulation, and analogous quantities obtained in Ref.  \cite{Mendelev_2007}. Note that
+the quoted $\Delta H_{\text{hcp$\to$bcc}}$ is intensive, i.e., `per particle'.}
+\end{center}
 \end{table}
 
 
-\subsection{Consistency checks}
-Once the simulation is complete, it is prudent to perform some checks to ensure that it has gone as expected, and hence that the values for equilibrium
-quantities obtained from the simulation are meaningful. Of course, comparing the final values obtained from the simulation to `known' values is useful.
-Below we describe some less obvious checks to perform.
-
+\subsection{Final checks}
+Once the production simulation is complete it is prudent to perform some checks to ensure that it has gone as expected, and hence that the values for the
+thermodynamic quantities obtained from the simulation are meaningful. Comparing the thermodynamic quantities obtained from the simulation 
+to `known' values, as was done above, is an excellent consistency check. However this will not always be possible. A less obvious check to perform is 
+as follows.
+%
 The free energy difference for a block is given by Eqn. \eqref{DeltaF_stat_mech}, where in this case $t_1$ and $t_2$ are the number of moves which the 
-system spent in phase 1 and phase 2 respectively during the block. Of course, this equation presupposes that both phases are explored during the block. 
-In evaluating $\Delta G$, \emph{monteswitch} only considers blocks during which both phases are explored. This notwithstanding, it is good to check that
+system spent in phase 1 and phase 2 respectively during the block. Note that this equation presupposes that both phases are explored during the block. 
+Now, in evaluating $\Delta G$, \emph{monteswitch} only considers blocks during which both phases are explored. This notwithstanding, one should check that
 the block size is significantly larger than the time it typically takes the system to explore the whole of order-parameter space -- which in practice
-is an equivalent condition to both phases being thoroughly explored during each block. Of course, this was the point of the weight function verifictaion
-simulation to determine the appropriate block size. However, to check this more explicitly we plot the order parameter vs. simulation time for each
-MPI thread:
+is an equivalent condition to both phases being thoroughly explored during each block. To do this we plot the order parameter vs. simulation time for each
+MPI thread using the following commands:
 \begin{verbatim}
 $ grep 'M:' data_0 | awk '{print $2,$3}' > M_vs_t_0.dat
 $ grep 'M:' data_1 | awk '{print $2,$3}' > M_vs_t_1.dat
 $ grep 'M:' data_2 | awk '{print $2,$3}' > M_vs_t_2.dat
 $ grep 'M:' data_3 | awk '{print $2,$3}' > M_vs_t_3.dat
 \end{verbatim}
-Plotting the files \texttt{M\_vs\_t\_0.dat}, \texttt{M\_vs\_t\_1.dat}, \texttt{M\_vs\_t\_2.dat} and \texttt{M\_vs\_t\_3.dat} it can be seen that the 
-system traverses the entire range of order-parameter space (-62--32) often within the block size (175000 sweeps), as required.
+where \texttt{M\_vs\_t\_n.dat} is a plot of order parameter vs. simulation time for thread $n$. These plots are shown in Fig. \ref{fig:production_results}.
+As can be seen from the figure, for each thread the system traverses the entire range of order-parameter space often within the block size (175000 
+sweeps), as required.
+%
+Of course, the aim of the weight function verification simulation was to ensure that this would happen: in that simulation we deduced the correlation time,
+and used that to inform our choice of block size. Still, it is good to double-check.
 
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{production_results}
+\caption
+{Plots of the order parameter vs. simulation time for each MPI thread for the production simulation. The number to the right of each panel corresponds
+to the thread index. The regions of order-parameter space corresponding to bcc and hcp are indicated.}
+\label{fig:production_results}
+\end{figure}
 
 
 
