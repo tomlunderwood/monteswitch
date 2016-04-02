@@ -2243,58 +2243,72 @@ examples.
 Each test can be executed by executing the \texttt{run.sh} shell script in the corresponding directory after copying the
 appropriate \texttt{interactions.f95} file from \texttt{Interactions} to \texttt{interactions.f95}, and then compiling the
 package (see Chapter \ref{chapter:preliminaries}). Note that the \texttt{run.sh} scripts assume that the main programs \texttt{monteswitch}
-and \texttt{monteswitch\_mpi} are located next to the source code in the above directory -- which should be the case by default. Furthermore
-the \texttt{run.sh} files may require some modification to suit your platform; see Chapter \ref{chapter:preliminaries}.
+and \texttt{monteswitch\_mpi} are located in the same directory as the source code, which should be the case by default. Furthermore
+the \texttt{run.sh} files may require some modification to suit your platform (see Chapter \ref{chapter:preliminaries}).
 
 
 \section{Einstein crystal (\texttt{EC})}
-The Einstein crystal is an excellent testing ground because analytical results can be obtained for this system:
-in what follows we use those for the free energy and mean-squared displacement given in Section 10.2.1 in Ref.
-\cite{book:Frenkel}. Here we use the Einstein crystal to test \texttt{monteswitch} and \texttt{monteswitch\_mpi}
-in the NVT ensemble. This includes testing multicanonical sampling and weight function generation (including
-mobile barrier methods), calculation of free energy differences, and calculation of equilibrium properties.
-The relevant \texttt{interactions.f95} file for thse tests is \texttt{interactions\_EC.f95}. Before running these 
-tests one should copy \texttt{Interactions/interactions\_EC.f95} to \texttt{interactions.f95}, and then complile 
-\emph{monteswitch}. 
+In the Einstein crystal the energy of the system is given by
+\begin{equation}
+E=\sum_{i=1}^N\alpha u_i^2,
+\end{equation}
+where $u_i$ is the displacement of particle $i$ its notional lattice site, $N$ denotes the number of particles in the system, and $\alpha$
+is the free parameter of the model. The Einstein crystal is an excellent testing ground for \emph{monteswitch} because 
+analytical results can be derived for this system. For instance, the free energy of the system is given by \cite{book:Frenkel}
+\begin{equation}\label{EC_F}
+F=-\frac{3N}{2\beta}\ln\biggl[\frac{\pi}{\alpha\beta}\biggr],
+\end{equation}
+(where $\beta=1/(k_BT)$, with $T$ the temperature of the system), the mean-squared displacement of each particle is \cite{book:Frenkel}
+\begin{equation}\label{EC_u2}
+\langle u^2\rangle = \frac{3}{2\beta\alpha},
+\end{equation}
+and the mean energy of the system is
+\begin{equation}
+\langle E\rangle=\alpha N\langle u^2\rangle = \frac{3N}{2\beta}.
+\end{equation}
+Here we test \emph{monteswitch} against these analytical results. Our `phases' here are two Einstein crystals with different values
+of $\alpha$. We denote the $\alpha$ pertaining to phase 1 as $\alpha_1$, and similarly for phase 2. Note that the free energy difference
+between the two phases is given by
+\begin{equation}\label{EC_DeltaF}
+\Delta F\equiv F_1-F_2=\frac{3N}{2\beta}\ln\biggr[\frac{\alpha_1}{\alpha_2}\biggr],
+\end{equation}
+where we have used Eqn. \eqref{EC_F}. We use Eqns. \eqref{EC_F}, \eqref{EC_u2} and \eqref{EC_DeltaF} below.
 
-The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC.f95} is 
-as follows. In phase 1 the energy of each particle corresponds to a harmonic oscilator \emph{about the origin} with spring constant 
-\textbf{alpha\_1}. Similar applies to phase 2 with spring constant \textbf{alpha\_2}. \textbf{alpha\_1} and \textbf{alpha\_2} 
-are specified via the input file \texttt{interactions\_in}. The format of this file is as follows. On the first line there are two tokens. 
-The first token is a \texttt{CHARACTER(LEN=20)} variable (I recommend: \texttt{alpha\_1=}); the second token is the 
-value of \textbf{alpha\_1} (type \texttt{REAL}). The second line is similar, but for \textbf{alpha\_2}.
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EC.f95}. Before running these 
+tests one should copy \texttt{Interactions/interactions\_EC.f95} to \texttt{interactions.f95}, and then complile 
+\emph{monteswitch}. The Hamiltonian for each phase realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC.f95} is 
+the Einstein crystal as described above, where note that the orign constitutes the lattice site \emph{for all particles}.
+$\alpha_1$ and $\alpha_2$ are specified for new simulations via the input file \texttt{interactions\_in}. 
+The format of this file is as follows. On the first line there are two tokens. The first token is a \texttt{CHARACTER(LEN=20)} 
+variable (I recommend: \texttt{alpha\_1=}). The the second token is the value of $\alpha_1$ (stored internally as 
+\textbf{alpha\_1}), which is of type \texttt{REAL}. The second line is similar, but for $\alpha_2$.
 
 
 \subsection{\texttt{test\_EC\_1}}
-This test calculates the free energy difference between two Einstein crystals with different spring constants,
-as well as the mean-squared displacements and mean energies of both crystals. The spring constant for lattice 
-1 in is 1.0, and the spring constant for lattice 2 is 2.0. The calculation in this test is 
-performed at $\beta=100$ using canonical (i.e., not multicanonical) sampling, for a one particle supercell, and 
-consists of 10,000,000 sweeps using \textbf{part\_step}=0.12.
+This test calculates $\Delta F$, and $\langle u^2\rangle$ and $\langle E\rangle$ for each phase, for the case $\alpha_1=1$, $\alpha_2=2$,
+$\beta=100$ and $N=1$. The test uses canonical (i.e., not multicanonical) sampling, and consists of 10,000,000 sweeps using 
+\textbf{part\_step}=0.12.
 
 Checks to perform:
 \begin{enumerate}
 \item
-The free energy difference between the two systems should be $(3/200)\ln(1/2)=-0.0103972$. 
-Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
-variable output to the terminal, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable. 
+$\Delta F$ should be $0.015\ln(1/2)=-0.0103972$. Check that this is the case for the simulation: the $\Delta F$ is stored in 
+the variable \textbf{equil\_DeltaF} output to stdout, with its uncertainty stored in the variable \textbf{sigma\_equil\_DeltaF}. 
 \item
-The mean-squared displacements should be $3/200=0.015$ for phase 1 and $3/400=0.0075$ for phase 2: see the 
+$\langle u^2\rangle$ should be 0.015 for phase 1 and 0.0075 for phase 2: see the 
 variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} 
-output to the terminal.
+output to stdout.
 \item
-The mean energy of both crystals should be 0.015, which follows from the equipartition theorem:
-there are 3 degrees of freedom, each with $0.5/\beta$, which in our case gives $1.5/100$. Check that this
-is the case by examining the variables \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and 
-\textbf{sigma\_equil\_H\_2} in the output to the terminal. Recall that 'H' in monteswitch refers to the energy in 
-an NVT simulation, and the enthalpy in an NPT simulation.   
+$\langle E\rangle$ should be 0.015 for both phases. Check that this is the case by examining the variables 
+\textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2} in the output to stdout. 
+Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and the enthalpy in an NPT simulation.   
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_1\_MPI}}
 This test is the same as \texttt{test\_EC\_1}, except that an MPI simulation is run using 4 threads. One should check that
-1, 2 and 3 described in \texttt{test\_EC\_1} applies to the variables listed in the \texttt{state} file as opposed to the
-terminal. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly, especially that it correctly pools 
+1, 2 and 3 described in \texttt{test\_EC\_1} applies to the variables listed in the \texttt{state} file here, instead of the
+output to stdout. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly, especially that it correctly pools 
 the results from many threads and outputs them to the \texttt{state} file.
 
 
@@ -2313,53 +2327,60 @@ performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_3}}
-This test calculates the equilibrium quantities as described in \texttt{test\_EC\_1}, but uses multicanonical sampling,
-with a weight function generated using the visited states method. Specifically, a weight function generation 
+This test calculates the thermodynamic quantities highlighted in \texttt{test\_EC\_1}, but uses multicanonical sampling instead
+of canonical sampling, with a weight function generated using the visited states method. To elaborate, a weight function generation 
 simulation is performed which consists of 10,000,000 sweeps. Then the \texttt{state} file is altered in preparation 
 for the production simulation. Then the production simulation is performed, which consists of 10,000,000 sweeps.
 Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_4}}
-This test calculates the equilibrium quantities as described in \texttt{test\_EC\_1}, but uses multicanonical sampling,
-with a weight function generated using the shooting method. Specifically, a weight function generation simulation
-is performed which consists of 1,000,000 sweeps. Then the \texttt{state} file is altered in preparation 
-for the production simulation. Then the production simulation is performed, which consists of 10,000,000 sweeps.
-The checks to perform for this test are the same as for \texttt{test\_EC\_3}.
+This test is similar to \texttt{test\_EC\_3}, but instead generates the weight function using the shooting method.
+Here a weight function generation simulation is performed which consists of 1,000,000 sweeps. Then the \texttt{state} 
+file is altered in preparation for the production simulation. Then the production simulation is performed, which 
+consists of 10,000,000 sweeps. 
+Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_4\_MPI}}
 This test is the same as \texttt{test\_EC\_4}, but uses MPI (2 threads).
+Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_5}}
-This test generates the weight function using the shooting method in conjunction with \texttt{pong\_down} barrier
-dynamics and canonical sampling. The simulation consists of 1,000,000 sweeps. Two further files are created 
-during this test: \texttt{M\_vs\_t.dat} gives the value of the order parameter vs. sweep number (data points 
-every 100 sweeps), and \texttt{macro\_vs\_t.dat} similarly gives the macrostate number, i.e., the bin in the 
-order parameter histogram for the system, vs. sweep number. Both plots should resemble a sawtooth.
+This test is similar to \texttt{test\_EC\_3}, but instead generates the weight function using the shooting method 
+in conjunction with `\texttt{"pong\_down"} artificial dynamics' and canonical sampling. The  weight function
+generation simulation consists of 1,000,000 sweeps. Two further files are created 
+during this test: \texttt{M\_vs\_t.dat} gives the value of the order parameter vs. simulation time (data points 
+every 100 sweeps), and \texttt{macro\_vs\_t.dat} similarly gives the macrostate number vs. simulation time. 
+Both plots should resemble a sawtooth.
+Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_5\_MPI}}
-This test is similar to \texttt{test\_EC\_5}, except that a 2-thread MPI simulation is performed, and \texttt{pong\_up}
-barrier dynamics are used. The files \texttt{M\_vs\_t\_0.dat} and \texttt{macro\_vs\_t\_0.dat} pertain to thread '0'; and
+This test is similar to \texttt{test\_EC\_5}, except that a 2-thread MPI simulation is performed, and `\texttt{"pong\_up"}
+artificial dynamics' are used. The files \texttt{M\_vs\_t\_0.dat} and \texttt{macro\_vs\_t\_0.dat} pertain to thread '0', and
 the files \texttt{M\_vs\_t\_1.dat} and \texttt{macro\_vs\_t\_1.dat} pertain to thread 1. All files should have a sawtooth
 pattern.
+Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_6}}
-This test is similar to \texttt{test\_EC\_5}, except that \texttt{random} barrier dynamics are used. The files 
+This test is similar to \texttt{test\_EC\_5}, except that `\texttt{"random"} artificial dynamics' are used. The files 
 \texttt{M\_vs\_t.dat} and \texttt{macro\_vs\_t.dat} should be random walks.
+Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_7}}
 This test is the same as \texttt{test\_EC\_5}, except that 10 simulations are performed (each consisting of 100,000
-sweeps) instead of 1. This tests continuity of simulations using barriers over checkpoints.
+sweeps) instead of 1. This tests continuity of simulations using artificial dynamics over checkpoints.
+Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_7\_MPI}}
 This test is similar to \texttt{test\_EC\_7}, except that 2 2-thread MPI simulations are performed such that the total
 number of sweeps is 1,000,000.
+Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_8}}
@@ -2368,26 +2389,25 @@ This test is similar to \texttt{test\_EC\_1}, except that the crystal consists o
 Checks to perform:
 \begin{enumerate}
 \item
-The free energy difference between the two systems should be -0.0415888
+$\Delta F$ should be $0.06\ln(1/2)=-0.0415888$.
 Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
-variable output to the terminal, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable. 
+variable output to stdout, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable. 
 \item
-The mean-squared displacements should be $3/200=0.015$ for phase 1 and $3/400=0.0075$ for phase 2: see the 
-variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to the 
-terminal.
+$\langle u^2\rangle$ should be 0.015 for phase 1 and 0.0075 for phase 2: see the 
+variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to
+stdout.
 \item
-The mean energy of both crystals should be 0.06, which follows from the equipartition theorem:
-there are $4\times 3$ degrees of freedom , each with $0.5/\beta$, which in our case gives $6/100$. Check that this
+$\langle E\rangle$ should be 0.06 for both phases. Check that this
 is the case by examining the variables \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2}
-in the output to the terminal. Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and 
+in the output to stdout. Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and 
 the enthalpy in an NPT simulation.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_8\_MPI}}
 This test is the same as \texttt{test\_EC\_8}, except that an MPI simulation is run using 4 threads.  One should check that
-1, 2 and 3 described in \texttt{test\_EC\_8} apply to the variables listed in the \texttt{state} file as opposed to the
-terminal. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly for multiple particles, especially that it 
+1, 2 and 3 described in \texttt{test\_EC\_8} apply to the variables listed in the \texttt{state} file as opposed to the output to
+stdout. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly for multiple particles, especially that it 
 correctly pools the results from many threads and outputs them to the \texttt{state} file.
 
 
@@ -2404,55 +2424,48 @@ that checkpointing works correctly for \texttt{monteswitch\_mpi} for multiple pa
 performed on the \texttt{state} file.
 
 
+\section{NPT Einstein crystal (\texttt{EC\_NPT})}
+The Einstein crystal cannot be used to validate \emph{monteswitch} for the NPT ensemble. Accordingly we consider here a modification of the Einstein
+crystal model suitable for this purpose. We refer to this model as the \emph{NPT Einstein crystal}. In the NPT Einstein crystal the energy of the 
+system is given by
+\begin{equation}
+E=\sum_{i=1}^N\alpha V^{-\gamma} u_i^2,
+\end{equation}
+where $V$ is the volume of the system, $\alpha$ and $\gamma$ are the free parameters of the model, and $u_i$ and $N$ have the same significance
+as above for the Einstein crystal.
+The following analytical results can be derived for this model in the NPT ensemble. Firstly, the partition function is given by
+\begin{equation}
+Z=\bigl[2\pi\Gamma(1.5)\bigr]^N(\beta\alpha)^{-1.5N}(\beta P)^{-(1.5N\gamma+1)}\Gamma(1.5N\gamma+1),
+\end{equation}
+where $\Gamma(x)$ is the gamma function, $P$ is the pressure of the system, $\beta=1/(k_BT)$, and $T$ is the temperature of the system. 
+From this the Gibbs free energy difference $\Delta G$ between two NPT Einstein crystals can be derived:
+\begin{equation}\label{EC_NPT_DeltaG}
+\Delta G=G_1-G_2=-\frac{1}{\beta}\ln\biggl[\frac{Z_1}{Z_2}\biggr],
+\end{equation}
+where
+\begin{equation}
+\frac{Z_1}{Z_2}=\biggr(\frac{\alpha_2}{\alpha_1}\biggr)^{1.5N}(\beta P)^{1.5N(\gamma_2-\gamma_1)}\frac{\Gamma(1.5N\gamma_1+1)}{\Gamma(1.5N\gamma_2+1)},
+\end{equation}
+and we have indicated the quantities pertaining to phase 1 and phase 2 by subscripts. Furthermore, it can be shown that the mean-squared displacement 
+of a particle is given by
+\begin{equation}\label{EC_NPT_u2}
+\langle u^2\rangle = 1.5(\beta\alpha)^{-1}(\beta P)^{-\gamma}\frac{\Gamma(1.5N\gamma+1+\gamma)}{\Gamma(1.5N\gamma+1)},
+\end{equation}
+and that the mean volume is given by
+\begin{equation}\label{EC_NPT_V}
+\langle V\rangle = \frac{1}{(\beta P)}\frac{\Gamma(1.5N\gamma+2)}{\Gamma(1.5N\gamma+1)}.
+\end{equation}
+We use Eqns. \eqref{EC_NPT_DeltaG}, \eqref{EC_NPT_u2} and \eqref{EC_NPT_V} below.
 
-
-\section{`NPT Einstein crystal' (\texttt{EC\_NPT})}
-The Einstein crystal cannot be used for NPT simulations. Here we consider a modification of the Einstein
-crystal model in which the spring constants have a volume dependence. The relevant \texttt{interactions.f95} file for these tests is 
-\texttt{interactions\_EC\_NPT.f95}. Before running these tests one should copy 
-\texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then complile 
-\emph{monteswitch}.
-
-The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC\_NPT.f95} is 
-as follows. In phase 1 the energy of each particle corresponds to a harmonic oscillator about its
-lattice site in which the spring constant is $2\alpha_1V^{-\gamma_1}$, where $V$ denotes the volume of 
-the system; the energy of a particle in phase 1 is $\alpha_1V^{-\gamma_1}u^2$, where $u$ is the magnitude of the displacement
-of the particle from its lattice site. Similarly the spring constant for phase 2 is $2\alpha_2V^{-\gamma_2}$.
-The free parameters are $\alpha_1$, $\gamma_1$, $\alpha_2$ and $\gamma_2$.
-The format of the file, named \texttt{interactions\_in} to import these free parameters for a simulation at initialisation
-is as follows. On the first line there are two tokens. The first is a \texttt{CHARACTER(LEN=20)} variable (I recommend: \texttt{alpha\_1=});
-the second is the value of $\alpha_1$. The second line is similar, but for $\alpha_2$. The third is similar for $\gamma_1$, 
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EC\_NPT.f95}. Before running these 
+tests one should copy \texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then complile 
+\emph{monteswitch}. The Hamiltonian for each phase realised in \emph{monteswitch} in conjunction with 
+\texttt{interactions\_EC\_NPT.f95} is the NPT Einstein crystal as described above.
+$\alpha_1$, $\alpha_2$, $\gamma_1$ and $\gamma_2$ are specified for new simulations via the input file \texttt{interactions\_in}. 
+The format of this file is as follows. On the first line there are two tokens. The first token is a \texttt{CHARACTER(LEN=20)} 
+variable (I recommend: \texttt{alpha\_1=}). The the second token is the value of $\alpha_1$ (stored internally as 
+\textbf{alpha\_1}), which is of type \texttt{REAL}. The second line is similar, but for $\alpha_2$. The third is similar for $\gamma_1$, 
 and the fourth is similar for $\gamma_2$.
-
-The following analytical results can be derived for this model in the NPT ensemble.
-The partition function for one particle in phase 1 is (where $\Gamma$ denotes the gamma function, and $\beta=1/(k_BT)$)
-\begin{equation}
-Z_1=\frac{2^{5/2}\pi\Gamma(1.5)}{(\alpha_1\beta)^{3/2}}\frac{\Gamma(1.5\gamma_1+1)}{(\beta P)^{1.5\gamma_1+1}},
-\end{equation}
-the mean-squared displacements are,
-\begin{equation}
-\langle u^2\rangle_1=\frac{1}{\beta\alpha_1(\beta P)^{\gamma_1}}\frac{\Gamma(2.5)\Gamma(2.5\gamma_1+1)}{\Gamma(1.5)\Gamma(1.5\gamma_1+1},
-\end{equation}
-and the mean volume is
-\begin{equation}
-\langle V\rangle_1=\frac{\Gamma(1.5\gamma_1+2)}{\Gamma(1.5\gamma_1+1)}\frac{1}{\beta P}.
-\end{equation}
-Similar applies for lattice 2.
-For $N>1$ particles the partition function for phase 1 becomes (IS THIS CORRECT?):
-\begin{equation}
-Z(N)=(2\pi\Gamma(1.5)(\beta\alpha_1)^{-3/2})^N\frac{\Gamma(1.5N\gamma_1+1)}{(\beta P)^{1.5N\gamma_1+1}}.
-\end{equation}
-Using the expression for the partition function, one can derive the following expression for the free energy difference
-between the two phases for $N=1$:
-\begin{equation}
-F_1-F_2=-\frac{1}{\beta}\ln\Biggl\lbrace 
-\frac{\Gamma(1.5\gamma_1+1)}{\Gamma(1.5\gamma_2+1)}\frac{\alpha_2}{\alpha_1}^{3/2}(\beta P)^{1.5(\gamma_2-\gamma_1)}
-\Biggr\rbrace
-\end{equation}
-
-Here we test \texttt{monteswitch} and \texttt{monteswitch\_mpi} against the above model in the
-NPT ensemble. This includes testing multicanonical sampling and weight function generation (including
-mobile barrier methods), calculation of free energy differences, and calculation of equilibrium properties.
 
 
 \subsection{\texttt{test\_EC\_NPT\_1}}
@@ -2465,39 +2478,32 @@ using \textbf{part\_step} set to 0.03 and \textbf{vol\_step} set to 3.0.
 Checks to perform:
 \begin{enumerate}
 \item
-The mean-squared displacements should be 0.00048 for phase 1 and 0.00018089 for phase 2: see the 
-variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to the 
-terminal.
+$\langle u^2\rangle$ should be 0.00048 for phase 1 and 0.00018089 for phase 2: see the variables 
+\textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to 
+stdout.
 \item
-The mean volume should be 1.6 for phase 1 and 1.48 for phase 2: see the variables \textbf{equil\_V\_1}, 
-\textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} output to the terminal.
+$\langle V\rangle$ should be 1.6 for phase 1 and 1.48 for phase 2: see the variables \textbf{equil\_V\_1}, 
+\textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} output to stdout.
 \item
-The mean enthalphy should be 0.55 for phase 1 and 0.52 for phase 2. This follows from the fact that
-the mean enthalpy is the mean energy + $PV$, where the mean energy of both crystals should be 0.15, which 
-follows from the equipartition theorem: there are 3 degrees of freedom, each with $0.5/\beta$.
-See the variables \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2} output to the terminal.
-Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and the enthalpy in an NPT simulation.
-\item
-The free energy difference per particle between the two systems should be -0.11285. See the variables
-\textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output to the terminal.
+$\Delta G$ should be -0.11285. See the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output to stdout.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_NPT\_2}}
-This test is the same as \texttt{test\_EC\_NPT\_1}, except that 10 simulations consisting of 1,000,000 sweeps each are performed
+This test is the same as \texttt{test\_EC\_NPT\_1}, except that 5 simulations consisting of 2,000,000 sweeps each are performed
 instead of one simulation of 10,000,000 sweeps, using both the \texttt{-resume} and \texttt{-new} arguments to the executable 
 \texttt{monteswitch} instead of simply the \texttt{-new} argument. This test essentially verifies that checkpointing works
-correctly. Checks 1--4 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file.
+correctly. Checks 1--3 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_NPT\_2\_MPI}}
-This test is the same as \texttt{test\_EC\_NPT\_2}, except that 10 4-thread MPI simulations are performed. This test essentially verifies 
-that checkpointing works correctly for \texttt{monteswitch\_mpi}. Checks 1--4 described in \texttt{test\_EC\_NPT\_2} should be 
-performed on the \texttt{state} file.
+This test is similar to \texttt{test\_EC\_NPT\_2}, except that 5 2-thread MPI simulations are performed, each consisting of
+4,000,000 sweeps. This test essentially verifies that checkpointing works correctly for \texttt{monteswitch\_mpi}. 
+Checks 1--3 described in \texttt{test\_EC\_NPT\_2} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_NPT\_3}}
-This test calculates the equilibrium quantities as described in \texttt{test\_EC\_NPT\_1}, but uses multicanonical sampling,
+This test calculates the thermodynamic quantities as described in \texttt{test\_EC\_NPT\_1}, but uses multicanonical sampling,
 with a weight function generated using the visited states method. Specifically, a weight function generation 
 simulation is performed which consists of 10,000,000 sweeps. Then the \texttt{state} file is altered in preparation 
 for the production simulation. Then the production simulation is performed, which consists of 10,000,000 sweeps.
@@ -2506,23 +2512,30 @@ This test also outputs the weight function generated using the visited states me
 the macrostates visited during the production simulation. These can be found in the files \texttt{wf.dat} and \texttt{M\_hist.dat}
 respectively. 
 
-Checks to perform beyond  1--4 described in \texttt{test\_EC\_NPT\_1}:
+Checks to perform beyond  1--3 described in \texttt{test\_EC\_NPT\_1}:
 \begin{enumerate}
-\setcounter{enumi}{4}
+\setcounter{enumi}{3}
 \item
-The macrostate histogram should be fairly flat, which reflects the fact that all macrostates are
+The macrostate histogram in \texttt{M\_hist.dat} should be fairly flat, which reflects the fact that all macrostates are
 visted with equal probability in multicanonical sampling using an ideal weight function.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_NPT\_4}}
-This test is similar to \texttt{test\_EC\_NPT\_2}, but uses 5 particles, and a lattice switch which changes the system volume.
+This test is similar to \texttt{test\_EC\_NPT\_2}, but uses $N=5$ instead of $N=1$, and a lattice switch which changes the system volume.
 This checks that lattice switches which do not preserve the system volume sample the NPT ensemble correctly.
 
 Checks to perform:
 \begin{enumerate}
 \item
-The free energy difference between the two phases should be -0.7860673299.
+$\langle u^2\rangle$ should be 0.006528 for phase 1 and 0.001862841 for phase 2: see the 
+variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} 
+in the file \texttt{state}.
+\item
+$\langle V\rangle$ should be 6.4 for phase 1 and 5.8 for phase 2: see the variables \textbf{equil\_V\_1}, 
+\textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} in the file \texttt{state}.
+\item
+$\Delta G$ should be -0.78606733. See the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the file \texttt{state}.
 \end{enumerate}
 
 
