@@ -152,7 +152,7 @@ for users.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Background Theory}\label{chapter:background}
+\chapter{Background theory}\label{chapter:background}
 In this chapter we describe the LSMC methodology as relevant to \emph{monteswitch}. Further information regarding different incarnations of
 LSMC can be found in the LSMC studies cited in the previous chapter.
 
@@ -819,7 +819,7 @@ The lattice switch from phase 2 to 1 is the inverse of the above transformation.
 
 \subsection{Input file: \texttt{params\_in}}\label{section:params_in}
 The input file \texttt{params\_in} contains the variables which determine the nature of the simulation. Each variable corresponds to a
-specific single line in the file, and each line must consist of a string (we recommend the name of the variable followed immediately
+specific single line in the file, and each line must consist of an arbitrary string (we recommend the name of the variable followed immediately
 by an `=' character with no spaces), followed by whitespace, followed by the value of the variable. The variables which must appear
 in a \texttt{params\_in}, as well as a description of their function, are given in Table \ref{table:params_in_variables}. 
 \emph{Note that the variables must appear in params\_in in the order that they appear in the table}. E.g., the first 
@@ -2236,7 +2236,7 @@ to the thread index. The regions of order-parameter space corresponding to bcc a
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Test Cases}\label{chapter:tests}
+\chapter{Test cases}\label{chapter:tests}
 The directory \texttt{Tests} contains a suite of test cases for the main programs in \emph{monteswitch}. Of course, these tests can also be used as
 examples.
 
@@ -2252,35 +2252,34 @@ In the Einstein crystal the energy of the system is given by
 \begin{equation}
 E=\sum_{i=1}^N\alpha u_i^2,
 \end{equation}
-where $u_i$ is the displacement of particle $i$ its notional lattice site, $N$ denotes the number of particles in the system, and $\alpha$
+where $u_i$ is the displacement of particle $i$ from its lattice site, $N$ denotes the number of particles in the system, and $\alpha$
 is the free parameter of the model. The Einstein crystal is an excellent testing ground for \emph{monteswitch} because 
 analytical results can be derived for this system. For instance, the free energy of the system is given by \cite{book:Frenkel}
 \begin{equation}\label{EC_F}
 F=-\frac{3N}{2\beta}\ln\biggl[\frac{\pi}{\alpha\beta}\biggr],
 \end{equation}
-(where $\beta=1/(k_BT)$, with $T$ the temperature of the system), the mean-squared displacement of each particle is \cite{book:Frenkel}
+where $\beta$ is the thermodynamic beta. Furthermore the mean-squared displacement of each particle is \cite{book:Frenkel}
 \begin{equation}\label{EC_u2}
 \langle u^2\rangle = \frac{3}{2\beta\alpha},
 \end{equation}
 and the mean energy of the system is
-\begin{equation}
+\begin{equation}\label{EC_E}
 \langle E\rangle=\alpha N\langle u^2\rangle = \frac{3N}{2\beta}.
 \end{equation}
 Here we test \emph{monteswitch} against these analytical results. Our `phases' here are two Einstein crystals with different values
-of $\alpha$. We denote the $\alpha$ pertaining to phase 1 as $\alpha_1$, and similarly for phase 2. Note that the free energy difference
-between the two phases is given by
+of $\alpha$. We denote the $\alpha$ pertaining to phase 1 as $\alpha_1$, and similarly for phase 2. Using Eqn. \eqref{EC_F},
+the following expression for the free energy difference between the phases can be derived:
 \begin{equation}\label{EC_DeltaF}
-\Delta F\equiv F_1-F_2=\frac{3N}{2\beta}\ln\biggr[\frac{\alpha_1}{\alpha_2}\biggr],
+\Delta F\equiv F_1-F_2=\frac{3N}{2\beta}\ln\biggr[\frac{\alpha_1}{\alpha_2}\biggr].
 \end{equation}
-where we have used Eqn. \eqref{EC_F}. We use Eqns. \eqref{EC_F}, \eqref{EC_u2} and \eqref{EC_DeltaF} below.
+We use Eqns. \eqref{EC_u2}, \eqref{EC_E} and \eqref{EC_DeltaF} below.
 
-The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EC.f95}. Before running these 
-tests one should copy \texttt{Interactions/interactions\_EC.f95} to \texttt{interactions.f95}, and then complile 
-\emph{monteswitch}. The Hamiltonian for each phase realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC.f95} is 
-the Einstein crystal as described above, where note that the orign constitutes the lattice site \emph{for all particles}.
+The \texttt{interactions.f95} file corresponding to the Einstein crystal is \texttt{interactions\_EC.f95}. The Hamiltonian for 
+each phase realised in \emph{monteswitch} in conjunction with \texttt{interactions\_EC.f95} is as described above, where 
+note that the orign constitutes the lattice site \emph{for all particles}.
 $\alpha_1$ and $\alpha_2$ are specified for new simulations via the input file \texttt{interactions\_in}. 
-The format of this file is as follows. On the first line there are two tokens. The first token is a \texttt{CHARACTER(LEN=20)} 
-variable (I recommend: \texttt{alpha\_1=}). The the second token is the value of $\alpha_1$ (stored internally as 
+The format of this file is as follows. On the first line there are two tokens. The first token is an arbitrary \texttt{CHARACTER(LEN=20)} 
+variable (we recommend: \texttt{alpha\_1=}). The second token is the value of $\alpha_1$ (stored internally as 
 \textbf{alpha\_1}), which is of type \texttt{REAL}. The second line is similar, but for $\alpha_2$.
 
 
@@ -2292,7 +2291,7 @@ $\beta=100$ and $N=1$. The test uses canonical (i.e., not multicanonical) sampli
 Checks to perform:
 \begin{enumerate}
 \item
-$\Delta F$ should be $0.015\ln(1/2)=-0.0103972$. Check that this is the case for the simulation: the $\Delta F$ is stored in 
+$\Delta F$ should be $0.015\ln(1/2)=-0.0103972$. Check that this is the case for the simulation: $\Delta F$ is stored in 
 the variable \textbf{equil\_DeltaF} output to stdout, with its uncertainty stored in the variable \textbf{sigma\_equil\_DeltaF}. 
 \item
 $\langle u^2\rangle$ should be 0.015 for phase 1 and 0.0075 for phase 2: see the 
@@ -2301,33 +2300,32 @@ output to stdout.
 \item
 $\langle E\rangle$ should be 0.015 for both phases. Check that this is the case by examining the variables 
 \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2} in the output to stdout. 
-Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and the enthalpy in an NPT simulation.   
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_1\_MPI}}
-This test is the same as \texttt{test\_EC\_1}, except that an MPI simulation is run using 4 threads. One should check that
-1, 2 and 3 described in \texttt{test\_EC\_1} applies to the variables listed in the \texttt{state} file here, instead of the
-output to stdout. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly, especially that it correctly pools 
-the results from many threads and outputs them to the \texttt{state} file.
+This test is the same as \texttt{test\_EC\_1}, except that an MPI simulation is run using 4 threads. In this case one should check that
+1, 2 and 3 described in \texttt{test\_EC\_1} applies to the variables listed in the \texttt{state} file, as opposed to the
+output to stdout. This test verifies that \texttt{monteswitch\_mpi} works correctly, especially that it correctly combines
+the results from all threads before outputting the final results to \texttt{state}.
 
 
 \subsection{\texttt{test\_EC\_2}}
 This test is the same as \texttt{test\_EC\_1}, except that 10 simulations consisting of 1,000,000 sweeps each are performed
 instead of one simulation of 10,000,000 sweeps, using both the \texttt{-resume} and \texttt{-new} arguments to the executable 
-\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test essentially verifies that checkpointing works
+\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test verifies that checkpointing works
 correctly within \texttt{monteswitch}. Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the 
 \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_2\_MPI}}
-This test is the same as \texttt{test\_EC\_2}, except that 10 4-thread MPI simulations are performed. This test essentially verifies 
+This test is the same as \texttt{test\_EC\_2}, except that 10 4-thread MPI simulations are performed. This test verifies 
 that checkpointing works correctly for \texttt{monteswitch\_mpi}. Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be 
 performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_3}}
-This test calculates the thermodynamic quantities highlighted in \texttt{test\_EC\_1}, but uses multicanonical sampling instead
+This test calculates the thermodynamic quantities mentioned in \texttt{test\_EC\_1}, but uses multicanonical sampling instead
 of canonical sampling, with a weight function generated using the visited states method. To elaborate, a weight function generation 
 simulation is performed which consists of 10,000,000 sweeps. Then the \texttt{state} file is altered in preparation 
 for the production simulation. Then the production simulation is performed, which consists of 10,000,000 sweeps.
@@ -2335,45 +2333,40 @@ Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \
 
 
 \subsection{\texttt{test\_EC\_4}}
-This test is similar to \texttt{test\_EC\_3}, but instead generates the weight function using the shooting method.
-Here a weight function generation simulation is performed which consists of 1,000,000 sweeps. Then the \texttt{state} 
-file is altered in preparation for the production simulation. Then the production simulation is performed, which 
-consists of 10,000,000 sweeps. 
-Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
+This test is the same as \texttt{test\_EC\_3} except that the weight function is generated using the shooting method over
+1,000,000 sweeps. Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_4\_MPI}}
-This test is the same as \texttt{test\_EC\_4}, but uses MPI (2 threads).
+This test is the same as \texttt{test\_EC\_4}, but uses 2 MPI threads.
 Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_5}}
-This test is similar to \texttt{test\_EC\_3}, but instead generates the weight function using the shooting method 
-in conjunction with `\texttt{"pong\_down"} artificial dynamics' and canonical sampling. The  weight function
-generation simulation consists of 1,000,000 sweeps. Two further files are created 
-during this test: \texttt{M\_vs\_t.dat} gives the value of the order parameter vs. simulation time (data points 
-every 100 sweeps), and \texttt{macro\_vs\_t.dat} similarly gives the macrostate number vs. simulation time. 
-Both plots should resemble a sawtooth.
-Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
+This test is the same as \texttt{test\_EC\_3}, however the weight function is generated using the shooting method 
+in conjunction with `\texttt{"pong\_down"} artificial dynamics' and canonical sampling over 1,000,000 sweeps. 
+Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
+However, two further files are created during this test: \texttt{M\_vs\_t.dat} contains the value of the order parameter vs. 
+simulation time, and \texttt{macro\_vs\_t.dat} contains the macrostate number vs. simulation time. Both plots should resemble a sawtooth.
 
 
 \subsection{\texttt{test\_EC\_5\_MPI}}
-This test is similar to \texttt{test\_EC\_5}, except that a 2-thread MPI simulation is performed, and `\texttt{"pong\_up"}
-artificial dynamics' are used. The files \texttt{M\_vs\_t\_0.dat} and \texttt{macro\_vs\_t\_0.dat} pertain to thread '0', and
-the files \texttt{M\_vs\_t\_1.dat} and \texttt{macro\_vs\_t\_1.dat} pertain to thread 1. All files should have a sawtooth
-pattern.
+This test is the same as \texttt{test\_EC\_5}, except that a 2-thread MPI simulation is performed, and `\texttt{"pong\_up"}
+artificial dynamics' are used. In this case the additional files created by the test are \texttt{M\_vs\_t\_0.dat} and 
+\texttt{macro\_vs\_t\_0.dat}, which pertain to MPI thread `0', and \texttt{M\_vs\_t\_1.dat} and \texttt{macro\_vs\_t\_1.dat},
+which pertain to thread `1'. All files should have a sawtooth pattern.
 Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_6}}
-This test is similar to \texttt{test\_EC\_5}, except that `\texttt{"random"} artificial dynamics' are used. The files 
-\texttt{M\_vs\_t.dat} and \texttt{macro\_vs\_t.dat} should be random walks.
+This test is the same as \texttt{test\_EC\_5}, except that `\texttt{"random"} artificial dynamics' are used. The files 
+\texttt{M\_vs\_t.dat} and \texttt{macro\_vs\_t.dat} in this case should resemble random walks.
 Furthermore checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_7}}
 This test is the same as \texttt{test\_EC\_5}, except that 10 simulations are performed (each consisting of 100,000
-sweeps) instead of 1. This tests continuity of simulations using artificial dynamics over checkpoints.
+sweeps) instead of 1. This tests verifies that checkpointing works correctly with artificial dynamics.
 Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \texttt{state} file.
 
 
@@ -2384,7 +2377,7 @@ Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \
 
 
 \subsection{\texttt{test\_EC\_8}}
-This test is similar to \texttt{test\_EC\_1}, except that the crystal consists of 4 particles.
+This test is similar to \texttt{test\_EC\_1}, except that $N=4$ instead of 1.
 
 Checks to perform:
 \begin{enumerate}
@@ -2399,81 +2392,78 @@ stdout.
 \item
 $\langle E\rangle$ should be 0.06 for both phases. Check that this
 is the case by examining the variables \textbf{equil\_H\_1}, \textbf{sigma\_equil\_H\_1}, \textbf{equil\_H\_2} and \textbf{sigma\_equil\_H\_2}
-in the output to stdout. Recall that 'H' in monteswitch refers to the energy in an NVT simulation, and 
-the enthalpy in an NPT simulation.
+in the output to stdout
 \end{enumerate}
 
 
 \subsection{\texttt{test\_EC\_8\_MPI}}
-This test is the same as \texttt{test\_EC\_8}, except that an MPI simulation is run using 4 threads.  One should check that
-1, 2 and 3 described in \texttt{test\_EC\_8} apply to the variables listed in the \texttt{state} file as opposed to the output to
-stdout. This test essentially verifies that \texttt{monteswitch\_mpi} works correctly for multiple particles, especially that it 
-correctly pools the results from many threads and outputs them to the \texttt{state} file.
+This test is the same as \texttt{test\_EC\_8}, except that an MPI simulation is run using 4 threads.  In this case checks
+1, 2 and 3 described in \texttt{test\_EC\_8} should apply to the variables listed in the \texttt{state} file -- as opposed to the output to
+stdout. This test verifies that \texttt{monteswitch\_mpi} works correctly for systems containing multiple particles, especially that it correctly
+combines the results from all threads before outputting the final results to \texttt{state}.
 
 
 \subsection{\texttt{test\_EC\_9}}
 This test is the same as \texttt{test\_EC\_8}, except that 10 simulations consisting of 1,000,000 sweeps each are performed
 instead of one simulation of 10,000,000 sweeps, using both the \texttt{-resume} and \texttt{-new} arguments to the executable 
-\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test essentially verifies that checkpointing works
-correctly for multiple particles. Checks 1, 2 and 3 described in \texttt{test\_EC\_8} should be performed on the \texttt{state} file.
+\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test verifies that checkpointing works
+correctly for systems containing multiple particles. Checks 1, 2 and 3 described in \texttt{test\_EC\_8} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_9\_MPI}}
-This test is the same as \texttt{test\_EC\_9}, except that 10 4-thread MPI simulations are performed. This test essentially verifies 
-that checkpointing works correctly for \texttt{monteswitch\_mpi} for multiple particles. Checks 1, 2 and 3 described in \texttt{test\_EC\_8} should be 
-performed on the \texttt{state} file.
+This test is the same as \texttt{test\_EC\_9}, except that 10 4-thread MPI simulations are performed. This test verifies 
+that checkpointing works correctly for \texttt{monteswitch\_mpi} for systems containing multiple particles. 
+Checks 1, 2 and 3 described in \texttt{test\_EC\_8} should be performed on the \texttt{state} file.
 
 
 \section{NPT Einstein crystal (\texttt{EC\_NPT})}
-The Einstein crystal cannot be used to validate \emph{monteswitch} for the NPT ensemble. Accordingly we consider here a modification of the Einstein
-crystal model suitable for this purpose. We refer to this model as the \emph{NPT Einstein crystal}. In the NPT Einstein crystal the energy of the 
-system is given by
+The Einstein crystal model described in the previous section cannot be used to validate \emph{monteswitch} for the NPT ensemble: all of the test cases
+described so far were for the NVT ensemble. Accordingly we consider here a generalisation of the Einstein crystal model suitable for testing the 
+implementation of the NPT ensemble in \emph{monteswitch}. We refer to this model as the \emph{NPT Einstein crystal}. In the NPT Einstein crystal the 
+energy of the system is given by
 \begin{equation}
 E=\sum_{i=1}^N\alpha V^{-\gamma} u_i^2,
 \end{equation}
 where $V$ is the volume of the system, $\alpha$ and $\gamma$ are the free parameters of the model, and $u_i$ and $N$ have the same significance
 as above for the Einstein crystal.
-The following analytical results can be derived for this model in the NPT ensemble. Firstly, the partition function is given by
+The following analytical results can be derived for this model. Firstly, the NPT partition function is given by
 \begin{equation}
 Z=\bigl[2\pi\Gamma(1.5)\bigr]^N(\beta\alpha)^{-1.5N}(\beta P)^{-(1.5N\gamma+1)}\Gamma(1.5N\gamma+1),
 \end{equation}
-where $\Gamma(x)$ is the gamma function, $P$ is the pressure of the system, $\beta=1/(k_BT)$, and $T$ is the temperature of the system. 
-From this the Gibbs free energy difference $\Delta G$ between two NPT Einstein crystals can be derived:
+where $\Gamma(x)$ is the gamma function, $P$ is the pressure, and $\beta$ is the thermodynamic beta. 
+Using this the Gibbs free energy difference $\Delta G$ between two NPT Einstein crystal `phases' with free parameters $\alpha_1$ and 
+$\gamma_1$ (for phase 1), and $\alpha_2$ and $\gamma_2$ (for phase 2) can be derived:
 \begin{equation}\label{EC_NPT_DeltaG}
 \Delta G=G_1-G_2=-\frac{1}{\beta}\ln\biggl[\frac{Z_1}{Z_2}\biggr],
 \end{equation}
 where
 \begin{equation}
-\frac{Z_1}{Z_2}=\biggr(\frac{\alpha_2}{\alpha_1}\biggr)^{1.5N}(\beta P)^{1.5N(\gamma_2-\gamma_1)}\frac{\Gamma(1.5N\gamma_1+1)}{\Gamma(1.5N\gamma_2+1)},
+\frac{Z_1}{Z_2}=\biggr(\frac{\alpha_2}{\alpha_1}\biggr)^{1.5N}(\beta P)^{1.5N(\gamma_2-\gamma_1)}\frac{\Gamma(1.5N\gamma_1+1)}{\Gamma(1.5N\gamma_2+1)}.
 \end{equation}
-and we have indicated the quantities pertaining to phase 1 and phase 2 by subscripts. Furthermore, it can be shown that the mean-squared displacement 
-of a particle is given by
+Furthermore, it can be shown that the mean-squared displacement of a particle in an NPT Einstein crystal is given by
 \begin{equation}\label{EC_NPT_u2}
 \langle u^2\rangle = 1.5(\beta\alpha)^{-1}(\beta P)^{-\gamma}\frac{\Gamma(1.5N\gamma+1+\gamma)}{\Gamma(1.5N\gamma+1)},
 \end{equation}
-and that the mean volume is given by
+and that the mean volume of the system is
 \begin{equation}\label{EC_NPT_V}
 \langle V\rangle = \frac{1}{(\beta P)}\frac{\Gamma(1.5N\gamma+2)}{\Gamma(1.5N\gamma+1)}.
 \end{equation}
 We use Eqns. \eqref{EC_NPT_DeltaG}, \eqref{EC_NPT_u2} and \eqref{EC_NPT_V} below.
 
-The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EC\_NPT.f95}. Before running these 
-tests one should copy \texttt{Interactions/interactions\_EC\_NPT.f95} to \texttt{interactions.f95}, and then complile 
-\emph{monteswitch}. The Hamiltonian for each phase realised in \emph{monteswitch} in conjunction with 
+The \texttt{interactions.f95} file corresponding to the NPT Einstein crystal is \texttt{interactions\_EC\_NPT.f95}. 
+The Hamiltonian for each phase realised in \emph{monteswitch} in conjunction with 
 \texttt{interactions\_EC\_NPT.f95} is the NPT Einstein crystal as described above.
 $\alpha_1$, $\alpha_2$, $\gamma_1$ and $\gamma_2$ are specified for new simulations via the input file \texttt{interactions\_in}. 
-The format of this file is as follows. On the first line there are two tokens. The first token is a \texttt{CHARACTER(LEN=20)} 
-variable (I recommend: \texttt{alpha\_1=}). The the second token is the value of $\alpha_1$ (stored internally as 
-\textbf{alpha\_1}), which is of type \texttt{REAL}. The second line is similar, but for $\alpha_2$. The third is similar for $\gamma_1$, 
-and the fourth is similar for $\gamma_2$.
+The format of this file is as follows. On the first line there are two tokens. The first token is an arbitrary \texttt{CHARACTER(LEN=20)} 
+variable (we recommend: \texttt{alpha\_1=}). The second token is the value of $\alpha_1$ (stored internally as 
+\textbf{alpha\_1}), which is of type \texttt{REAL}. The second, third and fourth lines are similar, but for $\alpha_2$, $\gamma_1$ and
+$\gamma_2$ respectively.
 
 
 \subsection{\texttt{test\_EC\_NPT\_1}}
-This test calculates the free energy difference between two phases with different $\alpha$ and $\gamma$,
-as well as the mean-squared displacements and mean energies of both crystals. Here $\alpha_1=1000$, $\gamma_1=2$,
-$\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$ and $P=0.25$. The calculation in this test is performed using canonical
-sampling (i.e., not multicanonical sampling), for a one particle supercell, and consists of 10,000,000 sweeps 
-using \textbf{part\_step} set to 0.03 and \textbf{vol\_step} set to 3.0.
+This test calculates $\Delta G$, and $\langle u^2\rangle$ and $\langle V\rangle$ for each phase, for the case $\alpha_1=1000$, $\gamma_1=2$,
+$\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$, $P=0.25$ and $N=1$. This test uses canonical sampling (i.e., not multicanonical sampling), and 
+consists of 10,000,000 sweeps using \textbf{part\_step}=0.03 and \textbf{vol\_step}=3.0.
 
 Checks to perform:
 \begin{enumerate}
@@ -2492,38 +2482,31 @@ $\Delta G$ should be -0.11285. See the variables \textbf{equil\_DeltaF} and \tex
 \subsection{\texttt{test\_EC\_NPT\_2}}
 This test is the same as \texttt{test\_EC\_NPT\_1}, except that 5 simulations consisting of 2,000,000 sweeps each are performed
 instead of one simulation of 10,000,000 sweeps, using both the \texttt{-resume} and \texttt{-new} arguments to the executable 
-\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test essentially verifies that checkpointing works
-correctly. Checks 1--3 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file.
+\texttt{monteswitch} instead of simply the \texttt{-new} argument. This test verifies that checkpointing works
+correctly for \texttt{monteswitch}. Checks 1--3 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_NPT\_2\_MPI}}
 This test is similar to \texttt{test\_EC\_NPT\_2}, except that 5 2-thread MPI simulations are performed, each consisting of
-4,000,000 sweeps. This test essentially verifies that checkpointing works correctly for \texttt{monteswitch\_mpi}. 
-Checks 1--3 described in \texttt{test\_EC\_NPT\_2} should be performed on the \texttt{state} file.
+4,000,000 sweeps. This test verifies that checkpointing works correctly for \texttt{monteswitch\_mpi}. 
+Checks 1--3 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file.
 
 
 \subsection{\texttt{test\_EC\_NPT\_3}}
-This test calculates the thermodynamic quantities as described in \texttt{test\_EC\_NPT\_1}, but uses multicanonical sampling,
-with a weight function generated using the visited states method. Specifically, a weight function generation 
+This test calculates the thermodynamic quantities mentioned in \texttt{test\_EC\_NPT\_1}, but uses multicanonical sampling
+instead of canonical sampling, with a weight function generated using the visited states method. To elaborate, a weight function generation 
 simulation is performed which consists of 10,000,000 sweeps. Then the \texttt{state} file is altered in preparation 
 for the production simulation. Then the production simulation is performed, which consists of 10,000,000 sweeps.
-
-This test also outputs the weight function generated using the visited states method, as well as a histogram of 
+Checks 1--3 described in \texttt{test\_EC\_NPT\_1} should be performed on the \texttt{state} file. However, this test
+also creates a file containing the weight function, as well as a file containing a histogram of 
 the macrostates visited during the production simulation. These can be found in the files \texttt{wf.dat} and \texttt{M\_hist.dat}
-respectively. 
-
-Checks to perform beyond  1--3 described in \texttt{test\_EC\_NPT\_1}:
-\begin{enumerate}
-\setcounter{enumi}{3}
-\item
-The macrostate histogram in \texttt{M\_hist.dat} should be fairly flat, which reflects the fact that all macrostates are
-visted with equal probability in multicanonical sampling using an ideal weight function.
-\end{enumerate}
+respectively. The histogram in \texttt{M\_hist.dat} should be fairly flat.
 
 
 \subsection{\texttt{test\_EC\_NPT\_4}}
-This test is similar to \texttt{test\_EC\_NPT\_2}, but uses $N=5$ instead of $N=1$, and a lattice switch which changes the system volume.
-This checks that lattice switches which do not preserve the system volume sample the NPT ensemble correctly.
+This test is the same as \texttt{test\_EC\_NPT\_2}, but uses $N=5$ instead of $N=1$, as well as a lattice switch which changes the system volume.
+This test verifies that lattice switches which do not preserve the system volume sample the NPT ensemble correctly in \emph{monteswitch}. It also 
+verifies that checkpointing and sampling via particle and volume moves are correct for systems containing multiple particles.
 
 Checks to perform:
 \begin{enumerate}
@@ -2540,20 +2523,19 @@ $\Delta G$ should be -0.78606733. See the variables \textbf{equil\_DeltaF} and \
 
 
 \section{Lennard--Jones solid: hcp vs. fcc (\texttt{LJ\_hcp\_fcc})}
-A solid in which particles interact via a Lennard-Jones potential is a more realistic test for \emph{monteswitch}.
-Here we try to reproduce the results of Refs. \cite{thesis:Jackson,Jackson_2002}. Specifically, we calculate the free energy
-difference between hcp and fcc phases of the Lennard-Jones solid. The relevant \texttt{interactions.f95} file for these tests is 
-\texttt{interactions\_LJ\_hcp\_fcc.f95}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ\_hcp\_fcc.f95}
-to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
+A solid in which particles interact via the Lennard-Jones potential is a more realistic test for \emph{monteswitch} than those described
+above. Here we use \emph{monteswitch} to calculate the Gibbs free energy difference $\Delta G$ between the hcp and fcc phases of the 
+Lennard-Jones solid, in an effort to reproduce the results of Refs. \cite{thesis:Jackson,Jackson_2002}. 
 
-The Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_LJ\_hcp\_fcc.f95} is applicable only to
-to the hcp--fcc problem. Phase 1 is assumed to be hcp and phase 2 is assumed to be fcc. The Lennard-Jones interactions
-used here are not your typical Lennard-Jones interactions. Usually one truncates the interactions at
-a predetermined distance, or uses a predetermined 'list' of interacting pairs of particles. However, this
-approach yields errors which cannot be ignored for this problem: see Refs. \cite{thesis:Jackson,Jackson_2002} for details. A
-better approach is to evaluate the \emph{difference} of the energy of the phase under consideration relative to the 
-ground state for the density under consideration, and apply the usual truncations to this difference. This is what is done here:
-The energy here for particle positions $\lbrace\mathbf{r}\rbrace$ in the hcp phase, given that the system currently has density $\rho$, is:
+The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_LJ\_hcp\_fcc.f95}. 
+Note that the Hamiltonian realised in \emph{monteswitch} in conjunction with \texttt{interactions\_LJ\_hcp\_fcc.f95} is applicable only to
+to the hcp--fcc problem; \texttt{interactions\_LJ\_hcp\_fcc.f95} does not implement the Lennard-Jones potential in the usual way. To elaborate,
+it is common when implementing interatomic potentials to truncate the potential at a predetermined distance, or to have particles only interact
+with those close by via `neighbour lists'. This is done to speed up simulations. However, it also leads to incorrect
+results for the problem we are considering: see Refs. \cite{thesis:Jackson,Jackson_2002} for details. The solution is to evaluate 
+the \emph{difference} of the energy of the current state relative to the ground state for the current phase and density, and then apply a
+truncation to this difference. This is what is done in \texttt{interactions\_LJ\_hcp\_fcc.f95}. Explicitly, the energy for particle
+positions $\lbrace\mathbf{r}\rbrace$ in the hcp phase, given that the system currently has density $\rho$, is given by:
 \begin{equation}
 E = \Phi_{\text{LJ,trunc}}(\lbrace\mathbf{r}\rbrace)-\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)
 + E_{\text{GS,hcp}}(\rho),
@@ -2564,27 +2546,23 @@ using truncated interactions (in the conventional sense, e.g., ignore interactio
 greater than some cut-off), and $E_{\text{GS,hcp}}(\rho)$ is the \emph{exact} energy of the hcp lattice at density $\rho$, i.e., what 
 $\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)$ would be if the cut-off distance were taken to infinity. Similar applies
 for the fcc phase.
-Of course, this approach necessitates a tailor-made \texttt{interactions.f95} file for the hcp--fcc. By contrast the \texttt{interactions.f95}
-file corresponding to the `conventional' Lennard-Jones Hamiltonian can be applied to any pair of phases.
-Note that the usage of \texttt{interactions\_LJ\_hcp\_fcc.f95} is identical to \texttt{interactions\_LJ.f95} -- which is described in
-Chapter \ref{chapter:interactions}.
 
 
 \subsection{\texttt{test\_LJ\_hcp\_fcc\_1\_MPI}}
-This test calculates the free energy difference between hcp and fcc for a 216-particle supercell at $P=0$ and
-$\beta=10$ in the NPT ensemble, given Lennard-Jones parametrisation $\epsilon=\sigma=1$. 2 4-thread MPI simulations are used. 
-The first generates the weight function using \texttt{pong\_down} barrier dynamics over 500000 sweeps. The second simulation calculates 
-the free energy difference. Note that this simulation may take a while to run. The final result for the free energy difference
-should match that in Ref. \cite{thesis:Jackson}, Fig. 6.21, the data-point corresponding to $k_BT=0.1$, i.e.,
-the free energy difference per particle should be -0.00055 (Note that Jackson defines the free energy difference as
-that of fcc minus that of hcp, while in \emph{monteswitch}, with hcp corresponding to lattice 1 and fcc corresponding to
-lattice 2, the free energy difference is defined as that of hcp minus that of fcc -- hence the change of sign here
-relative to Jackson's result). Hence in the test simulation the final extensive free energy difference should be -0.12.
+This test calculates $\Delta G$ for a 216-particle supercell at $P=0$ and $\beta=10$ in the NPT ensemble, using Lennard-Jones 
+parametrisation $\epsilon=\sigma=1$. Two 4-thread MPI simulations are used. The first generates the weight function using 
+\texttt{"pong\_down"} artificial dynamics over 500,000 sweeps. The second simulation calculates $\Delta G$. Note that this 
+test may take a while to run. The final value for $\Delta G$ should match that in Ref. \cite{thesis:Jackson}, Fig. 6.21, 
+the data-point corresponding to $k_BT=0.1$, i.e., $\Delta G$ should be -0.00055 per particle. (Note that in Ref. \cite{thesis:Jackson} 
+$\Delta G$ is defined as the free energy of fcc relative to hcp, while in \emph{monteswitch}, with hcp corresponding to 
+phase 1 and fcc corresponding to phase 2 as is the case here, $\Delta G$ is the free energy of hcp relative to fcc -- hence 
+the change of sign here relative to the result in Ref. \cite{thesis:Jackson}). Therefore the test should yield an \emph{extensive} 
+value for $\Delta G$ of -0.12.
 
 Checks to perform:
 \begin{enumerate}
 \item
-The final free energy difference between the two systems should be -0.12. Check that this is the case for the
+$\Delta G$ should be -0.12. Check that this is the case for the
 simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
 stored in the \textbf{sigma\_equil\_DeltaF} variable.
 \end{enumerate}
@@ -2593,42 +2571,41 @@ stored in the \textbf{sigma\_equil\_DeltaF} variable.
 \section{Hard spheres (single species) (\texttt{HS})}
 The hard-sphere system has been well studied, and makes an excellent testing ground for \emph{monteswitch}.
 The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_HS.f95}, whose usage is described in Chapter
-\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS.f95}
-to \texttt{interactions.f95}, and then compile \emph{monteswitch}. Note that here we set the energy cost of two spheres overlapping,
-$\epsilon$, to 100,000, as well as setting $\beta=1$ to realise hard spheres as described in Chapter \ref{chapter:interactions}.
+\ref{chapter:interactions}. Note that here we set the energy cost of two spheres overlapping,
+$\epsilon$, to 100,000, as well as setting $\beta=1$, in order to realise hard spheres as described in Chapter \ref{chapter:interactions}.
 
 
 \subsection{\texttt{test\_HS\_1}}
-This test calculates the free energy difference between the hcp and fcc phases for a 216-particle supercell in the NPT ensemble at
-$P\beta\sigma^3=14.58$ (where $\sigma$ denotes the hard-sphere diameter), using \texttt{UVM} volume moves. An analogous calculation
+This test calculates the free energy difference $\Delta G$ between the hcp and fcc phases for a 216-particle supercell in the NPT ensemble at
+$P\beta\sigma^3=14.58$ (where $\sigma$ denotes the hard-sphere diameter), using \texttt{"UVM"} volume moves. An analogous calculation
 has been performed in Refs. \cite{thesis:Jackson,Bruce_2000}, the results of which will act as a benchmark.
-2 4-thread MPI simulations are used. The first generates the weight function using \texttt{pong\_down}
-barrier dynamics over 2,000,000 sweeps. The second simulation calculates the free energy difference, using
-a total of 125,000,000 sweeps. Note that this simulation may take a while to run. The final result for the free energy difference
-should match that Refs. \cite{thesis:Jackson,Bruce_2000}: the free energy difference per particle should be
-$0.00113(4)\beta$. (Note that Jackson defines the free energy difference as that of fcc minus that of hcp,
-while in \emph{monteswitch}, with hcp corresponding to phase 1 and fcc corresponding to phase 2, the free energy
-difference is defined as that of hcp minus that of fcc -- hence the change of sign here
-relative to Jackson's result).
+Two 4-thread MPI simulations are used. The first generates the weight function using \texttt{"pong\_down"}
+artificial dynamics over 2,000,000 sweeps. The second simulation calculates $\Delta G$ using a total of 125,000,000 sweeps. 
+Note that this test may take a while to run. The final value for $\Delta G$ should match Refs. \cite{thesis:Jackson,Bruce_2000}: 
+$\Delta G$ should be $0.00113(4)\beta$ per particle. (Note that in Refs. \cite{thesis:Jackson,Bruce_2000} $\Delta G$ is defined as
+the free energy of fcc relative to hcp, while in \emph{monteswitch}, with hcp corresponding to phase 1 and fcc corresponding to phase 2, 
+$\Delta G$ is the free energy of hcp relative to fcc -- hence the change of sign here relative to the result of Refs. 
+\cite{thesis:Jackson,Bruce_2000}).
 
 Checks to perform:
 \begin{enumerate}
 \item
-The final free energy difference between the two systems, when divided by 216, should agree with 0.00113(4).
+$\Delta G$ obtained from the simulation, when divided by 216 (to yield the intensive value), should agree with 0.00113(4).
 Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
-in the 'state' file, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable.
+in the \texttt{state} file, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_HS\_2}}
+[DOWN TO HERE]
 This test calculates the properties of the hcp phase for a 216-particle supercell at $P\beta\sigma^3=14.58$ in
 the NPT ensemble. A 4-thread MPI simulation is used: a conventional (one-phase, not LSMC) Monte Carlo simulation is
-performed with \texttt{UVM} volume moves, which allow each dimension of the supercell to move independently. The
-results should correspond to Table 4.1 in Ref. \cite{thesis:Jackson}; specifically, the row $6^3$, hcp, etc. Note
-that there is a typo in this refence: the results in Table 4.1 correspond to a reduced pressure of 14.58, \emph{not}
-18.74. The densities quoted for the latter are not in agreement with those quoted in the table; however they
+performed with \texttt{"UVM"} volume moves. The
+results should correspond to Table 4.1 in Ref. \cite{thesis:Jackson}; specifically, the row beginning `$6^3$, hcp'. Note
+that there is a typo in this reference: the results in Table 4.1 correspond to a reduced pressure of 14.58, \emph{not}
+18.74. (The densities quoted for the latter are not in agreement with those quoted in the table; however they
 do correspond to other hard-sphere simulations the author performed at a reduced pressure of 14.58, which also agree with
-Speedy's equation of state (Ref. 70 in Ref. \cite{thesis:Jackson}) at that pressure.
+Speedy's equation of state -- Ref. 70 in Ref. \cite{thesis:Jackson} -- at that pressure).
 
 Checks to perform:
 \begin{enumerate}
