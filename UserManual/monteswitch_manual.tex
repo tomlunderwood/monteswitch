@@ -2288,11 +2288,11 @@ This test calculates $\Delta F$, and $\langle u^2\rangle$ and $\langle E\rangle$
 $\beta=100$ and $N=1$. The test uses canonical (i.e., not multicanonical) sampling, and consists of 10,000,000 sweeps using 
 \textbf{part\_step}=0.12.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-$\Delta F$ should be $0.015\ln(1/2)=-0.0103972$. Check that this is the case for the simulation: $\Delta F$ is stored in 
-the variable \textbf{equil\_DeltaF} output to stdout, with its uncertainty stored in the variable \textbf{sigma\_equil\_DeltaF}. 
+$\Delta F$ should be $0.015\ln(1/2)=-0.0103972$: see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output
+to stdout. 
 \item
 $\langle u^2\rangle$ should be 0.015 for phase 1 and 0.0075 for phase 2: see the 
 variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} 
@@ -2379,12 +2379,11 @@ Checks 1, 2 and 3 described in \texttt{test\_EC\_1} should be performed on the \
 \subsection{\texttt{test\_EC\_8}}
 This test is similar to \texttt{test\_EC\_1}, except that $N=4$ instead of 1.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-$\Delta F$ should be $0.06\ln(1/2)=-0.0415888$.
-Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
-variable output to stdout, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable. 
+$\Delta F$ should be $0.06\ln(1/2)=-0.0415888$:  see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output
+to stdout.
 \item
 $\langle u^2\rangle$ should be 0.015 for phase 1 and 0.0075 for phase 2: see the 
 variables \textbf{equil\_umsd\_1}, \textbf{sigma\_equil\_umsd\_1}, \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2} output to
@@ -2465,7 +2464,7 @@ This test calculates $\Delta G$, and $\langle u^2\rangle$ and $\langle V\rangle$
 $\alpha_2=2000$, $\gamma_2=1.8$, $\beta=10$, $P=0.25$ and $N=1$. This test uses canonical sampling (i.e., not multicanonical sampling), and 
 consists of 10,000,000 sweeps using \textbf{part\_step}=0.03 and \textbf{vol\_step}=3.0.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
 $\langle u^2\rangle$ should be 0.00048 for phase 1 and 0.00018089 for phase 2: see the variables 
@@ -2475,7 +2474,7 @@ stdout.
 $\langle V\rangle$ should be 1.6 for phase 1 and 1.48 for phase 2: see the variables \textbf{equil\_V\_1}, 
 \textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} output to stdout.
 \item
-$\Delta G$ should be -0.11285. See the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output to stdout.
+$\Delta G$ should be -0.11285: see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} output to stdout.
 \end{enumerate}
 
 
@@ -2508,7 +2507,7 @@ This test is the same as \texttt{test\_EC\_NPT\_2}, but uses $N=5$ instead of $N
 This test verifies that lattice switches which do not preserve the system volume sample the NPT ensemble correctly in \emph{monteswitch}. It also 
 verifies that checkpointing and sampling via particle and volume moves are correct for systems containing multiple particles.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
 $\langle u^2\rangle$ should be 0.006528 for phase 1 and 0.001862841 for phase 2: see the 
@@ -2518,7 +2517,7 @@ in the file \texttt{state}.
 $\langle V\rangle$ should be 6.4 for phase 1 and 5.8 for phase 2: see the variables \textbf{equil\_V\_1}, 
 \textbf{sigma\_equil\_V\_1}, \textbf{equil\_V\_2} and \textbf{sigma\_equil\_V\_2} in the file \texttt{state}.
 \item
-$\Delta G$ should be -0.78606733. See the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the file \texttt{state}.
+$\Delta G$ should be -0.78606733: see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the file \texttt{state}.
 \end{enumerate}
 
 
@@ -2559,12 +2558,10 @@ phase 1 and fcc corresponding to phase 2 as is the case here, $\Delta G$ is the 
 the change of sign here relative to the result in Ref. \cite{thesis:Jackson}). Therefore the test should yield an \emph{extensive} 
 value for $\Delta G$ of -0.12.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-$\Delta G$ should be -0.12. Check that this is the case for the
-simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
-stored in the \textbf{sigma\_equil\_DeltaF} variable.
+$\Delta G$ should be -0.12: see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the \texttt{state} file.
 \end{enumerate}
 
 
@@ -2576,7 +2573,7 @@ $\epsilon$, to 100,000, as well as setting $\beta=1$, in order to realise hard s
 
 
 \subsection{\texttt{test\_HS\_1}}
-This test calculates the free energy difference $\Delta G$ between the hcp and fcc phases for a 216-particle supercell in the NPT ensemble at
+This test calculates the free energy difference $\Delta G$ between the hcp and fcc phases for a 216-particle system in the NPT ensemble at
 $P\beta\sigma^3=14.58$ (where $\sigma$ denotes the hard-sphere diameter), using \texttt{"UVM"} volume moves. An analogous calculation
 has been performed in Refs. \cite{thesis:Jackson,Bruce_2000}, the results of which will act as a benchmark.
 Two 4-thread MPI simulations are used. The first generates the weight function using \texttt{"pong\_down"}
@@ -2587,120 +2584,108 @@ the free energy of fcc relative to hcp, while in \emph{monteswitch}, with hcp co
 $\Delta G$ is the free energy of hcp relative to fcc -- hence the change of sign here relative to the result of Refs. 
 \cite{thesis:Jackson,Bruce_2000}).
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-$\Delta G$ obtained from the simulation, when divided by 216 (to yield the intensive value), should agree with 0.00113(4).
-Check that this is the case for the simulation: the free energy difference is stored in the \textbf{equil\_DeltaF}
-in the \texttt{state} file, with its uncertainty stored in the \textbf{sigma\_equil\_DeltaF} variable.
+$\Delta G$ obtained from the simulation, when divided by 216 (to yield the intensive value), should agree with 0.00113(4):
+see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the \texttt{state} file.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_HS\_2}}
-[DOWN TO HERE]
-This test calculates the properties of the hcp phase for a 216-particle supercell at $P\beta\sigma^3=14.58$ in
-the NPT ensemble. A 4-thread MPI simulation is used: a conventional (one-phase, not LSMC) Monte Carlo simulation is
-performed with \texttt{"UVM"} volume moves. The
+This test calculates the properties of the hcp phase for a 216-particle system at $P\beta\sigma^3=14.58$ in
+the NPT ensemble. A 4-thread MPI conventional (one-phase, not LSMC) Monte Carlo simulation is performed, using \texttt{"UVM"} volume moves. The
 results should correspond to Table 4.1 in Ref. \cite{thesis:Jackson}; specifically, the row beginning `$6^3$, hcp'. Note
 that there is a typo in this reference: the results in Table 4.1 correspond to a reduced pressure of 14.58, \emph{not}
 18.74. (The densities quoted for the latter are not in agreement with those quoted in the table; however they
 do correspond to other hard-sphere simulations the author performed at a reduced pressure of 14.58, which also agree with
 Speedy's equation of state -- Ref. 70 in Ref. \cite{thesis:Jackson} -- at that pressure).
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-The density obtained from the simulation, when divided by $\sqrt{2}$, should agree with the value in the table,
-i.e., 0.7776(1). To calculate the density note that the supercell contains 216 particles, and the equilibrium
-volume of the hcp supercell and its uncertainty obtained via block analysis are stored in the variables
-\textbf{equil\_V\_1} and \textbf{sigma\_equil\_V\_1}.
+The density obtained from the simulation, divided by $\sqrt{2}$, should agree with the value 0.7776(1). To determine the density note 
+that the system contains 216 particles, and that the hcp volume obtained from block averaging and its uncertainty are stored in the variables
+\textbf{equil\_V\_1} and \textbf{sigma\_equil\_V\_1} in the file \texttt{state}.
 \item
-The hcp $c/a$ ratio should agree with the value in the table, i.e., 1.6323(7). The $c/a$ ratio can be obtained from
-the following \texttt{awk} command, which extracts a measure of the instantaneous $c/a$ ratio from \textbf{Lx} and \textbf{Lz} in the
-\texttt{data\_0} file:
+The hcp $c/a$ ratio should agree with 1.6323(7). The $c/a$ ratio corresponding to MPI thread `0' can be obtained via the following 
+command, which extracts a measure of the instantaneous $c/a$ ratio from \textbf{Lx} and \textbf{Lz} in the \texttt{data\_0} file:
 \begin{verbatim}
 $ awk 'NR%14==1 {Lx=$3}; NR%14==3 
 {Lz=$3; print $2,(Lz/6)/(Lx/3)}' data_0 
 | awk '$1>0 {sum=sum+$2;count=count+1}; 
 END{print sum/count}'
 \end{verbatim}
-Doing similar for \texttt{data\_1}, \texttt{data\_2} and \texttt{data\_3} will give 4 independent results which can be combined
-to give a final mean and standard error.
+Doing similar for \texttt{data\_1}, \texttt{data\_2} and \texttt{data\_3} will give 4 independent results, one for each MPI thread, which can be combined
+to give a $c/a$ to be compared against 1.6323(7).
 \end{enumerate}
 
 
 \section{Embedded atom model (\texttt{EAM})}
-The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_EAM.f95}, whose usage is described in Chapter
-\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_EAM.f95}
-to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
-
+The relevant \texttt{interactions.f95} file for this test is \texttt{interactions\_EAM.f95}, whose usage is described in Chapter
+\ref{chapter:interactions}. 
 
 \subsection{\texttt{test\_EAM\_1}}
-The test here is exactly the same calculation as the worked example; see Chapter \ref{chapter:example} for details.
+This test is exactly the same calculation as the worked example; see Chapter \ref{chapter:example} for details.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-The final free energy difference between the two systems should be 0. Check that this is the case for the
-simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
-stored in the \textbf{sigma\_equil\_DeltaF} variable.
+The free energy difference between the two systems should be very close to 0: see the variables \textbf{equil\_DeltaF} and 
+\textbf{sigma\_equil\_DeltaF} in the \texttt{state} file.
 \end{enumerate}
 
 
-\section{`Conventional' Lennard-Jones (\texttt{LJ})}
+\section{Lennard-Jones fluid (\texttt{LJ})}
 The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_LJ.f95}, whose usage is described in Chapter
-\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_LJ.f95}
-to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
-
+\ref{chapter:interactions}.
 
 \subsection{\texttt{test\_LJ\_1}}
-This test calculates the potential energy per particle of the Lennard-Jones fluid in the NVT ensemble, with a cut-off of
-$3\sigma$, $\epsilon=\sigma=1$, at a temperature of 0.85 and density of 0.003.
+This test calculates the average energy per particle $\langle E\rangle$ of the Lennard-Jones fluid in the NVT ensemble using a conventional
+Monte Carlo simulation. The simulation is performed at reduced temperature $k_BT/\epsilon=0.85$ and reduced density $\rho \sigma^3=0.003$,
+using a cut-off of $3\sigma$.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
 \item
-The aforementioned energy, with tail corrections, should match those of \url{http://mmlapps.nist.gov/srs/LJ_PURE/mc.htm},
-specifically, -0.03102(6).
+$\langle E\rangle$, after adding the tail correction (see Ref. \cite{book:Frenkel}), should match that of Ref. \cite{website:NIST}:
+ -0.03102(6). Note that the test outputs $\langle E\rangle$ with the tail correction to stdout at the completion of the simulation.
 \end{enumerate}
 
 
 \section{Hard spheres (multiple species) (\texttt{HS\_multi})}
 The relevant \texttt{interactions.f95} file for these tests is \texttt{interactions\_HS\_multi.f95}, whose usage is described in Chapter
-\ref{chapter:interactions}. Before running these tests one should copy \texttt{Interactions/interactions\_HS\_multi.f95}
-to \texttt{interactions.f95}, and then compile \emph{monteswitch}.
+\ref{chapter:interactions}.
 
 \subsection{\texttt{test\_HS\_multi\_1}}
-This test calculates the free energy difference between two systems each containing two hard spheres, where both systems have identical dimensions
-$L_x=L_y=L_z=1$. In the first system, i.e., `phase 1' the two spheres both have diameter $\sigma_A=0.2$. However in the second system (i.e., phase 2) 
-one sphere has diameter $\sigma_A$ and the other has $\sigma_B=0.1$. Thus phase 1 consists of two particles belonging to species `$A$', while phase 2
-consists of one particle belonging to species $A$ and the other belonging to species `$B$'.
-The free energy difference can be evaluated analytically. The relevant expression is (for phase 2 relative to phase 1)
+This test calculates the free energy difference $\Delta F$ between two simple multicomponent hard-sphere `phases'. Both phases have identical supercell
+dimensions $L_x$, $L_y$ and $L_z$, and contain two particles. In phase 1 the two particles both have diameter $\sigma_A$, while in phase 2
+one particle has diameter $\sigma_A$ and the other has diameter $\sigma_B$; phase 1 consists of two particles belonging to species `$A$', while phase 2
+consists of one particle belonging to species $A$ and one belonging to species `$B$'. $\Delta F$ can be evaluated analytically here:
 \begin{equation}
-\Delta F=-\frac{1}{\beta}\ln\Biggl[\frac{V-4\pi\sigma_A^3/3}{V-4\pi\sigma_{AB}^3/3}\Biggr],
+\Delta F\equiv F_1-F_2=-\frac{1}{\beta}\ln\Biggl[\frac{V-4\pi\sigma_A^3/3}{V-4\pi\sigma_{AB}^3/3}\Biggr],
 \end{equation}
 where
 \begin{equation}
-\sigma_{AB}=\frac{1}{2}(\sigma_A+\sigma_B)
+\sigma_{AB}=\frac{1}{2}(\sigma_A+\sigma_B),
 \end{equation}
-and $V$ is the volume of the system. Using $V=1$, $\sigma_A=0.2$, $\sigma_B=0.1$ and $\beta=1$ (which we use in the test) yields 
-$\Delta F=0.019846611$. 
+$\beta$ is the thermodynamic beta, and $V$ is the volume of either phase. 
 
-To evaluate the free energy difference between the phases we use canonical sampling in conjunction with a lattice switch move in which we simply the 
-change of species of one of the particles from $A$ to $B$ in going from phase 1 to 2, and \emph{vica versa} in going from phase 2 to 1.
+Specfiically, we evaluate $\Delta F$ for $V=1$, $\sigma_A=0.2$, $\sigma_B=0.1$ and $\beta=1$, in which case $\Delta F=0.019846611$. We use 
+canonical sampling, in conjunction with a lattice switch which consists of simply changing the species of one of the particles from $A$ to $B$ 
+in going from phase 1 to 2, and \emph{vica versa} in going from phase 2 to 1.
 
-Checks to perform:
+The following checks should be performed at the completion of the test:
 \begin{enumerate}
-\item The aforementioned value of $\Delta F$ should be reproduced. Check that this is the case for the
-simulation: the free energy difference is stored in the \textbf{equil\_DeltaF} in the \texttt{state} file, with its uncertainty
-stored in the \textbf{sigma\_equil\_DeltaF} variable. \textbf{equil\_DeltaF} is also periodically output to stdout.
+\item $\Delta F$ should be 0.019846611: see the variables \textbf{equil\_DeltaF} and \textbf{sigma\_equil\_DeltaF} in the \texttt{state} file.
+\textbf{equil\_DeltaF} and  \textbf{sigma\_equil\_DeltaF} are also periodically output to stdout.
 \end{enumerate}
 
 
 \subsection{\texttt{test\_HS\_multi\_2}}
-This test is identical to \texttt{test\_HS\_multi\_1} except that multicanonical sampling is used. Note that for this problem canonical sampling
-is more efficient than multicanonical sampling, and hence the simulation may take a little longer than \texttt{test\_HS\_multi\_1} to converge
-upon the correct answer.
+This test is identical to \texttt{test\_HS\_multi\_1} except that multicanonical sampling is used instead of canonical sampling. 
+Note that for this problem canonical sampling is more efficient than multicanonical sampling, and hence the simulation may take a little 
+longer than \texttt{test\_HS\_multi\_1} to converge upon the correct value of $\Delta F$.
 
 
 %% And finally the references
