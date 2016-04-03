@@ -59,10 +59,13 @@ $ echo "I am not"
 \end{verbatim}
 Note however that `\verb|$|' is often used in the shell command itself. It should be clear from the context whether this is the
 significance of any given `\verb|$|' or not.
-\item \textbf{Bold font} to signify the names of variables in input and output files for the \emph{monteswitch} programs.
+\item \textbf{bold font} to signify the names of variables in input and output files for the \emph{monteswitch} programs.
 \item \texttt{UPPER CASE TYPEWRITER FONT} to signify Fortran statements and variables. Note however that the \emph{monteswitch} 
 source code is predominantly lower case (Fortran is case-insensitive). Furthermore, for clarity we sometimes use lower case, e.g.,
 the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as \texttt{REAL(M\_grid\_size)}.
+\item the usual Unix conventions when describing usage of command-line arguments for a program, e.g., 
+\texttt{program [-o] (-c|-d)} signifies that \texttt{program} has an optional command-line argument 
+\texttt{-o}, and that one of the arguments \texttt{-c} or \texttt{-d} must be specified.
 \end{itemize}
 
 
@@ -666,12 +669,18 @@ to compile \emph{all} executables.
 the user's platform. We have overwhelmingly used GFortran and Open MPI compilers with \emph{monteswitch}; hence these compilers can be considered 
 to be the most `safe'.
 
-[***************************** NOTE ABOUT PLATFORM-DEPENDENCE OF SCRIPTS FOR SED AND AWK IN RUN.SH IN TESTS *************************]
-
 One issue we have found with regards to using \emph{monteswitch} on different platforms stems from the fact that \emph{monteswitch} uses Fortran's 
 list-directed input and output. This means the nature of the output from \emph{monteswitch} programs is noticeably compiler-dependent. This in itself
 is not a problem, though the post-processing commands given in forthcoming chapters may need to be subtly modified to work with programs compiled using 
 something other than GFortran.
+
+Another issue we have found is that the usage of the utility \texttt{sed} is platform-dependent. In particular we have found that appropriate command-line
+argument to \texttt{sed} to invoke in-place editing of a file, without saving a backup, is `\texttt{-i ''}' on OS X (note the `\texttt{''}'), 
+while it is simply `\texttt{-i}' on other unix platforms (where adding `\texttt{''}' results in an error being returned by \texttt{sed} on these
+platforms). This has a bearing on the transferability of some of the \texttt{run.sh} shell scripts in the directory \texttt{Tests} -- which correspond to the
+OS X version of \texttt{sed} -- to the user's platform. Hence the user should ensure that these scripts are appropriate for their platform, and modify
+them accordingly if not.
+
 
 \section{Package overview}
 After compilation, the \emph{monteswitch} directory will contain the following programs:
@@ -699,7 +708,7 @@ interested in performing. Finally, the tests serve to validate the Monte Carlo p
 While the test cases serve as examples, more pedagogical examples can be found in the directory \texttt{Examples}, including the worked example
 of Chapter \ref{chapter:example}.
 
-\subsection{Plug-ins for various interatomic potentials}\label{sec:plugins}
+\subsection{Specifying the interatomic potential}\label{sec:plugins}
 The directory \texttt{Interactions} contains Fortran files corresponding to various interatomic potentials. However, only one of these can be implemented 
 by \texttt{monteswitch} at a time. The module which is implemented is stored in the file \texttt{interactions.f95} in the main directory; it is only the 
 contents of this file which is used in the package -- after compilation. Hence to implement a specific interatomic potential one must copy
@@ -2547,7 +2556,7 @@ $\Phi_{\text{LJ,trunc}}(\lbrace\mathbf{R}_{\text{hcp}}\rbrace)$ would be if the 
 for the fcc phase.
 
 
-\subsection{\texttt{test\_LJ\_hcp\_fcc\_1\_MPI}}
+\subsection{\texttt{test\_LJ\_hcp\_fcc\_1}}
 This test calculates $\Delta G$ for a 216-particle supercell at $P=0$ and $\beta=10$ in the NPT ensemble, using Lennard-Jones 
 parametrisation $\epsilon=\sigma=1$. Two 4-thread MPI simulations are used. The first generates the weight function using 
 \texttt{"pong\_down"} artificial dynamics over 500,000 sweeps. The second simulation calculates $\Delta G$. Note that this 
