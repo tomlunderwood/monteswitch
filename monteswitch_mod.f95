@@ -4210,11 +4210,7 @@ contains
                 case(part_select_cycle)
                    p=n
                 case(part_select_rand)
-                   p=int(get_random_number()*n_part)+1 
-                   ! get_random_number() can, on very rare occasions, return a value of 1, in which case the
-                   ! right-hand side of the above code evaluates to (n_part+1). The particle number p cannot be 
-                   ! greater than n_part. Therefore we choose to set p=n_part for this very rare event.
-                   if(p==(n_part+1)) p=n_part
+                   p=int(get_random_number()*n_part)+1
                 case default
                    write(0,*) "monteswitch_mod: Error. 'part_select' value is not recognised."
                    stop 1

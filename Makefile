@@ -139,11 +139,11 @@ monteswitch_mpi_docs.html: monteswitch_mpi.f95
 	sh docmaker.sh '\!\! ?' $< > $@
 
 monteswitch_mpi: monteswitch_mpi.o monteswitch_mod.o kinds_mod.o interactions.o \
-rng_mod.o mersenne_twister.o metropolis_mod.o
+rng_mod.o mt95.o metropolis_mod.o
 	$(FC_MPI) $(FC_MPI_FLAGS) -o $@ $^
 
 monteswitch_mpi.o: monteswitch_mpi.f95 monteswitch_mod.mod kinds_mod.mod interactions.o \
-rng_mod.mod mersenne_twister.mod metropolis_mod.mod
+rng_mod.mod mt95.mod metropolis_mod.mod
 	$(FC_MPI) $(FC_MPI_FLAGS) -c $<
 
 
@@ -153,11 +153,11 @@ monteswitch_docs.html: monteswitch.f95
 	sh docmaker.sh '\!\! ?' $< > $@
 
 monteswitch: monteswitch.o monteswitch_mod.o kinds_mod.o interactions.o rng_mod.o \
-mersenne_twister.o metropolis_mod.o
+mt95.o metropolis_mod.o
 	$(FC) $(FC_FLAGS) -o $@ $^
 
 monteswitch.o: monteswitch.f95 monteswitch_mod.mod kinds_mod.mod rng_mod.mod \
-mersenne_twister.mod
+mt95.mod
 	$(FC) $(FC_FLAGS) -c $<
 
 
@@ -166,12 +166,12 @@ mersenne_twister.mod
 monteswitch_post_docs.html: monteswitch_post.f95
 	sh docmaker.sh '\!\! ?' $< > $@
 
-monteswitch_post: monteswitch_post.o monteswitch_mod.o kinds_mod.o interactions.o rng_mod.o mersenne_twister.o \
+monteswitch_post: monteswitch_post.o monteswitch_mod.o kinds_mod.o interactions.o rng_mod.o mt95.o \
 metropolis_mod.o
 	$(FC) $(FC_FLAGS) -o $@ $^
 
 monteswitch_post.o: monteswitch_post.f95 monteswitch_mod.mod kinds_mod.mod rng_mod.mod \
-mersenne_twister.mod
+mt95.mod
 	$(FC) $(FC_FLAGS) -c $<
 
 
@@ -180,11 +180,11 @@ mersenne_twister.mod
 monteswitch_mod_docs.html: monteswitch_mod.f95
 	sh docmaker.sh '\!\! ?' $< > $@
 
-monteswitch_mod.o: monteswitch_mod.f95 kinds_mod.mod interactions_mod.mod rng_mod.mod mersenne_twister.mod \
+monteswitch_mod.o: monteswitch_mod.f95 kinds_mod.mod interactions_mod.mod rng_mod.mod mt95.mod \
 metropolis_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 
-monteswitch_mod.mod: monteswitch_mod.f95 kinds_mod.mod interactions_mod.mod rng_mod.mod mersenne_twister.mod \
+monteswitch_mod.mod: monteswitch_mod.f95 kinds_mod.mod interactions_mod.mod rng_mod.mod mt95.mod \
 metropolis_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 	touch $@
@@ -203,22 +203,22 @@ metropolis_mod.mod: metropolis_mod.f95 kinds_mod.mod
 	touch $@
 
 
-# rng module, mersenne_twister
+# rng module, mt95
 
 rng_mod_docs.html: rng_mod.f95
 	sh docmaker.sh '\!\! ?' $< > $@
 
-rng_mod.o: rng_mod.f95 mersenne_twister.mod kinds_mod.mod
+rng_mod.o: rng_mod.f95 mt95.mod kinds_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 
-rng_mod.mod: rng_mod.f95 mersenne_twister.mod kinds_mod.mod
+rng_mod.mod: rng_mod.f95 mt95.mod kinds_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 	touch $@
 
-mersenne_twister.o: mersenne_twister.f90 kinds_mod.mod
+mt95.o: mt95.f90 kinds_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 
-mersenne_twister.mod: mersenne_twister.f90 kinds_mod.mod
+mt95.mod: mt95.f90 kinds_mod.mod
 	$(FC) $(FC_FLAGS) -c $<
 	touch $@
 

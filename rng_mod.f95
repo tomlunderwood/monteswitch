@@ -18,11 +18,9 @@
 !! <h2> Description </h2>
 !! <p>
 !! <code>rng_mod</code> is a module which contains procedures for
-!! generating random numbers by the Mersenne twister algorithm. This
-!! module was initially wrapper for 'mersenne_twister.f90'. For reasons 
-!! described in 'mersenne_twister.f90', a wrapper is necessary. However,
-!! I have added other useful procedures over time.
-!! The program <code>rng_test</code> tests this module.
+!! generating random numbers by the Mersenne twister  MT19937 algorithm
+!! by acting as a wrapper for 'mt95.f90'), as well as a number of 
+!! other useful random-number-related procedures.
 !! </p>
 !!
 module rng_mod
@@ -31,11 +29,11 @@ module rng_mod
   !! <p> 
   !! <ul>
   !!  <li> <code> kinds_mod </code> </li>
-  !!  <li> <code> mersenne_twister </code> </li>
+  !!  <li> <code> mt95 </code> </li>
   !! </ul>
   !! </p>
   use kinds_mod
-  use mersenne_twister
+  use mt95
 
   implicit none
 
@@ -66,11 +64,10 @@ contains
     integer, intent(in), optional :: seed
     integer :: clock
     if(present(seed)) then
-       call random_setseed(seed)
+        call genrand_init(seed)
     else
        call system_clock(count=clock)
-       clock=mod(clock,10000)
-       call random_setseed(clock)
+       call genrand_init(clock)
     end if
   end subroutine init_random_seed
 
@@ -79,14 +76,14 @@ contains
   !! <h3> <code> function get_random_number() </code> </h3>
   !! <p>
   !! <code> get_random_number </code> generates a random number between
-  !! and including 0 and 1. We emphasise that this number may be 0 or 1.
+  !! 0 and 1. We emphasise that this number may be 0, but not 1.
   !! </p>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
   function get_random_number()
     real(rk) :: get_random_number
-    real, dimension(1) :: x
-    call random_number(x)
-    get_random_number=x(1)
+
+    call genrand_real2(get_random_number)
+
   end function get_random_number
 
   
