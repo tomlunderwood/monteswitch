@@ -1100,7 +1100,7 @@ obtain an even more accurate estimate for $X$. This is $\bar{X}$:
 \end{equation}
 The uncertainty $\sigma_X$ is simply the standard error in $\bar{X}$:
 \begin{equation}
-\sigma_X=\frac{1}{\sqrt{N_{\text{blocks}}}}\sqrt{\frac{1}{N_{\text{blocks}}}\sum_{b=1}^{N_{\text{blocks}}}(X_b-\bar{X})^2}.
+\sigma_X=\frac{1}{\sqrt{N_{\text{blocks}}}}\sqrt{\frac{1}{(N_{\text{blocks}}-1)}\sum_{b=1}^{N_{\text{blocks}}}(X_b-\bar{X})^2}.
 \end{equation}
 
 In \texttt{monteswitch} the internal variable \textbf{block\_sweeps} determines the size of a block in sweeps. Internal variables with names 

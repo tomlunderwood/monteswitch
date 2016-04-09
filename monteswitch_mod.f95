@@ -4980,39 +4980,39 @@ contains
     ! DeltaF
     equil_DeltaF=interblock_sum_DeltaF/block_counts_DeltaF
     sigma_equil_DeltaF=sqrt( interblock_sum_DeltaF_sqrd/block_counts_DeltaF - equil_DeltaF*equil_DeltaF ) &
-         / sqrt(block_counts_DeltaF*1.0_rk)
+         / sqrt(block_counts_DeltaF-1.0_rk)
     ! H_1
     equil_H_1=interblock_sum_H_1/block_counts_H_1
     sigma_equil_H_1=sqrt( interblock_sum_H_1_sqrd/block_counts_H_1 - equil_H_1*equil_H_1 ) &
-         / sqrt(block_counts_H_1*1.0_rk)
+         / sqrt(block_counts_H_1-1.0_rk)
     ! H_2
     equil_H_2=interblock_sum_H_2/block_counts_H_2
     sigma_equil_H_2=sqrt( interblock_sum_H_2_sqrd/block_counts_H_2 - equil_H_2*equil_H_2 ) &
-         / sqrt(block_counts_H_2*1.0_rk)
+         / sqrt(block_counts_H_2-1.0_rk)
     ! V_1
     equil_V_1=interblock_sum_V_1/block_counts_V_1
     sigma_equil_V_1=sqrt( interblock_sum_V_1_sqrd/block_counts_V_1 - equil_V_1*equil_V_1 ) &
-         / sqrt(block_counts_V_1*1.0_rk)
+         / sqrt(block_counts_V_1-1.0_rk)
     ! V_2
     equil_V_2=interblock_sum_V_2/block_counts_V_2
     sigma_equil_V_2=sqrt( interblock_sum_V_2_sqrd/block_counts_V_2 - equil_V_2*equil_V_2 ) &
-         / sqrt(block_counts_V_2*1.0_rk)
+         / sqrt(block_counts_V_2-1.0_rk)
     ! umsd_1
     equil_umsd_1=interblock_sum_umsd_1/block_counts_umsd_1
     sigma_equil_umsd_1=sqrt( interblock_sum_umsd_1_sqrd/block_counts_umsd_1 - equil_umsd_1*equil_umsd_1 ) &
-         / sqrt(block_counts_umsd_1*1.0_rk)
+         / sqrt(block_counts_umsd_1-1.0_rk)
     ! umsd_2
     equil_umsd_2=interblock_sum_umsd_2/block_counts_umsd_2
     sigma_equil_umsd_2=sqrt( interblock_sum_umsd_2_sqrd/block_counts_umsd_2 - equil_umsd_2*equil_umsd_2 ) &
-         / sqrt(block_counts_umsd_2*1.0_rk)
+         / sqrt(block_counts_umsd_2-1.0_rk)
     ! L_1
     equil_L_1=interblock_sum_L_1/block_counts_L_1
     sigma_equil_L_1=sqrt( interblock_sum_L_1_sqrd/block_counts_L_1 - equil_L_1*equil_L_1 ) &
-         / sqrt(block_counts_L_1*1.0_rk)
+         / sqrt(block_counts_L_1-1.0_rk)
     ! L_2
     equil_L_2=interblock_sum_L_2/block_counts_L_2
     sigma_equil_L_2=sqrt( interblock_sum_L_2_sqrd/block_counts_L_2 - equil_L_2*equil_L_2 ) &
-         / sqrt(block_counts_L_2*1.0_rk)
+         / sqrt(block_counts_L_2-1.0_rk)
   end subroutine set_equil_properties
 
 
