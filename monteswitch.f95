@@ -28,7 +28,8 @@
 !! work for all operating systems or compilers.
 !! </p>
 !! <p>
-!! The command line argument options are as follows:
+!! Usage of this program is: <code>monteswitch [-seed <i>seed</i>] -new [-wf]</code> or
+!! <code>monteswitch [-seed <i>seed</i>] (-resume|-reset)</code>, where the command-line argument options are as follows.
 !! </p>
 !! <table border="1">
 !!  <tr>
@@ -49,6 +50,15 @@
 !!   subroutine in the <code>monteswitch_mod</code> module. In this case there are three input files: 'params_in', 
 !!   'lattices_in' and 'interactions_in', which correspond to the arguments to the <code>initialise_from_files</code>
 !!   in an obvious way. For this option the file 'data' if it exists is overwritten.
+!!   </td>
+!!  </tr>
+!!  <tr>
+!!   <td> -wf </td>
+!!   <td>
+!!   When used in conjunction with <code>-new</code>, the initial weight function to be used by the simulation is read 
+!!   from a file 'wf_in'. The file must contain <code>M_grid_size</code> (specified in 'params_in') lines, each 
+!!   containing two tokens (extra lines and tokens are ignored). Both tokens should be of type <code>real</code>. 
+!!   The first token on line <i>i</i> is ignored, and the second is the value of the weight function for macrostate <i>i</i>.
 !!   </td>
 !!  </tr>
 !!  <tr>
@@ -87,6 +97,8 @@ program monteswitch
     
     ! This is .true. if the argument "-seed" is present
     logical :: seed_specified
+    ! This is .true. if the argument "-wf" is present
+    logical :: wf_specified
     ! The RNG seed if it is specified
     integer :: seed
     ! The command line argument we are on for reading: we have read n-1 command line arguments so far
@@ -94,10 +106,12 @@ program monteswitch
 
     ! Unimportant variables
     character(len=20) :: char
-    integer :: error
+    integer :: error, i
+    real(rk) :: x
 
 
     seed_specified = .false.
+    wf_specified = .false.
     n=1
 
     ! Get the 1st command line argument
@@ -145,18 +159,54 @@ program monteswitch
 
     case("-new")
 
-        ! Check that there aren't any more command line arguments
-        call getarg(n,char)
-        if(trim(char)/="") then
-            write(0,*) "monteswitch: Error. Command line argument detected after '-new' where there should be none"
-            stop 1
-        end if
-
 
         ! CODE FOR A NEW SIMULATION
 
+        ! Check for the presence of "-wf"
+        call getarg(n,char)
+        n = n+1
+        select case(trim(char))
+        case("-wf")
+            wf_specified = .true.
+            ! Check that there aren't any more command line arguments
+            call getarg(n,char)
+            if(trim(char)/="") then
+                write(0,*) "monteswitch: Error. Command line argument detected after '-wf' where there should be none"
+                stop 1
+            end if
+        case("")            
+            ! Do nothing
+        case default 
+            write(0,*) "monteswitch: Error. Only argument '-wf' is allowed after '-new'"
+            stop 1
+        end select
+
         call initialise_from_files("params_in","lattices_in")
 
+        ! Set the initial weight function from the file "wf_in" if "-wf" is present
+        if(wf_specified) then
+
+            ! Open the file
+            open(unit=10,file="wf_in",iostat=error,status="old")
+            if(error/=0) then
+                write(0,*) "monteswitch: Error. Problem opening file 'wf_in'"
+                stop 1
+            end if
+            
+            ! Read the weight function from the file and set eta_grid accordingly        
+            do i=1,M_grid_size
+                read(10,*,iostat=error) x, eta_grid(i)
+                if(error/=0) then
+                    write(0,*) "monteswitch: Error. Problem reading weight function from line ",i," in file 'wf_in'"
+                    stop 1
+                end if
+            end do
+            
+            close(unit=10)
+
+        end if
+
+        ! Run the simulation
         if(seed_specified) then
             call run("data","state",.false.,seed)
         else
@@ -166,15 +216,15 @@ program monteswitch
 
     case("-resume")
 
+
+        ! CODE FOR A RESUMED SIMULATION
+
         ! Check that there aren't any more command line arguments
         call getarg(n,char)
         if(trim(char)/="") then
             write(0,*) "monteswitch: Error. Command line argument detected after '-resume' where there should be none"
             stop 1
         end if
-
-
-        ! CODE FOR A RESUMED SIMULATION
 
         call import("state")
 
@@ -187,15 +237,15 @@ program monteswitch
 
     case("-reset")
 
+
+        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
+
         ! Check that there aren't any more command line arguments
         call getarg(n,char)
         if(trim(char)/="") then
             write(0,*) "monteswitch: Error. Command line argument detected after '-reset' where there should be none"
             stop 1
         end if
-
-
-        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
 
         call import("state")
         call initialise_counters()
@@ -213,6 +263,12 @@ program monteswitch
         write(0,*) "monteswitch: Error. Failed to detect argument '-new', '-resume' or '-reset'"
         stop 1
 
+    case("-wf")
+
+        ! Code for out of place "-wf" argument
+
+        write(0,*) "monteswitch: Error. Incorrect usage: argument '-wf' must follow '-new'"
+        stop 1
 
     case default
 

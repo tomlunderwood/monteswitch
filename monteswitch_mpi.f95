@@ -82,13 +82,16 @@ program monteswitch_mpi
 
     ! This is .true. if the argument "-seed" is present
     logical :: seed_specified
+    ! This is .true. if the argument "-wf" is present
+    logical :: wf_specified
     ! The command line argument we are on for reading: we have read n-1 command line arguments so far
     integer :: n
 
     ! Unimportant variables
     character(len=20) :: char
     character(len=20) :: char_int
-    integer(ik) :: error
+    integer(ik) :: error, i
+    real(rk) :: x
 
 
     ! Initialise the MPI environment
@@ -109,6 +112,7 @@ program monteswitch_mpi
 
 
     seed_specified = .false.
+    wf_specified = .false.
     n=1
 
     ! Get the 1st command line argument
@@ -174,18 +178,53 @@ program monteswitch_mpi
 
     case("-new")
 
-        ! Check that there aren't any more command line arguments
-        call getarg(n,char)
-        if(trim(char)/="") then
-            write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-new' where there should be none"
-            stop 1
-        end if
-
 
         ! CODE FOR A NEW SIMULATION
 
+        ! Check for the presence of "-wf"
+        call getarg(n,char)
+        n = n+1
+        select case(trim(char))
+        case("-wf")
+            wf_specified = .true.
+            ! Check that there aren't any more command line arguments
+            call getarg(n,char)
+            if(trim(char)/="") then
+                write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-wf' where there should be none"
+                stop 1
+            end if
+        case("")            
+            ! Do nothing
+        case default 
+            write(0,*) "monteswitch_mpi: Error. Only argument '-wf' is allowed after '-new'"
+            stop 1
+        end select
+
         ! Import the appropriate variables from the input files
         call initialise_from_files("params_in","lattices_in")
+
+        ! Set the initial weight function from the file "wf_in" if "-wf" is present
+        if(wf_specified) then
+
+            ! Open the file
+            open(unit=10,file="wf_in",iostat=error,status="old")
+            if(error/=0) then
+                write(0,*) "monteswitch_mpi: Error. Problem opening file 'wf_in'"
+                stop 1
+            end if
+            
+            ! Read the weight function from the file and set eta_grid accordingly        
+            do i=1,M_grid_size
+                read(10,*,iostat=error) x, eta_grid(i)
+                if(error/=0) then
+                    write(0,*) "monteswitch_mpi: Error. Problem reading weight function from line ",i," in file 'wf_in'"
+                    stop 1
+                end if
+            end do
+            
+            close(unit=10)
+
+        end if
 
         ! Assign sweeps according to the task ID
         call assign_sweeps()
@@ -199,15 +238,15 @@ program monteswitch_mpi
 
     case("-resume")
 
+
+        ! CODE FOR A RESUMED SIMULATION
+
         ! Check that there aren't any more command line arguments
         call getarg(n,char)
         if(trim(char)/="") then
             write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-resume' where there should be none"
             stop 1
         end if
-
-
-        ! CODE FOR A RESUMED SIMULATION
 
         call import("state")
 
@@ -227,15 +266,15 @@ program monteswitch_mpi
 
     case("-reset")
 
+
+        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
+
         ! Check that there aren't any more command line arguments
         call getarg(n,char)
         if(trim(char)/="") then
             write(0,*) "monteswitch_mpi: Error. Command line argument detected after '-reset' where there should be none"
             stop 1
         end if
-
-
-        ! CODE FOR SIMULATION INITIALISED FROM THE STATE FILE BUT WITH COUNTERS RESET
 
         call import("state")
         call initialise_counters()
@@ -255,6 +294,12 @@ program monteswitch_mpi
         write(0,*) "monteswitch_mpi: Error. Failed to detect argument '-new', '-resume' or '-reset'"
         stop 1
 
+    case("-wf")
+
+        ! Code for out of place "-wf" argument
+
+        write(0,*) "monteswitch_mpi: Error. Incorrect usage: argument '-wf' must follow '-new'"
+        stop 1
 
     case default
 

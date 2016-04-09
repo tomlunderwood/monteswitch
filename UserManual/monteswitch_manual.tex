@@ -730,7 +730,7 @@ generates this documentation: each HTML file corresponds to a particular source 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Monte Carlo simulation programs}\label{chapter:simulation_programs}
-The key programs in the package are \texttt{monteswitch} and \texttt{monteswitch\_mpi}, which run (LSMC) Monte Carlo simulations. 
+The key programs in the package are \texttt{monteswitch} and \texttt{monteswitch\_mpi}, which run Monte Carlo simulations. 
 The latter is the MPI-parallelised analogue of the former, and the two programs are almost identical in terms of usage.
 In this chapter we describe the usage of \texttt{monteswitch} in detail. Unless otherwise stated, the following information
 is also pertinent to \texttt{monteswitch\_mpi}. Information specific to \texttt{monteswitch\_mpi} can be found in 
@@ -738,34 +738,34 @@ the final section of this chapter.
 
 The command-line arguments passed to \texttt{monteswitch} determine the nature of the simulation. Usage of \texttt{monteswitch} is: 
 \begin{verbatim}
-monteswitch [-seed <seed>] (-new|-resume|-reset)
+monteswitch [-seed <seed>] -new [-wf]
+monteswitch [-seed <seed>] (-resume|-reset)
 \end{verbatim}
 Note that one, and only one, of the arguments \texttt{-new}, \texttt{-resume} and \texttt{-reset} must be specified,
-while the argument \texttt{-seed} is optional. Note also that if \texttt{-seed} is present then it must come before \texttt{-new}, 
-\texttt{-resume} or \texttt{-reset}. We now describe the function of each of these  arguments.
+while the arguments \texttt{-seed} and \texttt{-wf} are optional (where moreover \texttt{-wf} can only be used in conjunction with \texttt{-new}) . 
+Note also that the order of the arguments is important: if \texttt{-seed} is specified then it must be the first argument; if
+\texttt{-wf} is specified it must be the last argument. Below we describe the function of each of these arguments.
 
 
-\section{Seeding the random number generator}
-\texttt{monteswitch} uses the Mersenne Twister random number generator (MT19937) \cite{Matsumoto_1998} as implemented in Fortran 90 
-by Mark Iredell (see the source code file \texttt{mersenne\_twister.f90} for details). This random number generator takes
-a single non-zero integer as its seed. The command-line argument \texttt{-seed} allows the user to specify the 
+\section{Seeding the random number generator: the argument \texttt{-seed}}
+\texttt{monteswitch} uses the Mersenne Twister random number generator (MT19937) \cite{Matsumoto_1998}, and a single non-zero
+integer is used to seed it. The command-line argument \texttt{-seed} allows the user to specify the 
 seed for the forthcoming simulation explicitly. If \texttt{-seed} is present, then the following argument \texttt{<seed>}
-\texttt{-seed} is taken to be the seed. For example, to set the seed to 12345 for a simulation using the \texttt{-new}
+is taken to be the seed. For example, to set the seed to 12345 for a simulation using the \texttt{-new}
 argument (whose function will be explained in a moment) the appropriate command is \texttt{monteswitch -seed 12345 -new}.
 If the argument \texttt{-seed} is absent then a seed is generated using the system clock.
 
 
 \section{Starting a new simulation: the argument \texttt{-new}}
-The command-line argument \texttt{-new} invokes a new simulation from scratch. 
-The simulation is initialised using information contained in input files located in the current directory. There are two input files
-which are required for all simulations. These are \texttt{lattices\_in} and \texttt{params\_in}. 
-The file \texttt{lattices\_in} contains specifications of two states. This file determines the two phases which will be 
-considered, and defines the lattice switch which will be used in the simulation. The file \texttt{params\_in} contains the variables
-which determine the nature of the simulation, except variables pertaining to the interatomic potentials, which are specified in an additional input
-file (or possibly multiple files) whose nature depends on the specific version of \texttt{interactions.f95} used when compiling \emph{monteswitch} 
-(see Section \ref{sec:plugins}).
-We defer discussion of input files pertaining to the interatomic potentials to Chapter \ref{chapter:interactions}. We now describe
-the format of the input files \texttt{lattices\_in} and \texttt{params\_in}.
+The command-line argument \texttt{-new} invokes a new simulation `from scratch'. In this case
+the simulation is initialised using information contained in input files located in the current directory. The specific input files required
+by \texttt{monteswitch} will depend on the specific version of \texttt{interactions.f95} utilised when compiling \emph{monteswitch} 
+(see Section \ref{sec:plugins}). However the input files which are version-dependent only contain information pertaining to the interatomic
+potential. We defer discussion of such files to Chapter \ref{chapter:interactions}; here we focus on the input files which are used in
+\emph{all} versions of \texttt{monteswitch}, namely \texttt{lattices\_in}, \texttt{params\_in} and \texttt{wf\_in}. The
+first two of these are compulsory: they are read by all new simulations. By contrast \texttt{wf\_in} is optional, only being read 
+if the command-line argument \texttt{-wf} is present (see above for usage). We now describe the format and purpose of these files.
+
 
 \subsection{Input file: \texttt{lattices\_in}}\label{sec:lattices_in}
 The input file \texttt{lattices\_in} contains specifications for two states (i.e., supercell dimensions and particle positions), one for
@@ -1038,6 +1038,17 @@ their associated uncertainties via block averaging (see Section \ref{sec:output}
 \end{longtable}
 \end{center}
 \end{landscape}
+
+
+\subsection{Input file: \texttt{wf\_in}}
+The command-line argument \texttt{-wf} allows one to specify the initial weight function to be used in the simulation: if \texttt{-wf} is present, then
+the initial weight function is read from the file \texttt{wf\_in}. If \texttt{-wf} is absent then \texttt{wf\_in} is not read, and the weight function 
+is initialised to 0 for all macrostates. \texttt{wf\_in} must contain \textbf{M\_grid\_size} lines
+(where \textbf{M\_grid\_size} is specified in \texttt{params\_in}), each containing two tokens (extra lines and tokens are ignored),
+which both should be of type \texttt{REAL}. The first token on each line is ignored, while the second tokens are treated as the
+weight function: the value of the weight function for macrostate $i$ is initialised to the value of the second token on line $i$ in
+\texttt{wf\_in}. Note that the format of \texttt{wf\_in} is analogous to that output by the program \texttt{monteswitch\_post} in conjunction with the
+\texttt{-extract\_wf} argument -- see Section \ref{sec:monteswitch_post}.
 
 
 \section{Output: stdout, \texttt{state} and \texttt{data}}\label{sec:output}
