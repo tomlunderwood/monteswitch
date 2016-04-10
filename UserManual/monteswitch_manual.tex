@@ -9,20 +9,24 @@
 \usepackage{longtable} % Split long tables over many pages
 \usepackage{lscape} % For rotating certain pages to landscape
 
-\usepackage{nomencl} % Needed for abbreviations
-\makenomenclature
+%\usepackage{nomencl} % Needed for abbreviations
+%\makenomenclature
 
 \begin{document}
 \sloppy
 
-\title{\emph{monteswitch} user manual\\ (v 1.0.0)}
+\title{\emph{monteswitch} user manual \\ (for version 1.0.0) }
 \author{Tom L. Underwood}
 \date{\today}
 \maketitle
 
+\addcontentsline{toc}{chapter}{About \emph{monteswitch}}
+\chapter*{About \emph{monteswitch}}
+\emph{monteswitch} is a package for performing lattice-switch Monte Carlo simulations. It was written by Tom L. Underwood, with the
+exception of the random number generator, which was written by Takuji Nishimura, Makoto Matsumoto and Josi Rui Faustino de Sousa.
 
-\addcontentsline{toc}{chapter}{Contents}
-\tableofcontents
+\emph{monteswitch} is issued under the MIT License. This is a permissive free software license which allows great flexibility
+regarding use and modification of the software. A copy of the license can be found in the appendix of this document.
 
 
 \addcontentsline{toc}{chapter}{Acknowledgements}
@@ -36,9 +40,9 @@ are gratefully acknowledged.
 While we have endeavoured to ensure \emph{monteswitch} is free from error, we cannot guarantee this. Hence you use \emph{monteswitch}
 at your own risk.
 
-\addcontentsline{toc}{chapter}{List of Abbreviations}
-\renewcommand{\nomname}{List of Abbreviations}
-\printnomenclature
+%\addcontentsline{toc}{chapter}{List of Abbreviations}
+%\renewcommand{\nomname}{List of Abbreviations}
+%\printnomenclature
 
 \addcontentsline{toc}{chapter}{Conventions used in this manual}
 \chapter*{Conventions used in this manual}
@@ -69,6 +73,10 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 \end{itemize}
 
 
+\addcontentsline{toc}{chapter}{Contents}
+\tableofcontents
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
 Calculating free energies is one of the most fundamental problems in materials science.
@@ -84,7 +92,7 @@ about their lattice sites), or the NaCl and CsCl crystals. However one phase cou
 exhibiting some concentration $c$ of a certain crystallographic defect. In this case the free energy difference between the two `phases' would be
 the free energy cost associated with adding a concentration $c$ of defects to the fcc crystal (where one must be careful to correctly account
 for the positional entropy of the defects).}
-\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
+%\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
 It has been applied to a wide range of systems \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000,Jackson_2002,Jackson_2007,Yang_2008,
 Marechal_2008,Raiteri_2010,Wilms_2012,Quigley_2014,Bridgwater_2014,Underwood_2015},
 beginning with the hard-sphere solid, where it was used to determine the free energy difference
@@ -107,8 +115,8 @@ presumably stems, at least in part, from the lack of an LSMC code which is both 
 With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can 
 be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
 package contains a version of the main executable which is parallelised using MPI for HPC applications.
-\nomenclature{MPI}{Message Passing Interface}%
-\nomenclature{HPC}{High-performance computing}%
+%\nomenclature{MPI}{Message Passing Interface}%
+%\nomenclature{HPC}{High-performance computing}%
 Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the 
 free energy cost associated with crystallographic defects. Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
 However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent 
@@ -132,7 +140,7 @@ in which the desired interatomic potential is `hard-coded'.
 
 This document describes how to use \emph{monteswitch}. Note that this document does not provide details regarding the structure of the source code. 
 We direct readers interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
-\ref{chapter:preliminaries}) -- or failing that the source code itself. Here we assume that the reader is already competent with the unix shell, 
+\ref{chapter:preliminaries}) -- or failing that the source code itself. Here we assume that the reader is already competent with the Unix shell, 
 including utilities such as \texttt{grep}, \texttt{sed} and \texttt{awk}. Often we provide examples of commands which utilise the shell and the 
 aforementioned utilities to perform certain tasks. However we never describe exactly how these commands work for the sake of brevity; interested users
 should consult the relevant documentation online or elsewhere. In a similar vein, when we describe Fortran-related issues we assume the reader has 
@@ -664,7 +672,7 @@ $ make mpi
 to compile \emph{all} executables.
 
 
-\section{Differences in \emph{monteswitch} between platforms and compilers}
+\section{Transferability between platforms and compilers}
 \emph{monteswitch} has not yet been tested on many platforms, and hence there may be unforeseen problems when implementing \emph{monteswitch} on
 the user's platform. We have overwhelmingly used GFortran and Open MPI compilers with \emph{monteswitch}; hence these compilers can be considered 
 to be the most `safe'.
@@ -676,7 +684,7 @@ something other than GFortran.
 
 Another issue we have found is that the usage of the utility \texttt{sed} is platform-dependent. In particular we have found that appropriate command-line
 argument to \texttt{sed} to invoke in-place editing of a file, without saving a backup, is `\texttt{-i ''}' on OS X (note the `\texttt{''}'), 
-while it is simply `\texttt{-i}' on other unix platforms (where adding `\texttt{''}' results in an error being returned by \texttt{sed} on these
+while it is simply `\texttt{-i}' on other Unix platforms (where adding `\texttt{''}' results in an error being returned by \texttt{sed} on these
 platforms). This has a bearing on the transferability of some of the \texttt{run.sh} shell scripts in the directory \texttt{Tests} -- which correspond to the
 OS X version of \texttt{sed} -- to the user's platform. Hence the user should ensure that these scripts are appropriate for their platform, and modify
 them accordingly if not.
@@ -2707,6 +2715,40 @@ This test is identical to \texttt{test\_HS\_multi\_1} except that multicanonical
 Note that for this problem canonical sampling is more efficient than multicanonical sampling, and hence the simulation may take a little 
 longer than \texttt{test\_HS\_multi\_1} to converge upon the correct value of $\Delta F$.
 
+
+\appendix
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{License}
+\begin{verbatim}
+monteswitch
+
+Copyright (c) 2016 Tom L. Underwood
+
+Permission is hereby granted, free of charge, to any person obtaining 
+a copy of this software and associated documentation files (the 
+"Software"), to deal in the Software without restriction, including 
+without limitation the rights to use, copy, modify, merge, publish, 
+distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be 
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+SOFTWARE.
+\end{verbatim}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% And finally the references
 \addcontentsline{toc}{chapter}{Bibliography}
