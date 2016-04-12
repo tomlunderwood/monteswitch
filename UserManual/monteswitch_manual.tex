@@ -81,70 +81,64 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 \chapter{Introduction}
 Calculating free energies is one of the most fundamental problems in materials science.
 A plethora of different methods have been developed to this end, each designed with a particlular problem in mind (see, e.g., Ref. \cite{book:Frenkel}).
-%
-\emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
+Unfortunately, in many cases commonly-used methods for calculating free energy differences between two solid phases cannot
+achieve the accuracy required for many practical applications with reasonable computational effort.
+One consequence of this is that the location of coexistence curves between such phases, i.e., the `lines' on a phase diagram
+where the free energy difference between the two phases is zero, cannot be accurately resolved if the phases
+have `very similar' free energies. This problem is by no means limited to `realistic' models of particle interactions, but
+persists even when simple models are used. For instance it was only relatively recently that it was shown that the fcc crystal is
+favoured over the hcp crystal in the hard-sphere solid -- an archetype of a simple system \cite{Bruce_1997,Bruce_2000,Jackson_2002}.
+
+\emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000}
 \footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo.}
-is a method for calculating the free energy difference between two solid phases.
-\footnote{Here we use the term `phase' rather loosely. By `phase' here we simply mean `some system' we are interested 
-in measuring the free energy of relative to `some other system' via LSMC. A `phase' could be a solid phase in the conventional sense. For 
-example we could use LSMC to evaluate the free energy difference between the fcc and hcp crystals (taking into account the vibrations of particles 
-about their lattice sites), or the NaCl and CsCl crystals. However one phase could be the fcc crystal while the other could be the fcc crystal 
-exhibiting some concentration $c$ of a certain crystallographic defect. In this case the free energy difference between the two `phases' would be
-the free energy cost associated with adding a concentration $c$ of defects to the fcc crystal (where one must be careful to correctly account
-for the positional entropy of the defects).}
-%\nomenclature{LSMC}{Lattice-switch Monte Carlo}%
+is a method which can be used to efficiently evaluate the free energy difference between two solid phases.
 It has been applied to a wide range of systems \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000,Jackson_2002,Jackson_2007,Yang_2008,
 Marechal_2008,Raiteri_2010,Wilms_2012,Quigley_2014,Bridgwater_2014,Underwood_2015},
-beginning with the hard-sphere solid, where it was used to determine the free energy difference
-between the fcc and hcp phases \cite{Bruce_1997,Bruce_2000} and free energy cost of stacking faults
-\cite{Pronk_1999,Mau_1999}. The method was later applied to soft interatomic potentials \cite{Jackson_2002,Wilms_2012,Underwood_2015}, 
-systems containing multiple particle species \cite{Jackson_2007,Yang_2008}, and molecular systems 
+beginning with the hard-sphere solid, where it was used to resolve the aforementioned hcp--fcc problem \cite{Bruce_1997,Bruce_2000},
+as well as to evaluate the free energy cost associated with stacking faults \cite{Pronk_1999,Mau_1999}.
+The method was later applied to soft interatomic potentials \cite{Jackson_2002,Wilms_2012,Underwood_2015},
+systems containing multiple particle species \cite{Jackson_2007,Yang_2008}, and molecular systems
 \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
 LSMC has also inspired \emph{phase switch Monte Carlo}, a method for calculating the free energy difference between a solid and a
-fluid phase \cite{Wilding_2000}, which has also seen widespread use
+fluid phase \cite{Wilding_2000}, which has also seen some use
 \cite{Wilding_2000,Errington_2004,McNeil-Watson_2006,Wilding_2009_MP,Wilding_2009_JCP,Sollich_2010,Wilding_2010}.
-%
+%                              
 The strength of LSMC is its efficiency: for the purposes of evaluating the free energy difference between pairs of solid phases LSMC is ostensibly
-more efficient than other existing methods \cite{Wilms_2012,Marechal_2008}. 
-However it should be noted that this remains somewhat of an open question \cite{Pronk_1999}. Nevertheless one can say that LSMC is 
-\emph{at least} as efficient as existing methods. 
+more efficient than all other existing methods \cite{Wilms_2012,Marechal_2008}.
+\footnote{However it should be noted that this remains somewhat of an open question \cite{Pronk_1999,Sweatman_2015}. Nevertheless one can say that LSMC is
+\emph{at least} as efficient as existing methods.}
+However, despite its efficiency and versatility, LSMC has unfortunately yet to have gained widespread popularity. This stems in part from the lack of
+an LSMC code which is both widely available and applicable to a wide range of systems.
 
-Despite its strengths, LSMC has unfortunately yet to have gained widespread popularity. This 
-presumably stems, at least in part, from the lack of an LSMC code which is both versatile and widely available.
-%
-With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can 
+With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can
 be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
 package contains a version of the main executable which is parallelised using MPI for HPC applications.
-%\nomenclature{MPI}{Message Passing Interface}%
-%\nomenclature{HPC}{High-performance computing}%
-Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the 
+Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the
 free energy cost associated with crystallographic defects. Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
-However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent 
+However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent
 particles do not have rotational degrees of freedom), and pairs of phases which can be represented by orthorhombic unit cells.
 
-While steps have been recently been taken to implement LSMC in existing general-purpose codes,
+While steps have been recently been taken to implement LSMC in an existing general-purpose code,
 \footnote{Specifically, LSMC is earmarked for inclusion in the general-purpose Monte Carlo code \emph{DL\_MONTE} \cite{Purton_2013}.}
-we believe that \emph{monteswitch} will fulfill
-an important `gap in the market' for the foreseeable future because it was designed from the outset to be highly-customisable with regards to the 
-interatomic potential. By contrast general-purpose codes tend to have a fixed set of interatomic potentials to draw upon.
-In \emph{monteswitch} all of the procedures pertaining to the interatomic potential called by the rest of the code are housed within 
-a single Fortran module, which itself is housed in a file \texttt{interactions.f95}. 
-Users are encouraged to write their own version of \texttt{interactions.f95} which implements the interatomic potential they are interested in.
-(Of course, in writing their own version of \texttt{interactions.f95} users are free to interface with external Fortran modules, or even external 
-programs). 
-Templates are provided with \emph{monteswitch} to assist with this. Furthermore versions of \texttt{interactions.f95} are included
-with \emph{monteswitch} which correspond to some commonly-used interatomic potentials, which can serve as examples.
-After compiling the package with the desired version of \texttt{interactions.f95}, the end result is a version of \emph{monteswitch} 
-in which the desired interatomic potential is `hard-coded'.
-(A similar scheme is utilised in the molecular dynamics program MOLDY \cite{Ackland_2011}).
+we believe that \emph{monteswitch} will fulfill an important `gap in the market' for the foreseeable future because it was designed from 
+the outset to be highly-customisable with regards to the interatomic potential. By contrast general-purpose codes tend to have a fixed set 
+of interatomic potentials to draw upon.
+In \emph{monteswitch} all of the procedures pertaining to the interatomic potential are housed within a single Fortran module. 
+It is intended that users write their own version of this module which implements the interatomic potential they are 
+interested in.
+\footnote{Of course, in doing this the user's module is free to interface with `external' modules, or even external programs.}
+(A similar scheme is utilised in the molecular dynamics program MOLDY \cite{Ackland_2011}). 
+Templates are provided with \emph{monteswitch} to assist with this. Furthermore modules are included
+with \emph{monteswitch} which correspond to some commonly-used interatomic potentials, which can serve as examples. Of course these modules can also be
+used within \emph{monteswitch} to perform LSMC calculations.
 
 This document describes how to use \emph{monteswitch}. Note that this document does not provide details regarding the structure of the source code. 
-We direct readers interested in such things to the HTML source code documentation -- which can be generated from the source code (see Chapter
+We direct readers interested in this to the HTML source code documentation -- which can be generated from the source code (see Chapter
 \ref{chapter:preliminaries}) -- or failing that the source code itself. Here we assume that the reader is already competent with the Unix shell, 
 including utilities such as \texttt{grep}, \texttt{sed} and \texttt{awk}. Often we provide examples of commands which utilise the shell and the 
 aforementioned utilities to perform certain tasks. However we never describe exactly how these commands work for the sake of brevity; interested users
 should consult the relevant documentation online or elsewhere. In a similar vein, when we describe Fortran-related issues we assume the reader has 
-an expertise in Fortran 95 . We also assume that the user is familiar with the Monte Carlo method (in the sense of computational
+an expertise in Fortran 95. We also assume that the user is familiar with the Monte Carlo method (in the sense of computational
 chemistry), but not necessarily with LSMC. For further information regarding Monte Carlo simulations in condensed 
 matter physics, see, e.g., Ref. \cite{book:Frenkel}. 
 
@@ -167,28 +161,14 @@ for users.
 In this chapter we describe the LSMC methodology as relevant to \emph{monteswitch}. Further information regarding different incarnations of
 LSMC can be found in the LSMC studies cited in the previous chapter.
 
-\section{What do we mean by `solid phase'?}\label{sec:phase}
-LSMC is a method to calculate the free energy difference between two solid phases. The term `solid phase' could mean a number of things;
-it is worth clarifying exactly what we mean by this term before proceeding. Here we use the following definition, which is convenient for our 
-purposes. We define a solid phase (henceforth we omit the word `solid' for the sake of brevity)
-using some state of the system which is \emph{representative} of the phase in question. We refer to such a state 
-as a \emph{representative state}: phase $\alpha$ is the set of all states of the system which are `reachable' from the chosen representative 
-state for $\alpha$ on the timescale of the simulation. 
-For example, if one is interested in the `fcc phase', i.e., the set of states corresponding to thermodynamic fluctuations in the particle 
-positions about their average positions (which form an fcc crystal lattice), then a suitable choice of representative state would be that 
-in which the particle positions form an ideal fcc crystal lattice. A simulation initialised in this state would, on the timescale of the 
-simulation, explore the configurations which constitute the fcc phase.
-
-
 \section{Calculating free energy differences}
-Consider now a system which is free to visit two phases 1 and 2 (and only phases 1 and 2).
+Consider a system which is free to visit two phases 1 and 2 (and only phases 1 and 2).
 Of phases 1 and 2, the equilibrium phase is that with the lower free energy $\mathcal{F}$, where $\mathcal{F}$ is the Helmholtz free energy $F$ in the 
 NVT ensemble and the Gibbs free energy $G$ in the NPT ensemble. It is the free energy difference between the phases 
 $\Delta\mathcal{F}\equiv \mathcal{F}_1-\mathcal{F}_2$ which we wish to evaluate, where $\mathcal{F}_1$ and $\mathcal{F}_2$ denote the free energies of 
 phases 1 and 2.
-We now derive an expression for $\Delta \mathcal{F}$ which allows $\Delta \mathcal{F}$ to be determined from the relative time $t_1$ and $t_2$ which 
-the system spends in each phase 1 and 2 during a sufficiently long simulation. It is this expression which is ultimately used in LSMC to calculate 
-$\Delta \mathcal{F}$. Consider the free energy of phase $\alpha$:
+We now derive an expression relating $\Delta \mathcal{F}$ to the probabilities $p_1$ and $p_2$ of the system being in phases 1 and 2 respectively.
+It is this expression which is ultimately used in LSMC to calculate $\Delta \mathcal{F}$. Consider the free energy of phase $\alpha$:
 \begin{equation}\label{Falpha_def}
 \mathcal{F}_{\alpha}=-\beta^{-1}\ln Z_{\alpha},
 \end{equation}
@@ -196,9 +176,9 @@ where
 \begin{equation}\label{Zalpha_def}
 Z_{\alpha}=\sum_{\sigma\in\alpha}\exp(-\beta \mathcal{E}_{\sigma})
 \end{equation}
-is the partition function for phase $\alpha$; $\beta\equiv 1/(k_BT)$; $k_B$ is Boltzmann's constant; $\sigma$ denotes a state of the system;
-$\mathcal{E}_{\sigma}$ denotes the energy $E_{\sigma}$ of state $\sigma$ in the NVT ensemble, and the enthalpy $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ of
-state $\sigma$ in the NPT ensemble, where $V_{\sigma}$ denotes the volume of state $\sigma$; 
+is the partition function for phase $\alpha$; $\beta\equiv 1/(k_BT)$; $k_B$ is Boltzmann's constant; $T$ is the temperature; 
+$\sigma$ denotes a state of the system; $\mathcal{E}_{\sigma}$ denotes the energy $E_{\sigma}$ of state $\sigma$ in the NVT ensemble, and the enthalpy 
+$H_{\sigma}=E_{\sigma}+PV_{\sigma}$ of state $\sigma$ in the NPT ensemble, where $V_{\sigma}$ denotes the volume of state $\sigma$; 
 and the summation in the above equation is over all states which `belong' to phase $\alpha$. 
 From Eqn. \eqref{Falpha_def} it follows that
 \begin{equation}\label{DeltaF_Z}
@@ -215,15 +195,14 @@ p_{\alpha} = \sum_{\sigma\in \alpha}p_{\sigma} = Z_{\alpha}/Z,
 \end{equation}
 where we have used Eqn. \eqref{Zalpha_def}. Finally, substituting this into Eqn. \eqref{DeltaF_Z} gives
 \begin{equation}\label{DeltaF_stat_mech}
-\Delta \mathcal{F}=\beta^{-1}\ln\biggl(\frac{p_2}{p_1}\biggr),
+\Delta \mathcal{F}=\beta^{-1}\ln\biggl(\frac{p_2}{p_1}\biggr).
 \end{equation}
-where $p_1$ and $p_2$ denote the probability of the system being in phase 1 and 2 respectively. 
 
-The above equation suggests the following method for calculating $\Delta \mathcal{F}$ from, e.g. a molecular dynamics simulation: measure the 
-relative time $t_1$ 
-and $t_2$ which the system spends in each phase 1 and 2 during the simulation, and substitute these quantities into the above equation -- bearing in mind 
-that $t_2/t_1=p_2/p_1$. However, this method is often intractable in practice for two solid phases, 
-because the time taken for the system to transition between the two phases is too long to allow a reasonable estimate of $t_2/t_1$ to be deduced 
+With the above equation in mind, the following method can be used to calculate $\Delta\mathcal{F}$ from a simulation which samples the ensemble under 
+consideration, e.g., a molecular dynamics simulation: measure the relative time $t_1$ and $t_2$ which the system spends in each phase 1 and 2 during the
+simulation, and substitute these quantities into the above equation, bearing in mind that $t_2/t_1=p_2/p_1$ for a sufficiently long simulation.
+However, this method is often intractable in practice for two solid phases, 
+because the time taken for the system to transition between the two phases is too long to allow a reasonable estimate of $p_2/p_1$ to be deduced 
 in a reasonable simulation time; it may be the case that, regardless of the phase in which the simulation is initialised, the system \emph{never} 
 transitions to the `other' phase during the course of the simulation.
 The problem is that, while the regions of phase space corresponding to phase 1 and phase 2 both correspond to probable states of the system
@@ -267,10 +246,27 @@ the system transitions to the `other' phase. The salient feature of the move is 
 `switched' for a lattice which characterises the other phase. For example if the two phases in question are fcc and hcp, then a lattice switch from an
 fcc state involves switching the underlying fcc lattice for an hcp lattice, while preserving the \emph{displacements} of each particle from its associated
 lattice site. 
+%
+To elaborate, we can characterise a given state of the system as belonging to a solid phase $\alpha$ if the positions of the particles 
+`approximately' form a lattice characteristic of $\alpha$. Let $\lbrace\mathbf{R}^{(\alpha)}_i\rbrace$ denote the positions of the sites on this lattice, 
+and let $\lbrace\mathbf{r}_i\rbrace$ denote the positions of the particles, where $i$ ranges from 1 to the number of particles in the system. 
+The position $\mathbf{r}_i$ of particle $i$ can be expressed as follows:
+\begin{equation}
+\mathbf{r}_i=\mathbf{R}^{(\alpha)}_i+\mathbf{u}_i,
+\end{equation}
+where $\mathbf{u}_i$ is the displacement of $i$ from that lattice site. Note that the displacements $\lbrace\mathbf{u}_i\rbrace$ are necessarily small 
+since the particle positions form an approximate $\alpha$ lattice (and we have chosen to label particles and lattice sites in a `sensible' manner: such 
+that $\mathbf{R}_i$ is the closest lattice site to $\mathbf{r}_i$). Now, in a lattice switch from phase $\alpha$ to the `other' phase $\alpha'$ we 
+transform the underlying lattice $\lbrace\mathbf{R}^{(\alpha)}_i\rbrace$ to $\lbrace\mathbf{R}^{(\alpha')}_i\rbrace$, 
+\emph{while keeping the particle displacements $\lbrace\mathbf{u}_i\rbrace$ unchanged}. The result is that the trial state belongs to phase 
+$\alpha'$: the positions of the particles in the trial state form an approximate $\alpha'$ lattice.
 
-Of course this is just a basic description of the lattice switch. We now explain exactly how lattice switches are implemented in \emph{monteswitch}. 
-In \emph{monteswitch} two states are provided at initialisation, one for each phase. The functions of these states are twofold. Firstly, they act as 
-prospective initial states for the simulation: if the system is to be initialised in phase 1, then the phase-1 state will be used as the initial state.
+\subsection{Implementation in \emph{monteswitch}}
+Of course, the above description of a lattice switch is not a complete account of how lattice switches are implemented in \emph{monteswitch} -- which
+supports lattice switches which change the shape and size of the supercell, as well as the species of the particle.
+%
+In \emph{monteswitch} two states are provided at the start of a simulation, one for each phase. The functions of these states are twofold. Firstly, they 
+act as prospective initial states for the simulation: if the system is to be initialised in phase 1, then the phase-1 state will be used as the initial state.
 Secondly, they are used to determine the nature of the lattice switch move. We refer to these states as \emph{reference states}.
 Now, in \emph{monteswitch} only orthorhombic systems can be treated. Hence we only consider orthorhombic systems here. For such systems a state 
 amounts to a specification of the following: the dimensions of the supercell $L_x$, $L_y$ and $L_z$ in each Cartesian direction; either the \emph{fractional} 
@@ -282,8 +278,8 @@ $(\mathcal{L}^{(1)}_x,\mathcal{L}^{(1)}_y,\mathcal{L}^{(1)}_z,\lbrace\tilde{\mat
 $(\mathcal{L}^{(2)}_x,\mathcal{L}^{(2)}_y,\mathcal{L}^{(2)}_z,\lbrace\tilde{\mathcal{R}}^{(2)}_i\rbrace,\lbrace\mathcal{S}^{(2)}_i\rbrace)$ describe
 the reference states for phases 1 and 2 respectively.
 Without loss of generality consider now a state $\sigma=(L_x,L_y,L_z,\lbrace\mathbf{r}_i\rbrace,\lbrace s_i\rbrace)$ belonging to phase 1.
-We now describe how the state $\sigma'=(L_x',L_y',L_z',\lbrace\mathbf{r}'_i\rbrace,\lbrace s'_i\rbrace)$ which results from a lattice switch from
-state $\sigma$is generated from $\sigma$ in \emph{monteswitch}. We first construct the underlying phase-1 `lattice' for $\sigma$.
+We now describe how the state $\sigma'=(L_x',L_y',L_z',\lbrace\mathbf{r}'_i\rbrace,\lbrace s'_i\rbrace)$, which results from a lattice switch from
+state $\sigma$, is generated from $\sigma$ in \emph{monteswitch}. We first construct the underlying phase-1 `lattice' for $\sigma$.
 The positions of the lattice sites, which we denote as $\lbrace\mathbf{R}^{(1)}_i\rbrace$, are constructed from the phase-1 reference state. Specifically, 
 $\lbrace\mathbf{R}^{(1)}_i\rbrace$, transformed into fractional coordinates, is identical to the fractional positions of the particles in the phase-1 
 reference state:
@@ -291,7 +287,7 @@ reference state:
 \mathbf{R}^{(1)}_i = \text{diag}(L_x,L_y,L_z)\tilde{\mathcal{R}}^{(1)}_i
 \end{equation}
 for all particles $i$, where $\text{diag}(L_x,L_y,L_z)$ denotes the $3\times 3$ matrix with $L_x$, $L_y$ and $L_z$ along the leading diagonal. We now turn
-to constructing the trial state $\sigma'$. We begin by constructing the dimensions of the supercell for $\sigma'$. The reference states for both phases are 
+to the trial state $\sigma'$. We begin by constructing the dimensions of the supercell for $\sigma'$. The reference states for both phases are 
 used to determine how the supercell is transformed during the switch. Specifically, the dimensions of the supercell for $\sigma'$ are given by
 \begin{equation}
 L_x'=\frac{\mathcal{L}_x^{(2)}}{\mathcal{L}_x^{(1)}}L_x, \quad 
@@ -309,10 +305,10 @@ for all $i$.
 Fourthly we construct the particle positions in $\sigma'$ using the particle positions in $\sigma$ and the aforementioned underlying lattices for
 phases 1 and 2 as follows:
 \begin{equation}
-\mathbf{r}_i'=\mathbf{r}_i-\mathbf{R}^{1}_i+\mathbf{R}^{2}_i
+\mathbf{r}_i'=\mathbf{r}_i-\mathbf{R}^{(1)}_i+\mathbf{R}^{(2)}_i
 \end{equation}
 for all $i$. Note that this amounts to a transformation of the particle positions in which the underlying phase-1 lattice $\lbrace\mathbf{R}^{1}_i\rbrace$ 
-is substituted for a phase-2 lattice $\lbrace\mathbf{R}^{2}_i\rbrace$ while keeping the \emph{displacement} of each particle from its lattice site unchanged. 
+is substituted for a phase-2 lattice $\lbrace\mathbf{R}^{2}_i\rbrace$ while keeping the displacement of each particle from its lattice site unchanged. 
 This can perhaps be seen more clearly by reexpressing the transformation as follows:
 \begin{equation}
 \mathbf{r}_i=\mathbf{R}^{(1)}_i+\mathbf{u}_i \to \mathbf{r}'_i=\mathbf{R}^{(2)}_i+\mathbf{u}_i
@@ -328,16 +324,32 @@ s_i= S^{(1)}_i\to s_i'= S^{(2)}_i
 \end{equation}
 for all $i$.
 
-Note that the lattice switch as just described is an involution: if a lattice switch from state $\sigma$ yields state $\sigma'$, then
+Note that the lattice switch just described is an involution: if a lattice switch from state $\sigma$ yields state $\sigma'$, then
 performing a lattice switch from state $\sigma'$ yields $\sigma$.
 
-
-\section{Multicanonical Monte Carlo}
+\section{The problem with canonical sampling in LSMC}
 One might expect that by regularly making lattice switches, the system will regularly transition between phases, allowing $\Delta \mathcal{F}$ to 
 be efficiently evaluated as described above. Unfortunately using canonical Monte Carlo one finds that lattice switches are too rarely accepted for 
-this approach to be useful.
+this approach to be useful. 
+%
+Consider the probability of a lattice switch from state $\sigma$ to $\sigma'$ being accepted. Using the lattice switch scheme implemented in
+\emph{monteswitch}, and described in the previous section, this is
+\begin{equation}\label{p_LSMC_NPT}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(H_{\sigma'}-H_{\sigma})+\ln(V_{\sigma'}/V_{\sigma})}\Bigr],
+\end{equation}
+where recall that $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ denotes the enthalpy of state $\sigma$, and $V_{\sigma}$ denotes its volume. Consider for now the
+case where the lattice switch preserves the volume of the system. This is necessary for the NVT ensemble, but in the NPT ensemble one has freedom to
+define the switch such that it changes the volume of the system. We consider the general case later.
+For a \emph{volume-preserving lattice switch}, since $V_{\sigma'}=V_{\sigma}$, the above equation reduces to
+\begin{equation}\label{p_LSMC_NVT}
+p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr].
+\end{equation}
+This equation reveals the main cause for lattice switches being unsuccessful: the energy of the trial state $\sigma'$ generated by a 
+lattice switch is almost always of much higher energy than the current state $\sigma$, leading to $p_{\sigma\to\sigma'}$ being very low. 
+
+\section{Multicanonical Monte Carlo}
 The solution to this problem is to use \emph{multicanonical Monte Carlo}\cite{Berg_1991,Berg_1992,Smith_1995} instead of canonical Monte Carlo.
-\footnote{Multicanonical Monte Carlo belongs to the class of extended/expanded ensemble techniques; see, e.g., Ref. \cite{Iba_2001}.}
+\footnote{Multicanonical Monte Carlo belongs to the class of extended ensemble techniques; see, e.g., Ref. \cite{Iba_2001}.}
 The former is a straightforward generalisation of the latter in which, instead of sampling from the probability distribution $p_{\sigma}$ 
 (Eqn. \eqref{MC_prob}), one samples from the distribution
 \begin{equation}\label{MCMC_prob}
@@ -364,10 +376,10 @@ which affects its trajectory through phase space. Therefore by choosing $\eta_{\
 
 Of course, in a multicanonical simulation the states are not longer sampled with probabilities corresponding to the true ensemble in question -- 
 which \emph{is} the case for canonical Monte Carlo. Accordingly the time average of some physical quantity $X$ throughout a long multicanonical 
-Monte Carlo simulation is not equivalent to the equilibrium value of $X$ for the true ensemble, like it is in a canonical Monte Carlo
+Monte Carlo simulation is not equivalent to the equilibrium value of $X$ for the true ensemble, as it is in a canonical Monte Carlo
 simulation. Nevertheless one can obtain the equilibrium value of $X$ from a multicanonical simulation by exploiting the fact that, since the 
 weight function is known, then so is the degree of over- or under-sampling of each state. To elaborate, to evaluate the equilibrium value of 
-$X$ in a Metropolis Monte Carlo simulation, we use the following expression:
+$X$ in a canonical Monte Carlo simulation, we use the following expression:
 \begin{equation}
 \langle X\rangle\approx\frac{1}{\tau}\sum_{t=1}^{\tau}X(t),
 \end{equation}
@@ -389,65 +401,38 @@ where we have canceled the factors of $\tilde{Z}'^{-1}$ from the numerator and d
 
 
 \section{Multicanonical Monte Carlo in LSMC}\label{sec:multicanonical_LSMC}
-How does multicanonical Monte Carlo resolve the problem that lattice switch moves are too rarely accepted to be useful? To answer this question we must 
-first understand why lattice switches are so rarely accepted. 
-Consider the probability of a lattice switch from state $\sigma$ to $\sigma'$ being accepted. Using the lattice switch scheme implemented in
-\emph{monteswitch}, and described in Sec. \ref{sec:lattice_switch}, this is
-\begin{equation}\label{p_LSMC_NPT}
-p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(H_{\sigma'}-H_{\sigma})+\ln(V_{\sigma'}/V_{\sigma})}\Bigr],
-\end{equation}
-where recall that $H_{\sigma}=E_{\sigma}+PV_{\sigma}$ denotes the enthalpy of state $\sigma$, and $V_{\sigma}$ denotes its volume. Consider first the
-case where the lattice switch preserves the volume of the system. This is necessary for the NVT ensemble, but in the NPT ensemble one has freedom to
-define the switch such that it changes the volume of the system. In this case, since $V_{\sigma'}=V_{\sigma}$, the above equation reduces to
-\begin{equation}\label{p_LSMC_NVT}
-p_{\sigma\to\sigma'}=\text{max}\Bigl[1,e^{\beta(E_{\sigma'}-E_{\sigma})}\Bigr].
-\end{equation}
-This equation reveals the main cause for lattice switches being unsuccessful: the energy of the trial state $\sigma'$ generated by a 
-lattice switch is almost always of much higher energy than the current state $\sigma$, leading to $p_{\sigma\to\sigma'}$ being very low. 
-This is perhaps obvious in retrospect: one should expect that,
-from a state which is probable at equilibrium, which accordingly will have a relatively low energy, a large change to the system, such as that 
-brought about by a lattice switch, will typically lead to a huge increase in the system's energy. 
-%
-There are, however, (hopefully) a small number of states `close' to those found at equilibrium for each phase from which a lattice switch yields a 
+How does multicanonical Monte Carlo resolve the problem that lattice switch moves are too rarely accepted to be useful? Recall that lattice switches
+are usually rejected because they result in a trial state with a much higher energy.
+There are, however, a small number of states `close' to those realised at equilibrium for each phase from which a lattice switch yields a 
 trial state $\sigma'$ which is of comparable energy to $\sigma$. From such states a lattice switch has a good chance of being accepted.
 We refer to such states as \emph{gateway states}, since they provide the key to jumping between both phases. It is these states which we wish to over-sample,
 and we set the weight function accordingly. The idea is that by over-sampling these states, lattice switches are accepted reasonably often, 
-enabling both phases to be explored in a reasonable simulation time. This in turn allows us to determine
-$t_1$ and $t_2$ (which recall are the time averages of $\theta_1$ and $\theta_2$ defined earlier, i.e. $t_1=\langle\theta_1\rangle$ and 
-$t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC}, and hence ultimately $\Delta \mathcal{F}$ via Eqn. \eqref{DeltaF_stat_mech}.
+enabling both phases to be explored in a reasonable simulation time. This in turn allows us to determine $t_1$ and $t_2$ (which recall are the time
+averages of $\theta_1$ and $\theta_2$ defined earlier, i.e., $t_1=\langle\theta_1\rangle$ and $t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC},
+and hence ultimately $\Delta \mathcal{F}$ via Eqn. \eqref{DeltaF_stat_mech}.
 
-But how does the above discussion change for lattice switches which alter the volume of the system? The answer is `not much'. For the
-case of volume-preserving lattice switches a gateway state is a state from which a lattice switch yields another state of comparable energy.
-This reflects the fact that $p_{\sigma\to\sigma'}\approx 1$ if $E_{\sigma'}\approx E_{\sigma}$ in Eqn. \eqref{p_LSMC_NVT}. For the general case of a
-non-volume-preserving lattice switch the analogous condition for a gateway state, as can be seen from Eqn. \eqref{p_LSMC_NPT}, is that
-$J_{\sigma}\approx J_{\sigma'}$, where
-\begin{equation}
-J_{\sigma}\equiv H_{\sigma}+\ln(V_{\sigma})/\beta.
-\end{equation}
-Note that for the case of volume-preserving lattice switches the condition $J_{\sigma}\approx J_{\sigma'}$ is equivalent to $E_{\sigma}\approx E_{\sigma'}$.
-
-With the above in mind, how should the weight function be engineered such that gateway states are over-sampled? 
+How should the weight function be engineered such that gateway states are over-sampled? 
 Consider a state $\sigma$, and let $\sigma'$ denote the state which results from a lattice switch performed from $\sigma$. Let us define the 
 state-dependent quantity
 \begin{equation}\label{M_def}
 M_{\sigma}=
 \begin{cases}
-(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 1} \\
--(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 2}.
+(E_{\sigma}-E_{\sigma'}) & \text{if $\sigma$ belongs to phase 1} \\
+-(E_{\sigma}-E_{\sigma'}) & \text{if $\sigma$ belongs to phase 2}.
 \end{cases}
 \end{equation}
-This quantity in practice provides a means for resolving gateway states, states corresponding to equilibrium (for the true ensemble under consideration)
-for phase 1, and states corresponding to equilibrium for phase 2. Accordingly we refer to $M$ as the `order parameter'. Consider first gateway states.
-Above we illustrated that gateway states correspond to the condition $J_{\sigma}\approx J_{\sigma'}$. As can be seen from the above this corresponds to
-states with $M_{\sigma}\approx 0$. By contrast, if $|M_{\sigma}|\gg 0$, then the two states have significantly different values of $J$. In this case, while
-switching from the state with the higher value of $J$ to that with the lower value of $J$ is guaranteed, the converse is not: the two states are not 
-concordant with switching \emph{to and from} both phases. $|M_{\sigma}|$ therefore provides a measure of how `un-gateway-like' state $\sigma$ is, with 
+This quantity provides a practical means for resolving gateway states, states corresponding to equilibrium (for the true ensemble under consideration)
+for phase 1, and states corresponding to equilibrium for phase 2. Accordingly we refer to $M$ as the \emph{order parameter}. Consider first gateway states.
+Above we illustrated that gateway states correspond to the condition $E_{\sigma}\approx E_{\sigma'}$. As can be seen from the above this corresponds to
+states with $M_{\sigma}\approx 0$. By contrast, if $|M_{\sigma}|\gg 0$, then the two states have significantly different values of $E$. In this case, while
+switching from the state with the higher value of $E$ to that with the lower value of $E$ is guaranteed, the converse is not: the two states are not 
+concordant with switching \emph{to and from} both phases. $|E_{\sigma}|$ therefore provides a measure of how `un-gateway-like' state $\sigma$ is, with 
 zero corresponding to `very gateway-like'. 
 Consider now phase-1-equilibrium states. From such states we generally expect a lattice switch to be unsuccessful, and hence
-$J_{\sigma'}\gg J_{\sigma}$. Therefore for such states $M_{\sigma}\ll 0$. Finally consider phase-2-equilibrium states. Similarly we generally expect 
-a lattice switch from such states to be unsuccessful, and hence $J_{\sigma'}\gg J_{\sigma}$. However this time $M_{\sigma}\gg 0$. We therefore have three regimes:
-$M_{\sigma}\ll 0$ corresponds to phase-1-equilibrium states; $M_{\sigma}\approx 0$ corresponds to gateway states; and $M_{\sigma}\gg 0$ corresponds to 
-phase-2-equilibrium states.
+$E_{\sigma'}\gg E_{\sigma}$. Therefore for such states $M_{\sigma}\ll 0$. Finally consider phase-2-equilibrium states. Similarly we generally expect 
+a lattice switch from such states to be unsuccessful, and hence $E_{\sigma'}\gg E_{\sigma}$. However this time $M_{\sigma}\gg 0$. 
+We therefore have three regimes: $M_{\sigma}\ll 0$ corresponds to phase-1-equilibrium states; $M_{\sigma}\approx 0$ corresponds to gateway states; and 
+$M_{\sigma}\gg 0$ corresponds to phase-2-equilibrium states.
 
 With this in mind, if we choose the weight function $\eta_{\sigma}$ to take the same value $\eta_{M}$ 
 for all states with the same $M$, and also choose $\eta_{M}$ to be peaked at $M=0$ and to decay monotonically with 
@@ -478,12 +463,32 @@ it forces the system to spend less time in the regions of order-parameter space 
 regards to evaluating thermodynamic quantities.
 %
 Regarding what value $N_{\text{macro}}$ should take, note that $N_{\text{macro}}$ determines the fineness of the grid on $M$-space upon which
-the weight function is defined. Note also that the weight function is flat over the region of $M$-space corresponding to one macrostate. Furthermore, the higher 
-$N_{\text{macro}}$, the finer the grid. Hence if the grid is coarse, i.e., if $N_{\text{macro}}$ is small, then there will be large regions of $M$-space
+the weight function is defined. Note also that the weight function is flat over the region of $M$-space corresponding to one macrostate. Furthermore, the 
+higher $N_{\text{macro}}$, the finer the grid. Hence if the grid is coarse, i.e., if $N_{\text{macro}}$ is small, then there will be large regions of $M$-space
 over which the weight function is flat, including near $M=0$. This is problematic because a rapidly-changing weight function is required near $M=0$ to 
 `guide' the system over the free energy barrier. Thus if $N_{\text{macro}}$ is too small then the free energy barrier may prove insurmountable despite the
 use of multicanonical sampling. This problem can be avoided if a sufficiently large $N_{\text{macro}}$ is used, however the larger $N_{\text{macro}}$ the
 longer the simulation time required to generate the weight function. Hence a balance must be struck when choosing an appropriate value of $N_{\text{macro}}$.
+
+\subsection{Volume-altering lattice switches}
+So far we have considered volume-preserving lattice switches. However, \emph{monteswitch} supports lattice switches which alter the volume of the system.
+How does the above discussion differ for \emph{volume-altering} lattice switches? The answer is `not much'. For the
+case of volume-preserving lattice switches a gateway state is a state from which a lattice switch yields another state of comparable energy.
+This reflects the fact that $p_{\sigma\to\sigma'}\approx 1$ if $E_{\sigma'}\approx E_{\sigma}$ in Eqn. \eqref{p_LSMC_NVT}. For the case of a
+volume-altering lattice switch the analogous condition for a gateway state, as can be seen from Eqn. \eqref{p_LSMC_NPT}, is that
+$J_{\sigma}\approx J_{\sigma'}$, where
+\begin{equation}
+J_{\sigma}\equiv H_{\sigma}+\ln(V_{\sigma})/\beta.
+\end{equation}
+Note that for the case of volume-preserving lattice switches the condition $J_{\sigma}\approx J_{\sigma'}$ is equivalent to $E_{\sigma}\approx E_{\sigma'}$.
+Accordingly in \emph{monteswitch} the following definition of $M_{\sigma}$ is in fact used, instead of Eqn. \eqref{M_def}:
+\begin{equation}
+M_{\sigma}=
+\begin{cases}
+(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 1} \\
+-(J_{\sigma}-J_{\sigma'}) & \text{if $\sigma$ belongs to phase 2}.
+\end{cases}
+\end{equation}
 
 
 \section{Weight function generation methods}\label{sec:weight_generation}
@@ -510,8 +515,8 @@ for $t_1$ and $t_2$ to be obtained \emph{eventually}.
 The \emph{visited states method} (see Ref. \cite{Smith_1995} and references therein) is arguably the simplest method for generating the weight function. 
 In this method, the simulation consists of a number of
 `blocks', which themselves consist of a large number of Monte Carlo sweeps. Multicanonical sampling is used throughout, and the weight function is updated at
-the end of each block. The weight function is different -- closer to the ideal -- in each subsequent block, and information
-collected during each block is used to inform the weight function to be used in the next block. Eventually the weight function converges on the 
+the end of each block. The weight function is different -- closer to the ideal -- in each subsequent block, and the number of visits to all macrostates
+during each block is used to inform the weight function to be used in the next block. Eventually the weight function converges on the 
 ideal: it provides a `flat' macrostate histogram; the weight function is such that all macrostates are sampled with equal probability.
 
 Let $H^{(n)}_{\mathcal{M}}$ denote the number of states belonging to macrostate $\mathcal{M}$ which were visited during block $n$.
@@ -565,7 +570,7 @@ which can be rearranged to give
 where $C'$ is a constant. Eqn. \eqref{ideal_wf} reveals that $\eta^*_{\mathcal{M}}$ can be derived from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
 in turn can be determined from the \emph{macrostate transition probability matrix} $\mathcal{T}_{\mathcal{MM}'}$, which describes the probability that
 the system, currently in macrostate $\mathcal{M}$, transitions to macrostate $\mathcal{M}'$ \emph{in the canonical ensemble}.
-In the \emph{transition matrix method} \cite{Smith_1995,Fitzgerald_1999} we determine $\mathcal{T}_{\mathcal{MM}'}$, then use this to obtain
+In the \emph{transition matrix method} \cite{Smith_1995,Fitzgerald_1999} we determine $\mathcal{T}_{\mathcal{MM}'}$, and then use this to obtain
 $p_{\mathcal{M}}$, and finally the ideal weight function $\eta_{\mathcal{M}}^*$ via Eqn. \eqref{ideal_wf}.
 
 How do we determine $\mathcal{T}_{\mathcal{MM}'}$, and how do we obtain $p_{\mathcal{M}}$ from $\mathcal{T}_{\mathcal{MM}'}$? Let us first deal with how
@@ -586,8 +591,8 @@ of the move being accepted be $p_{\sigma\to\sigma'}$. Instead of performing the 
 accepted and $H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}$ if it is not, one can perform the update 
 \begin{equation}
 \begin{split}
-H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\sigma\to\sigma'}, \\
-H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\sigma\to\sigma'},
+H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\sigma\to\sigma'} \\
+H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\sigma\to\sigma'}
 \end{split}
 \end{equation} 
 regardless of whether it is accepted or not. In this case $H_{\mathcal{M}\mathcal{M}'}$ is no longer the number of observed transitions from macrostate 
@@ -603,7 +608,7 @@ This is useful because canonical sampling alone may not be sufficient to explore
 `fill up' the matrix $H_{\mathcal{M}\mathcal{M}'}$ and ultimately enable $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ to be calculated (Eqn. \eqref{T_estimate}). 
 For instance, typically canonical sampling will never result in the macrostates containing gateway states being visited during a reasonable simulation
 time.
-One can take this idea further and even go beyond multicanonical sampling to sample phase space. We discuss methods for exploring the phase space
+One can take this idea further and even go beyond multicanonical sampling to sample $M$-space. We discuss methods for exploring the $M$-space
 with the aim of determining $\mathcal{T}_{\mathcal{MM}'}$, and ultimately $\eta_{\mathcal{M}}^*$, in a moment.
 
 Having determined  $\mathcal{T}_{\mathcal{MM}'}$, our task is to now calculate $p_{\mathcal{M}}$. It can be shown that the macrostates obey the following
@@ -616,7 +621,10 @@ Setting $\mathcal{M}'=\mathcal{M}+1$ and rearranging the above gives
 p_{(\mathcal{M}+1)}=\frac{\mathcal{T}_{\mathcal{M}(\mathcal{M}+1)}}{\mathcal{T}_{(\mathcal{M}+1)\mathcal{M}}}p_{\mathcal{M}}.
 \end{equation}
 Using this equation, $p_{\mathcal{M}}$ can be obtained from the matrix $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via the following procedure.
-Firstly, one chooses some arbitrary value for $p_1$. With this $p_2$ can be obtained from the above equation ($\mathcal{M}=1$ in Eqn. \eqref{shooting}). 
+Firstly, one chooses some arbitrary value for $p_1$. 
+\footnote{In this section $p_1$ and $p_2$ denote the probability of the system being in macrostates 1 and 2, \emph{not} the probabilities of
+the system being in phases 1 and 2.}
+With this $p_2$ can be obtained from the above equation ($\mathcal{M}=1$ in Eqn. \eqref{shooting}). 
 This in turn can be used to obtain $p_3$ ($\mathcal{M}=2$ in Eqn. \eqref{shooting}), which in turn can be used to obtain $p_4$, etc., until
 $p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting function $p_{\mathcal{M}}$ such that
 \begin{equation}
@@ -629,12 +637,12 @@ the matrix $H_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diago
 estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta^*_{\mathcal{M}}$. 
 
 
-\subsubsection{Methods for exploring phase space}
+\subsubsection{Methods for exploring $M$-space}
 As alluded to above, since the updates to $H_{\mathcal{M}\mathcal{M}'}$ always use the canonical probabilities of transitioning between states, 
-with the transition matrix method one can \emph{choose} how phase space is explored. Effectively the only constraint is that there is fast local 
+with the transition matrix method one can \emph{choose} how $M$-space is explored. Effectively the only constraint is that there is fast local 
 equilibration within each macrostate. We will now describe the various methods which can be implemented in \emph{monteswitch}.
 
-The first method is to use multicanonical sampling to explore phase space with an evolving weight function, where the weight function
+The first method is to use multicanonical sampling to explore $M$-space with a continuously evolving weight function, where the weight function
 at a given time is the current estimate for the ideal weight function derived from the current $H_{\mathcal{M}\mathcal{M}'}$ as described above.
 This is the `natural' way of applying the transition state method.
 
@@ -644,8 +652,8 @@ the system from moving into an adjacent macrostate is moved such that the system
 the system is locked into this new macrostate, and the procedure starts again. There is of course the question of which adjacent macrostate to `open'
 to the system. Assuming we are not in macrostate $\mathcal{M}=1$ or $N_{\text{macro}}$, then there are two options: $(\mathcal{M}+1)$ and $(\mathcal{M}-1)$.
 In \emph{monteswitch} one can specify whether to select the new macrostate at random \cite{thesis:Jackson}, 
-or whether to sweep through the macrostates systematically, e.g.,
-to explore macrostates $3,4,5,\dotsc,(N_{\text{macro}}-1),N_{\text{macro}},(N_{\text{macro}}-1),\dotsc,3,2,1,2,3,\dotsc$. This method is faster than the `natural'
+or whether to sweep through the macrostates systematically, e.g., to explore macrostates 
+$3,4,5,\dotsc,(N_{\text{macro}}-1),N_{\text{macro}},(N_{\text{macro}}-1),\dotsc,3,2,1,2,3,\dotsc$. This method is faster than the `natural'
 method just described because one does not have to wait for the weight function to evolve such that it pushes the system to explore macrostates which
 are unlikely to be visited in the canonical ensemble.
 
@@ -654,6 +662,10 @@ are unlikely to be visited in the canonical ensemble.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Preliminaries}\label{chapter:preliminaries}
+
+\section{Obtaining \emph{monteswitch}}
+\emph{monteswitch} is hosted on GitHub at \url{https://github.com/tomlunderwood/monteswitch}, where the package can be downloaded.
+
 
 \section{Compiling \emph{monteswitch}}
 \emph{monteswitch} is provided as an archive. This should be extracted to create a directory which consitutes the \emph{monteswitch} package. The 
@@ -717,11 +729,12 @@ While the test cases serve as examples, more pedagogical examples can be found i
 of Chapter \ref{chapter:example}.
 
 \subsection{Specifying the interatomic potential}\label{sec:plugins}
-The directory \texttt{Interactions} contains Fortran files corresponding to various interatomic potentials. However, only one of these can be implemented 
-by \texttt{monteswitch} at a time. The module which is implemented is stored in the file \texttt{interactions.f95} in the main directory; it is only the 
-contents of this file which is used in the package -- after compilation. Hence to implement a specific interatomic potential one must copy
-the desired \texttt{interactions.f95} file in \texttt{Interactions} (which will be named \texttt{interactions\_X.f95}, where `\texttt{X}' labels
-the type of interatomic potential the file corresponds to) to \texttt{interactions.f95} in the main directory, and then compile the package.
+The directory \texttt{Interactions} contains Fortran files corresponding to the modules for various interatomic potentials. However, only one of these 
+can be implemented by \texttt{monteswitch} at a time. The module which is actually implemented is stored in the file \texttt{interactions.f95} in 
+the main directory; it is only the contents of this file which is used in the package -- after compilation. Hence to implement a specific 
+interatomic potential one must copy the desired \texttt{interactions.f95} file in \texttt{Interactions} (which will be named 
+\texttt{interactions\_X.f95}, where `\texttt{X}' labels the type of interatomic potential the file corresponds to) to \texttt{interactions.f95} 
+in the main directory, and then compile the package.
 
 Note that by default the \texttt{interactions.f95} is identical to the file \texttt{Interactions/interactions\_EAM.f95}, and hence compiling 
 \emph{monteswitch} out-of-the-box yields a version which implements EAM potentials.
