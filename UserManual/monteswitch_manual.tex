@@ -145,9 +145,9 @@ matter physics, see, e.g., Ref. \cite{book:Frenkel}.
 The layout of this document is as follows. In Chapter \ref{chapter:background} we describe the theory behind LSMC to a depth which enables the user to 
 competently perform LSMC simulations using \emph{monteswitch}.
 In Chapter \ref{chapter:preliminaries} we describe how to install \emph{monteswitch}, and provide
-an overview of the package. In Chapter \ref{chapter:simulation_programs} we describe how to use the main Monte Carlo programs within
+an overview of the package. In Chapter \ref{chapter:simulation_programs} we describe the main Monte Carlo programs within
 \emph{monteswitch}. In Chapter \ref{chapter:interactions} we describe the various interatomic potentials included with \emph{monteswitch}, as well as
-how users can implement their own potentials. In Chapter \ref{chapter:utility_programs} we describe how to use the various utility
+how users can implement their own potentials. In Chapter \ref{chapter:utility_programs} we describe the various utility
 programs included with \emph{monteswitch} for the creation of input files and post-processing of output files. In Chapter \ref{chapter:example}
 we provide a worked example which elucidates how \emph{monteswitch} can be used to solve a `real' problem. Finally in Chapter \ref{chapter:tests}
 we describe the test cases included with \emph{monteswitch} which, as well as validating \emph{monteswitch}, serve as an archive of examples
@@ -729,17 +729,17 @@ While the test cases serve as examples, more pedagogical examples can be found i
 of Chapter \ref{chapter:example}.
 
 \subsection{Specifying the interatomic potential}\label{sec:plugins}
-The directory \texttt{Interactions} contains Fortran files corresponding to the modules for various interatomic potentials. However, only one of these 
-can be implemented by \texttt{monteswitch} at a time. The module which is actually implemented is stored in the file \texttt{interactions.f95} in 
-the main directory; it is only the contents of this file which is used in the package -- after compilation. Hence to implement a specific 
-interatomic potential one must copy the desired \texttt{interactions.f95} file in \texttt{Interactions} (which will be named 
-\texttt{interactions\_X.f95}, where `\texttt{X}' labels the type of interatomic potential the file corresponds to) to \texttt{interactions.f95} 
-in the main directory, and then compile the package.
+The file \texttt{interactions.f95} in the main directory of the package contains the Fortran module, named \texttt{interactions\_mod}, which
+determines the interatomic potential to be utilised by the \emph{monteswitch} programs \texttt{monteswitch}, \texttt{monteswitch\_mpi} and
+\texttt{monteswitch\_post} after the package is compiled. 
+%
+By default \texttt{interactions.f95} corresponds to the EAM model; however the directory  \texttt{Interactions} contains versions of 
+\texttt{interactions.f95} which implement various interatomic potentials, as well as templates which assist the user in creating their own
+versions of \texttt{interactions.f95}. 
+%
+To implement a specific interatomic potential one must copy the corresponding \texttt{interactions.f95} file to \texttt{interactions.f95} 
+in the main directory of the package, and then compile the package. Further information regarding this is provided in Chapter \ref{chapter:interactions}.
 
-Note that by default the \texttt{interactions.f95} is identical to the file \texttt{Interactions/interactions\_EAM.f95}, and hence compiling 
-\emph{monteswitch} out-of-the-box yields a version which implements EAM potentials.
-
-Further information regarding interatomic potentials is provided in Chapter \ref{chapter:interactions}.
 
 \section{Source code documentation}
 HTML documentation for the source code can be generated from `marked-up' comments in the source code files. Invoking the command 
@@ -751,13 +751,53 @@ generates this documentation: each HTML file corresponds to a particular source 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Monte Carlo simulation programs}\label{chapter:simulation_programs}
-The key programs in the package are \texttt{monteswitch} and \texttt{monteswitch\_mpi}, which run Monte Carlo simulations. 
-The latter is the MPI-parallelised analogue of the former, and the two programs are almost identical in terms of usage.
-In this chapter we describe the usage of \texttt{monteswitch} in detail. Unless otherwise stated, the following information
-is also pertinent to \texttt{monteswitch\_mpi}. Information specific to \texttt{monteswitch\_mpi} can be found in 
-the final section of this chapter.
+The key programs in the package are \texttt{monteswitch} and \texttt{monteswitch\_mpi}.
+The main purpose of these programs is to perform LSMC simulations, though they can also
+be used to perform `conventional' Monte Carlo simulations. \texttt{monteswitch\_mpi} is the MPI-parallelised analogue of \texttt{monteswitch}. 
+While in \texttt{monteswitch} one simulation is performed, in \texttt{monteswitch\_mpi} multiple simulations are 
+performed in parallel. These simulations are identical except for the seed used for the random number generator. Hence \texttt{monteswitch\_mpi}
+is simply a convenient means to exploit parallelisation in order to obtain results quickly. Further details regarding the parallelisation
+are provided later in Section \ref{sec:monteswitch_mpi}.
+%
+In terms of usage and simulation methodology \texttt{monteswitch} and \texttt{monteswitch\_mpi} are almost identical. For this reason we 
+focus on \texttt{monteswitch} below, where it should be assumed that what is said for \texttt{monteswitch\_mpi} also applies for
+\texttt{monteswitch\_mpi} unless otherwise stated.
 
-The command-line arguments passed to \texttt{monteswitch} determine the nature of the simulation. Usage of \texttt{monteswitch} is: 
+\section{Overview of functionality}
+\texttt{monteswitch} can treat phases which can be represented by orthorhombic supercells in the NVT and NPT ensembles, where in the
+NPT ensemble both isotropic volume moves and volume moves which allow the shape of the system to alter are supported. Multicomponent
+systems are allowed, however \texttt{monteswitch} cannot treat `molecular' systems in which the particles have orientational degrees of
+freedom: rotational Monte Carlo moves are not implemented in \texttt{monteswitch}.
+
+\texttt{monteswitch} supports both canonical and multicanonical sampling, where the multicanonical
+sampling is performed over the LSMC order parameter described in Section \ref{sec:multicanonical_LSMC}.
+Regarding weight function generation, \texttt{monteswitch} supports all of the methods described in Section \ref{sec:weight_generation}. 
+Note that the option to perform canonical sampling enables conventional Monte Carlo simulations to be performed. 
+Note also that, like all other LSMC implementations the authors are aware of, \texttt{monteswitch} explicitly keeps track of two states of 
+the system during a simulation, one corresponding to phase 1 and one corresponding to phase 2. At any point during the simulation only one 
+of these is the `actual' state of the system $\sigma$, while the other is the state $\sigma'$ which would result if a lattice switch were
+performed from $\sigma$. For instance if the system were in phase 1, then $\sigma$ would belong to phase 1 and $\sigma'$ would belong to 
+phase 2. During a simulation the actual state $\sigma$ is evolved via particle moves, and additionally volume moves for the case of the NPT ensemble, 
+in the conventional manner. However the `other' state $\sigma'$ is evolved contemporaneously with $\sigma$ so that $\sigma'$ is always what 
+would result if a lattice switch were performed from $\sigma$. It is necessary to continuously track $\sigma'$ in this manner because the LSMC order 
+parameter for $\sigma$ depends on the energy, and possibly also the volume, of $\sigma'$ (see Section \ref{sec:multicanonical_LSMC} for details). 
+Regarding lattice switch moves, if such a move is accepted, then the actual state is simply relabelled from $\sigma$ to $\sigma'$, while $\sigma$ is 
+relabelled as the `other' state. Always keeping track of two states as just described has a downside: while optimal for LSMC simulations, 
+it is not optimal for conventional Monte Carlo simulations -- where keeping track of another state is unnecessary. Thus \texttt{monteswitch} will 
+typically be twice as slow for conventional Monte Carlo simulations relative to an analogous program which would only keep track of one state during 
+a conventional Monte Carlo simulation.
+
+\texttt{monteswitch} also supports on-the-fly evaluation of physical quantities and their uncertainties during the simulation via block 
+averaging (see, e.g., Ref. \cite{book:Frenkel}, and Section \ref{sec:block_averaging} later). It also supports the ability to check whether or not 
+the system has `melted', i.e., whether or not one or more of the particles have strayed `too far' from their lattice sites. In a similar vein, 
+it is possible in \texttt{monteswitch} to perform simulations in the centre-of-mass reference frame, which provides a means of suppressing spurious
+melting due to `drift' in the centre-of-mass of the system during the simulation.
+
+The random number generator utilised by \texttt{monteswitch} is the Mersenne Twister (MT19937) \cite{Matsumoto_1998}.
+
+
+\section{Command-line arguments}
+The command-line arguments passed to \texttt{monteswitch} determine the nature of the invoked simulation. Usage of \texttt{monteswitch} is as follows: 
 \begin{verbatim}
 monteswitch [-seed <seed>] -new [-wf]
 monteswitch [-seed <seed>] (-resume|-reset)
@@ -769,9 +809,8 @@ Note also that the order of the arguments is important: if \texttt{-seed} is spe
 
 
 \section{Seeding the random number generator: the argument \texttt{-seed}}
-\texttt{monteswitch} uses the Mersenne Twister random number generator (MT19937) \cite{Matsumoto_1998}, and a single non-zero
-integer is used to seed it. The command-line argument \texttt{-seed} allows the user to specify the 
-seed for the forthcoming simulation explicitly. If \texttt{-seed} is present, then the following argument \texttt{<seed>}
+The command-line argument \texttt{-seed} allows the user to explicitly specify the seed for the random number generator for the forthcoming simulation. 
+If \texttt{-seed} is present, then the following argument \texttt{<seed>}
 is taken to be the seed. For example, to set the seed to 12345 for a simulation using the \texttt{-new}
 argument (whose function will be explained in a moment) the appropriate command is \texttt{monteswitch -seed 12345 -new}.
 If the argument \texttt{-seed} is absent then a seed is generated using the system clock.
@@ -779,13 +818,16 @@ If the argument \texttt{-seed} is absent then a seed is generated using the syst
 
 \section{Starting a new simulation: the argument \texttt{-new}}
 The command-line argument \texttt{-new} invokes a new simulation `from scratch'. In this case
-the simulation is initialised using information contained in input files located in the current directory. The specific input files required
+the simulation is initialised using information contained in input files located in the current directory. The input files required
 by \texttt{monteswitch} will depend on the specific version of \texttt{interactions.f95} utilised when compiling \emph{monteswitch} 
-(see Section \ref{sec:plugins}). However the input files which are version-dependent only contain information pertaining to the interatomic
-potential. We defer discussion of such files to Chapter \ref{chapter:interactions}; here we focus on the input files which are used in
-\emph{all} versions of \texttt{monteswitch}, namely \texttt{lattices\_in}, \texttt{params\_in} and \texttt{wf\_in}. The
-first two of these are compulsory: they are read by all new simulations. By contrast \texttt{wf\_in} is optional, only being read 
-if the command-line argument \texttt{-wf} is present (see above for usage). We now describe the format and purpose of these files.
+(see Section \ref{sec:plugins}). 
+However it is only the input files which contain information pertaining to the interatomic potential which are version-dependent;
+the remaining information used to initialise a simulation are read from input files which are universal to all versions of 
+\texttt{monteswitch}, namely \texttt{lattices\_in}, \texttt{params\_in} and \texttt{wf\_in}. We defer discussion of the
+input files for the interatomic potential to Chapter \ref{chapter:interactions}, focusing here on \texttt{lattices\_in}, 
+\texttt{params\_in} and \texttt{wf\_in}. The first two of these are compulsory: they are read by all new simulations. 
+By contrast \texttt{wf\_in} is optional, only being read if the command-line argument \texttt{-wf} is present (see above for usage). 
+We now describe the format and purpose of these files.
 
 
 \subsection{Input file: \texttt{lattices\_in}}\label{sec:lattices_in}
@@ -850,8 +892,33 @@ The lattice switch from phase 2 to 1 is the inverse of the above transformation.
 \subsection{Input file: \texttt{params\_in}}\label{section:params_in}
 The input file \texttt{params\_in} contains the variables which determine the nature of the simulation. Each variable corresponds to a
 specific single line in the file, and each line must consist of an arbitrary string (we recommend the name of the variable followed immediately
-by an `=' character with no spaces), followed by whitespace, followed by the value of the variable. The variables which must appear
-in a \texttt{params\_in}, as well as a description of their function, are given in Table \ref{table:params_in_variables}. 
+by an `=' character with no spaces), followed by whitespace, followed by the value of the variable. To illustrate this, below is an excerpt from a 
+\texttt{params\_in} file:
+\begin{verbatim}
+init_lattice=                            1
+M_grid_size=                             100
+M_grid_min=                              -82.0
+M_grid_max=                              48.0
+enable_multicanonical=                   T
+beta=                                    9.403
+P=                                       0.0
+enable_lattice_moves=                    T
+enable_part_moves=                       T
+enable_vol_moves=                        T
+part_select=                             "rand"
+part_step=                               0.3
+enable_COM_frame=                        T
+vol_dynamics=                            "UVM"
+vol_freq=                                1
+vol_step=                                0.03
+stop_sweeps=                             160000
+equil_sweeps=                            0
+enable_melt_checks=                      T
+melt_sweeps=                             100
+melt_threshold=                          3.0
+melt_option=                             "zero_current"
+\end{verbatim}
+The variables which must appear in a \texttt{params\_in}, as well as a description of their function, are given in Table \ref{table:params_in_variables}. 
 \emph{Note that the variables must appear in params\_in in the order that they appear in the table}. E.g., the first 
 variable must be \textbf{init\_lattice}, the second must be \textbf{M\_grid\_size}, etc. Examples of \texttt{params\_in} files can
 be found in the \texttt{Tests} and \texttt{Examples} directories, which can serve as templates for the user.
@@ -912,13 +979,13 @@ melted, checking for `divergences' in the energy, calculating equilibrium quanti
 gathered during these sweeps for block averaging (see below). \\
 19 & \textbf{enable\_melt\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the system has `melted', i.e., if one or 
 more of the particles has moved more than a distance of \textbf{melt\_threshold} from its lattice site in any Cartesian direction then the system is 
-considered to have `melted'. We recommend that this feature is used, since the LSMC method relies upon the fact that the two phases under c
-onsideration are metastable, and that particles will not move too far from their lattice sites on the timescale of the simulation. \\
+considered to have `melted'. We recommend that this feature is used, since the LSMC method relies upon the fact that the two phases under
+consideration are metastable, and that particles will not move too far from their lattice sites on the timescale of the simulation. \\
 20 & \textbf{melt\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) to check for melting.  \\
 21 & \textbf{melt\_threshold}  &  \texttt{REAL}  & See \textbf{enable\_melt\_checks}.  \\
-22 & \textbf{melt\_option}  &  \texttt{CHARACTER(30)}  & Flag determining what the simulation does if the system has `melted': \texttt{zero\_1} and 
-\texttt{zero\_2} move the system to the zero-displacement states in phases 1 and 2, respectively; \texttt{zero\_current} does the same but for 
-the current phase; \texttt{stop} stops the simulation with an exit status of 2. For \texttt{zero\_1}, \texttt{zero\_2}, \texttt{zero\_current} the 
+22 & \textbf{melt\_option}  &  \texttt{CHARACTER(30)}  & Flag determining what the simulation does if the system has `melted': \texttt{"zero\_1"} and 
+\texttt{"zero\_2"} move the system to the zero-displacement states in phases 1 and 2, respectively; \texttt{"zero\_current"} does the same but for 
+the current phase; \texttt{"stop"} stops the simulation with an exit status of 2. For \texttt{"zero\_1"}, \texttt{"zero\_2"}, \texttt{"zero\_current"} the 
 system is allowed to re-equilibrate before statistics are gathered for bock averaging. Also, the current block is disregarded for the purposes of 
 block averaging. \\
 23 & \textbf{enable\_divergence\_checks}  &  \texttt{LOGICAL}  & \texttt{T} enables periodic checks of whether the energy of the system is correct. 
@@ -1073,16 +1140,43 @@ weight function: the value of the weight function for macrostate $i$ is initiali
 
 
 \section{Output: stdout, \texttt{state} and \texttt{data}}\label{sec:output}
-During a simulation,information is periodically output to stdout and the file \texttt{data}. The variables with names beginning with 
+During a simulation information is periodically output to stdout and the file \texttt{data}. The variables with names beginning with 
 \textbf{output\_file\_} and \textbf{output\_stdout\_} determine which variables are output to \texttt{data} and stdout respectively.
 The variable \textbf{output\_file\_X}, where \textbf{X} is the name of a simulation variable (a list is given below), when set to \texttt{T}, 
 will result in a line consisting of \texttt{X: } followed by the number of completed sweeps, followed by the current value of \textbf{X} 
-being printed to \texttt{data} every \textbf{output\_file\_period} sweeps. However, if \textbf{output\_file\_period} is set to 0, then instead 
-the output is after every move; and if \textbf{output\_file\_period} is a negative integer, then there is no output to the file, i.e., the
-output is suppressed. The above also applies to \textbf{output\_stdout\_X}, but for the output to stdout. 
-The only exceptions to the aforedescribed significance of variables beginning with \textbf{output\_file\_} and \textbf{output\_stdout\_}
-are \textbf{output\_file\_eta} and \textbf{output\_stdout\_eta}. For these quantities \textbf{eta} refers to the
-value of the weight function \emph{for the current state} -- as opposed to the entire weight function. This point is reiterated below.
+being printed to \texttt{data} every \textbf{output\_file\_period} sweeps. To illustrate this, below is an excerpt of a data file corresponding
+to \textbf{output\_file\_period} being set to 250:
+\begin{verbatim}
+ Lx:          250   20.506880155055160        22.375541637220159     
+ Ly:          250   21.983483940969180        19.585057663268277     
+ Lz:          250   20.142474063147095        20.720990682970093     
+ V:          250   9080.4825242547813     
+ lattice:          250           2
+ E:          250  -2420.3817246101821     
+ M:          250   12.808541584236991     
+ eta:          250   9.9865126253137664     
+ barrier_macro_low:          250          84
+ Lx:          500   20.470022712854778        22.335325610873863     
+ Ly:          500   21.965084799027686        19.568665891297709     
+ Lz:          500   20.294516764376276        20.877400237511747     
+ V:          500   9124.9380258152232     
+ lattice:          500           2
+ E:          500  -2409.3469532112986     
+ M:          500   1.1974997526594968     
+ eta:          500   54.025947498280964     
+ barrier_macro_low:          500          84
+ Lx:          750   20.472567199702674        22.338101960615028     
+ Ly:          750   21.653559219100391        19.291128151472556     
+ Lz:          750   20.503721368631055        21.092613455213190     
+ V:          750   9089.3805950278784     
+ lattice:          750           1
+\end{verbatim}
+The exceptions are if \textbf{output\_file\_period} is set to 0, then instead the output is after every move, and if \textbf{output\_file\_period} is a 
+negative integer, in which case there is no output to the file, i.e., the output is suppressed. All of the above also applies to 
+\textbf{output\_stdout\_X}, but for the output to stdout. 
+However further exceptions can be found in the function of the flags \textbf{output\_file\_eta} and \textbf{output\_stdout\_eta}. For these quantities 
+\textbf{eta} refers to the value of the weight function \emph{for the current state} -- as opposed to the entire weight function. This point is 
+reiterated below.
 Note that there is no internal variable named \textbf{eta} in \verb|monteswitch|: the entire weight function is refered to as \textbf{eta\_grid}
 in \verb|monteswitch|; \textbf{eta} is calculated on-the-fly when required from \textbf{eta\_grid} and never stored in memory.
 
@@ -1090,7 +1184,8 @@ The file \texttt{data} can be used to deduce how the system evolves with time du
 within \texttt{data} to check whether or not the system has equilibrated within a certain number of Monte Carlo sweeps. In a production simulation it
 can also be used to store the `observations' performed on the system, which could be used in subsequent analysis.
 
-In addition to \texttt{data}, a file \texttt{state} is also created by the program periodically throughout a simulation. This file contains all of the 
+In addition to \texttt{data}, a file \texttt{state} is also created by the program periodically throughout a simulation. This file contains a
+snapshot of all the 
 simulation variables, and can be used to `resume' the simulation by running \texttt{monteswitch} with the \texttt{-resume} or \texttt{-reset} argument
 (see Sections \ref{sec:resume} and \ref{sec:reset}), or to extract the `results' of the simulation, e.g., equilibrium quantities, the current weight 
 function, the number of accepted vs. rejected Monte Carlo moves of a certain type -- perhaps using the \texttt{monteswitch\_post} program 
@@ -1099,7 +1194,33 @@ The variable \textbf{checkpoint\_period} determines how often the simulation is 
 \textbf{checkpoint\_period} sweeps. It is also \emph{always} created at the completion of the program. Note that if \textbf{checkpoint\_period} is $\leq 0$, 
 then there is no output to \texttt{state}, i.e., the file will be empty.
 In the \texttt{state} file, similarly to \texttt{params\_in}, each line corresponds to a particular variable: for variable $X$ the corresponding line contains
-\texttt{X=} followed by the value of that variable. The relevant line can be extracted from \texttt{state} using the utility \texttt{grep}. E.g. the command
+\texttt{X=} followed by the value of that variable. To illustrate this, below is an except of a \texttt{state} file:
+\begin{verbatim}
+ output_stdout_sigma_equil_L_2=  F
+ checkpoint_period=         2000
+ M_grid_size=          100
+ n_part=          384
+ Lx=    20.517775865260848        22.387430204156065     
+ Ly=    21.793660466200304        19.415944172923826     
+ Lz=    20.310998343652720        20.894355188008873     
+ V=    9082.2140380006822     
+ lattice=            2
+ E_1=   -2409.1056545754682     
+ E_2=   -2410.0731165683210     
+ E=   -2410.0731165683173     
+ M=   0.96746199285280521     
+ switchscalex=    1.0911236359717214     
+ switchscaley=   0.89089871814033939     
+ switchscalez=    1.0287212294780348     
+ sweeps=       700000
+ moves=    538996762
+ moves_lattice=    269498381
+ accepted_moves_lattice=        21890
+ moves_part=    268800000
+ accepted_moves_part=     86801239
+ moves_vol=       698381
+\end{verbatim}
+A desired line can be extracted from \texttt{state} using the utility \texttt{grep}. E.g. the command
 \begin{verbatim}
 $ grep "E=" state
 \end{verbatim}
@@ -1110,7 +1231,7 @@ all variables pertaining to the interatomic potential are stored at the end of \
 point where the variables pertaining to the interatomic potential are stored is universal.
 
 Table \ref{table:state_variables} contains a list of \texttt{monteswitch} internal variables, not already covered by Table \ref{table:params_in_variables},
-which have corresponding \textbf{output\_file\_} or \textbf{output\_stdout\_} flags, or can be found in \texttt{state} and could possibly be of interest
+which have corresponding \textbf{output\_file\_} or \textbf{output\_stdout\_} flags, or can be found in \texttt{state} and could be of interest
 to the user. Note that there are other variables in \texttt{state} which are not mentioned in Tables \ref{table:params_in_variables} or 
 \ref{table:state_variables} -- aside from those stemming from \texttt{interactions.f95}. We do not mention them because these are not likely to be of
 interest to the user; for more information see the HTML documentation for \texttt{monteswitch\_mod.f95}.
@@ -1237,8 +1358,8 @@ order parameters between \textbf{M\_grid}$(n)$ and \textbf{M\_grid}$(n+1)$.\\
 system was in phase 1 so far, including over previous simulations if we have used the \texttt{-resume} argument.\\
 \textbf{M\_counts\_2} & \texttt{INTEGER(M\_grid\_size)} & \textbf{M\_counts\_2}($n$) is the number of times macrostate $n$ has been visited while the
 system was in phase 2 so far, including over previous simulations if we have used the \texttt{-resume} argument. \\
-\textbf{eta\_grid} & \texttt{REAL(M\_grid\_size)} & \textbf{eta\_grid}($n$) is the value o the weight function for macrostate $n$. \\
-\textbf{trans} & \texttt{REAL(M\_grid\_size,M\_grid\_size)} & \textbf{eta\_grid}($m,n$) is the number of inferred transitions from macrostate
+\textbf{eta\_grid} & \texttt{REAL(M\_grid\_size)} & \textbf{eta\_grid}($n$) is the value of the weight function for macrostate $n$. \\
+\textbf{trans} & \texttt{REAL(M\_grid\_size,M\_grid\_size)} & \textbf{trans}($m,n$) is the number of inferred transitions from macrostate
 $m$ to macrostate $n$; it is the matrix $H_{\mathcal{M}\mathcal{M}'}$ in Section \ref{sec:transition_matrix}. \\
 \textbf{equil\_umsd\_1} & \texttt{REAL(n\_part)} & \textbf{equil\_umsd\_1}($n$) is the mean-squared displacement of particle $n$ from its lattice site
 in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
@@ -1251,9 +1372,9 @@ Note that blocks are disregarded if during the block the system melts, or if the
 \textbf{block\_counts\_umsd\_2} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_umsd\_2} and \textbf{sigma\_equil\_umsd\_2}. 
 Note that blocks are disregarded if during the block the system melts, or if the system does not visit phase 2 during the block (see Section \ref{sec:block_averaging}). \\
 \textbf{equil\_L\_1} & \texttt{REAL(3)} & The 1st, 2nd and 3rd values in the array \textbf{equil\_L\_1} are the mean x-, y- and z-dimensions of the
-supercell in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). Note that blocks are disregarded if during the block the system melts. \\
+supercell in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
 \textbf{equil\_L\_2} & \texttt{REAL(3)} &  The 1st, 2nd and 3rd values in the array \textbf{equil\_L\_2} are the mean x-, y- and z-dimensions of the
-supercell in phase 2, evaluated using block averaging (see Section \ref{sec:block_averaging}). Note that blocks are disregarded if during the block the system melts. \\
+supercell in phase 2, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
 \textbf{sigma\_equil\_L\_1} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_1}($n$) is the uncertainty in \textbf{equil\_L\_1}($n$) (see Section \ref{sec:block_averaging}). \\
 \textbf{sigma\_equil\_L\_2} & \texttt{REAL(3)} & \textbf{sigma\_equil\_L\_2}($n$) is the uncertainty in \textbf{equil\_L\_2}($n$) (see Section \ref{sec:block_averaging}). \\
 \textbf{block\_counts\_L\_1} & \texttt{INTEGER} & The number of blocks used in evaluating \textbf{equil\_L\_1} and \textbf{sigma\_equil\_L\_1}. Note that blocks are
@@ -1265,7 +1386,7 @@ disregarded if during the block the system melts, or if the system does not visi
 \end{landscape}
 
 
-\section{Resuming a simulation: the argument \texttt{-resume}}\label{sec:resume}
+\section{Resuming a checkpointed simulation: the argument \texttt{-resume}}\label{sec:resume}
 The command-line argument \texttt{-resume} continues an `old' simulation, whose variables are contained in the file \texttt{state} in the current 
 directory. The `resumed' simulation is run for the number of Monte Carlo sweeps specified in the variable \textbf{stop\_sweeps} in \texttt{state}.
 By default this is the number of sweeps which were performed in the old simulation, though one of course this can be manually altered if one wants
@@ -1274,7 +1395,7 @@ the resumed simulation to be of a different length to the old simulation.
 For a simulation invoked using the argument \texttt{-resume}, the file \texttt{data} is ammended: the resumed simulation does not overwrite the
 \texttt{data} file; all information from the old simulation is retained in it.
 
-\section{`Resetting' a simulation: the argument \texttt{-reset}}\label{sec:reset}
+\section{`Resetting' a checkpointed simulation: the argument \texttt{-reset}}\label{sec:reset}
 The command-line argument \texttt{-reset} invokes a simulation from an old \texttt{state} file similarly to \texttt{-resume}, except that it
 resets all `counter variables' to zero. This has the effect of starting a `new' simulation whose nature corresponds to the old simulation, 
 but instead uses the state of the system specified in \texttt{state}. By contrast, the argument \texttt{-new} initialises the 
@@ -1295,12 +1416,12 @@ Note though that exit statuses are not part of the Fortran standard, and may not
 
 \section{MPI simulations: \texttt{monteswitch\_mpi}}\label{sec:monteswitch_mpi}
 As mentioned at the beginning of this chapter, the program \texttt{monteswitch\_mpi} is the MPI-parallelised analogue of \texttt{monteswitch}. 
-It is identical to the program \texttt{monteswitch}, except that instead of a single simulation for \textbf{stop\_sweeps} Monte Carlo sweeps, 
-\texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, each being approximately \textbf{stop\_sweeps}$/n$ sweeps in 
-length. Accordingly, during the simulation multiple \texttt{data}- and \texttt{state}-format files are created -- one for each replica. These 
-are named \texttt{state\_0}, \texttt{state\_1}, \texttt{state\_2}, etc., and similarly for the \texttt{data}-format files. At the completion of 
-all replicas, the results of block averaging from all replicas are combined and stored in the file \texttt{state}. The state stored in \texttt{state}
-corresponds to the state in \texttt{state\_0}. 
+To build upon what was already said, \texttt{monteswitch\_mpi} is identical to the program \texttt{monteswitch}, except that instead of a 
+single simulation for \textbf{stop\_sweeps} Monte Carlo sweeps, \texttt{monteswitch\_mpi} runs $n$ simulations -- replicas -- in parallel using MPI, 
+each being approximately \textbf{stop\_sweeps}$/n$ sweeps in length. Accordingly, during the simulation multiple \texttt{data}- and \texttt{state}-format 
+files are created -- one for each replica. These are named \texttt{state\_0}, \texttt{state\_1}, \texttt{state\_2}, etc., and similarly for the 
+\texttt{data}-format files. At the completion of all replicas, the results of block averaging from all replicas are combined and stored in the file 
+\texttt{state}. The state stored in \texttt{state} corresponds to the state in \texttt{state\_0}. 
 The user should bear in mind that \texttt{state}-format files can be large, and hence one may need to ensure that storage limits are not exceeded when
 invoking \texttt{monteswitch\_mpi} with a large number of replicas $n$.
 
@@ -1311,12 +1432,12 @@ the same state} when the \texttt{-resume} argument is used with \texttt{monteswi
 The files \texttt{data\_}$n$ are therefore always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
 invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The excpetion is replica `0',
 whose state is always stored in the file \texttt{state}, as well as \texttt{state\_0}.
-
-To expand upon what was just said, in a resumed simulation, only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
+%
+Moreover in a resumed simulation only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
 simulation via the file \texttt{state}. All other replicas have counter variables initialised to zero at the start of the resumed simulation.
-During the simulation, the counter variables for each replica are of course ammended according to the evolution of that replica. Once all replicas have
+During the simulation, the counter variables for each replica are of course amended according to the evolution of that replica. Once all replicas have
 completed their allocated number of sweeps, the variables for the $n$th replica are exported to the file \texttt{state\_}$n$. Then 
-the counter variables of all replicas, other than replica 0, are summed and ammended to replica 0. At the end of the simulation replica 0 thus has
+the counter variables of all replicas, other than replica 0, are summed and amended to replica 0. At the end of the simulation replica 0 thus has
 variables which corresponding to an evolution of, if there are $N$ tasks, approximately \textbf{stop\_sweeps}$/N$ sweeps from the starting state, 
 but with counter variables which correspond to \textbf{stop\_sweeps} sweeps worth of information. The variables in replica 0 are then updated to reflect 
 its new counters, e.g., the weight function is recalculated using the information from the new counters. Finally, the variables are
@@ -1373,7 +1494,7 @@ Monte Carlo programs in \emph{monteswitch} if \texttt{interactions\_EAM.f95} is 
 By default \texttt{interactions.f95} is the same as \texttt{interactions\_EAM.f95}.
 
 \section{Soft pair potentials}\label{section:pair_potentials}
-Table \ref{table:pair_potentials} gives a list of soft pair potentials included with \emph{monteswitch}, and the name 
+Table \ref{table:pair_potentials} gives a list of soft pair potentials included with \emph{monteswitch}, along with the name 
 of the corresponding \texttt{interactions.f95} file in \texttt{Interactions}. All of these potentials are implemented in the same way.
 Firstly, the pair potential $\phi(r)$ is assumed to be 0 for inter-particle separations $r$ greater than some cut-off distance $r_{\text{c}}$. In other
 words the potential is \emph{truncated} at $r_{\text{c}}$.
@@ -1533,12 +1654,36 @@ The order of variables as they should occur in \texttt{interactions\_in} is \tex
 
 \section{General user-defined potentials}
 The file \texttt{interactions\_TEMPLATE\_minimal.f95} is a template which can be built upon by users to implement their own potentials
-in \emph{monteswitch}. The template includes empty Fortran procedures which must be filled in by the user. Comments within the template
-act as a guide for the user, who may also find it useful to examine the \texttt{interactions.f95} files included with \emph{monteswitch} in the 
-\texttt{Interactions} directory as examples. The user is of course free to add their own functions and variables within their custom
-\texttt{interactions.f95} file. Furthermore they can use external Fortran modules in the usual manner. 
+in \emph{monteswitch}. The template includes empty Fortran procedures which must be filled in by the user. Specifically, these
+procedures are:
+\begin{itemize}
+\item
+\texttt{initialise\_interactions}, which initialises the variables within the module, possibly 
+by reading variables from one or more input files; 
+\item
+\texttt{export\_interactions}, which exports the module variables to a file for the purposes
+of checkpointing the simulation; 
+\item
+\texttt{import\_interactions}, which imports the module variables from the aforementioned file to resume a checkpointed
+simulation; 
+\item
+\texttt{after\_accepted\_part\_interactions}, \texttt{after\_accepted\_vol\_interactions} and 
+\texttt{after\_accepted\_lattice\_interactions}, which perform any housekeeping tasks required by the module (e.g., updating neighbour lists)
+after, respectively, a particle, volume and lattice switch move has been accepted; 
+\item
+\texttt{after\_all\_interactions}, which performs any housekeeping tasks required by the module after all moves, including
+rejected moves; 
+\item
+\texttt{calc\_energy\_scratch}, which calculates the energy of the system `from scratch' for a specified state;
+\item
+\texttt{calc\_energy\_part\_move}, which calculates the energy of the system given that one particle has moved.
+\end{itemize}
 %
-Note that there is no universal procedure for determining the separation between two particles in \emph{monteswitch}. Separations are
+Comments within the template provide more detailed guidance for the user, who may also find it useful to examine the \texttt{interactions.f95} files 
+included with \emph{monteswitch} in the \texttt{Interactions} directory as examples. The user is of course free to add their own 
+functions and variables within their custom \texttt{interactions.f95} file. Furthermore they can use external Fortran modules in the usual manner. 
+
+Note that there is no `universal' procedure for determining the separation between two particles in \emph{monteswitch}. Separations are
 required only in that they are used to determine the energy of the system, something is within the remit of the file 
 \texttt{interactions.f95}. Hence when making a custom \texttt{interactions.f95} file it is up to the user to calculate the separations
 between pairs of particles themselves, possibly by adding their own procedure which does this (which takes into account the periodic
@@ -1566,7 +1711,7 @@ of input files.
 \section{Programs for generating \texttt{lattices\_in} files}\label{sec:lattices_in_programs}
 The programs \texttt{lattices\_in\_hcp\_fcc}, \texttt{lattices\_in\_bcc\_fcc} and \texttt{lattices\_in\_bcc\_hcp} 
 create \texttt{lattices\_in} files containing reference states corresponding to, respectively, hcp--fcc, bcc--fcc and bcc--hcp lattice switches.
-Usage of these programs is:
+Usage of these programs is as follows:
 \begin{verbatim}
 lattices_in_hcp_fcc <rho> <nx> <ny> <nz>
 lattices_in_bcc_fcc <rho> <nx> <ny> <nz>
@@ -1611,7 +1756,7 @@ phase 1 corresponds to bcc and phase 2 corresponds to hcp.
 
 
 \section{Post-processing \texttt{state} files: \texttt{monteswitch\_post}}\label{sec:monteswitch_post}
-\texttt{monteswitch\_post} is for post-processing a file \texttt{state} generated by \texttt{monteswitch} or \texttt{monteswitch\_mpi}, and can
+\texttt{monteswitch\_post} is a tool for post-processing the file \texttt{state} generated by \texttt{monteswitch} or \texttt{monteswitch\_mpi}. It can
 be used to extract useful information from that file. The \texttt{state} file which the program operates on is that in the current directory.
 The command-line arguments determine the task performed by the program. Usage of \texttt{monteswitch\_post} is as follows, where the function 
 of each command-line argument is described below:
@@ -1659,7 +1804,7 @@ the x-, y- and z-displacements respectively for a particle. If the optional argu
 then only the displacements for particles belonging to species \texttt{<species>} in phase \texttt{<phase>} are output.
 
 \subsection{\texttt{-calc\_rad\_dist <bins>}}
-Calculate the radial distribution function, based on the current state, and output it to stdout. In the output, each line corresponds 
+Calculate the radial distribution function, based on the current state of the system, and output it to stdout. In the output, each line corresponds 
 to a distance, which is the first token, and the second token contains the average number of particles at this distance from a particle. The 
 output is like a histogram, with each line corresponding to a bin, the first token corresponding to the minimum of the range covered by the 
 bin, and the second token corresponding to the number of counts for that bin. The range of the bin is inclusive at its minimum, and 
@@ -1704,8 +1849,8 @@ We now provide a worked example to elucidate how \emph{monteswitch} can be appli
 transition in Zr, modeled using the EAM potential of Ref. \cite{Mendelev_2007}. The authors of that study found that the zero-pressure bcc--hcp
 transition temperature occured at temperature $T=$1233K. Here we use LSMC to verify this result. To elaborate, we
 use \emph{monteswitch} to calculate the Gibbs free energy difference $\Delta G$ between the bcc and hcp phases of Zr, modeled using 
-the aforementioned potential, at $T=1233$K and $P=0$. If this $T$ indeed corresponds to the zero-pressure transition temperature then we should 
-find that $\Delta G=0$. As well as the transition temperature, Ref. \cite{Mendelev_2007} also provides values for the enthalpy change 
+the aforementioned potential, at $T=1233$K and $P=0$. If this $T$ indeed corresponds to the zero-pressure transition temperature for this potential,
+then we would find that $\Delta G=0$. As well as the transition temperature, Ref. \cite{Mendelev_2007} also provides values for the enthalpy change 
 $\Delta H_{\text{hcp$\to$bcc}}$ and fractional volume change $\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$ associated with the transition. These 
 quantities can also be obtained from a \emph{monteswitch} LSMC calculation. Accordingly we compare the values of $\Delta H_{\text{hcp$\to$bcc}}$ and
 $\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$ obtained from \emph{monteswitch} to those of Ref. \cite{Mendelev_2007}.
@@ -2228,8 +2373,8 @@ quantity $\Delta G$.
 
 \begin{table}\label{table:production_results}
 \begin{center}
-\begin{tabular}{l | l | l }
-                                          &  \emph{monteswitch}      & Ref. \cite{Mendelev_2007} \\
+\begin{tabular}{l  l  l }
+Quantity                                  &  \emph{monteswitch}      & Ref. \cite{Mendelev_2007} \\
                                                         \hline
 $\Delta H_{\text{hcp$\to$bcc}}$ (eV)                 & 0.0394(2)                & 0.039                     \\
 $\Delta V_{\text{hcp$\to$bcc}}/V_{\text{bcc}}$ (\%)          & -0.812(7)                & -0.8                      \\
@@ -2620,7 +2765,7 @@ has been performed in Refs. \cite{thesis:Jackson,Bruce_2000}, the results of whi
 Two 4-thread MPI simulations are used. The first generates the weight function using \texttt{"pong\_down"}
 artificial dynamics over 2,000,000 sweeps. The second simulation calculates $\Delta G$ using a total of 125,000,000 sweeps. 
 Note that this test may take a while to run. The final value for $\Delta G$ should match Refs. \cite{thesis:Jackson,Bruce_2000}: 
-$\Delta G$ should be $0.00113(4)\beta$ per particle. (Note that in Refs. \cite{thesis:Jackson,Bruce_2000} $\Delta G$ is defined as
+$\Delta G$ should be $0.00113(4)/\beta$ per particle. (Note that in Refs. \cite{thesis:Jackson,Bruce_2000} $\Delta G$ is defined as
 the free energy of fcc relative to hcp, while in \emph{monteswitch}, with hcp corresponding to phase 1 and fcc corresponding to phase 2, 
 $\Delta G$ is the free energy of hcp relative to fcc -- hence the change of sign here relative to the result of Refs. 
 \cite{thesis:Jackson,Bruce_2000}).
