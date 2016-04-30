@@ -769,7 +769,7 @@ module monteswitch_mod
   !!  <td> <font color="red">  <code>pos_1</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
-  !!  (<code>pos_1(n,1)</code>,<code>pos_1(n,2)</code>,<code>pos_1(n,3)</code>) is the position 
+  !!  (<code>pos_1(1,n)</code>,<code>pos_1(2,n)</code>,<code>pos_1(3,n)</code>) is the position 
   !!  of the nth particle for lattice type 1.
   !!  This array should have <code>n_part</code> elements in its first dimension,
   !!  and 3 elements in its second.
@@ -779,7 +779,7 @@ module monteswitch_mod
   !!  <td> <font color="red">  <code>pos_2</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
-  !!  (<code>pos_2(n,2)</code>,<code>pos_2(n,2)</code>,<code>pos_2(n,3)</code>) is the position 
+  !!  (<code>pos_2(1,n)</code>,<code>pos_2(2,n)</code>,<code>pos_2(3,n)</code>) is the position 
   !!  of the nth particle for lattice type 2.
   !!  This array should have <code>n_part</code> elements in its first dimension,
   !!  and 3 elements in its second.
@@ -789,7 +789,7 @@ module monteswitch_mod
   !!  <td> <font color="red">  <code>R_1</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
-  !!  (<code>R_1(n,1)</code>,<code>R_1(n,2)</code>,<code>R_1(n,3)</code>) is the position 
+  !!  (<code>R_1(1,n)</code>,<code>R_1(2,n)</code>,<code>R_1(3,n)</code>) is the position 
   !!  of the nth particle with zero displacement for lattice type 1.
   !!  This array should have <code>n_part</code> elements in its first dimension,
   !!  and 3 elements in its second.
@@ -799,7 +799,7 @@ module monteswitch_mod
   !!  <td> <font color="red">  <code>R_2</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
-  !!  (<code>R_2(n,2)</code>,<code>R_2(n,2)</code>,<code>R_2(n,3)</code>) is the position 
+  !!  (<code>R_2(1,n)</code>,<code>R_2(2,n)</code>,<code>R_2(3,n)</code>) is the position 
   !!  of the nth particle with zero displacement for lattice type 2.
   !!  This array should have <code>n_part</code> elements in its first dimension,
   !!  and 3 elements in its second.
@@ -809,9 +809,9 @@ module monteswitch_mod
   !!  <td> <font color="red">  <code>u</code> </font> </td>
   !!  <td> <font color="red">  <code>real(rk), dimension(:,:), allocatable</code> </font> </td>
   !!  <td> <font color="red"> 
-  !!  (<code>u(n,2)</code>,<code>u(n,2)</code>,<code>u(n,3)</code>) is the current displacement vector
+  !!  (<code>u(1,n)</code>,<code>u(2,n)</code>,<code>u(3,n)</code>) is the current displacement vector
   !!  for the nth particle in the system, i.e., if the current lattice
-  !!  is lattice type 1, then <code>u(n,:)+R_1(n,:)</code> are the current positions
+  !!  is lattice type 1, then <code>u(:,n)+R_1(:,n)</code> are the current positions
   !!  of the particles in the system. This array should have <code>n_part</code>
   !!  elements in its first dimension, and 3 elements in its second.
   !!  </font> </td>
@@ -3895,7 +3895,7 @@ contains
     if(allocated(pos_1)) then
        deallocate(pos_1)
     end if
-    allocate(pos_1(n_part,3))
+    allocate(pos_1(3,n_part))
     read(10,*,iostat=error) string, pos_1
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'pos_1' from file '",trim(filename)
@@ -3905,7 +3905,7 @@ contains
     if(allocated(pos_2)) then
        deallocate(pos_2)
     end if
-    allocate(pos_2(n_part,3))
+    allocate(pos_2(3,n_part))
     read(10,*,iostat=error) string, pos_2
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'pos_2' from file '",trim(filename)
@@ -3915,7 +3915,7 @@ contains
     if(allocated(R_1)) then
        deallocate(R_1)
     end if
-    allocate(R_1(n_part,3))
+    allocate(R_1(3,n_part))
     read(10,*,iostat=error) string, R_1
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'R_1' from file '",trim(filename)
@@ -3925,7 +3925,7 @@ contains
     if(allocated(R_2)) then
        deallocate(R_2)
     end if
-    allocate(R_2(n_part,3))
+    allocate(R_2(3,n_part))
     read(10,*,iostat=error) string, R_2
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'R_2' from file '",trim(filename)
@@ -3935,7 +3935,7 @@ contains
     if(allocated(u)) then
        deallocate(u)
     end if
-    allocate(u(n_part,3))
+    allocate(u(3,n_part))
     read(10,*,iostat=error) string, u
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'u' from file '",trim(filename)
@@ -5505,7 +5505,7 @@ contains
           intrablock_sum_V_1=intrablock_sum_V_1+V*weight
           ! Update the umsd sum
           do n=1,n_part
-             usqrd=dot_product(u(n,:),u(n,:))
+             usqrd=dot_product(u(:,n),u(:,n))
              intrablock_sum_umsd_1(n)=intrablock_sum_umsd_1(n)+weight*usqrd
           end do
           ! Update the L sum
@@ -5527,7 +5527,7 @@ contains
           intrablock_sum_V_2=intrablock_sum_V_2+V*weight
           ! Update the umsd sum
           do n=1,n_part
-             usqrd=dot_product(u(n,:),u(n,:))
+             usqrd=dot_product(u(:,n),u(:,n))
              intrablock_sum_umsd_2(n)=intrablock_sum_umsd_2(n)+weight*usqrd
           end do 
           ! Update the L sum
@@ -5644,7 +5644,7 @@ contains
   !! array <code>r</code> so that they become their analogous positions in a cuboid 
   !! whose faces are x=0, x=<code>Lx</code>, y=0, y=<code>Ly</code>, z=0, and
   !! z=<code>Lz</code>. The format of <code>r</code> should be as follows: 
-  !! (r(n,1),r(n,2),r(n,3)) is the nth position to be translated.
+  !! (r(1,n),r(2,n),r(3,n)) is the nth position to be translated.
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -5679,7 +5679,7 @@ contains
     integer(ik) :: i
 
     do i=1,n_part
-       call translate_position(r(i,:),Lx,Ly,Lz)
+       call translate_position(r(:,i),Lx,Ly,Lz)
     end do    
   end subroutine translate_positions
 
@@ -5900,10 +5900,10 @@ contains
     delta_u(1)=top_hat_rand(part_step)
     delta_u(2)=top_hat_rand(part_step)
     delta_u(3)=top_hat_rand(part_step)
-    u_trial=u(i,:)+delta_u
-    pos_new_1=pos_1(i,:)+delta_u
+    u_trial=u(:,i)+delta_u
+    pos_new_1=pos_1(:,i)+delta_u
     call translate_position(pos_new_1,Lx(1),Ly(1),Lz(1))
-    pos_new_2=pos_2(i,:)+delta_u
+    pos_new_2=pos_2(:,i)+delta_u
     call translate_position(pos_new_2,Lx(2),Ly(2),Lz(2))
 
     ! Calculate the change in energies for each lattice, using the new positions for i
@@ -5939,9 +5939,9 @@ contains
        if(proceed .and. get_random_number()<prob) then
 
            ! Accept the change to pos_1, pos_2 and u for particle i
-           pos_1(i,:)=pos_new_1
-           pos_2(i,:)=pos_new_2
-           u(i,:)=u_trial
+           pos_1(:,i)=pos_new_1
+           pos_2(:,i)=pos_new_2
+           u(:,i)=u_trial
            
            ! Update the energies
            E_1=E_1+delta_E_1
@@ -5953,22 +5953,22 @@ contains
            if(enable_COM_frame) then
                ! Ammend the particle displacements: shift all displacements by -delta_u/n_part
                ! to counter the fact that u(i,:) has shifted by delta_u
-               u(:,1)=u(:,1)-delta_u(1)/n_part
-               u(:,2)=u(:,2)-delta_u(2)/n_part
-               u(:,3)=u(:,3)-delta_u(3)/n_part
+               u(1,:)=u(1,:)-delta_u(1)/n_part
+               u(2,:)=u(2,:)-delta_u(2)/n_part
+               u(3,:)=u(3,:)-delta_u(3)/n_part
                ! Update the positions to correspond to this shift - otherwise, while the separations between the
                ! particles according to the positions will be correct, the absolute positions of the particles will
                ! not be 'the lattice site positions plus the displacement'.
                ! For optimisation purposes, if one does not care about the positions not matching the displacements,
                ! and considers the arrays pos_1 and pos_2 simply as 'work arrays' to enable energies to be efficiently
                ! evaluated, then perhaps this can be removed?
-               pos_1(:,1)=pos_1(:,1)-delta_u(1)/n_part
-               pos_1(:,2)=pos_1(:,2)-delta_u(2)/n_part
-               pos_1(:,3)=pos_1(:,3)-delta_u(3)/n_part
+               pos_1(1,:)=pos_1(1,:)-delta_u(1)/n_part
+               pos_1(2,:)=pos_1(2,:)-delta_u(2)/n_part
+               pos_1(3,:)=pos_1(3,:)-delta_u(3)/n_part
                call translate_positions(pos_1,Lx(1),Ly(1),Lz(1))
-               pos_2(:,1)=pos_2(:,1)-delta_u(1)/n_part
-               pos_2(:,2)=pos_2(:,2)-delta_u(2)/n_part
-               pos_2(:,3)=pos_2(:,3)-delta_u(3)/n_part
+               pos_2(1,:)=pos_2(1,:)-delta_u(1)/n_part
+               pos_2(2,:)=pos_2(2,:)-delta_u(2)/n_part
+               pos_2(3,:)=pos_2(3,:)-delta_u(3)/n_part
                call translate_positions(pos_2,Lx(2),Ly(2),Lz(2))
            end if
            ! Ammend accepted counters
@@ -6000,13 +6000,13 @@ contains
     real(rk), dimension(2) :: Ly_trial
     real(rk), dimension(2) :: Lz_trial
     ! 'u_trial' are the trial displacements
-    real(rk), dimension(n_part,3) :: u_trial
+    real(rk), dimension(3,n_part) :: u_trial
     ! 'R_1_trial' and 'R_2_trial' are the trial lattice vectors for lattice types 1 and 2 respectively
-    real(rk), dimension(n_part,3) :: R_1_trial
-    real(rk), dimension(n_part,3) :: R_2_trial
+    real(rk), dimension(3,n_part) :: R_1_trial
+    real(rk), dimension(3,n_part) :: R_2_trial
     ! Trial positions for both lattices
-    real(rk), dimension(n_part,3) :: pos_trial_1
-    real(rk), dimension(n_part,3) :: pos_trial_2
+    real(rk), dimension(3,n_part) :: pos_trial_1
+    real(rk), dimension(3,n_part) :: pos_trial_2
     ! 'E_1_trial' and 'E_2_trial' are the trial energies for lattice types 1 and 2.
     real(rk) :: E_1_trial
     real(rk) :: E_2_trial
@@ -6152,33 +6152,33 @@ contains
          V_trial=V*S
          Lx_trial(1)=Lx(1)*S
          Lx_trial(2)=Lx(2)*S
-         R_1_trial(:,1)=R_1(:,1)*S
-         R_2_trial(:,1)=R_2(:,1)*S
-         u_trial(:,1)=u(:,1)*S
-         pos_trial_1(:,1)=pos_1(:,1)*S
-         pos_trial_2(:,1)=pos_2(:,1)*S
+         R_1_trial(1,:)=R_1(1,:)*S
+         R_2_trial(1,:)=R_2(1,:)*S
+         u_trial(1,:)=u(1,:)*S
+         pos_trial_1(1,:)=pos_1(1,:)*S
+         pos_trial_2(1,:)=pos_2(1,:)*S
 
       else if(rand<2.0_rk/3.0_rk) then
          ! Move y
          V_trial=V*S
          Ly_trial(1)=Ly(1)*S
          Ly_trial(2)=Ly(2)*S
-         R_1_trial(:,2)=R_1(:,2)*S
-         R_2_trial(:,2)=R_2(:,2)*S
-         u_trial(:,2)=u(:,2)*S
-         pos_trial_1(:,2)=pos_1(:,2)*S
-         pos_trial_2(:,2)=pos_2(:,2)*S
+         R_1_trial(2,:)=R_1(2,:)*S
+         R_2_trial(2,:)=R_2(2,:)*S
+         u_trial(2,:)=u(2,:)*S
+         pos_trial_1(2,:)=pos_1(2,:)*S
+         pos_trial_2(2,:)=pos_2(2,:)*S
 
       else
          ! Move z
          V_trial=V*S
          Lz_trial(1)=Lz(1)*S
          Lz_trial(2)=Lz(2)*S
-         R_1_trial(:,3)=R_1(:,3)*S
-         R_2_trial(:,3)=R_2(:,3)*S
-         u_trial(:,3)=u(:,3)*S
-         pos_trial_1(:,3)=pos_1(:,3)*S
-         pos_trial_2(:,3)=pos_2(:,3)*S
+         R_1_trial(3,:)=R_1(3,:)*S
+         R_2_trial(3,:)=R_2(3,:)*S
+         u_trial(3,:)=u(3,:)*S
+         pos_trial_1(3,:)=pos_1(3,:)*S
+         pos_trial_2(3,:)=pos_2(3,:)*S
 
       end if
 
@@ -6480,28 +6480,28 @@ contains
     read(10,*) n_part
     allocate(spec_1(n_part))
     allocate(spec_2(n_part))
-    allocate(pos_1(n_part,3))
-    allocate(pos_2(n_part,3))
-    allocate(R_1(n_part,3))
-    allocate(R_2(n_part,3))
-    allocate(u(n_part,3))
+    allocate(pos_1(3,n_part))
+    allocate(pos_2(3,n_part))
+    allocate(R_1(3,n_part))
+    allocate(R_2(3,n_part))
+    allocate(u(3,n_part))
     read(10,*) Lx(1)
     read(10,*) Ly(1)
     read(10,*) Lz(1)
     do i=1,n_part
-       read(10,*) R_1(i,1),R_1(i,2),R_1(i,3), spec_1(i)
-       R_1(i,1)=R_1(i,1)*Lx(1)
-       R_1(i,2)=R_1(i,2)*Ly(1)
-       R_1(i,3)=R_1(i,3)*Lz(1)
+       read(10,*) R_1(1,i),R_1(2,i),R_1(3,i), spec_1(i)
+       R_1(1,i)=R_1(1,i)*Lx(1)
+       R_1(2,i)=R_1(2,i)*Ly(1)
+       R_1(3,i)=R_1(3,i)*Lz(1)
     end do
     read(10,*) Lx(2)
     read(10,*) Ly(2)
     read(10,*) Lz(2)
     do i=1,n_part
-       read(10,*) R_2(i,1),R_2(i,2),R_2(i,3), spec_2(i)
-       R_2(i,1)=R_2(i,1)*Lx(2)
-       R_2(i,2)=R_2(i,2)*Ly(2)
-       R_2(i,3)=R_2(i,3)*Lz(2)
+       read(10,*) R_2(1,i),R_2(2,i),R_2(3,i), spec_2(i)
+       R_2(1,i)=R_2(1,i)*Lx(2)
+       R_2(2,i)=R_2(2,i)*Ly(2)
+       R_2(3,i)=R_2(3,i)*Lz(2)
     end do
 
     close(unit=10)

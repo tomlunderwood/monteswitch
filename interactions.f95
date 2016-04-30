@@ -84,7 +84,7 @@ module interactions_mod
     real(rk), dimension(:), allocatable :: rphi
     ! Array defining containing the density - with regards to the embedding function - associated with
     ! each particle in the current microstate of the system for each latice. 
-    ! 'part_rho(lattice,i)' is the density for particle 'i' in lattice <cdoe>lattice'. 
+    ! 'part_rho(i,lattice)' is the density for particle 'i' in lattice 'lattice'. 
     ! This is used to speed up the calculation of the change in embedding energy as a result of a particle move. 
     real(rk), dimension(:,:), allocatable :: part_rho
     ! Like 'part_rho', but a 'buffer' value. Every particle or volume move, the energy of the trial
@@ -119,8 +119,8 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i)
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
 
@@ -134,7 +134,7 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
 
     integer(ik) :: n_part
 
-    n_part=size(pos1,1)
+    n_part=size(pos1,2)
 
     ! Open the file and import the variables required for initialisation
     open(unit=10,file=filename,iostat=error,status="old")
@@ -311,8 +311,8 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     if(cutoff>(Nr-1)*dr) cutoff=(Nr-1)*dr
 
     ! Initialise part_rho, and allocate - but not set any values to - part_rho_buffer
-    allocate(part_rho(2,n_part))
-    allocate(part_rho_buffer(2,n_part))
+    allocate(part_rho(n_part,2))
+    allocate(part_rho_buffer(n_part,2))
     call set_part_rho(1,Lx1,Ly1,Lz1,pos1)
     call set_part_rho(2,Lx2,Ly2,Lz2,pos2)
 
@@ -377,15 +377,15 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i)
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
-    ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
+    ! Displacements of the particles: e.g., u(1,i) is the x-coordinate of particle i in lattice 1
     ! etc.
     real(rk), intent(in), dimension(:,:) :: u
 
@@ -393,7 +393,7 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     character(len=20) string
     integer(ik) :: error, n_part
 
-    n_part=size(pos1,1)
+    n_part=size(pos1,2)
 
     read(unit,*,iostat=error) string, Nrho
     if(error/=0) then
@@ -433,8 +433,8 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     allocate(F(Nrho))
     allocate(rho(Nr))
     allocate(rphi(Nr))
-    allocate(part_rho(2,n_part))
-    allocate(part_rho_buffer(2,n_part))
+    allocate(part_rho(n_part,2))
+    allocate(part_rho_buffer(n_part,2))
 
     read(unit,*,iostat=error) string, F
     if(error/=0) then
@@ -478,15 +478,15 @@ subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
 
@@ -506,15 +506,15 @@ subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     part_rho=part_rho_buffer
@@ -532,15 +532,15 @@ subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     return
@@ -558,16 +558,16 @@ subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, L
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is 
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3) 
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is 
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i) 
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     return
@@ -586,13 +586,13 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! Array containing the species of each particle for each lattice: e.g., species(i) is the
     ! species of particle i
     integer(ik), dimension(:), intent(in) :: species
-    ! Positions (Cartesian) of the particles: e.g., pos(i,1) is the x-coordinate of particle 
-    ! i, pos1(i,2) is the y-coordinate, and pos1(i,3) is the z-coordinate
+    ! Positions (Cartesian) of the particles: e.g., pos(1,i) is the x-coordinate of particle 
+    ! i, pos1(2,i) is the y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), dimension(:,:), intent(in) :: pos
-    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(1,i) is
     ! the x-coordinate of the lattice site for particle i, etc.
     real(rk), intent(in), dimension(:,:) :: R
-    ! Displacement vectors for the particles; e.g., u(i,1) is the x-displacement of 
+    ! Displacement vectors for the particles; e.g., u(1,i) is the x-displacement of 
     ! particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
@@ -604,7 +604,7 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     real(rk) :: embedding_energy
     integer(ik) :: n_part
 
-    n_part=size(pos,1)
+    n_part=size(pos,2)
 
     pair_energy=0.0_rk
     embedding_energy=0.0_rk
@@ -612,17 +612,17 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
        ! Calculate the density associated with particle i, and store it in part_rho_buffer(lattice,i).
        ! At the same time we are resetting part_rho_buffer for 'lattice' to correspond to the 
        ! microstate in the argument
-       part_rho_buffer(lattice,i)=0.0_rk
+       part_rho_buffer(i,lattice)=0.0_rk
        do j=1,n_part
           if(j/=i) then
-             sep=min_image_distance(pos(i,:),pos(j,:),Lx,Ly,Lz)
+             sep=min_image_distance(pos(:,i),pos(:,j),Lx,Ly,Lz)
              if(sep<cutoff) then
                 pair_energy=pair_energy+0.5_rk*phi_func(sep)
-                part_rho_buffer(lattice,i)=part_rho_buffer(lattice,i)+rho_func(sep)
+                part_rho_buffer(i,lattice)=part_rho_buffer(i,lattice)+rho_func(sep)
              end if
           end if
        end do
-       embedding_energy=embedding_energy+F_func(part_rho_buffer(lattice,i))
+       embedding_energy=embedding_energy+F_func(part_rho_buffer(i,lattice))
     end do
 
     calc_energy_scratch = pair_energy + embedding_energy
@@ -644,16 +644,16 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     ! Array containing the species of each particle for each lattice: e.g., species(i) is the
     ! species of particle i
     integer(ik), dimension(:), intent(in) :: species
-    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(j,1) is 
-    ! the x-coordinate of particle j, pos(j,2) is the y-coordinate, and pos(j,3) is the
+    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(1,j) is 
+    ! the x-coordinate of particle j, pos(2,j) is the y-coordinate, and pos(3,j) is the
     ! z-coordinate
     real(rk), dimension(:,:), intent(in) :: pos
     ! Position of particle i AFTER the particle has been moved
     real(rk), dimension(3), intent(in) :: pos_new
-    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(1,i) is
     ! the x-coordinate of the lattice site for particle i, etc.
     real(rk), intent(in), dimension(:,:) :: R
-    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(j,1) is 
+    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(1,j) is 
     ! the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
     ! Displacement of particle i AFTER the particle has been moved
@@ -667,11 +667,11 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     real(rk) :: delta_pair_energy
     real(rk) :: delta_embedding_energy
     ! The change in density for microstate with r_new relative to the current microstate (r)
-    real(rk), dimension(size(pos,1)) :: delta_rho    
+    real(rk), dimension(size(pos,2)) :: delta_rho    
 
     integer(ik) :: n_part
 
-    n_part=size(pos,1)
+    n_part=size(pos,2)
 
     ! EAM code from an older version of monteswitch, which is optimised below...
     !
@@ -711,8 +711,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     delta_rho=0.0_rk
     do j=1,n_part
        if(j/=i) then
-          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
-          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
+          sep=min_image_distance(pos(:,j),pos(:,i),Lx,Ly,Lz)
+          sep_new=min_image_distance(pos(:,j),pos_new,Lx,Ly,Lz)
           if(sep_new<cutoff) then
               delta_pair_energy=delta_pair_energy+phi_func(sep_new)
 
@@ -729,13 +729,13 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     end do
 
     ! Use the change to calculate the current densities, and store it in part_rho_buffer
-    part_rho_buffer(lattice,:) = part_rho(lattice,:) + delta_rho
+    part_rho_buffer(:,lattice) = part_rho(:,lattice) + delta_rho
 
     ! Calculate the chage in embedding energy from the changes in densities
     delta_embedding_energy=0.0_rk
     do j=1,n_part
        delta_embedding_energy = delta_embedding_energy + &
-            F_func(part_rho_buffer(lattice,j)) - F_func(part_rho(lattice,j))
+            F_func(part_rho_buffer(j,lattice)) - F_func(part_rho(j,lattice))
     end do
 
     calc_energy_part_move = delta_pair_energy + delta_embedding_energy
@@ -758,15 +758,15 @@ subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
     real(rk) :: sep
     integer(ik) :: n_part
     
-    n_part=size(r,1)
+    n_part=size(r,2)
 
     do i=1,n_part
-       part_rho(lattice,i)=0.0_rk
+       part_rho(i,lattice)=0.0_rk
        do j=1,n_part
           if(j/=i) then
-             sep=min_image_distance(r(i,:),r(j,:),Lx,Ly,Lz)
+             sep=min_image_distance(r(:,i),r(:,j),Lx,Ly,Lz)
              if(sep<cutoff) then
-                part_rho(lattice,i)=part_rho(lattice,i)+rho_func(sep)
+                part_rho(i,lattice)=part_rho(i,lattice)+rho_func(sep)
              end if
           end if
        end do
