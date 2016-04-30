@@ -5193,19 +5193,23 @@ contains
     real(rk), intent(in) :: M_trial
     real(rk) :: metropolis_prob
     real(rk) :: prob_B
+    integer(ik) :: macro
+    integer(ik) :: macro_trial
+    macro=get_macro(M)
+    macro_trial=get_macro(M_trial)
     if(enable_multicanonical) then
-       metropolis_prob=metropolis_prob_MC(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial))
+       metropolis_prob=metropolis_prob_MC(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial))
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
           ! Update 'trans' using the Boltzmann probability of the transition
           prob_B=metropolis_prob_B(beta,E,E_trial)
-          trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
-          trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+          trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
+          trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
        end if
     else
        metropolis_prob=metropolis_prob_B(beta,E,E_trial)
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-          trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob
-          trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob
+          trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob
+          trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob
        end if
     end if
   end function metropolis_prob
@@ -5256,25 +5260,29 @@ contains
     real(rk), intent(in) :: V_trial
     real(rk) :: metropolis_prob_vol
     real(rk) :: prob_B
+    integer(ik) :: macro
+    integer(ik) :: macro_trial
+    macro=get_macro(M)
+    macro_trial=get_macro(M_trial)
     if(enable_multicanonical) then
         select case(vol_dynamics)
         case(vol_dynamics_FVM)
             metropolis_prob_vol = &
-                metropolis_prob_MC_vol(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+                metropolis_prob_MC_vol(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
                 prob_B=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
-                trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
-                trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+                trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
+                trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
             end if
         case(vol_dynamics_UVM)
             metropolis_prob_vol = &
-                metropolis_prob_MC_vol_uniaxial(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+                metropolis_prob_MC_vol_uniaxial(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
                 prob_B=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
-                trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
-                trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+                trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
+                trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
             end if
         case default
             write(0,*) "monteswitch_mod: Error. 'vol_dynamics' value is not recognised."
@@ -5291,8 +5299,8 @@ contains
             stop 1
         end select
         if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-            trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob_vol
-            trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob_vol
+            trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob_vol
+            trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob_vol
         end if
     end if
   end function metropolis_prob_vol
@@ -5344,21 +5352,25 @@ contains
       real(rk), intent(in) :: M_trial
       real(rk), intent(in) :: V_trial
       real(rk) :: metropolis_prob_lattice
-      real(rk) :: prob_B
+      real(rk) :: prob_B  
+      integer(ik) :: macro
+      integer(ik) :: macro_trial
+      macro=get_macro(M)
+      macro_trial=get_macro(M_trial)
       if(enable_multicanonical) then
           metropolis_prob_lattice= &
-              metropolis_prob_MC_vol_unscaled_pos(beta,E,E_trial,eval_weightfn(M),eval_weightfn(M_trial),n_part,P,V,V_trial)
+              metropolis_prob_MC_vol_unscaled_pos(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
               ! Update 'trans' using the Boltzmann probability of the transition
               prob_B=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
-              trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+prob_B
-              trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-prob_B
+              trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
+              trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
           end if
       else
           metropolis_prob_lattice=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-              trans(get_macro(M),get_macro(M_trial))=trans(get_macro(M),get_macro(M_trial))+metropolis_prob_lattice
-              trans(get_macro(M),get_macro(M))=trans(get_macro(M),get_macro(M))+1.0_rk-metropolis_prob_lattice
+              trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob_lattice
+              trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob_lattice
           end if
       end if
   end function metropolis_prob_lattice
