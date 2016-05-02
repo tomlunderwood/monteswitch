@@ -600,11 +600,14 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
 
     integer(ik) :: i,j
     real(rk) :: sep
+    real(rk) :: sep2
     real(rk) :: pair_energy
     real(rk) :: embedding_energy
     integer(ik) :: n_part
+    real(rk) :: cutoff2
 
     n_part=size(pos,2)
+    cutoff2=cutoff*cutoff
 
     pair_energy=0.0_rk
     embedding_energy=0.0_rk
@@ -615,8 +618,9 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
        part_rho_buffer(i,lattice)=0.0_rk
        do j=1,n_part
           if(j/=i) then
-             sep=min_image_distance(pos(:,i),pos(:,j),Lx,Ly,Lz)
-             if(sep<cutoff) then
+             sep2=min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+             if(sep2<cutoff2) then
+                sep=sqrt(sep2)
                 pair_energy=pair_energy+0.5_rk*phi_func(sep)
                 part_rho_buffer(i,lattice)=part_rho_buffer(i,lattice)+rho_func(sep)
              end if
@@ -662,25 +666,28 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     real(rk) :: calc_energy_part_move
 
     integer(ik) :: j
-    real(rk) :: sep
-    real(rk) :: sep_new
+    real(rk) :: sep, sep2
+    real(rk) :: sep_new, sep_new2
     real(rk) :: delta_pair_energy
     real(rk) :: delta_embedding_energy
+    real(rk) :: cutoff2
     ! The change in density for microstate with r_new relative to the current microstate (r)
     real(rk), dimension(size(pos,2)) :: delta_rho    
 
     integer(ik) :: n_part
 
     n_part=size(pos,2)
+    cutoff2=cutoff*cutoff
 
-    ! EAM code from an older version of monteswitch, which is optimised below...
+    ! EAM code from an older version of monteswitch (note that some array dimensions are reversed - which is not
+    ! efficient), which is optimised below...
     !
     !    ! Calculate the change in the pair energy
     !    delta_pair_energy=0.0_rk
     !    do j=1,n_part
     !       if(j/=i) then
-    !          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
-    !          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
+    !          sep=min_image_distance(pos(:,j),pos(:,i),Lx,Ly,Lz)
+    !          sep_new=min_image_distance(pos(:,j),pos_new,Lx,Ly,Lz)
     !          if(sep_new<cutoff) delta_pair_energy=delta_pair_energy+phi_func(sep_new)
     !          if(sep<cutoff) delta_pair_energy=delta_pair_energy-phi_func(sep)
     !       end if
@@ -711,15 +718,19 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     delta_rho=0.0_rk
     do j=1,n_part
        if(j/=i) then
-          sep=min_image_distance(pos(:,j),pos(:,i),Lx,Ly,Lz)
-          sep_new=min_image_distance(pos(:,j),pos_new,Lx,Ly,Lz)
-          if(sep_new<cutoff) then
+          sep2=min_image_distance2(pos(:,j),pos(:,i),Lx,Ly,Lz)
+          sep_new2=min_image_distance2(pos(:,j),pos_new,Lx,Ly,Lz)
+          if(sep_new2<cutoff2) then
+              sep_new=sqrt(sep_new2)
+
               delta_pair_energy=delta_pair_energy+phi_func(sep_new)
 
               delta_rho(j)=delta_rho(j)+rho_func(sep_new)
               delta_rho(i)=delta_rho(i)+rho_func(sep_new)
           end if
-          if(sep<cutoff) then
+          if(sep2<cutoff2) then
+              sep=sqrt(sep2)
+
               delta_pair_energy=delta_pair_energy-phi_func(sep)
               
               delta_rho(j)=delta_rho(j)-rho_func(sep)
@@ -756,16 +767,20 @@ subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
 
     integer(ik) :: i,j
     real(rk) :: sep
+    real(rk) :: sep2
+    real(rk) :: cutoff2
     integer(ik) :: n_part
     
     n_part=size(r,2)
+    cutoff2=cutoff*cutoff
 
     do i=1,n_part
        part_rho(i,lattice)=0.0_rk
        do j=1,n_part
           if(j/=i) then
-             sep=min_image_distance(r(:,i),r(:,j),Lx,Ly,Lz)
-             if(sep<cutoff) then
+             sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+             if(sep2<cutoff2) then
+                sep=sqrt(sep2)
                 part_rho(i,lattice)=part_rho(i,lattice)+rho_func(sep)
              end if
           end if
@@ -776,12 +791,12 @@ end subroutine set_part_rho
 
 
 
-! Returns the separation between two positions within an orthorhombic
+! Returns the squared separation between two positions within an orthorhombic
 ! cell with the specified dimensions
-function min_image_distance(r_1,r_2,Lx,Ly,Lz)
+function min_image_distance2(r_1,r_2,Lx,Ly,Lz)
     real(rk), dimension(3), intent(in) :: r_1, r_2
     real(rk), intent(in) :: Lx, Ly, Lz
-    real(rk) :: min_image_distance
+    real(rk) :: min_image_distance2
     real(rk) :: xsep, ysep, zsep
     ! Calculate the x-sep
     xsep=abs(r_2(1)-r_1(1))
@@ -793,8 +808,8 @@ function min_image_distance(r_1,r_2,Lx,Ly,Lz)
     zsep=abs(r_2(3)-r_1(3))
     zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
     ! Calculate the distance
-    min_image_distance=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
-end function min_image_distance
+    min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
+end function min_image_distance2
 
 
 
