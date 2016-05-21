@@ -524,6 +524,7 @@ module monteswitch_mod
   !! <tr> <td> <code>output_file_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_E </code> </td> <td> <code>logical</code> </td>  </tr>
   !! <tr> <td> <code>output_file_M </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_file_macro </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_eta </code> </td> <td> <code>logical</code> </td> </tr>  
   !! <tr> <td> <code>output_file_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_file_accepted_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
@@ -567,6 +568,7 @@ module monteswitch_mod
   !! <tr> <td> <code>output_stdout_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_E </code> </td> <td> <code>logical</code> </td>  </tr>
   !! <tr> <td> <code>output_stdout_M </code> </td> <td> <code>logical</code> </td> </tr>
+  !! <tr> <td> <code>output_stdout_macro </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_eta </code> </td> <td> <code>logical</code> </td> </tr>  
   !! <tr> <td> <code>output_stdout_accepted_moves_lattice </code> </td> <td> <code>logical</code> </td> </tr>
   !! <tr> <td> <code>output_stdout_accepted_moves_part </code> </td> <td> <code>logical</code> </td> </tr>
@@ -609,6 +611,7 @@ module monteswitch_mod
   logical :: output_file_lattice
   logical :: output_file_E
   logical :: output_file_M
+  logical :: output_file_macro
   logical :: output_file_eta
   logical :: output_file_moves_lattice
   logical :: output_file_accepted_moves_lattice
@@ -653,6 +656,7 @@ module monteswitch_mod
   logical :: output_stdout_lattice
   logical :: output_stdout_E
   logical :: output_stdout_M
+  logical :: output_stdout_macro
   logical :: output_stdout_eta
   logical :: output_stdout_moves_lattice
   logical :: output_stdout_accepted_moves_lattice
@@ -853,6 +857,20 @@ module monteswitch_mod
   !!  The current order parameter.
   !!  </font> </td>
   !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>macro</code> </font> </td>
+  !!  <td> <font color="red">  <code>integer(ik)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The current macrostate.
+  !!  </font> </td>
+  !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>eta</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The value of the weight function for the current state.
+  !!  </font> </td>
+  !! </tr>
   !! </table>
   integer(ik) :: n_part
   real(rk), dimension(2) :: Lx
@@ -871,6 +889,8 @@ module monteswitch_mod
   real(rk) :: E_2
   real(rk) :: E
   real(rk) :: M
+  integer(ik) :: macro
+  real(rk) :: eta
 
   !! <h3> Variables describing the lattice switch </h3>
   !! <table border="1">
@@ -2061,6 +2081,12 @@ contains
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_M' from file '",filename_params,"'"
          stop 1
       end if
+      !init_params output_file_macro= logical
+      read(10,*,iostat=error) string, output_file_macro
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_macro' from file '",filename_params,"'"
+         stop 1
+      end if
       !init_params output_file_eta= logical
       read(10,*,iostat=error) string, output_file_eta
       if(error/=0) then
@@ -2323,6 +2349,12 @@ contains
       read(10,*,iostat=error) string, output_stdout_M
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_M' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params output_stdout_macro= logical
+      read(10,*,iostat=error) string, output_stdout_macro
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_macro' from file '",filename_params,"'"
          stop 1
       end if
       !init_params output_stdout_eta= logical
@@ -2653,6 +2685,7 @@ contains
        write(10,*) "output_file_lattice= ",output_file_lattice
        write(10,*) "output_file_E= ",output_file_E
        write(10,*) "output_file_M= ",output_file_M
+       write(10,*) "output_file_macro= ",output_file_macro
        write(10,*) "output_file_eta= ",output_file_eta
        write(10,*) "output_file_moves_lattice= ",output_file_moves_lattice
        write(10,*) "output_file_accepted_moves_lattice= ",output_file_accepted_moves_lattice
@@ -2697,6 +2730,7 @@ contains
        write(10,*) "output_stdout_lattice= ",output_stdout_lattice
        write(10,*) "output_stdout_E= ",output_stdout_E
        write(10,*) "output_stdout_M= ",output_stdout_M
+       write(10,*) "output_stdout_macro= ",output_stdout_macro
        write(10,*) "output_stdout_eta= ",output_stdout_eta
        write(10,*) "output_stdout_moves_lattice= ",output_stdout_moves_lattice
        write(10,*) "output_stdout_accepted_moves_lattice= ",output_stdout_accepted_moves_lattice
@@ -2742,6 +2776,8 @@ contains
        write(10,*) "E_2= ",E_2
        write(10,*) "E= ",E
        write(10,*) "M= ",M
+       write(10,*) "macro= ",macro
+       write(10,*) "eta= ",eta
        write(10,*) "switchscalex= ",switchscalex
        write(10,*) "switchscaley= ",switchscaley
        write(10,*) "switchscalez= ",switchscalez
@@ -3041,6 +3077,11 @@ contains
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_M' from file '",trim(filename)
        stop 1
     end if
+    read(10,*,iostat=error) string, output_file_macro
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_macro' from file '",trim(filename)
+       stop 1
+    end if
     read(10,*,iostat=error) string, output_file_eta
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_file_eta' from file '",trim(filename)
@@ -3259,6 +3300,11 @@ contains
     read(10,*,iostat=error) string, output_stdout_M
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_M' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, output_stdout_macro
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'output_stdout_macro' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, output_stdout_eta
@@ -3484,6 +3530,16 @@ contains
     read(10,*,iostat=error) string, M
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'M' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, macro
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'macro' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, eta
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'eta' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, switchscalex
@@ -4544,6 +4600,13 @@ contains
                end select
             end select
             M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
+            macro=get_macro(M)
+            ! If M is outwith the supported range then get_macro will return -2 or -1.
+            if(macro<1) then
+                write(0,*) "monteswitch_mod: Error. Order parameter after melt reset is outwith supported range: M = ",M
+                stop 1
+            end if
+            eta=eta_grid(macro)
             if(enable_barriers) then
                call initialise_barriers()
             end if
@@ -4561,13 +4624,6 @@ contains
             stop 1
          end select
       
-      end if
-
-      ! Check whether the system has exploded
-      if(V<=0.0_rk) then
-         write(0,*) "monteswitch_mod: Error. System has exploded."
-         call export("state_ERROR")
-         stop 2
       end if
 
     end subroutine check_for_melt
@@ -4597,6 +4653,13 @@ contains
       E_1=E_exact_1
       E_2=E_exact_2
       M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
+      macro=get_macro(M)
+      ! If M is outwith the supported range then get_macro will return -2 or -1.
+      if(macro<1) then
+          write(0,*) "monteswitch_mod: Error. Order parameter after divergence check is outwith supported range: M = ",M
+          stop 1
+      end if
+      eta=eta_grid(macro)
     end subroutine check_for_divergence
 
 
@@ -4644,8 +4707,11 @@ contains
       if(output_file_M) then
          write(11,*) "M: ",sweeps,M
       end if  
+      if(output_file_macro) then
+         write(11,*) "macro: ",sweeps,macro
+      end if  
       if(output_file_eta) then
-         write(11,*) "eta: ",sweeps,eval_weightfn(M)
+         write(11,*) "eta: ",sweeps,eta
       end if  
       if(output_file_moves_lattice) then
          write(11,*) "moves_lattice: ",sweeps,moves_lattice
@@ -4790,8 +4856,11 @@ contains
       if(output_stdout_M) then
          write(6,*) "M: ",M
       end if
+      if(output_stdout_macro) then
+         write(6,*) "macro: ",macro
+      end if
       if(output_stdout_eta) then
-         write(6,*) "eta: ",eval_weightfn(M)
+         write(6,*) "eta: ",eta
       end if
       if(output_stdout_moves_lattice) then
          write(6,*) "moves_lattice: ",moves_lattice
@@ -5097,42 +5166,12 @@ contains
 
 
   
-  !! <h4> <code> function eval_weightfn(M) </code> </h4>
-  !! <p>
-  !! This function gives the weight for the specified order parameter <code>M</code>. Note that
-  !! unexpected results may occur if <code>M</code> is outwith the supported range, i.e. if <code>M<M_grid(1)</code>
-  !! or <code>M>=M_grid(M_grid_size)+(M_grid(2)-M_grid(1))</code>
-  !! </p>
-  !! <table border="1">
-  !!  <tr>
-  !!   <td> <b> Argument </b> </td>
-  !!   <td> <b> Type </b> </td>
-  !!   <td> <b> Description </b> </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> M </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
-  !!   <td>
-  !!   The order parameter which the weight is required for.
-  !!   </td>
-  !!  </tr>
-  !! </table>
-  !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function eval_weightfn(M)
-    real(rk), intent(in) :: M
-    real(rk) :: eval_weightfn
-    eval_weightfn=eta_grid( get_macro(M) )
-  end function eval_weightfn
-
-
-
-
   !! <h4> <code> function get_macro(M) </code> </h4>
   !! <p>
-  !! This function returns the 'macrostate number' which <code>M</code> corresponds to. Note 
-  !! that if the function returns a value ><code>M_grid_size</code> or <1 then <code>M</code> is outwith the supported
-  !! range. Note that if M is very large then this function can return unexpected values, possibly
-  !! because of some two's compliment thing.
+  !! This function returns the 'macrostate number' which <code>M</code> corresponds to. If M is within the supported
+  !! range the function returns a value ><code>M_grid_size</code> or <1 then <code>M</code> as one would expect. If
+  !! M is above the supported range then a value of -1 is returned; if M is below the supported range a value of -2
+  !! is returned.
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -5149,19 +5188,39 @@ contains
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> integer(ik) </code> </p>
-  function get_macro(M)
+ function get_macro(M)
     real(rk), intent(in) :: M
     integer(ik) :: get_macro
-    get_macro= floor( (M-M_grid(1)) / (M_grid(2)-M_grid(1)) )+1
+    real(rk) :: dM
+
+    ! Macrostate order parameter window size
+    dM = M_grid(2)-M_grid(1)
+    
+    ! Check M is within the allowed range.
+    ! Note that I do not simply use 'get_macro= floor( (M-M_grid(1)) / dM )+1' to calculate get_macro,
+    ! and then check whether get_macro<1 or get_macro>M_grid_size to determine whether get_macro is
+    ! within the supported range. Why? Because if M is very large then this expression can return 
+    ! unexpected values for get_macro, possibly because of some two's compliment thing - I can't quite
+    ! remember.
+    if(M >= M_grid(M_grid_size)+dM) then
+        ! M is above allowed range: return a value of -1
+        get_macro = -1
+    else if(M < M_grid(1)) then
+        ! M is below allowed range: return a value of -2
+        get_macro = -2
+    else
+        ! M is within allowed range
+        get_macro= floor( (M-M_grid(1)) / dM )+1
+    end if
+
   end function get_macro
 
 
 
-
-  !! <h4> <code> function metropolis_prob(E_trial,M_trial) </code> </h4>
+  !! <h4> <code> function metropolis_prob(E_trial,macro_trial) </code> </h4>
   !! <p>
   !! This function gives the probability of a particle move with the specified trial energy and
-  !! order parameter being accepted according to the Metropolis algorithm, and depends
+  !! macrostate being accepted according to the Metropolis algorithm, and depends
   !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag).
   !! The <code>trans</code> array is updated within
   !! this function if it is in use (i.e. if <code>update_trans=.true.</code>) and we have reached equilibration.
@@ -5180,23 +5239,19 @@ contains
   !!   </td>
   !!  </tr>
   !!  <tr>
-  !!   <td> <code> M_trial </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> <code> macro_trial </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
   !!   <td>
-  !!   The trial weight function.
+  !!   The trial macrostate number.
   !!   </td>
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function metropolis_prob(E_trial,M_trial)
+  function metropolis_prob(E_trial,macro_trial)
     real(rk), intent(in) :: E_trial
-    real(rk), intent(in) :: M_trial
+    integer(ik), intent(in) :: macro_trial
     real(rk) :: metropolis_prob
     real(rk) :: prob_B
-    integer(ik) :: macro
-    integer(ik) :: macro_trial
-    macro=get_macro(M)
-    macro_trial=get_macro(M_trial)
     if(enable_multicanonical) then
        metropolis_prob=metropolis_prob_MC(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial))
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
@@ -5217,10 +5272,10 @@ contains
 
 
 
-  !! <h4> <code> function metropolis_prob_vol(E_trial,M_trial,V_trial) </code> </h4>
+  !! <h4> <code> function metropolis_prob_vol(E_trial,macro_trial,V_trial) </code> </h4>
   !! <p>
   !! This function gives the probability of a volume move with the specified trial energy,
-  !! order parameter and volume being accepted according to the Metropolis algorithm, and depends
+  !! macrostate and volume being accepted according to the Metropolis algorithm, and depends
   !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag). The 
   !! <code>trans</code> array is updated within this function if it is in use (if <code>update_trans=.true.</code>)
   !! and we have reached equilibration.
@@ -5239,10 +5294,10 @@ contains
   !!   </td>
   !!  </tr>
   !!  <tr>
-  !!   <td> <code> M_trial </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> <code> macro_trial </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
   !!   <td>
-  !!   The trial weight function.
+  !!   The trial macrostate number.
   !!   </td>
   !!  </tr>
   !!  <tr>
@@ -5254,16 +5309,12 @@ contains
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function metropolis_prob_vol(E_trial,M_trial,V_trial)
+  function metropolis_prob_vol(E_trial,macro_trial,V_trial)
     real(rk), intent(in) :: E_trial
-    real(rk), intent(in) :: M_trial
+    integer(ik), intent(in) :: macro_trial
     real(rk), intent(in) :: V_trial
     real(rk) :: metropolis_prob_vol
     real(rk) :: prob_B
-    integer(ik) :: macro
-    integer(ik) :: macro_trial
-    macro=get_macro(M)
-    macro_trial=get_macro(M_trial)
     if(enable_multicanonical) then
         select case(vol_dynamics)
         case(vol_dynamics_FVM)
@@ -5308,10 +5359,10 @@ contains
 
 
 
-  !! <h4> <code> function metropolis_prob_lattice(E_trial,M_trial,V_trial) </code> </h4>
+  !! <h4> <code> function metropolis_prob_lattice(E_trial,macro_trial,V_trial) </code> </h4>
   !! <p>
   !! This function gives the probability of a lattice move with the specified trial energy,
-  !! order parameter and volume being accepted according to the Metropolis algorithm. Note that
+  !! macrostate and volume being accepted according to the Metropolis algorithm. Note that
   !! the acceptance probability is not the same as for a volume move because displacements are held
   !! constant during a lattice switch here. The probability returned depends
   !! on the type of sampling being used (i.e. the value of the <code>enable_multicanonical</code> flag). The 
@@ -5332,10 +5383,10 @@ contains
   !!   </td>
   !!  </tr>
   !!  <tr>
-  !!   <td> <code> M_trial </code> </td>
+  !!   <td> <code> macro_trial </code> </td>
   !!   <td> <code> real(rk), intent(in) </code> </td>
   !!   <td>
-  !!   The trial weight function.
+  !!   The trial macrostate number.
   !!   </td>
   !!  </tr>
   !!  <tr>
@@ -5347,16 +5398,12 @@ contains
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
-  function metropolis_prob_lattice(E_trial,M_trial,V_trial)
+  function metropolis_prob_lattice(E_trial,macro_trial,V_trial)
       real(rk), intent(in) :: E_trial
-      real(rk), intent(in) :: M_trial
+      integer(ik), intent(in) :: macro_trial
       real(rk), intent(in) :: V_trial
       real(rk) :: metropolis_prob_lattice
-      real(rk) :: prob_B  
-      integer(ik) :: macro
-      integer(ik) :: macro_trial
-      macro=get_macro(M)
-      macro_trial=get_macro(M_trial)
+      real(rk) :: prob_B
       if(enable_multicanonical) then
           metropolis_prob_lattice= &
               metropolis_prob_MC_vol_unscaled_pos(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
@@ -5378,12 +5425,12 @@ contains
 
 
 
-  !! <h4> <code> function is_M_supported(M) </code> </h4>
+  !! <h4> <code> function amend_OOB_variables(M,key) </code> </h4>
   !! <p>
-  !! This function returns a logical value which specifies whether the order parameter in the argument
-  !! is within the range of order parameters supported by <code>M_grid</code>. This function updates 
-  !! <code>rejected_moves_M_OOB</code>, <code>M_OOB_high</code> and <code>M_OOB_low</code> if the order
-  !! parameter is outwith the supported range.
+  !! This procedure updates <code>rejected_moves_M_OOB</code>, <code>M_OOB_high</code> and <code>M_OOB_low</code>
+  !! to reflect the fact that M is outwith the supported range. <code>rejected_moves_M_OOB</code> is amended by 1,
+  !! and <code>M_OOB_high</code> and <code>M_OOB_low</code> is amended to be <code>M</code> if <code>M</code> is
+  !! greater than or less than <code>M_OOB_high</code> or <code>M_OOB_low</code> respectively.
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -5395,37 +5442,49 @@ contains
   !!   <td> <code> M </code> </td>
   !!   <td> <code> real(rk), intent(in) </code> </td>
   !!   <td>
-  !!   The order parameter to check.
+  !!   The out of bounds order parameter.
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> key </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
+  !!   <td>
+  !!   Label specifying how the order parameter is out of bounds: -2 if it is below the supported range;
+  !!   -1 if it is above the supported range.
   !!   </td>
   !!  </tr>
   !! </table>
-  !! <p><b>Returns:</b> <code> logical </code> </p>
-  function is_M_supported(M)
+  subroutine amend_OOB_variables(M,key)
     real(rk), intent(in) :: M
-    logical :: is_M_supported
-    is_M_supported=.true.
-    ! Note that I do not use get_macro(M) to check whether M is supported because it could fail for really
-    ! really big magnitudes of M. Of course this is not an issue if M is 'reasonable'.
-    if(M>=M_grid(M_grid_size)+(M_grid(2)-M_grid(1)) .or. M<M_grid(1)) then 
-       is_M_supported=.false.
-       rejected_moves_M_OOB=rejected_moves_M_OOB+1
-       if(M>M_OOB_high) then
-          M_OOB_high=M
-       end if
-       if(M<M_OOB_low) then
-          M_OOB_low=M
-       end if
-    end if
-  end function is_M_supported
+    integer(ik), intent(in) :: key
+
+    select case(key)
+    case(-2)
+        ! M is below supported range
+        if(M<M_OOB_low) then
+            M_OOB_low=M
+        end if
+    case(-1)
+        ! M is above the supported range
+        if(M>M_OOB_high) then
+            M_OOB_high=M
+        end if
+    case default
+        write(0,*) "monteswitch_mod: Error. 'key' in 'amend_OOB_variables' does not equal -1 or -2."
+        stop 1
+    end select
+
+    rejected_moves_M_OOB=rejected_moves_M_OOB+1
+
+  end subroutine amend_OOB_variables
 
 
 
-
-  !! <h4> <code> function is_M_within_barriers(M) </code> </h4>
+  !! <h4> <code> function is_macro_within_barriers(macro) </code> </h4>
   !! <p>
-  !! This function returns a logical value which specifies whether the order parameter in the argument
+  !! This function returns a logical value which specifies whether the macrostate in the argument
   !! is within the order parameters. This function updates <code>rejected_moves_M_barrier</code> if it is not.
-  !! This function tacitly assumes that the order parameter in the argument is within the supported range.
+  !! This function tacitly assumes that the macrostate in the argument is within the supported range.
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -5434,23 +5493,23 @@ contains
   !!   <td> <b> Description </b> </td>
   !!  </tr>
   !!  <tr>
-  !!   <td> <code> M </code> </td>
-  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td> <code> macro </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
   !!   <td>
-  !!   The order parameter to check.
+  !!   The macrostate to check.
   !!   </td>
   !!  </tr>
   !! </table>
   !! <p><b>Returns:</b> <code> logical </code> </p>
-  function is_M_within_barriers(M)
-    real(rk), intent(in) :: M
-    logical :: is_M_within_barriers
-    is_M_within_barriers=.true.
-    if(get_macro(M)<barrier_macro_low .or. get_macro(M)>barrier_macro_high) then 
-       is_M_within_barriers=.false.
+  function is_macro_within_barriers(macro)
+    integer(ik), intent(in) :: macro
+    logical :: is_macro_within_barriers
+    is_macro_within_barriers=.true.
+    if(macro<barrier_macro_low .or. macro>barrier_macro_high) then 
+       is_macro_within_barriers=.false.
        rejected_moves_M_barrier=rejected_moves_M_barrier+1
     end if
-  end function is_M_within_barriers
+  end function is_macro_within_barriers
 
 
 
@@ -5495,7 +5554,7 @@ contains
        ! Set the weight which will be given to this state
        if(enable_multicanonical) then
           ! For multicanonical sampling
-          weight=exp(-eval_weightfn(M))
+          weight=exp(-eta)
        else
           ! For Boltzmann sampling
           weight=1.0_rk
@@ -5571,14 +5630,14 @@ contains
          case(1)
             ! If 'barrier_to_lock'=1 then the lower barrier needs to be shifted upwards once the system
             ! enters the newly available macrostate 'barrier_macro_high' 
-            if(get_macro(M)==barrier_macro_high) then
+            if(macro==barrier_macro_high) then
                barrier_macro_low=barrier_macro_low+1
                moves_since_lock=0
             end if
          case(2)
             ! If 'barrier_to_lock'=2 then the higher barrier needs to be shifted downwards once the 
             ! system enters the newly available macrostate 'barrier_macro_low'
-            if(get_macro(M)==barrier_macro_low) then
+            if(macro==barrier_macro_low) then
                barrier_macro_high=barrier_macro_high-1
                moves_since_lock=0
             end if
@@ -5819,7 +5878,8 @@ contains
 
   !! <h4> <code> subroutine move_lattice() </code> </h4>
   !! <p>
-  !! This subroutine 'moves' the lattice and updates the relevant counters.
+  !! This subroutine 'moves' the lattice and updates the relevant counters. Note that the current order parameter and
+  !! macrostate are not affected by a lattice move.
   !! </p>
   subroutine move_lattice()
     ! The probability the move should be accepted
@@ -5828,9 +5888,9 @@ contains
     ! Calculate the probability of accepting a lattice switch
     select case(lattice)
     case(1)
-       prob=metropolis_prob_lattice(E_2, M, Lx(2)*Ly(2)*Lz(2) )
+       prob=metropolis_prob_lattice(E_2, macro, Lx(2)*Ly(2)*Lz(2) )
     case(2)
-       prob=metropolis_prob_lattice(E_1, M, Lx(1)*Ly(1)*Lz(1) )
+       prob=metropolis_prob_lattice(E_1, macro, Lx(1)*Ly(1)*Lz(1) )
     case default
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
@@ -5898,6 +5958,10 @@ contains
     real(rk) :: delta_E
     ! The trial order parameter
     real(rk) :: M_trial
+    ! The trial macrostate
+    integer(ik) :: macro_trial
+    ! The trial value of the weight function
+    real(rk) :: eta_trial
     ! The probability the move should be accepted
     real(rk) :: prob
     ! This is a boolean which determines whether or not the move is within the required range
@@ -5932,20 +5996,32 @@ contains
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
     end select
-    M_trial=calc_M(E_1+delta_E_1, E_2+delta_E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
 
-    ! Check that M_trial is within the supported range of order parameters.
-    proceed=is_M_supported(M_trial)
-    ! Consider the move for possible acceptance if proceed=true
+    ! Calculate the trial order parameter and macrostate number
+    M_trial=calc_M(E_1+delta_E_1, E_2+delta_E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
+    macro_trial=get_macro(M_trial)
+    ! get_macro(M_trial) is -2 or -1 if M_trial is outwith the supported range. In this case the
+    ! move is rejected, and the OOB variables are updated.
+    proceed=.true.
+    if(macro_trial<1) then
+        proceed=.false.
+        call amend_OOB_variables(M_trial,macro_trial)
+    end if
+
     if(proceed) then
+       
+       ! The trial move is within the supported order parameter range, and macro_trial is sensible...
+
+       eta_trial=eta_grid(macro_trial)
+
        ! Calculate the probability of accepting the move. Note that this procedure updates
-       ! 'trans' if it is in use. Hence we necessarily reject the move if M_trial is outwith the order
+       ! 'trans' if it is in use. Hence we necessarily reject the move if macro_trial is outwith the order
        ! parameter barriers AFTER this procedure.
-       prob=metropolis_prob(E+delta_E,M_trial)
+       prob=metropolis_prob(E+delta_E,macro_trial)
        ! Check if the move is within the barriers if the barriers are in use. If not then reject it on those grounds,
        ! i.e. set proceed to .false.
        if(enable_barriers) then
-          proceed=is_M_within_barriers(M_trial)
+          proceed=is_macro_within_barriers(macro_trial)
        end if
        ! Finally, if proceed=.true. accept the move or not based on a random number
        if(proceed .and. get_random_number()<prob) then
@@ -5955,11 +6031,13 @@ contains
            pos_2(:,i)=pos_new_2
            u(:,i)=u_trial
            
-           ! Update the energies
+           ! Update the energies, M, macro and eta
            E_1=E_1+delta_E_1
            E_2=E_2+delta_E_2
            E=E+delta_E
            M=M_trial
+           macro=macro_trial
+           eta=eta_trial
            
            ! If we use the centre-of-mass frame...
            if(enable_COM_frame) then
@@ -6026,6 +6104,10 @@ contains
     real(rk) :: E_trial
     ! The trial order parameter
     real(rk) :: M_trial
+    ! The trial macrostate
+    integer(ik) :: macro_trial
+    ! The trial value of the weight function
+    real(rk) :: eta_trial
     ! The trial volume
     real(rk) :: V_trial
     ! The probability the move should be accepted
@@ -6059,20 +6141,33 @@ contains
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
     end select
-    M_trial=calc_M(E_1_trial, E_2_trial, Lx_trial(1)*Ly_trial(1)*Lz_trial(1), Lx_trial(2)*Ly_trial(2)*Lz_trial(2))
 
-    ! Check that M_trial is within the supported range of order parameters.
-    proceed=is_M_supported(M_trial)
-    ! Consider the move for possible acceptance if proceed=true
+    ! Set M_trial. Don't set macro_trial or eta_trial until after we verify that M_trial
+    ! is within the allowed range later
+    M_trial=calc_M(E_1_trial, E_2_trial, Lx_trial(1)*Ly_trial(1)*Lz_trial(1), Lx_trial(2)*Ly_trial(2)*Lz_trial(2))
+    macro_trial=get_macro(M_trial)
+    ! get_macro(M_trial) is -2 or -1 if M_trial is outwith the supported range. In this case the
+    ! move is rejected, and the OOB variables are updated.
+    proceed=.true.
+    if(macro_trial<1) then
+        proceed=.false.
+        call amend_OOB_variables(M_trial,macro_trial)
+    end if
+
     if(proceed) then
+
+       ! The trial move is within the supported order parameter range, and macro_trial is sensible...
+
+       eta_trial=eta_grid(macro_trial)
+
        ! Calculate the probability of accepting the move. Note that this procedure updates
-       ! 'trans' if it is in use. Hence we necessarily reject the move if M_trial is outwith the order
+       ! 'trans' if it is in use. Hence we necessarily reject the move if macro_trial is outwith the order
        ! parameter barriers AFTER this procedure.
-       prob=metropolis_prob_vol(E_trial,M_trial,V_trial)
+       prob=metropolis_prob_vol(E_trial,macro_trial,V_trial)
        ! Check if the move is within the barriers if the barriers are in use. If not then reject it on those grounds,
        ! i.e. set proceed to .false.
        if(enable_barriers) then
-          proceed=is_M_within_barriers(M_trial)
+          proceed=is_macro_within_barriers(macro_trial)
        end if
        ! Finally, if proceed=.true. accept the move or not based on a random number
        if(proceed .and. get_random_number()<prob) then
@@ -6089,6 +6184,8 @@ contains
           E_2=E_2_trial
           E=E_trial
           M=M_trial
+          macro=macro_trial
+          eta=eta_trial
           ! Ammend accepted counters
           accepted_moves_vol=accepted_moves_vol+1
           ! Perform 'interactions'-specific tasks after an accepted move
@@ -6531,7 +6628,8 @@ contains
   !! <p>
   !! This procedure initialises <code>u</code>, <code>lattice</code>, <code>E</code>, 
   !! <code>E_1</code>, <code>E_2</code>, <code>pos_1</code>, <code>pos_2</code>,
-  !! <code>V</code> and <code>M</code> to reflect the microstate with <code>u=0</code> for the specified lattice.
+  !! <code>V</code>, <code>M</code>, <code>macro</code> and <code>eta</code> to reflect the microstate with 
+  !! <code>u=0</code> for the specified lattice.
   !! </p>
   !! <p>
   !! <b> Dependencies: </b> <code>n_part</code>, <code>R_1</code>, <code>R_2</code>, <code>Lx</code>, <code>Ly</code>, 
@@ -6576,6 +6674,13 @@ contains
        stop 1
     end select
     M=calc_M(E_1, E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
+    macro=get_macro(M)
+    ! If M is outwith the supported range then get_macro will return -2 or -1.
+    if(macro<1) then
+       write(0,*) "monteswitch_mod: Error. Order parameter is outwith supported order parameter range: M = ",M
+       stop 1
+    end if
+    eta=eta_grid(macro)
   end subroutine initialise_cold_microstate
 
 
@@ -6589,18 +6694,14 @@ contains
   !! or "pong_down" respectively.
   !! </p>
   !! <p>
-  !! <b> Dependencies: </b> <code>M</code> and <code>M_grid</code> should be set before this subroutine is called,
-  !! since the barriers are set so that we are locked in the current macrostate.
+  !! <b> Dependencies: </b> <code>M</code>, <code>macro</code> and <code>M_grid</code> should be set before this subroutine is called,
+  !! since the barriers are set so that we are locked in the current macrostate. Furthermore <code>M</code> and <code>macro</code>
+  !! must be within the supported range.
   !! </p>
   subroutine initialise_barriers()
-    ! Set the barriers to encompass the current value of M
-    barrier_macro_low=get_macro(M)
+    ! Set the barriers to encompass the current macrostate
+    barrier_macro_low=macro
     barrier_macro_high=barrier_macro_low
-    ! Check that the current macrostate is within the supported order parameter range
-    if(barrier_macro_low>M_grid_size .or. barrier_macro_low<1) then
-       write(0,*) "monteswitch_mod: Error. Order parameter is outwith supported order parameter range: M = ",M
-       stop 1
-    end if
     ! Set the correct initial value of barrier_to_lock if 'pong' dynamics are to be used
     select case(barrier_dynamics)
     case(barrier_dynamics_pong_up)
