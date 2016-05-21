@@ -292,7 +292,7 @@ contains
 
         call import("state")
 
-        allocate(pos(n_part,3))    
+        allocate(pos(3,n_part))    
         allocate(spec(n_part))
 
         select case(lattice)
@@ -309,7 +309,7 @@ contains
 
             ! If there is no command line argument then print the positions of all particles
             do i=1,n_part
-                write(*,*) pos(i,:)
+                write(*,*) pos(:,i)
             end do
 
         else
@@ -322,7 +322,7 @@ contains
             end if
 
             do i=1,n_part
-                if(spec(i)==species) write(*,*) pos(i,:)
+                if(spec(i)==species) write(*,*) pos(:,i)
             end do
 
         end if
@@ -344,7 +344,7 @@ contains
 
             ! If there is no command line argument then print the lattice vectors for all particles
             do i=1,n_part
-                write(*,*) R_1(i,:)
+                write(*,*) R_1(:,i)
             end do
 
         else
@@ -357,7 +357,7 @@ contains
             end if
 
             do i=1,n_part
-                if(spec_1(i)==species) write(*,*) R_1(i,:)
+                if(spec_1(i)==species) write(*,*) R_1(:,i)
             end do
 
         end if
@@ -379,7 +379,7 @@ contains
 
             ! If there is no command line argument then print the lattice vectors for all particles
             do i=1,n_part
-                write(*,*) R_2(i,:)
+                write(*,*) R_2(:,i)
             end do
 
         else
@@ -392,7 +392,7 @@ contains
             end if
 
             do i=1,n_part
-                if(spec_2(i)==species) write(*,*) R_2(i,:)
+                if(spec_2(i)==species) write(*,*) R_2(:,i)
             end do
 
         end if
@@ -414,7 +414,7 @@ contains
 
             ! If there is no command line argument then print the displacements for all particles
             do i=1,n_part
-                write(*,*) u(i,:)
+                write(*,*) u(:,i)
             end do
 
         else
@@ -445,9 +445,9 @@ contains
             do i=1,n_part
                 select case(l)
                 case(1)
-                    if(spec_1(i)==species) write(*,*) u(i,:)
+                    if(spec_1(i)==species) write(*,*) u(:,i)
                 case(2)
-                    if(spec_2(i)==species) write(*,*) u(i,:)
+                    if(spec_2(i)==species) write(*,*) u(:,i)
                 end select
             end do
 
@@ -503,9 +503,9 @@ contains
             do j=1,n_part
                 select case(lattice)
                 case(1)
-                    sep=min_image_distance_fancy(R_1(i,:)+u(i,:),R_1(j,:)+u(j,:),Lx(1),Ly(1),Lz(1))
+                    sep=min_image_distance_fancy(R_1(:,i)+u(:,i),R_1(:,j)+u(:,j),Lx(1),Ly(1),Lz(1))
                 case(2)
-                    sep=min_image_distance_fancy(R_2(i,:)+u(i,:),R_2(j,:)+u(j,:),Lx(2),Ly(2),Lz(2))
+                    sep=min_image_distance_fancy(R_2(:,i)+u(:,i),R_2(:,j)+u(:,j),Lx(2),Ly(2),Lz(2))
                 end select
                 call update_histogram(bins,rad_dist_seps,rad_dist_counts,rad_dist_seps(2),sep)
             end do
@@ -576,8 +576,8 @@ contains
         call getarg(2,vector_in_1)
         call getarg(3,vector_in_2)
 
-        allocate(pos_1_temp(n_part,3))
-        allocate(pos_2_temp(n_part,3))
+        allocate(pos_1_temp(3,n_part))
+        allocate(pos_2_temp(3,n_part))
 
         ! Set pos_1_temp
         if(trim(vector_in_1)=="pos") then
@@ -613,14 +613,14 @@ contains
         write(*,*) Ly(1)
         write(*,*) Lz(1)
         do i=1,n_part
-            write(*,*) pos_1_temp(i,1)/Lx(1), pos_1_temp(i,2)/Ly(1), pos_1_temp(i,3)/Lz(1), spec_1(i)
+            write(*,*) pos_1_temp(1,i)/Lx(1), pos_1_temp(2,i)/Ly(1), pos_1_temp(3,i)/Lz(1), spec_1(i)
         end do
         ! Output lattice 2 dimensions and particle positions (in fractional coordinates)
         write(*,*) Lx(2)
         write(*,*) Ly(2)
         write(*,*) Lz(2)
         do i=1,n_part
-            write(*,*) pos_2_temp(i,1)/Lx(2), pos_2_temp(i,2)/Ly(2), pos_2_temp(i,3)/Lz(2), spec_2(i)
+            write(*,*) pos_2_temp(1,i)/Lx(2), pos_2_temp(2,i)/Ly(2), pos_2_temp(3,i)/Lz(2), spec_2(i)
         end do
 
     end subroutine extract_lattices_in
@@ -638,7 +638,7 @@ contains
 
         call import("state")
 
-        allocate(pos(n_part,3))
+        allocate(pos(3,n_part))
         allocate(spec(n_part))
 
         select case(lattice)
@@ -657,11 +657,11 @@ contains
 
             if(spec(i)>0 .and. spec(i)<=26) then
 
-                write(*,*) element(spec(i):spec(i)), pos(i,:)
+                write(*,*) element(spec(i):spec(i)), pos(:,i)
 
             else
 
-                write(*,*) "?", pos(i,:)
+                write(*,*) "?", pos(:,i)
 
             end if
 
