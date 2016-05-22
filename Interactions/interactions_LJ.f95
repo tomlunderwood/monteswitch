@@ -29,6 +29,19 @@
 !
 ! Author: Tom L Underwood
 !
+! This file was created from the template 'interactions_TEMPLATE_pair.f95'. Below is the preamble inherited
+! from that file. Note that here the variables are (in the following order) 'lj_epsilon' and 'lj_sigma'. 
+! The form of the potential is 4*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+! 
+! *************** PREAMBLE FOR 'interactions_TEMPLATE_pair.f95' *************** 
+!
+! This file corresponds to the Lennard-Jones potential until modified by the user. Search for 
+! 'USER-DEFINED CODE' to find the relevant parts to modify. What follows is a description of functionality
+! for the Lennard-Jones potential. The functionality will be similar if the 'USER-DEFINED CODE' blocks
+! are altered, except the variables 'lj_epsilon' and 'lj_sigma' will be replaced by user-defined variables.
+!
+! Description of functionality of this file if it is unaltered by the user...
+!
 ! This file implements a Lennard-Jones potential with truncated interactions, and a fixed neighbour list for
 ! each particle. The variables for this module are imported from a file 'interactions_in', and the format of 
 ! this file is as follows. On the first line there are two tokens. The first is a character(len=20) variable
@@ -69,9 +82,15 @@ module interactions_mod
     
     implicit none
 
-    ! Lennard-Jones variables
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code defining the free parameters for the potential here.
+    ! Example (for Lennard-Jones potential):
+    !  real(rk) :: lj_epsilon
+    !  real(rk) :: lj_sigma
+    !
     real(rk) :: lj_epsilon
     real(rk) :: lj_sigma
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     ! Variables for the potential cutoff and lists of interacting particles
     real(rk) :: cutoff
@@ -122,6 +141,23 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
        stop 1
     end if
 
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are written - in the USER-DEFINED CODE block below.
+    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
+    ! an error):
+    !  read(10,*,iostat=error) string, lj_epsilon
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+    !     stop 1
+    !  end if
+    !  read(10,*,iostat=error) string, lj_sigma
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+    !     stop 1
+    !  end if
+    !
     read(10,*,iostat=error) string, lj_epsilon
     if(error/=0) then
         write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
@@ -132,6 +168,7 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
         write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
         stop 1
     end if
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -196,8 +233,17 @@ end subroutine initialise_interactions
 ! must correspond to the format read in from these files by the procedure 'import_interactions()'.
 subroutine export_interactions()
 
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code which writes the free parameters for the potential to unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are read - in the USER-DEFINED CODE block above.
+    ! Example (for Lennard-Jones potential):
+    !  write(10,*) "lj_epsilon= ",lj_epsilon
+    !  write(10,*) "lj_sigma= ",lj_sigma
+    !
     write(10,*) "lj_epsilon= ",lj_epsilon
     write(10,*) "lj_sigma= ",lj_sigma
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     write(10,*) "cutoff= ",cutoff
     write(10,*) "list_cutoff= ",list_cutoff
@@ -236,6 +282,23 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     character(len=20) string
     integer(ik) :: error, n_part
     
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>>
+    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
+    ! formatting. Note that the way in which the free parameters are read must match the way in which
+    ! they are written - in the USER-DEFINED CODE block below.
+    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
+    ! an error):
+    !  read(10,*,iostat=error) string, lj_epsilon
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
+    !     stop 1
+    !  end if
+    !  read(10,*,iostat=error) string, lj_sigma
+    !  if(error/=0) then
+    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
+    !     stop 1
+    !  end if
+    !
     read(10,*,iostat=error) string, lj_epsilon
     if(error/=0) then
        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
@@ -246,6 +309,7 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
        stop 1
     end if
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -466,7 +530,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
 
     real(rk) :: calc_energy_part_move
 
-    real(rk) :: sep, sep_new
+    ! Squared separations between particles
+    real(rk) :: sep2, sep_new2
     integer(ik) :: j,n
 
     calc_energy_part_move=0.0_rk
@@ -487,11 +552,11 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
           exit
        else
           if(j/=i) then
-             sep = min_image_distance(pos(:,i),pos(:,j),Lx,Ly,Lz)
-             sep_new = min_image_distance(pos_new,pos(:,j),Lx,Ly,Lz)
+             sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+             sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
              calc_energy_part_move = calc_energy_part_move + &
-                 pair_potential_trunc(sep_new,species(i),species(j)) - &
-                 pair_potential_trunc(sep,species(i),species(j))
+                 pair_potential_trunc(sep_new2,species(i),species(j)) - &
+                 pair_potential_trunc(sep2,species(i),species(j))
           end if
        end if
        n=n+1
@@ -531,17 +596,54 @@ end function min_image_distance
 
 
 
+! Returns the squared separation between two positions within an orthorhombic
+! cell with the specified dimensions
+function min_image_distance2(r_1, r_2, Lx, Ly, Lz)
+    ! Positions of the two particles
+    real(rk), dimension(3), intent(in) :: r_1, r_2
+    ! Dimensions of the orthorhombic cell
+    real(rk), intent(in) :: Lx, Ly, Lz
+
+    real(rk) :: min_image_distance2
+
+    real(rk) :: xsep, ysep, zsep
+
+    ! Calculate the x-sep
+    xsep=abs(r_2(1)-r_1(1))
+    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+    ! Calculate the y-sep
+    ysep=abs(r_2(2)-r_1(2))
+    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+    ! Calculate the z-sep
+    zsep=abs(r_2(3)-r_1(3))
+    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+
+    min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
+
+end function min_image_distance2
+
+
+
+
 ! The 'pure' pair potential, without truncation, between 2 particles belonging to
-! the specified species and the specified separation
-function pair_potential(r, species1, species2)
-    ! Separation between the particles
-    real(rk), intent(in) :: r
+! the specified species and the specified squared separation
+function pair_potential(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
     ! Species of the two particles
     integer(ik), intent(in) :: species1, species2
 
     real(rk) :: pair_potential
 
-    pair_potential = 4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Insert code corresponding to the 'pure' pair potential, without truncation,
+    ! and using the free parameters defined above.
+    ! Example (for Lennard-Jones potential):
+    !  pair_potential=4.0_rk*lj_epsilon*( lj_sigma**12/r2**6 - lj_sigma**6/r2**3 )
+    !
+    pair_potential = ( lj_sigma*lj_sigma / r2 )**3
+    pair_potential = 4.0_rk*lj_epsilon * ( pair_potential - 1 ) * pair_potential
+    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
 end function pair_potential
 
@@ -550,16 +652,16 @@ end function pair_potential
 
 ! Pair potential truncated at 'cutoff'. Note that there is no shifting of the potential;
 ! there is a discontinuity at the cut-off.
-function pair_potential_trunc(r, species1, species2)
-    ! Separation between the particles
-    real(rk), intent(in) :: r
+function pair_potential_trunc(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
     ! Species of the two particles
     integer(ik), intent(in) :: species1, species2
 
     real(rk) :: pair_potential_trunc
     
-    if(r<cutoff) then
-        pair_potential_trunc=pair_potential(r,species1,species2)
+    if(r2<cutoff*cutoff) then
+        pair_potential_trunc=pair_potential(r2,species1,species2)
     else
         pair_potential_trunc=0.0_rk
     end if
@@ -585,7 +687,7 @@ function system_energy(species, Lx, Ly, Lz, list, r)
     real(rk) :: system_energy
 
     integer(ik) :: i,j,n
-    real(rk) :: sep
+    real(rk) :: sep2
 
     system_energy=0.0_rk
     do i=1,ubound(r,2)
@@ -596,8 +698,8 @@ function system_energy(species, Lx, Ly, Lz, list, r)
              exit
           else
              if(j/=i) then
-                sep=min_image_distance(r(:,i),r(:,j),Lx,Ly,Lz)
-                system_energy=system_energy+pair_potential_trunc(sep,species(i),species(j))
+                sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+                system_energy=system_energy+pair_potential_trunc(sep2,species(i),species(j))
              end if
           end if
           n=n+1

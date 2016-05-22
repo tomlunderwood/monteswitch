@@ -508,7 +508,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
 
     real(rk) :: calc_energy_part_move
 
-    real(rk) :: sep, sep_new
+    ! Squared separations between particles
+    real(rk) :: sep2, sep_new2
     integer(ik) :: j,n
 
     calc_energy_part_move=0.0_rk
@@ -528,10 +529,10 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
           exit
        else
           if(j/=i) then
-             sep = min_image_distance(pos(:,i),pos(:,j),Lx,Ly,Lz)
-             sep_new = min_image_distance(pos_new,pos(:,j),Lx,Ly,Lz)
-             calc_energy_part_move = calc_energy_part_move + lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep_new) &
-                  - lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep)
+             sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+             sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
+             calc_energy_part_move = calc_energy_part_move + lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep_new2) &
+                  - lj_pot_trunc(lj_epsilon,lj_sigma,cutoff,sep2)
           end if
        end if
        n=n+1
@@ -565,30 +566,62 @@ end function min_image_distance
 
 
 
-! This function returns the value of the Lennard-Jones potential at the specified
+! Returns the squared separation between two positions within an orthorhombic
+! cell with the specified dimensions
+function min_image_distance2(r_1, r_2, Lx, Ly, Lz)
+    ! Positions of the two particles
+    real(rk), dimension(3), intent(in) :: r_1, r_2
+    ! Dimensions of the orthorhombic cell
+    real(rk), intent(in) :: Lx, Ly, Lz
+
+    real(rk) :: min_image_distance2
+
+    real(rk) :: xsep, ysep, zsep
+
+    ! Calculate the x-sep
+    xsep=abs(r_2(1)-r_1(1))
+    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+    ! Calculate the y-sep
+    ysep=abs(r_2(2)-r_1(2))
+    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+    ! Calculate the z-sep
+    zsep=abs(r_2(3)-r_1(3))
+    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+
+    min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
+
+end function min_image_distance2
+
+
+
+
+! This function returns the value of the Lennard-Jones potential at the specified squared
 ! distance, given the specified parametrisation of the potential.
-function lj_pot(epsilon,sigma,r)
+function lj_pot(epsilon,sigma,r2)
     real(rk), intent(in) :: epsilon
     real(rk), intent(in) :: sigma
-    real(rk), intent(in) :: r
+    real(rk), intent(in) :: r2
     real(rk) :: lj_pot
-    lj_pot=4.0_rk*epsilon*( (sigma/r)**12-(sigma/r)**6 )
+
+    lj_pot = ( sigma*sigma / r2 )**3
+    lj_pot = 4.0_rk*epsilon * ( lj_pot - 1 ) * lj_pot
+
 end function lj_pot
 
 
 
 
-! This function returns the value of a truncated Lennard-Jones potential at the specified
+! This function returns the value of a truncated Lennard-Jones potential at the specified squared
 ! distance, given the specified parametrisation of the potential. The potential is truncated
 ! at distance 'cutoff'.
-function lj_pot_trunc(epsilon,sigma,cutoff,r)
+function lj_pot_trunc(epsilon,sigma,cutoff,r2)
     real(rk), intent(in) :: epsilon
     real(rk), intent(in) :: sigma
     real(rk), intent(in) :: cutoff
-    real(rk), intent(in) :: r
+    real(rk), intent(in) :: r2
     real(rk) :: lj_pot_trunc
-    if(r<cutoff) then
-       lj_pot_trunc=lj_pot(epsilon,sigma,r)
+    if(r2<cutoff*cutoff) then
+       lj_pot_trunc=lj_pot(epsilon,sigma,r2)
     else
        lj_pot_trunc=0.0_rk
     end if
@@ -610,7 +643,7 @@ function lj_energy_trunc_list_2(epsilon,sigma,cutoff,Lx,Ly,Lz,list,r)
     real(rk), intent(in), dimension(:,:) :: r
     real(rk) :: lj_energy_trunc_list_2
     integer(ik) :: i,j,n
-    real(rk) :: sep
+    real(rk) :: sep2
     lj_energy_trunc_list_2=0.0_rk
     do i=1,ubound(r,2)
        n=1
@@ -620,8 +653,8 @@ function lj_energy_trunc_list_2(epsilon,sigma,cutoff,Lx,Ly,Lz,list,r)
              exit
           else
              if(j/=i) then
-                sep=min_image_distance(r(:,i),r(:,j),Lx,Ly,Lz)
-                lj_energy_trunc_list_2=lj_energy_trunc_list_2+lj_pot_trunc(epsilon,sigma,cutoff,sep)
+                sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+                lj_energy_trunc_list_2=lj_energy_trunc_list_2+lj_pot_trunc(epsilon,sigma,cutoff,sep2)
              end if
           end if
           n=n+1

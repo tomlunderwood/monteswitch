@@ -30,7 +30,7 @@
 ! Author: Tom L Underwood
 !
 ! This file was created from the template 'interactions_TEMPLATE_pair.f95'. Below is the preamble inherited
-! from that file. Note that here the variables are instead (in the following order) 'lj_epsilon' and 'lj_sigma'. 
+! from that file. Note that here the variables are (in the following order) 'lj_epsilon' and 'lj_sigma'. 
 ! The form of the potential is 4*lj_epsilon*( (lj_sigma/r)**9-(lj_sigma/r)**6 )
 ! 
 ! *************** PREAMBLE FOR 'interactions_TEMPLATE_pair.f95' *************** 
@@ -530,7 +530,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
 
     real(rk) :: calc_energy_part_move
 
-    real(rk) :: sep, sep_new
+    ! Squared separations between particles
+    real(rk) :: sep2, sep_new2
     integer(ik) :: j,n
 
     calc_energy_part_move=0.0_rk
@@ -551,11 +552,11 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
           exit
        else
           if(j/=i) then
-             sep = min_image_distance(pos(:,i),pos(:,j),Lx,Ly,Lz)
-             sep_new = min_image_distance(pos_new,pos(:,j),Lx,Ly,Lz)
+             sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+             sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
              calc_energy_part_move = calc_energy_part_move + &
-                 pair_potential_trunc(sep_new,species(i),species(j)) - &
-                 pair_potential_trunc(sep,species(i),species(j))
+                 pair_potential_trunc(sep_new2,species(i),species(j)) - &
+                 pair_potential_trunc(sep2,species(i),species(j))
           end if
        end if
        n=n+1
@@ -595,11 +596,40 @@ end function min_image_distance
 
 
 
+! Returns the squared separation between two positions within an orthorhombic
+! cell with the specified dimensions
+function min_image_distance2(r_1, r_2, Lx, Ly, Lz)
+    ! Positions of the two particles
+    real(rk), dimension(3), intent(in) :: r_1, r_2
+    ! Dimensions of the orthorhombic cell
+    real(rk), intent(in) :: Lx, Ly, Lz
+
+    real(rk) :: min_image_distance2
+
+    real(rk) :: xsep, ysep, zsep
+
+    ! Calculate the x-sep
+    xsep=abs(r_2(1)-r_1(1))
+    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+    ! Calculate the y-sep
+    ysep=abs(r_2(2)-r_1(2))
+    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+    ! Calculate the z-sep
+    zsep=abs(r_2(3)-r_1(3))
+    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+
+    min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
+
+end function min_image_distance2
+
+
+
+
 ! The 'pure' pair potential, without truncation, between 2 particles belonging to
-! the specified species and the specified separation
-function pair_potential(r, species1, species2)
-    ! Separation between the particles
-    real(rk), intent(in) :: r
+! the specified species and the specified squared separation
+function pair_potential(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
     ! Species of the two particles
     integer(ik), intent(in) :: species1, species2
 
@@ -609,9 +639,10 @@ function pair_potential(r, species1, species2)
     ! Insert code corresponding to the 'pure' pair potential, without truncation,
     ! and using the free parameters defined above.
     ! Example (for Lennard-Jones potential):
-    !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    !  pair_potential=4.0_rk*lj_epsilon*( lj_sigma**12/r2**6 - lj_sigma**6/r2**3 )
     !
-    pair_potential = 4.0_rk*lj_epsilon*( (lj_sigma/r)**9-(lj_sigma/r)**6 )
+    pair_potential = ( lj_sigma*lj_sigma / r2 )**3
+    pair_potential = 4.0_rk*lj_epsilon*( sqrt(pair_potential) - 1 ) * pair_potential
     ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
 end function pair_potential
@@ -621,16 +652,16 @@ end function pair_potential
 
 ! Pair potential truncated at 'cutoff'. Note that there is no shifting of the potential;
 ! there is a discontinuity at the cut-off.
-function pair_potential_trunc(r, species1, species2)
-    ! Separation between the particles
-    real(rk), intent(in) :: r
+function pair_potential_trunc(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
     ! Species of the two particles
     integer(ik), intent(in) :: species1, species2
 
     real(rk) :: pair_potential_trunc
     
-    if(r<cutoff) then
-        pair_potential_trunc=pair_potential(r,species1,species2)
+    if(r2<cutoff*cutoff) then
+        pair_potential_trunc=pair_potential(r2,species1,species2)
     else
         pair_potential_trunc=0.0_rk
     end if
@@ -656,7 +687,7 @@ function system_energy(species, Lx, Ly, Lz, list, r)
     real(rk) :: system_energy
 
     integer(ik) :: i,j,n
-    real(rk) :: sep
+    real(rk) :: sep2
 
     system_energy=0.0_rk
     do i=1,ubound(r,2)
@@ -667,8 +698,8 @@ function system_energy(species, Lx, Ly, Lz, list, r)
              exit
           else
              if(j/=i) then
-                sep=min_image_distance(r(:,i),r(:,j),Lx,Ly,Lz)
-                system_energy=system_energy+pair_potential_trunc(sep,species(i),species(j))
+                sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+                system_energy=system_energy+pair_potential_trunc(sep2,species(i),species(j))
              end if
           end if
           n=n+1
