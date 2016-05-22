@@ -368,6 +368,7 @@ end subroutine import_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a particle move for particle i is accepted
+! Leave empty if there are no such tasks
 subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! The particle which has just been moved (where the move has been accepted)
     integer(ik), intent(in) :: i
@@ -397,6 +398,7 @@ end subroutine after_accepted_part_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a volume move is accepted
+! Leave empty if there are no such tasks
 subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension (after the move has been accepted)
@@ -424,6 +426,7 @@ end subroutine after_accepted_vol_interactions
 
 
 ! Performs any tasks required for the variables in this module, after a lattice move is accepted
+! Leave empty if there are no such tasks
 subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension (after the move has been accepted)
@@ -452,6 +455,7 @@ end subroutine after_accepted_lattice_interactions
 
 
 ! Performs any tasks required for the variables in this module after ALL moves (accepted or rejected)
+! Leave empty if there are no such tasks
 subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
     ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension
