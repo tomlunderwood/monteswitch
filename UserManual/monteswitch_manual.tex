@@ -942,7 +942,7 @@ Line & Variable & Type & Description \\
 \hline
 1 & \textbf{init\_lattice}  &  \texttt{INTEGER}  & Starting phase for the simulation (1 or 2). \\
 2 & \textbf{M\_grid\_size}  &  \texttt{INTEGER}  & Number of macrostates to divide the considered order parameter range (\textbf{M\_grid\_min} to 
-\textbf{M\_grid\_max}) into. \\
+\textbf{M\_grid\_max}) into. \emph{This must be greater than 1}. \\
 3 & \textbf{M\_grid\_min}  &  \texttt{REAL}  & Minimum of considered order parameter range. Note that moves which take the system outwith the considered 
 range are automatically rejected. In other words, the system is constrained to have an order parameter between \textbf{M\_grid\_min} and 
 \textbf{M\_grid\_max}. Hence
@@ -1678,7 +1678,10 @@ rejected moves;
 \item
 \texttt{calc\_energy\_part\_move}, which calculates the energy of the system given that one particle has moved.
 \end{itemize}
-%
+Note that \texttt{after\_accepted\_part\_interactions}, \texttt{after\_accepted\_vol\_interactions}, \texttt{after\_accepted\_lattice\_interactions}
+and \texttt{after\_all\_interactions} are optional in the sense that they can be left as `empty' procedures if no `housekeeping tasks' are required 
+for the user's potential. We expect that this will be the case for most potentials.
+
 Comments within the template provide more detailed guidance for the user, who may also find it useful to examine the \texttt{interactions.f95} files 
 included with \emph{monteswitch} in the \texttt{Interactions} directory as examples. The user is of course free to add their own 
 functions and variables within their custom \texttt{interactions.f95} file. Furthermore they can use external Fortran modules in the usual manner. 

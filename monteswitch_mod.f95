@@ -54,10 +54,8 @@
 !! <p>
 !! This module contains the nuts and bolts for lattice switch Monte Carlo simulations. The variables in this module define the 
 !! 'state' of the simulation, which includes - among other things - variables describing the microstate of the
-!! system at the current time, variables determining the nature of the interactions between particles, and 
-!! variables determining in what manner information will be output during a simulation. The variables and procedures associated
-!! with particle interactions are imported from the file <code>interactions.f95</code> via Fortran's <code>include</code>
-!! statement.
+!! system at the current time and variables determining in what manner information will be output during a simulation. 
+!! The variables associated with particle interactions are inherited from the module <code>interactions_mod</code>.
 !! </p>
 !! <p>
 !! Particles are moved according to a random walk, with a maximum move of <code>part_step</code> in any Cartesian
@@ -176,10 +174,11 @@
 !!  </table>
 !!  </li>
 !!  <li>
-!!  The order parameter for a microstate is defined as the energy required to perform a lattice switch from the
-!!  microstate with the analogous dispacements in lattice type 2 to the microstate with the analogous displacements
-!!  in lattice type 1, i.e., it is <code>E_1-E_2</code>, where <code>E_1</code> is the energy of the lattice-type-1
-!!  microstate and <code>E_2</code> is the energy of the lattice-type-2 microstate.
+!!  The order parameter for a microstate is defined as <code>E_1-E_2+P*(V_1-V_2)-log(V_1/V_2)/beta</code>, 
+!!  where <code>E_1</code> is the energy of the lattice-type-1 microstate corresponding to the current displacements, 
+!!  <code>E_2</code> is the energy of the lattice-type-2 microstate, <code>V_1</code> is the volume of the lattice-type-1
+!!  microstate, <code>V_2</code> is the volume of the lattice-type-2 microstate, and <code>P</code> and <code>beta</code>
+!!  have their usual significance.
 !!  </li>
 !!  <li>
 !!  The weight function is such that the probability of microstate 'sigma' being sampled using multicanonical
@@ -202,9 +201,7 @@
 !!  <li>
 !!  There are no default values for any of the variables. It is therefore recommended that their values are all
 !!  explicitly stated at initialisation: one would definitely not want a strange value of, say, 
-!!  <code>stop_sweeps</code> creeping into the simulation because its value wasn't initialised. Of course this
-!!  isn't as much of a problem for arrays, which will not be allocated if not in use, and hence will cause no
-!!  such problems.
+!!  <code>stop_sweeps</code> creeping into the simulation because its value wasn't initialised.
 !!  </li>
 !!  <li>
 !!  In a similar vein to the above point, if one, say, tells the simulation to not evaluate equilibrium
@@ -235,8 +232,8 @@ module monteswitch_mod
   !! <h2> Variables </h2>
   
   !! <p>
-  !! What follows is a list of the module variables. Note also that variables are inherited from <code>energy_mod</code>
-  !! which determine the state of the system, such as neighbour lists. 
+  !! What follows is a list of the module variables. Note also that variables are inherited from <code>interactions_mod</code>
+  !! which contribute to the specification of the state of the system, such as neighbour lists. 
   !! Variables can be loosely categorised as either user-defined or 'internal'. In theory a user need never tamper with 
   !! internal variables - and I would not recommend it unless they <i>really</i> know what they are doing. Internal 
   !! variables' descriptions are in red.
@@ -497,9 +494,7 @@ module monteswitch_mod
   !! <code>output_file_period</code> sweeps (at the beginning of the sweep) - where the file is an argument of the <code>run</code> 
   !! subroutine. However, if <code>output_file_period=0</code>, then instead the output is <i>after every move</i>; and if 
   !! <code>output_file_period<0</code> then there is no output to the file. Similar applies to <code>output_stdout_X</code>, but for 
-  !! stdout during a simulation. Additional flags, which correspond to the weight function - which is not stored by the program (but 
-  !! is calculated when needed on the fly) - are <code>output_file_eta</code> and <code>output_stdout_eta</code>. The corresponding 
-  !! keyword in the output is "<code>eta: </code>".
+  !! stdout during a simulation.
   !! </p>
   !! <p>
   !! The variable <code>checkpoint_period</code> determines how often (in sweeps) the simulation is checkpointed, i.e., how often the 
@@ -695,7 +690,6 @@ module monteswitch_mod
 
   !! <h3> Variables defining macrostates </h3>
   !! <p>
-  !! The 'order parameter' <code>M</code> for a microstate is the energy change upon performing a lattice switch.
   !! In a simulation we need to define macrostates, each of which consists of a range of order parameters. 
   !! <code>M_grid</code> is an array containing <code>M_grid_size</code> equidistant
   !! values. We emphasise that <code>M_grid</code> must have this form. 
@@ -1121,7 +1115,7 @@ module monteswitch_mod
   !!     for each block will be too sparse to be meaningful.
   !!     </li>
   !!     <li>
-  !!     <code>"shooting"<code> uses the shooting method. Here <code>trans</code> is used to construct the
+  !!     <code>"shooting"</code> uses the shooting method. Here <code>trans</code> is used to construct the
   !!     macrostate transition probability matrix (MTPM). This is then used to estimate the probability of the
   !!     system being in each macrostate, i.e. the order parameter histogram, using the 'shooting method':
   !!     Starting with the macrostate corresponding to the lowest order parameters, i.e., macrostate 1, the 
@@ -1787,9 +1781,8 @@ contains
 
   !! <h4> <code> subroutine initialise_from_files(filename_params,filename_lattice) </code> </h4>
   !! <p>
-  !! This procedure initialises a simulation according to simulation parameters contained in the file <code>filename_params</code>,
-  !! the lattices contained in the file <code>filename_lattice</code>, and the interaction parameters contained in the file
-  !! <code>filename_interactions</code>. Be aware that this procedure opens and
+  !! This procedure initialises a simulation according to simulation parameters contained in the file <code>filename_params</code> and
+  !! the lattices contained in the file <code>filename_lattice</code>. Be aware that this procedure opens and
   !! closes unit 10.
   !! </p>
   !! <table border="1">
@@ -1811,14 +1804,6 @@ contains
   !!   <td> <code>  character(*), intent(in) </code> </td>
   !!   <td> The file name containing the initial lattices. The format of this file is described in the documentation
   !!   for the <code>initialise_lattices(filename)</code> subroutine.
-  !!   </td>
-  !!  </tr>
-  !!  <tr>
-  !!   <td> <code> filename_interactions </code> </td>
-  !!   <td> <code>  character(*), intent(in) </code> </td>
-  !!   <td> The file name containing the parameters pertaining to the interactions. The format of this file is user-specific,
-  !!   and depends on the nature of the <code>interactions.f95</code> file: the <code>import_interactions_params</code> subroutine
-  !!   is called to import the parameters.
   !!   </td>
   !!  </tr>
   !! </table>
@@ -5063,12 +5048,8 @@ contains
 
   !! <h4> <code> subroutine set_equil_properties() </code> </h4>
   !! <p>
-  !! This subroutine sets all equilibrium variables from their associated interblock sums and
-  !! 'block counts': it sets <code>equil_DeltaF</code>, <code>sigma_equil_DeltaF</code>,
-  !!  <code>equil_H_1</code>, <code>sigma_equil_H_1</code>,
-  !!  <code>equil_H_2</code>, <code>sigma_equil_H_2</code>,
-  !!  <code>equil_V_1</code>, <code>sigma_equil_V_1</code>,
-  !!  <code>equil_V_2</code>, and <code>sigma_equil_V_2</code>.
+  !! This subroutine sets all <code>equil_</code> and <code>sigma_</code> variables from their associated interblock sums and
+  !! 'block counts'.
   !! </p>
   subroutine set_equil_properties()
     ! DeltaF
@@ -6311,7 +6292,10 @@ contains
   !! size <code>M_grid_size_in</code> along both dimensions, with all elements set to 0; <code>eta_grid</code>
   !! to be of size <code>M_grid_size_in</code> with all elements set to 0. Note that if <code>M_grid</code>, 
   !! <code>trans</code> or <code>eta_grid</code> is already allocated then this
-  !! subroutine deallocates it before initialising it according to the arguments.
+  !! subroutine deallocates it before initialising it according to the arguments. Furthermore, this procedure
+  !! performs some safety checks on <code>M_grid_size</code>, <code>M_grid_min</code> and 
+  !! <code>M_grid_max</code>, and stops the program with an error if they are not sensible (in particular if
+  !! <code>M_grid_size</code> < 2).
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -6340,7 +6324,18 @@ contains
     real(rk), intent(in) :: M_grid_min
     real(rk), intent(in) :: M_grid_max
     integer(ik) :: i
+
+    if(M_grid_min > M_grid_max) then
+        write(0,*) "monteswitch_mod: Error. 'M_grid_min' > 'M_grid_max'."
+        stop 1
+    end if
+
     M_grid_size=M_grid_size_in
+    if(M_grid_size < 2) then
+        write(0,*) "monteswitch_mod: Error. 'M_grid_size' must be > 1."
+        stop 1
+    end if
+
     if(allocated(M_grid)) then
        deallocate(M_grid)
     end if
@@ -6348,18 +6343,22 @@ contains
     do i=1,M_grid_size
        M_grid(i)=M_grid_min+(i-1)*(M_grid_max-M_grid_min)/M_grid_size
     end do
+
     M_OOB_low=M_grid_min
     M_OOB_high=M_grid_max
+
     if(allocated(trans)) then
        deallocate(trans)
     end if
     allocate(trans(M_grid_size,M_grid_size))
     trans=0.0_rk
+
     if(allocated(eta_grid)) then
        deallocate(eta_grid)
     end if
     allocate(eta_grid(M_grid_size))
     eta_grid=0.0_rk
+
   end subroutine initialise_M_variables
 
 
@@ -6369,8 +6368,8 @@ contains
   !! <p>
   !! This procedure initialises all counters to be 0, except <code>trans</code> and anything to do with order parameter 
   !! barriers. 'Counters' include those all sums used to evaluate equilibrium properties, sweep numbers, etc.
-  !! It does include the equilibrium values and their uncertainties, e.g. equil_DeltaF, sigma_equil_DeltaF; however note
-  !! that these values are meaningless until at least one block has been considered for these variables.
+  !! It does include the equilibrium values and their uncertainties, e.g. <code>equil_DeltaF</code>, <code>sigma_equil_DeltaF</code>; 
+  !! however note that these values are meaningless until at least one block has been considered for these variables.
   !! It does include <code>sweep_equil_reference</code>, which is set to 0.
   !! If <code>M_counts_1</code> or <code>M_counts_2</code> is already allocated then this subroutine deallocates them and
   !! then allocates them to have a size corresponding to the current value of <code>M_grid_size</code>.
@@ -6518,7 +6517,7 @@ contains
   !! particle <code>i</code> in lattice 1 <i>in fractional coordinates</i> (note that this is the only situation in which
   !! these quantities are given in fractional coordinates) with respect to the supercell dimensions, and similarly for
   !! <code>(R_2(i,1),R_2(i,2),R_2(i,3))</code> for lattice 2:
-  !! <code>
+  !! <pre><code>
   !! An optional comment of up to 120 characters describing the lattices; if this is unrequired this line can be left blank.
   !! n_part
   !! Lx(1)
@@ -6537,7 +6536,7 @@ contains
   !! R_2(3,1) R_2(3,2) R_2(3,3) spec_2(3)
   !! ...
   !! R_2(n_part,1) R_2(n_part,2) R_2(n_part,3) spec_2(n_part)
-  !! <code>
+  !! </code></pre>
   !! </p>
   !! <table border="1">
   !!  <tr>
@@ -6690,8 +6689,8 @@ contains
   !! <p>
   !! This procedure sets the order parameter barriers such that we are locked into the current macrostate (the
   !! barriers do not span two macrostates). It also zeros counters pertaining to the order parameter barriers,
-  !! and sets <code>barrier_to_lock</code> to be 1 or 2 if the <code>barrier_dynamics</code> flag is for "pong_up"
-  !! or "pong_down" respectively.
+  !! and sets <code>barrier_to_lock</code> to be 1 or 2 if the <code>barrier_dynamics</code> flag is for <code>"pong_up"</code>
+  !! or <code>"pong_down"</code> respectively.
   !! </p>
   !! <p>
   !! <b> Dependencies: </b> <code>M</code>, <code>macro</code> and <code>M_grid</code> should be set before this subroutine is called,
