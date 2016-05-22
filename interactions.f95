@@ -24,68 +24,34 @@
 !
 !-----------------------------------------------------------------------
 !
-! 'interactions.f95' file for monteswitch for a hard-sphere potential in conjunction with fixed neighbour lists.
-! 
+! 'interactions.f95' file for EAM metal potentials (single-species '.eam.alloy' format) 
+!
 ! Author: Tom L Underwood
 !
-! This file was derived from the file 'interactions_TEMPLATE_pair.f95'. In particular note that 'cutoff' is 
-! superfluous for hard-sphere interactions, as is the function 'pair_potential_trunc', and hence I have removed them.
-! The variables to be specified in the 'interactions_in' file (see below) are as follows (in the following 
-! order):
-! 
-! * epsilon (real(rk)) is the energy cost associated with overlappng spheres. This will normally be set to a 
-!   'high' value.
+! This file implements the embedded atom model (EAM) similarly to LAMMPS, as described at
+! http://lammps.sandia.gov/doc/pair_eam.html. The input file which specifies the potential to be used by monteswitch
+! must be named 'interactions_in', and must be in the DYNAMO/LAMMPS 'setfl' format; a file with this format is often
+! indicated with the suffix '.eam.alloy'. A description of the 'setfl' format can be found at 
+! http://lammps.sandia.gov/doc/pair_eam.html. However, note that this file ONLY WORKS FOR SINGLE-SPECIES
+! SYSTEMS: the .eam.alloy file must not correspond to a multicomponent system - an error is returned
+! if this is the case. Note also this file implements the EAM potential by using linear interpolation, using the
+! tabulations of the various functions in the input file (the embedding function, the density function, 
+! and the pair-potential) as a basis. 
 !
-! * sigma (real(rk)) is the hard-sphere diameter.
+! At initialisation this module creates three files: 'F.dat', 'rho.dat', and 'rphi.dat', which
+! correspond to the embedding function, density function, and pair potential (multiplied by separation) read
+! from the input file.
 !
-! * list_cutoff (real(rk)) is the cut-off distance determining whether pairs of particles interact with each 
-!   other throughout the simulation. (See below).
+! NB: It seems that 'setfl' format files often have cut-offs which are very slightly
+! higher than that suggested by the values of 'Nr' and 'dr. The aforementioned LAMMPS documentation specifies that
+! elements 'i' of rho' and 'rphi' correspond to a separation of 'r=(i-1)*dr' - as opposed to
+! 'r=i*dr'. Hence the maximum supported separation between particles is '(Nr-1)*dr', as opposed to 'Nr*dr'. 
+! However, people often set the cut-off to the latter value, as opposed to the former. Here, to account for this, 
+! if the cut-off is greater than '(Nr-1)*dr', then it is ammeded at initialisation to be '(Nr-1)*dr'.
 !
-! * list_size (integer(ik)) determines the maximum number of particles any one particle is 'allowed' to 
-!   interact with via the 'list' mechanism (determined by the 'list_cutoff' variable above). (See below).
-!
-!
-!
-!
-! COMMENTS PRESENT IN THE TEMPLATE BEFORE I MODIFIED IT...
-!
-! This file corresponds to the Lennard-Jones potential until modified by the user. Search for 
-! 'USER-DEFINED CODE' to find the relevant parts to modify. What follows is a description of functionality
-! for the Lennard-Jones potential. The functionality will be similar if the 'USER-DEFINED CODE' blocks
-! are altered, except the variables 'lj_epsilon' and 'lj_sigma' will be replaced by user-defined variables.
-!
-! Description of functionality of this file if it is unaltered by the user...
-!
-! This file implements a Lennard-Jones potential with truncated interactions, and a fixed neighbour list for
-! each particle. The variables for this module are imported from a file 'interactions_in', and the format of 
-! this file is as follows. On the first line there are two tokens. The first is a character(len=20) variable
-! (I recommend: 'lj_epsilon='); the second is the value of 'lj_epsilon' (all variables are explained in a 
-! moment). The second line is similar, but for 'lj_sigma'. The third line is for 'cutoff', the fourth is for 
-! 'list_cutoff', and the fifth is for 'list_size'. The variables are as follows:
-!
-! * lj_epsilon (real(rk)) is the depth of the Lennard-Jones potential well.
-!
-! * lj_sigma (real(rk)) is the distance corresponding to 0 potential for the Lennard-Jones potential.
-!
-! * cutoff (real(rk)) is the cut-off distance for the Lennard-Jones potential.
-!
-! * list_cutoff (real(rk)) is the cut-off distance determining whether pairs of particles interact with each 
-!   other throughout the simulation. Those within list_cutoff of each other at the start of the simulation, 
-!   before any moves are made, will interact with each other forever more. Note that the set of interacting 
-!   pairs does not change during the simulation, even if pairs of interacting particles later exceed 
-!   'list_cutoff' in separation.
-!
-! * list_size (integer(ik)) determines the maximum number of particles any one particle is 'allowed' to 
-!   interact with via the 'list' mechanism (determined by the 'list_cutoff' variable above). This should be
-!   set to at least the number of neghbours one will interact with + 2. E.g., if 'list_cutoff' is set to (just over) 
-!   the nearest neighbour distance, and there are 12 nearest neighbours, then 'list_size' should 
-!   be set to at least 14. While there is nothing wrong in principle with setting 'list_size' to, say, 500, 
-!   the associated arrays would be very large (500 integers per particle), and hence could slow down the 
-!   simulation and/or use up too much memory.
-!
-! Regarding checkpointing, the variables in this module are stored in the 'state' file used to checkpoint all
-! other monteswitch variables; see the comments for 'export_interactions' for more details.
-!
+! This file was adapted from the file 'interactions_TEMPLATE_minimal.f95' - some comments are inherited from that
+! file.
+
 module interactions_mod
 
 
@@ -96,22 +62,40 @@ module interactions_mod
     
     implicit none
 
-    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
-    ! Insert code defining the free parameters for the potential here.
-    ! Example (for Lennard-Jones potential):
-    !  real(rk) :: lj_epsilon
-    !  real(rk) :: lj_sigma
-    !
-    real(rk) :: epsilon
-    real(rk) :: sigma
-    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
+    ! Number of points on the density grid
+    integer(ik) :: Nrho
+    ! Spacing of points on the density grid
+    real(rk) :: drho
+    ! Number of points on the separation grid
+    integer(ik) :: Nr
+    ! Spacing of points on the separation grid
+    real(rk) :: dr
+    ! The interaction cut-off: pairs of particles beyond this separation do not interact.
+    real(rk) :: cutoff
 
-    ! Variables for the potential cutoff and lists of interacting particles
-    !real(rk) :: cutoff
-    real(rk) :: list_cutoff
-    integer(ik) :: list_size
-    integer(ik), dimension(:,:), allocatable :: list_1
-    integer(ik), dimension(:,:), allocatable :: list_2
+    ! Array defining the embedding function: 'F(i)' is the embedding function at density
+    ! '(i-1)*drho'.
+    real(rk), dimension(:), allocatable :: F
+    ! Array defining the density function: 'rho(i)' is the density for inter-particle separation
+    ! '(i-1)*dr'.
+    real(rk), dimension(:), allocatable :: rho
+    ! Array defining the pair-potential function: 'rphi(i)' is the pair-potential, multiplied by
+    ! the separation, for inter-particle separation '(i-1)*dr'.
+    real(rk), dimension(:), allocatable :: rphi
+    ! Array defining containing the density - with regards to the embedding function - associated with
+    ! each particle in the current microstate of the system for each latice. 
+    ! 'part_rho(i,lattice)' is the density for particle 'i' in lattice 'lattice'. 
+    ! This is used to speed up the calculation of the change in embedding energy as a result of a particle move. 
+    real(rk), dimension(:,:), allocatable :: part_rho
+    ! Like 'part_rho', but a 'buffer' value. Every particle or volume move, the energy of the trial
+    ! microstate is evaluated by calling the 'calc_energy_scratch' or 'calc_energy_part_move'
+    ! procedure. In each of these procedures, the densities for the trial state are stored in 'part_rho_buffer'.
+    ! If the move is accepted, i.e., the trial microstate becomes the actual microstate of the system, 
+    ! 'part_rho_buffer' is copied to 'part_rho'. If the move is rejected, then 
+    ! 'part_rho_buffer' is not copied to 'part_rho'. Thus 'part_rho' always reflects the 
+    ! actual microstate.
+    real(rk), dimension(:,:), allocatable :: part_rho_buffer
+
 
     ! The below public procedures are called by 'monteswitch_mod' (in 'monteswitch_mod.f95'),
     ! and must be 'filled in' by the user.
@@ -125,9 +109,7 @@ module interactions_mod
 contains
 
 
-
-
-! Initialises the  variables in this module. The initial configurations for both
+! Initialises the variables in this module. The initial configurations for both
 ! lattices are provided as arguments in case this information is required. Unless the interactions
 ! are 'hard-coded', the initialisation will involve reading from a file. This should be done here.
 subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2, species2, pos2)
@@ -142,98 +124,217 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
 
-    character(len=20) string
+    character(*),parameter :: filename="interactions_in"
+    character(len=200) :: line
     integer(ik) :: error
-    integer(ik) :: i,j,n,n_part
+    integer(ik) :: i,j,n
 
-    n_part = size(pos1,2)
+    integer(ik) :: indx, prev_indx
+    integer(ik) :: start_of_word
 
-    ! Read the interactions variables from the file 'interactions_in'
-    open(unit=10,file="interactions_in",iostat=error,status="old")
+    integer(ik) :: n_part
+
+    n_part=size(pos1,2)
+
+    ! Open the file and import the variables required for initialisation
+    open(unit=10,file=filename,iostat=error,status="old")
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem opening file 'interactions_in'"
+       write(0,*) "interactions: Error. Problem opening file '",filename,"'"
        stop 1
     end if
 
-    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
-    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
-    ! formatting. Note that the way in which the free parameters are read must match the way in which
-    ! they are written - in the USER-DEFINED CODE block below.
-    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
-    ! an error):
-    !  read(10,*,iostat=error) string, lj_epsilon
-    !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file '",filename,"'"
-    !     stop 1
-    !  end if
-    !  read(10,*,iostat=error) string, lj_sigma
-    !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file '",filename,"'"
-    !     stop 1
-    !  end if
-    !
-    read(10,*,iostat=error) string, epsilon
+    ! Read 3 comment lines
+    read(10,*,iostat=error) line
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'epsilon' from file 'interactions'"
-        stop 1
+       write(0,*) "interactions: Error reading file '",filename,"'" 
+       stop 1
     end if
-    read(10,*,iostat=error) string, sigma
+    read(10,*,iostat=error) line
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'sigma' from file 'interactions'"
-        stop 1
+       write(0,*) "interactions: Error reading file '",filename,"'"
+       stop 1
     end if
-    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
+    read(10,*,iostat=error) line
+    if(error/=0) then
+       write(0,*) "interactions: Error reading file '",filename,"'"
+       stop 1
+    end if
 
-    !read(10,*,iostat=error) string, cutoff
-    !if(error/=0) then
-    !   write(0,*) "interactions: Error. Problem reading 'cutoff' from file 'interactions_in'"
-    !   stop 1
-    !end if
-    read(10,*,iostat=error) string, list_cutoff
+    ! Read the number of elements (number of elements must be 1), and ignoring the element name
+    read(10,*,iostat=error) n
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from file 'interactions_in'"
+       write(0,*) "interactions: Error reading file '",filename,"'"
        stop 1
     end if
-    read(10,*,iostat=error) string, list_size
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_size' from file 'interactions_in'"
+    if(n/=1) then
+       write(0,*) "interactions: Error. File '",filename,"' seems to correspond to a ", &
+            "multicomponent system; only unary systems supported."
        stop 1
     end if
+
+    ! Read Nrho, drho, Nr, dr and cutoff
+    read(10,*,iostat=error) Nrho,drho,Nr,dr,cutoff
+    if(error/=0) then
+       write(0,*) "interactions: Error reading file '",filename,"'"
+       stop 1
+    end if
+
+    ! Read, but ignore, the line containing the atomic number, mass, lattice constant and lattice type
+    read(10,*,iostat=error) line
+    if(error/=0) then
+       write(0,*) "interactions: Error reading file '",filename,"'"
+       stop 1
+    end if
+
+    ! Initialise and read the embedding function
+    allocate(F(Nrho))
+    j=1
+    do
+       read(10,'(A)',iostat=error) line
+       if(error/=0) then
+          write(0,*) "interactions: Error reading file '",filename,"'"
+          stop 1
+       end if
+
+       start_of_word=1
+       prev_indx=0
+
+       do i=1,len(line)
+          ! Check if the current character in the line corresponds to a number (i.e., not a space).
+          ! If so, then indx is NOT 0. If indx==0 then we have a blank
+          indx = index('0123456789.-+Ee', line(i:i))
+
+          ! We are at the start of a word if the current character is not a blank, but the previous
+          ! was.
+          if(indx/=0 .and. prev_indx==0) then
+             start_of_word=i
+          end if
+          ! We are at the end of a word if the current character is a blank, but the previous
+          ! was not.
+          if(indx==0 .and. prev_indx/=0) then
+             read(line(start_of_word:i-1), *) F(j)
+             j=j+1
+          end if
+
+          if(j>Nrho) exit
+
+          prev_indx=indx
+
+       end do
+
+       if(j>Nrho) exit
+
+    end do
+
+    ! Initialise and read the density function
+    allocate(rho(Nr))
+    j=1
+    do
+       read(10,'(A)',iostat=error) line
+       if(error/=0) then
+          write(0,*) "interactions: Error reading file '",filename,"'"
+          stop 1
+       end if
+
+       start_of_word=1
+       prev_indx=0
+
+       do i=1,len(line)
+          ! Check if the current character in the line corresponds to a number (i.e., not a space).
+          ! If so, then indx is NOT 0. If indx==0 then we have a blank
+          indx = index('0123456789.-+Ee', line(i:i))
+
+          ! We are at the start of a word if the current character is not a blank, but the previous
+          ! was.
+          if(indx/=0 .and. prev_indx==0) then
+             start_of_word=i
+          end if
+          ! We are at the end of a word if the current character is a blank, but the previous
+          ! was not.
+          if(indx==0 .and. prev_indx/=0) then
+             read(line(start_of_word:i-1), *) rho(j)
+             j=j+1
+          end if
+
+          if(j>Nr) exit
+
+          prev_indx=indx
+
+       end do
+
+       if(j>Nr) exit
+
+    end do
+
+    ! Initialise and read the pair potential function. Note that the values in the file are actually r*phi(r),
+    ! not phi(r). This is stored in the variable rphi.
+    allocate(rphi(Nr))
+    j=1
+    do
+       read(10,'(A)',iostat=error) line
+       if(error/=0) then
+          write(0,*) "interactions: Error reading file '",filename,"'"
+          stop 1
+       end if
+
+       start_of_word=1
+       prev_indx=0
+
+       do i=1,len(line)
+          ! Check if the current character in the line corresponds to a number (i.e., not a space).
+          ! If so, then indx is NOT 0. If indx==0 then we have a blank
+          indx = index('0123456789.-+Ee', line(i:i))
+
+          ! We are at the start of a word if the current character is not a blank, but the previous
+          ! was.
+          if(indx/=0 .and. prev_indx==0) then
+             start_of_word=i
+          end if
+          ! We are at the end of a word if the current character is a blank, but the previous
+          ! was not.
+          if(indx==0 .and. prev_indx/=0) then
+             read(line(start_of_word:i-1), *) rphi(j)
+             j=j+1
+          end if
+
+          if(j>Nr) exit
+
+          prev_indx=indx
+
+       end do
+
+       if(j>Nr) exit
+
+    end do
+
+    ! Set cutoff to the maximum supported value if it is greater than (Nr-1)*dr
+    if(cutoff>(Nr-1)*dr) cutoff=(Nr-1)*dr
+
+    ! Initialise part_rho, and allocate - but not set any values to - part_rho_buffer
+    allocate(part_rho(n_part,2))
+    allocate(part_rho_buffer(n_part,2))
+    call set_part_rho(1,Lx1,Ly1,Lz1,pos1)
+    call set_part_rho(2,Lx2,Ly2,Lz2,pos2)
+
+    ! Output the functions to files
+    open(unit=10,file="F.dat")
+    do i=1,Nrho
+       write(10,*) (i-1)*drho,F(i)
+    end do
+    close(10)
+    open(unit=10,file="rho.dat")
+    do i=1,Nr
+       write(10,*) (i-1)*dr,rho(i)
+    end do
+    close(10)
+    open(unit=10,file="rphi.dat")
+    do i=1,Nr
+       write(10,*) (i-1)*dr,rphi(i)
+    end do
     close(10)
 
-    ! Initialise lists
-    if(allocated(list_1)) then
-       deallocate(list_1)
-    end if
-    if(allocated(list_2)) then
-       deallocate(list_2)
-    end if
-    allocate(list_1(list_size,n_part))
-    allocate(list_2(list_size,n_part))
-
-    list_1=0
-    do i=1,n_part
-       n=1
-       do j=1,n_part
-          if(min_image_distance(pos1(:,i),pos1(:,j),Lx1,Ly1,Lz1)<list_cutoff) then
-             list_1(n,i)=j
-             n=n+1
-          end if
-       end do
-    end do
-    list_2=0
-    do i=1,n_part
-       n=1
-       do j=1,n_part
-          if(min_image_distance(pos2(:,i),pos2(:,j),Lx2,Ly2,Lz2)<list_cutoff) then
-             list_2(n,i)=j
-             n=n+1
-          end if
-       end do
-    end do
 
 end subroutine initialise_interactions
-
 
 
 
@@ -247,23 +348,18 @@ end subroutine initialise_interactions
 ! must correspond to the format read in from these files by the procedure 'import_interactions()'.
 subroutine export_interactions()
 
-    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
-    ! Insert code which writes the free parameters for the potential to unit 10, using list-directed
-    ! formatting. Note that the way in which the free parameters are read must match the way in which
-    ! they are read - in the USER-DEFINED CODE block above.
-    ! Example (for Lennard-Jones potential):
-    !  write(10,*) "lj_epsilon= ",lj_epsilon
-    !  write(10,*) "lj_sigma= ",lj_sigma
-    !
-    write(10,*) "epsilon= ",epsilon
-    write(10,*) "sigma= ",sigma
-    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
+    integer(ik), parameter :: unit=10
 
-    !write(10,*) "cutoff= ",cutoff
-    write(10,*) "list_cutoff= ",list_cutoff
-    write(10,*) "list_size= ",list_size
-    write(10,*) "list_1= ",list_1
-    write(10,*) "list_2= ",list_2
+    write(unit,*) "Nrho= ",Nrho
+    write(unit,*) "drho= ",drho
+    write(unit,*) "Nr= ",Nr
+    write(unit,*) "dr= ",dr
+    write(unit,*) "cutoff= ",cutoff
+    write(unit,*) "F= ",F
+    write(unit,*) "rho= ",rho
+    write(unit,*) "rphi= ",rphi
+    write(unit,*) "part_rho= ",part_rho
+    write(unit,*) "part_rho_buffer= ",part_rho_buffer
     
 end subroutine export_interactions
 
@@ -274,7 +370,7 @@ end subroutine export_interactions
 ! read from the file(s) should correspond to that output by 'export_interactions' above. If one is
 ! importing from within a 'state' file as described in that procedure, then use unit 10, but
 ! do not open or close that unit!
-subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, u, R2)
     ! Dimensions of the (orthorhombic) supercell for lattices 1 and 2
     ! in each Cartesian dimension
     real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
@@ -293,72 +389,76 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     ! etc.
     real(rk), intent(in), dimension(:,:) :: u
 
+    integer(ik), parameter :: unit=10
     character(len=20) string
     integer(ik) :: error, n_part
-    
-    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>>
-    ! Insert code which reads the free parameters for the potential from unit 10, using list-directed
-    ! formatting. Note that the way in which the free parameters are read must match the way in which
-    ! they are written - in the USER-DEFINED CODE block below.
-    ! Example (for Lennard-Jones potential, including an error message and exit code of 1 if there is
-    ! an error):
-    !  read(10,*,iostat=error) string, lj_epsilon
-    !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit ",unit
-    !     stop 1
-    !  end if
-    !  read(10,*,iostat=error) string, lj_sigma
-    !  if(error/=0) then
-    !     write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit ",unit
-    !     stop 1
-    !  end if
-    !
-    read(10,*,iostat=error) string, epsilon
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'epsilon' from unit 10"
-       stop 1
-    end if
-    read(10,*,iostat=error) string, sigma
-    if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'sigma' from unit 10"
-       stop 1
-    end if
-    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
 
-    !read(10,*,iostat=error) string, cutoff
-    !if(error/=0) then
-    !   write(0,*) "interactions: Error. Problem reading 'cutoff' from unit 10"
-    !   stop 1
-    !end if
-    read(10,*,iostat=error) string, list_cutoff
+    n_part=size(pos1,2)
+
+    read(unit,*,iostat=error) string, Nrho
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_cutoff' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'Nrho' from unit ",unit
        stop 1
     end if
-    read(10,*,iostat=error) string, list_size
+    read(unit,*,iostat=error) string, drho
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_size' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'drho' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, Nr
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'Nr' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, dr
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'dr' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, cutoff
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'cutoff' from unit ",unit
        stop 1
     end if
 
-    n_part = size(pos1,2)
-    if(allocated(list_1)) then
-       deallocate(list_1)
+    if(allocated(F)) then
+       deallocate(F)
     end if
-    if(allocated(list_2)) then
-       deallocate(list_2)
+    if(allocated(rho)) then
+       deallocate(rho)
     end if
-    allocate(list_1(list_size,n_part))
-    allocate(list_2(list_size,n_part))
+    if(allocated(rphi)) then
+       deallocate(rphi)
+    end if
+    allocate(F(Nrho))
+    allocate(rho(Nr))
+    allocate(rphi(Nr))
+    allocate(part_rho(n_part,2))
+    allocate(part_rho_buffer(n_part,2))
 
-    read(10,*,iostat=error) string, list_1
+    read(unit,*,iostat=error) string, F
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_1' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'F' from unit ",unit
        stop 1
     end if
-    read(10,*,iostat=error) string, list_2
+    read(unit,*,iostat=error) string, rho
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'list_2' from unit 10"
+       write(0,*) "interactions: Error. Problem reading 'rho' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, rphi
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'rphi' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, part_rho
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'part_rho' from unit ",unit
+       stop 1
+    end if
+    read(unit,*,iostat=error) string, part_rho_buffer
+    if(error/=0) then
+       write(0,*) "interactions: Error. Problem reading 'part_rho_buffer' from unit ",unit
        stop 1
     end if
 
@@ -389,7 +489,8 @@ subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1
     ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
-    return
+
+    part_rho=part_rho_buffer
 
 end subroutine after_accepted_part_interactions
 
@@ -416,8 +517,7 @@ subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx
     ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
-
-    return
+    part_rho=part_rho_buffer
 
 end subroutine after_accepted_vol_interactions
 
@@ -442,7 +542,6 @@ subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
-
 
     return
 
@@ -470,7 +569,6 @@ subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, L
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
     ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
-
 
     return
 
@@ -500,15 +598,38 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
 
     real(rk) :: calc_energy_scratch
 
-    select case(lattice)
-    case(1)
-       calc_energy_scratch = system_energy(species,Lx,Ly,Lz,list_1,pos)
-    case(2)
-       calc_energy_scratch = system_energy(species,Lx,Ly,Lz,list_2,pos)
-    case default
-       write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
-       stop 1
-    end select
+    integer(ik) :: i,j
+    real(rk) :: sep
+    real(rk) :: sep2
+    real(rk) :: pair_energy
+    real(rk) :: embedding_energy
+    integer(ik) :: n_part
+    real(rk) :: cutoff2
+
+    n_part=size(pos,2)
+    cutoff2=cutoff*cutoff
+
+    pair_energy=0.0_rk
+    embedding_energy=0.0_rk
+    do i=1,n_part
+       ! Calculate the density associated with particle i, and store it in part_rho_buffer(lattice,i).
+       ! At the same time we are resetting part_rho_buffer for 'lattice' to correspond to the 
+       ! microstate in the argument
+       part_rho_buffer(i,lattice)=0.0_rk
+       do j=1,n_part
+          if(j/=i) then
+             sep2=min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+             if(sep2<cutoff2) then
+                sep=sqrt(sep2)
+                pair_energy=pair_energy+0.5_rk*phi_func(sep)
+                part_rho_buffer(i,lattice)=part_rho_buffer(i,lattice)+rho_func(sep)
+             end if
+          end if
+       end do
+       embedding_energy=embedding_energy+F_func(part_rho_buffer(i,lattice))
+    end do
+
+    calc_energy_scratch = pair_energy + embedding_energy
 
 end function calc_energy_scratch
 
@@ -544,57 +665,139 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
 
     real(rk) :: calc_energy_part_move
 
-    ! Squared separations between particles
-    real(rk) :: sep2, sep_new2
-    integer(ik) :: j,n
+    integer(ik) :: j
+    real(rk) :: sep, sep2
+    real(rk) :: sep_new, sep_new2
+    real(rk) :: delta_pair_energy
+    real(rk) :: delta_embedding_energy
+    real(rk) :: cutoff2
+    ! The change in density for microstate with r_new relative to the current microstate (r)
+    real(rk), dimension(size(pos,2)) :: delta_rho    
 
-    calc_energy_part_move=0.0_rk
+    integer(ik) :: n_part
 
-    n=1
-    do
-       select case(lattice)
-       case(1)
-          j=list_1(n,i)
-       case(2)
-          j=list_2(n,i)
-       case default
-          write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
-          stop 1
-       end select
+    n_part=size(pos,2)
+    cutoff2=cutoff*cutoff
 
-       if(j==0) then
-          exit
-       else
-          if(j/=i) then
-             sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
-             sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
-             calc_energy_part_move = calc_energy_part_move + &
-                 !pair_potential_trunc(sep_new,species(i),species(j)) - &
-                 !pair_potential_trunc(sep,species(i),species(j))
-                 pair_potential(sep_new2,species(i),species(j)) - &
-                 pair_potential(sep2,species(i),species(j))
+    ! EAM code from an older version of monteswitch (note that some array dimensions are reversed - which is not
+    ! efficient), which is optimised below...
+    !
+    !    ! Calculate the change in the pair energy
+    !    delta_pair_energy=0.0_rk
+    !    do j=1,n_part
+    !       if(j/=i) then
+    !          sep=min_image_distance(pos(:,j),pos(:,i),Lx,Ly,Lz)
+    !          sep_new=min_image_distance(pos(:,j),pos_new,Lx,Ly,Lz)
+    !          if(sep_new<cutoff) delta_pair_energy=delta_pair_energy+phi_func(sep_new)
+    !          if(sep<cutoff) delta_pair_energy=delta_pair_energy-phi_func(sep)
+    !       end if
+    !    end do
+    !
+    !    ! Calculate the change in the embedding energy
+    !
+    !    ! Calculate the changes in all particles' densities for  r_new relative to r_ref
+    !    delta_rho=0.0_rk
+    !    do j=1,n_part
+    !       if(j/=i) then
+    !          sep=min_image_distance(pos(j,:),pos(i,:),Lx,Ly,Lz)
+    !          sep_new=min_image_distance(pos(j,:),pos_new,Lx,Ly,Lz)
+    !          if(sep_new<cutoff) then
+    !             delta_rho(j)=delta_rho(j)+rho_func(sep_new)
+    !             delta_rho(i)=delta_rho(i)+rho_func(sep_new)
+    !          end if
+    !          if(sep<cutoff) then
+    !             delta_rho(j)=delta_rho(j)-rho_func(sep)
+    !             delta_rho(i)=delta_rho(i)-rho_func(sep)
+    !          end if
+    !       end if
+    !    end do
+    
+    ! Combine the above commented out code into one more efficient loop
+    
+    delta_pair_energy=0.0_rk
+    delta_rho=0.0_rk
+    do j=1,n_part
+       if(j/=i) then
+          sep2=min_image_distance2(pos(:,j),pos(:,i),Lx,Ly,Lz)
+          sep_new2=min_image_distance2(pos(:,j),pos_new,Lx,Ly,Lz)
+          if(sep_new2<cutoff2) then
+              sep_new=sqrt(sep_new2)
+
+              delta_pair_energy=delta_pair_energy+phi_func(sep_new)
+
+              delta_rho(j)=delta_rho(j)+rho_func(sep_new)
+              delta_rho(i)=delta_rho(i)+rho_func(sep_new)
+          end if
+          if(sep2<cutoff2) then
+              sep=sqrt(sep2)
+
+              delta_pair_energy=delta_pair_energy-phi_func(sep)
+              
+              delta_rho(j)=delta_rho(j)-rho_func(sep)
+              delta_rho(i)=delta_rho(i)-rho_func(sep)
           end if
        end if
-       n=n+1
     end do
+
+    ! Use the change to calculate the current densities, and store it in part_rho_buffer
+    part_rho_buffer(:,lattice) = part_rho(:,lattice) + delta_rho
+
+    ! Calculate the chage in embedding energy from the changes in densities
+    delta_embedding_energy=0.0_rk
+    do j=1,n_part
+       delta_embedding_energy = delta_embedding_energy + &
+            F_func(part_rho_buffer(j,lattice)) - F_func(part_rho(j,lattice))
+    end do
+
+    calc_energy_part_move = delta_pair_energy + delta_embedding_energy
 
 end function calc_energy_part_move
 
 
 
 
-! Returns the separation between two positions within an orthorhombic
+! Set the part of part_rho for 'lattice' to correspond to the microstate
+! in the argument
+subroutine set_part_rho(lattice,Lx,Ly,Lz,r)
+    integer(ik), intent(in) :: lattice
+    real(rk), intent(in) :: Lx
+    real(rk), intent(in) :: Ly
+    real(rk), intent(in) :: Lz
+    real(rk), intent(in), dimension(:,:) :: r
+
+    integer(ik) :: i,j
+    real(rk) :: sep
+    real(rk) :: sep2
+    real(rk) :: cutoff2
+    integer(ik) :: n_part
+    
+    n_part=size(r,2)
+    cutoff2=cutoff*cutoff
+
+    do i=1,n_part
+       part_rho(i,lattice)=0.0_rk
+       do j=1,n_part
+          if(j/=i) then
+             sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+             if(sep2<cutoff2) then
+                sep=sqrt(sep2)
+                part_rho(i,lattice)=part_rho(i,lattice)+rho_func(sep)
+             end if
+          end if
+       end do
+    end do
+end subroutine set_part_rho
+
+
+
+
+! Returns the squared separation between two positions within an orthorhombic
 ! cell with the specified dimensions
-function min_image_distance(r_1, r_2, Lx, Ly, Lz)
-    ! Positions of the two particles
+function min_image_distance2(r_1,r_2,Lx,Ly,Lz)
     real(rk), dimension(3), intent(in) :: r_1, r_2
-    ! Dimensions of the orthorhombic cell
     real(rk), intent(in) :: Lx, Ly, Lz
-
-    real(rk) :: min_image_distance
-
+    real(rk) :: min_image_distance2
     real(rk) :: xsep, ysep, zsep
-
     ! Calculate the x-sep
     xsep=abs(r_2(1)-r_1(1))
     xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
@@ -605,129 +808,75 @@ function min_image_distance(r_1, r_2, Lx, Ly, Lz)
     zsep=abs(r_2(3)-r_1(3))
     zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
     ! Calculate the distance
-    min_image_distance=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
-
-end function min_image_distance
-
-
-
-
-! Returns the squared separation between two positions within an orthorhombic
-! cell with the specified dimensions
-function min_image_distance2(r_1, r_2, Lx, Ly, Lz)
-    ! Positions of the two particles
-    real(rk), dimension(3), intent(in) :: r_1, r_2
-    ! Dimensions of the orthorhombic cell
-    real(rk), intent(in) :: Lx, Ly, Lz
-
-    real(rk) :: min_image_distance2
-
-    real(rk) :: xsep, ysep, zsep
-
-    ! Calculate the x-sep
-    xsep=abs(r_2(1)-r_1(1))
-    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
-    ! Calculate the y-sep
-    ysep=abs(r_2(2)-r_1(2))
-    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
-    ! Calculate the z-sep
-    zsep=abs(r_2(3)-r_1(3))
-    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
-
     min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
-
 end function min_image_distance2
 
 
 
 
-! The 'pure' pair potential, without truncation, between 2 particles belonging to
-! the specified species and the specified squared separation
-function pair_potential(r2, species1, species2)
-    ! Squared separation between the particles
-    real(rk), intent(in) :: r2
-    ! Species of the two particles
-    integer(ik), intent(in) :: species1, species2
-
-    real(rk) :: pair_potential
-
-    ! <<<<<<<<<<<< USER-DEFINED CODE >>>>>>>>>>>> 
-    ! Insert code corresponding to the 'pure' pair potential, without truncation,
-    ! and using the free parameters defined above.
-    ! Example (for Lennard-Jones potential):
-    !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
-    !
-    if(r2<sigma*sigma) then
-        pair_potential=epsilon
-    else
-        pair_potential=0.0_rk
+! Returns the embedding energy for a given density.
+function F_func(rho)
+    real(rk), intent(in) :: rho
+    real(rk) :: F_func
+    real(rk) :: bin_cont
+    integer(ik) :: bin_below, bin_above
+    ! F(bin) corresponds to the embedding function at rho=(bin-1)*drho.
+    ! Hence bin=rho/drho+1 is the 'continuous' bin number
+    bin_cont=rho/drho+1
+    if(bin_cont<1 .or. bin_cont>Nrho) then
+       write(0,*) "interactions_mod: Error in F_func: rho not supported. rho = ",rho
+       stop 1
     end if
-    ! <<<<<<<<<<<< END OF USER-DEFINED CODE >>>>>>>>>>>> 
-
-end function pair_potential
-
-
-
-
-! Pair potential truncated at 'cutoff'. Note that there is no shifting of the potential;
-! there is a discontinuity at the cut-off.
-!function pair_potential_trunc(r2, species1, species2)
-!    ! Squared separation between the particles
-!    real(rk), intent(in) :: r2
-!    ! Species of the two particles
-!    integer(ik), intent(in) :: species1, species2
-!
-!    real(rk) :: pair_potential_trunc
-!    
-!    if(r2<cutoff*cutoff) then
-!        pair_potential_trunc=pair_potential(r2,species1,species2)
-!    else
-!        pair_potential_trunc=0.0_rk
-!    end if
-!
-!end function pair_potential_trunc
+    ! Perform a linear interpolation to get the value of the embedding function at rho
+    bin_below=floor(bin_cont)
+    bin_above=ceiling(bin_cont)
+    F_func=F(bin_below) + (F(bin_above)-F(bin_below))*(bin_cont-bin_below)
+end function F_func
 
 
 
 
-! Returns the energy of the system calculated from scratch using the specified list
-function system_energy(species, Lx, Ly, Lz, list, r)
-    ! Species of all particles in the system
-    integer(ik), dimension(:), intent(in) :: species
-    ! Dimensions of the cell
-    real(rk), intent(in) :: Lx
-    real(rk), intent(in) :: Ly
-    real(rk), intent(in) :: Lz
-    ! List of interacting particles
-    integer(ik), dimension(:,:), intent(in) :: list
-    ! Positions of particles in the system
-    real(rk), intent(in), dimension(:,:) :: r
+! Returns the density corresponding to a given separation.
+function rho_func(r)
+    real(rk), intent(in) :: r
+    real(rk) :: rho_func
+    real(rk) :: bin_cont
+    integer(ik) :: bin_below, bin_above
+    ! rho(bin) corresponds to the density function at r=(bin-1)*dr.
+    ! Hence bin=r/dr+1 is the 'continuous' bin number
+    bin_cont=r/dr+1
+    if(bin_cont<1 .or. bin_cont>Nr) then
+       write(0,*) "interactions_mod: Error in rho_func: r not supported. r = ",r
+       stop 1
+    end if
+    ! Perform a linear interpolation to get the value of the density function at r
+    bin_below=floor(bin_cont)
+    bin_above=ceiling(bin_cont)
+    rho_func=rho(bin_below) + (rho(bin_above)-rho(bin_below))*(bin_cont-bin_below)
+end function rho_func
 
-    real(rk) :: system_energy
 
-    integer(ik) :: i,j,n
-    real(rk) :: sep2
 
-    system_energy=0.0_rk
-    do i=1,ubound(r,2)
-       n=1
-       do
-          j=list(n,i)
-          if(j==0) then
-             exit
-          else
-             if(j/=i) then
-                sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
-                !system_energy=system_energy+pair_potential_trunc(sep2,species(i),species(j))
-                system_energy=system_energy+pair_potential(sep2,species(i),species(j))
-             end if
-          end if
-          n=n+1
-       end do
-    end do
-    system_energy=0.5*system_energy
 
-end function system_energy
+! Returns the value of the pair potential corresponding to a given separation.
+function phi_func(r)
+    real(rk), intent(in) :: r
+    real(rk) :: phi_func
+    real(rk) :: bin_cont
+    integer(ik) :: bin_below, bin_above
+    ! rphi(bin) corresponds to the value of r*phi at r=(bin-1)*dr
+    ! Hence bin=r/dr+1 is the 'continuous' bin number
+    bin_cont=r/dr+1
+    if(bin_cont<1 .or. bin_cont>Nr) then
+       write(0,*) "interactions_mod: Error in rho_func: r not supported. r = ",r
+       stop 1
+    end if
+    ! Perform a linear interpolation to get the value of the phi function at r
+    bin_below=floor(bin_cont)
+    bin_above=ceiling(bin_cont)
+    phi_func=rphi(bin_below) + (rphi(bin_above)-rphi(bin_below))*(bin_cont-bin_below)
+    phi_func=phi_func/r
+end function phi_func
 
 
 
