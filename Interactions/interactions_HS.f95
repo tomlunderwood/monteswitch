@@ -569,8 +569,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
              sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
              sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
              calc_energy_part_move = calc_energy_part_move + &
-                 !pair_potential_trunc(sep_new,species(i),species(j)) - &
-                 !pair_potential_trunc(sep,species(i),species(j))
+                 !pair_potential_trunc(sep_new2,species(i),species(j)) - &
+                 !pair_potential_trunc(sep2,species(i),species(j))
                  pair_potential(sep_new2,species(i),species(j)) - &
                  pair_potential(sep2,species(i),species(j))
           end if
@@ -655,7 +655,7 @@ function pair_potential(r2, species1, species2)
     ! Insert code corresponding to the 'pure' pair potential, without truncation,
     ! and using the free parameters defined above.
     ! Example (for Lennard-Jones potential):
-    !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma/r)**12-(lj_sigma/r)**6 )
+    !  pair_potential=4.0_rk*lj_epsilon*( (lj_sigma**12/r2**6) - (lj_sigma**6/r2**3) )
     !
     if(r2<sigma*sigma) then
         pair_potential=epsilon
