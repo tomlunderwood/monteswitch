@@ -59,8 +59,8 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! Initial positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i)
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
 
@@ -98,15 +98,15 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3)
+    ! Positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i)
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
-    ! Displacements of the particles: e.g., u(i,1) is the x-coordinate of particle i in lattice 1
+    ! Displacements of the particles: e.g., u(1,i) is the x-coordinate of particle i in lattice 1
     ! etc.
     real(rk), intent(in), dimension(:,:) :: u
 
@@ -128,15 +128,15 @@ subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     return
@@ -155,15 +155,15 @@ subroutine after_accepted_vol_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
 
@@ -182,15 +182,15 @@ subroutine after_accepted_lattice_interactions(Lx1, Ly1, Lz1, species1, pos1, R1
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
     ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
-    ! accepted): e.g., pos1(i,1) is the x-coordinate of particle i in lattice 1, pos1(i,2) is the 
-    ! y-coordinate, and pos1(i,3) is the z-coordinate
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     return
@@ -208,16 +208,16 @@ subroutine after_all_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, L
     ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
     ! species of particle i in lattice 1
     integer(ik), intent(in), dimension(:) :: species1, species2
-    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(i,1) is 
-    ! the x-coordinate of particle i in lattice 1, pos1(i,2) is the y-coordinate, and pos1(i,3) 
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2: e.g., pos1(1,i) is 
+    ! the x-coordinate of particle i in lattice 1, pos1(2,i) is the y-coordinate, and pos1(3,i) 
     ! is the z-coordinate
     real(rk), intent(in), dimension(:,:) :: pos1, pos2
-    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(i,1) is
-    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(i,1) is
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
     ! the x-coordinate of the lattice site for particle i in lattice 2
     real(rk), intent(in), dimension(:,:) :: R1, R2
     ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
-    ! u(i,1) is the x-displacement of particle 1 from its lattice site, etc.
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
     return
@@ -236,13 +236,13 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! Array containing the species of each particle for each lattice: e.g., species(i) is the
     ! species of particle i
     integer(ik), dimension(:), intent(in) :: species
-    ! Positions (Cartesian) of the particles: e.g., pos(i,1) is the x-coordinate of particle 
-    ! i, pos1(i,2) is the y-coordinate, and pos1(i,3) is the z-coordinate
+    ! Positions (Cartesian) of the particles: e.g., pos(1,i) is the x-coordinate of particle 
+    ! i, pos1(2,i) is the y-coordinate, and pos1(3,i) is the z-coordinate
     real(rk), dimension(:,:), intent(in) :: pos
-    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(1,i) is
     ! the x-coordinate of the lattice site for particle i, etc.
     real(rk), intent(in), dimension(:,:) :: R
-    ! Displacement vectors for the particles; e.g., u(i,1) is the x-displacement of 
+    ! Displacement vectors for the particles; e.g., u(1,i) is the x-displacement of 
     ! particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
 
@@ -267,16 +267,16 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     ! Array containing the species of each particle for each lattice: e.g., species(i) is the
     ! species of particle i
     integer(ik), dimension(:), intent(in) :: species
-    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(j,1) is 
-    ! the x-coordinate of particle j, pos(j,2) is the y-coordinate, and pos(j,3) is the
+    ! Positions (Cartesian) of the particles BEFORE particle i has been moved: e.g., pos(1,j) is 
+    ! the x-coordinate of particle j, pos(2,j) is the y-coordinate, and pos(3,j) is the
     ! z-coordinate
     real(rk), dimension(:,:), intent(in) :: pos
     ! Position of particle i AFTER the particle has been moved
     real(rk), dimension(3), intent(in) :: pos_new
-    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(i,1) is
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(1,i) is
     ! the x-coordinate of the lattice site for particle i, etc.
     real(rk), intent(in), dimension(:,:) :: R
-    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(j,1) is 
+    ! Displacement vectors for the particles BEFORE particle i has been moved; e.g., u(1,j) is 
     ! the x-displacement of particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
     ! Displacement of particle i AFTER the particle has been moved
