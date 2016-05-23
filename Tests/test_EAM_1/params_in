@@ -1,7 +1,7 @@
 init_lattice=                            1
 M_grid_size=                             100
-M_grid_min=                              -62.0
-M_grid_max=                              32.0
+M_grid_min=                              -82.0
+M_grid_max=                              48.0
 enable_multicanonical=                   T
 beta=                                    9.403
 P=                                       0.0
