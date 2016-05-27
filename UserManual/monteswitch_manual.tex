@@ -520,11 +520,11 @@ the end of each block. The weight function is different -- closer to the ideal -
 during each block is used to inform the weight function to be used in the next block. Eventually the weight function converges on the 
 ideal: it provides a `flat' macrostate histogram; the weight function is such that all macrostates are sampled with equal probability.
 
-Let $H^{(n)}_{\mathcal{M}}$ denote the number of states belonging to macrostate $\mathcal{M}$ which were visited during block $n$.
+Let $\mathcal{C}^{(n)}_{\mathcal{M}}$ denote the number of states belonging to macrostate $\mathcal{M}$ which were visited during block $n$.
 The specific equation used to obtain the weight function for the next block $n+1$ is
 \begin{equation}
 \eta^{(n+1)}_{\mathcal{M}}=\eta^{(n)}_{\mathcal{M}}-\ln\Biggl\lbrace
-\frac{H^{(n)}_{\mathcal{M}}+1}{\sum_{\mathcal{M}'}\bigl(H^{(n)}_{\mathcal{M}'}+1\bigr)}
+\frac{\mathcal{C}^{(n)}_{\mathcal{M}}+1}{\sum_{\mathcal{M}'}\bigl(\mathcal{C}^{(n)}_{\mathcal{M}'}+1\bigr)}
 \Biggr\rbrace
 +k,
 \end{equation}
@@ -534,7 +534,7 @@ $\eta^{(n+1)}_{\mathcal{M}}$ over all $\mathcal{M}$ is 0.
 \footnote{Like energies, only differences in the values of the weight function between states are `physically significant'; the absolute values 
 of the weight function are not. Hence performing a global shift to the weight function for our own convenience is inconsequential to the
 multicanonical distribution $\tilde{p}_{\sigma}$. This can be seen by applying the transformation $\eta_{\sigma}\to\eta_{\sigma}+C$ to Eqn. \eqref{MCMC_prob},
-where $C$ is ab arbitrary constant}
+where $C$ is an arbitrary constant}
 The above equation acts to enhance the value of the weight function for macrostates which have not been visited often during the previous block, and
 diminish the weight function for macrostates which have been visited. Eventually the weight function is such that all macrostates are visited equally
 often. 
@@ -560,15 +560,15 @@ $\mathcal{M}$ given a weight function $\eta_{\mathcal{M}}$ is
 \tilde{p}_{\mathcal{M}}\propto e^{\eta_{\mathcal{M}}}p_{\mathcal{M}}.
 \end{equation}
 This follows from Eqn. \eqref{MCMC_prob_2}: summing over all $\sigma\in\mathcal{M}$ on the left-hand expression, and recalling that 
-$\eta_{\sigma}=\eta_{\mathcal{M}}$ for such $\sigma$. Applying the condition $\tilde{p}_{\mathcal{M}}=C$ for $\eta_{\mathcal{M}}=\eta_{\mathcal{M}}^*$ yields
+$\eta_{\sigma}=\eta_{\mathcal{M}}$ for such $\sigma$. Applying the condition $\tilde{p}_{\mathcal{M}}=A$ for $\eta_{\mathcal{M}}=\eta_{\mathcal{M}}^*$ yields
 \begin{equation}
-C\propto e^{\eta^*_{\mathcal{M}}}p_{\mathcal{M}},
+A\propto e^{\eta^*_{\mathcal{M}}}p_{\mathcal{M}},
 \end{equation}
 which can be rearranged to give
 \begin{equation}\label{ideal_wf}
-\eta^*_{\mathcal{M}}=C'-\ln p_{\mathcal{M}},
+\eta^*_{\mathcal{M}}=A'-\ln p_{\mathcal{M}},
 \end{equation}
-where $C'$ is a constant. Eqn. \eqref{ideal_wf} reveals that $\eta^*_{\mathcal{M}}$ can be derived from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
+where $A'$ is a constant. Eqn. \eqref{ideal_wf} reveals that $\eta^*_{\mathcal{M}}$ can be derived from $p_{\mathcal{M}}$. $p_{\mathcal{M}}$ 
 in turn can be determined from the \emph{macrostate transition probability matrix} $\mathcal{T}_{\mathcal{MM}'}$, which describes the probability that
 the system, currently in macrostate $\mathcal{M}$, transitions to macrostate $\mathcal{M}'$ \emph{in the canonical ensemble}.
 In the \emph{transition matrix method} \cite{Smith_1995,Fitzgerald_1999} we determine $\mathcal{T}_{\mathcal{MM}'}$, and then use this to obtain
@@ -579,34 +579,34 @@ $\mathcal{T}_{\mathcal{MM}'}$ is determined.
 Surprisingly $\mathcal{T}_{\mathcal{MM}'}$, a canonical quantity, can be obtained from a simulation utilising canonical sampling, multicanonical sampling,
 or even more exotic methods. Consider the case of canonical sampling first.
 Here, $\mathcal{T}_{\mathcal{MM}'}$ can be determined in an intuitive manner as follows. During the simulation we keep track of the 
-number of observed transitions between all pairs of macrostates, which we store in a matrix $H_{\mathcal{M}\mathcal{M}'}$ -- where $H_{\mathcal{M}\mathcal{M}'}$
-denotes the number of observed transitions from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$. We then use $H_{\mathcal{M}\mathcal{M}'}$ to obtain
+number of observed transitions between all pairs of macrostates, which we store in a matrix $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ -- where $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$
+denotes the number of observed transitions from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$. We then use $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ to obtain
 an estimate for $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via the equation
 \begin{equation}\label{T_estimate}
-\mathcal{T}_{\mathcal{M}\mathcal{M}'}\approx \frac{H_{\mathcal{M}\mathcal{M}'}+1}
-{\displaystyle\sum_{\mathcal{M}^{\prime\prime}}\bigl(H_{\mathcal{M}\mathcal{M}^{\prime\prime}}+1\bigr)}.
+\mathcal{T}_{\mathcal{M}\mathcal{M}'}\approx \frac{\mathcal{C}_{\mathcal{M}\mathcal{M}'}+1}
+{\displaystyle\sum_{\mathcal{M}^{\prime\prime}}\bigl(\mathcal{C}_{\mathcal{M}\mathcal{M}^{\prime\prime}}+1\bigr)}.
 \end{equation}
 However, this procedure is never used in \emph{monteswitch} because the following superior alternative exists. Consider a trial state $\sigma'$ 
 generated from $\sigma$ which, if accepted, would take the system from macrostate $\mathcal{M}$ to macrostate $\mathcal{M}'$, and let the probability 
-of the move being accepted be $p_{\sigma\to\sigma'}$. Instead of performing the update $H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+1$ if the move is 
-accepted and $H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}$ if it is not, one can perform the update 
+of the move being accepted be $p_{\sigma\to\sigma'}$. Instead of performing the update $\mathcal{C}_{\mathcal{M}\mathcal{M}'}\to \mathcal{C}_{\mathcal{M}\mathcal{M}'}+1$ if the move is 
+accepted and $\mathcal{C}_{\mathcal{M}\mathcal{M}'}\to \mathcal{C}_{\mathcal{M}\mathcal{M}'}$ if it is not, one can perform the update 
 \begin{equation}
 \begin{split}
-H_{\mathcal{M}\mathcal{M}'}\to H_{\mathcal{M}\mathcal{M}'}+p_{\sigma\to\sigma'} \\
-H_{\mathcal{M}\mathcal{M}}\to H_{\mathcal{M}\mathcal{M}}+1-p_{\sigma\to\sigma'}
+\mathcal{C}_{\mathcal{M}\mathcal{M}'}\to \mathcal{C}_{\mathcal{M}\mathcal{M}'}+p_{\sigma\to\sigma'} \\
+\mathcal{C}_{\mathcal{M}\mathcal{M}}\to \mathcal{C}_{\mathcal{M}\mathcal{M}}+1-p_{\sigma\to\sigma'}
 \end{split}
 \end{equation} 
-regardless of whether it is accepted or not. In this case $H_{\mathcal{M}\mathcal{M}'}$ is no longer the number of observed transitions from macrostate 
+regardless of whether it is accepted or not. In this case $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ is no longer the number of observed transitions from macrostate 
 $\mathcal{M}$ to $\mathcal{M}'$, but is instead the number of \emph{inferred} transitions. 
 In fact, as alluded to above, this procedure can be used in conjunction with a multicanonical simulation, so long as one bears in mind that
 $p_{\sigma\to\sigma'}$ is the \emph{canonical} probability of transitioning from state $\sigma$ to $\sigma'$ -- a quantity which is trivial to calculate
 during a multicanonical simulation.
 Why would one wish to use multicanonical sampling instead of canonical sampling to obtain $\mathcal{T}_{\mathcal{MM}'}$, which after all is a canonical
-quantity? If multicanonical sampling is used, while the canonical transition probability $p_{\sigma\to\sigma'}$ is used to update $H_{\mathcal{M}\mathcal{M}'}$
+quantity? If multicanonical sampling is used, while the canonical transition probability $p_{\sigma\to\sigma'}$ is used to update $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$
 via the above equation, it is the multicanonical transition probability $\tilde{p}_{\sigma\to\sigma'}$, which depends on the weight functions of
 $\sigma$ and $\sigma'$ ($\eta_{\mathcal{M}}$ and $\eta_{\mathcal{M}'}$ respectively), which is actually used to determine whether the move is accepted or not.
 This is useful because canonical sampling alone may not be sufficient to explore the full range of macrostates $\mathcal{M}$, which is necessary to 
-`fill up' the matrix $H_{\mathcal{M}\mathcal{M}'}$ and ultimately enable $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ to be calculated (Eqn. \eqref{T_estimate}). 
+`fill up' the matrix $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ and ultimately enable $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ to be calculated (Eqn. \eqref{T_estimate}). 
 For instance, typically canonical sampling will never result in the macrostates containing gateway states being visited during a reasonable simulation
 time.
 One can take this idea further and even go beyond multicanonical sampling to sample $M$-space. We discuss methods for exploring the $M$-space
@@ -634,17 +634,17 @@ $p_{N_{\text{macro}}}$ is obtained. Finally, one normalises the resulting functi
 as is required. The final step is to use $p_{\mathcal{M}}$ to obtain an estimate for the ideal weight function. This is done simply by substituting 
 $p_{\mathcal{M}}$ into Eqn. \eqref{ideal_wf}. We refer to this method for obtaining the weight function as the \emph{shooting method}.
 The accuracy of the resulting ideal weight function depends on how good our statistics are with regards to
-the matrix $H_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diagonals immediately above and below the main diagonal), which is used to
+the matrix $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ (specifically the elements in the diagonals immediately above and below the main diagonal), which is used to
 estimate $\mathcal{T}_{\mathcal{M}\mathcal{M}'}$ via Eqn. \eqref{T_estimate}, and ultimately $\eta^*_{\mathcal{M}}$. 
 
 
 \subsubsection{Methods for exploring $M$-space}
-As alluded to above, since the updates to $H_{\mathcal{M}\mathcal{M}'}$ always use the canonical probabilities of transitioning between states, 
+As alluded to above, since the updates to $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ always use the canonical probabilities of transitioning between states, 
 with the transition matrix method one can \emph{choose} how $M$-space is explored. Effectively the only constraint is that there is fast local 
 equilibration within each macrostate. We will now describe the various methods which can be implemented in \emph{monteswitch}.
 
 The first method is to use multicanonical sampling to explore $M$-space with a continuously evolving weight function, where the weight function
-at a given time is the current estimate for the ideal weight function derived from the current $H_{\mathcal{M}\mathcal{M}'}$ as described above.
+at a given time is the current estimate for the ideal weight function derived from the current $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ as described above.
 This is the `natural' way of applying the transition state method.
 
 The second method is to use what we refer to as \emph{artificial dynamics} to force the system to explore all macrostates in a reasonable amount of time. 
@@ -1360,7 +1360,7 @@ system was in phase 1 so far, including over previous simulations if we have use
 system was in phase 2 so far, including over previous simulations if we have used the \texttt{-resume} argument. \\
 \textbf{eta\_grid} & \texttt{REAL(M\_grid\_size)} & \textbf{eta\_grid}($n$) is the value of the weight function for macrostate $n$. \\
 \textbf{trans} & \texttt{REAL(M\_grid\_size,M\_grid\_size)} & \textbf{trans}($m,n$) is the number of inferred transitions from macrostate
-$m$ to macrostate $n$; it is the matrix $H_{\mathcal{M}\mathcal{M}'}$ in Section \ref{sec:transition_matrix}. \\
+$m$ to macrostate $n$; it is the matrix $\mathcal{C}_{\mathcal{M}\mathcal{M}'}$ in Section \ref{sec:transition_matrix}. \\
 \textbf{equil\_umsd\_1} & \texttt{REAL(n\_part)} & \textbf{equil\_umsd\_1}($n$) is the mean-squared displacement of particle $n$ from its lattice site
 in phase 1, evaluated using block averaging (see Section \ref{sec:block_averaging}). \\
 \textbf{equil\_umsd\_2} & \texttt{REAL(n\_part)} & \textbf{equil\_umsd\_2}($n$) is the mean-squared displacement of particle $n$ from its lattice site
