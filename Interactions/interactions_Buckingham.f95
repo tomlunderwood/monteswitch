@@ -599,13 +599,13 @@ function min_image_distance(r_1, r_2, Lx, Ly, Lz)
 
     ! Calculate the x-sep
     xsep=abs(r_2(1)-r_1(1))
-    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+    if(xsep>0.5_rk*Lx) xsep=Lx-xsep
     ! Calculate the y-sep
     ysep=abs(r_2(2)-r_1(2))
-    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+    if(ysep>0.5_rk*Ly) ysep=Ly-ysep
     ! Calculate the z-sep
     zsep=abs(r_2(3)-r_1(3))
-    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+    if(zsep>0.5_rk*Lz) zsep=Lz-zsep
     ! Calculate the distance
     min_image_distance=sqrt(xsep*xsep+ysep*ysep+zsep*zsep)
 
@@ -628,13 +628,13 @@ function min_image_distance2(r_1, r_2, Lx, Ly, Lz)
 
     ! Calculate the x-sep
     xsep=abs(r_2(1)-r_1(1))
-    xsep=xsep-Lx*floor(2.0_rk*xsep/Lx)
+    if(xsep>0.5_rk*Lx) xsep=Lx-xsep
     ! Calculate the y-sep
     ysep=abs(r_2(2)-r_1(2))
-    ysep=ysep-Ly*floor(2.0_rk*ysep/Ly)
+    if(ysep>0.5_rk*Ly) ysep=Ly-ysep
     ! Calculate the z-sep
     zsep=abs(r_2(3)-r_1(3))
-    zsep=zsep-Lz*floor(2.0_rk*zsep/Lz)
+    if(zsep>0.5_rk*Lz) zsep=Lz-zsep
 
     min_image_distance2=xsep*xsep+ysep*ysep+zsep*zsep
 
