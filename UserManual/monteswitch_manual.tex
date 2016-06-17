@@ -1775,6 +1775,7 @@ monteswitch_post -merge_trans <state_in_1> <state_in_2> <state_out>
 monteswitch_post -extract_lattices_in <vectors_in_1> <vectors_in_2>
 monteswitch_post -extract_pos_xyz
 monteswitch_post -set_wf <wf_file>
+monteswitch_post -taper_wf
 \end{verbatim}
 
 \subsection{\texttt{-extract\_wf}}
@@ -1844,6 +1845,15 @@ which both should be of type \texttt{REAL}. The first token on each line is igno
 weight function: the value of the weight function for macrostate $i$ is set to the value of the second token on line $i$ in
 \texttt{<wf\_file>}. We recommend care be taken while using this command-line option, since it irretrievably overwrites the weight 
 function in \texttt{state}.
+
+\subsection{\texttt{-taper\_wf}}
+`Tapers' the weight function in the \texttt{state} file. To elaborate, it is assumed that the weight function has a single local 
+minimum in the $M<0$ region (the region associated with phase 1) and a single local minimum in the $M>0$ region (associated with phase 2), with 
+a maximum at $M\approx 0$ separating the two minima. Let $\eta_{\text{min},1}$ denote the value of the weight function at the minimum in the $M<0$
+region, and let $M_{\text{min},1}$ denote the location of this minimum. In the $M<0$ region the weight function is tapered by setting
+$\eta_M=\eta_{\text{min},1}$ for all $M<M_{\text{min},1}$. Similarly the weight function is tapered in the $M>0$ region by setting 
+$\eta_M=\eta_{\text{min},2}$ for all $M>M_{\text{min},2}$. Thus the weight function is 'flattened' for the regions in $M$-space `outwith' the two minima. 
+This prevents oversampling of these regions, something which is undesirable for LSMC.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

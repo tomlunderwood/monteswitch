@@ -156,6 +156,18 @@
 !!   The first token on line <i>i</i> is ignored, and the second is the new value of the weight function for macrostate <i>i</i>.
 !!   </td>
 !!  </tr>
+!!  <tr>
+!!   <td> -taper_wf <i>wf_file<i></td>
+!!   <td>
+!!   'Tapers' the weight function  in the 'state' file at the edges of order parameter space. To elaborate, it is assumed that the weight 
+!!   function has a single local 
+!!   minimum in the M<0 region (associated with phase 1) and a single local minimum in the M>0 region (associated with phase 2), with 
+!!   these minima separated by a maximum near M=0 (associated with gateway states). For M<0 the weight function is then set to the value at the 
+!!   local minimum in this region for all M below the location of the minimum. Similarly for M>0 the weight function is set to the value of the
+!!   local minimum for all M above the location of the minimum. Thus the weight function is 'flattened' for order parameters in the regions 
+!!   outwith the two minima. This prevents oversampling of these regions, something which is undesirable for LSMC.
+!!   </td>
+!!  </tr>
 !! </table>
 !! </p>
 !! <p>
@@ -234,6 +246,10 @@ program monteswitch_post
     else if(trim(char)=="-set_wf") then
 
         call set_wf()
+
+    else if(trim(char)=="-taper_wf") then
+
+        call taper_wf()
 
     else
 
@@ -709,6 +725,52 @@ contains
         call export("state")
 
     end subroutine set_wf
+
+
+
+
+    ! CODE FOR TAPERING THE WEIGHT FUNCTION IN THE 'STATE' FILE
+    subroutine taper_wf()
+
+        integer(ik) :: i, minloc1, minloc2
+        real(rk) :: etamin1, etamin2
+
+        call import("state")
+
+        ! Get the minimum in the weight function and their locations for the M<0 and M>0 regions
+        etamin1 = 1.0E100_rk
+        etamin2 = 1.0E100_rk
+        minloc1 = -1
+        minloc2 = -1
+        do i=1,M_grid_size
+            if(M_grid(i)<0.0_rk) then
+                if(eta_grid(i)<etamin1) then
+                    etamin1 = eta_grid(i)
+                    minloc1 = i
+                end if
+            else
+                if(eta_grid(i)<etamin2) then
+                    etamin2 = eta_grid(i)
+                    minloc2 = i
+                end if
+            end if
+        end do
+
+        ! For the M<0 region set the weight function to the minimum value 'outwith' the minimum,
+        ! and similarly for M>0
+        do i=1,M_grid_size
+            if(M_grid(i)<0.0_rk) then
+                if(i<minloc1) eta_grid(i) = etamin1
+            else
+                if(i>minloc2) eta_grid(i) = etamin2
+            end if
+        end do
+
+        ! Overwrite the old 'state' file with the new weight function
+        call export("state")
+
+    end subroutine taper_wf
+
 
 
 
