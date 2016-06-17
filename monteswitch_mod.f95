@@ -4990,16 +4990,18 @@ contains
     ! top; if frac_start=0.5 then it starts from the centre.
     real(rk) :: frac_start=0.0_rk
     ! Pmac(M) is the (inferred) probability of the system being in macrostate M
-    real(rk), dimension(:), allocatable :: Pmac
+!    real(rk), dimension(:), allocatable :: Pmac
+    real(rk), dimension(M_grid_size) :: Pmac
     ! 'i_start' is the element of Pmac to start the 'shooting' from
     integer(ik) :: i_start
     ! Integers used in loops
     integer(ik) :: i
     ! The macrostate transition probability matrix
-    real(rk), dimension(:,:), allocatable :: MTPM
+!    real(rk), dimension(:,:), allocatable :: MTPM
+    real(rk), dimension(M_grid_size,M_grid_size) :: MTPM
     
     ! Obtain the MTPM from 'trans'
-    allocate(MTPM(M_grid_size,M_grid_size))
+!    allocate(MTPM(M_grid_size,M_grid_size))
     do i=1,M_grid_size
        MTPM(i,:)=(trans(i,:)+1.0_rk)/sum(trans(i,:)+1.0_rk)
     end do
@@ -5008,7 +5010,7 @@ contains
     i_start=floor(frac_start*(M_grid_size-1))+1
    
     ! Determine 'Pmac' using the shooting method
-    allocate(Pmac(M_grid_size))
+!    allocate(Pmac(M_grid_size))
     ! First go downwards from 'i_start'
     Pmac(i_start)=1.0_rk
     i=i_start
