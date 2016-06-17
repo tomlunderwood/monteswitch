@@ -264,9 +264,9 @@ $\alpha'$: the positions of the particles in the trial state form an approximate
 
 \subsection{Implementation in \emph{monteswitch}}
 Of course, the above description of a lattice switch is not a complete account of how lattice switches are implemented in \emph{monteswitch} -- which
-supports lattice switches which change the shape and size of the supercell, as well as the species of the particle.
+supports lattice switches which change the shape and size of the supercell, as well as the species of the particles.
 %
-In \emph{monteswitch} two states are provided at the start of a simulation, one for each phase. The functions of these states are twofold. Firstly, they 
+In \emph{monteswitch} two states are provided at the start of a simulation, one for each phase. There are two functions of these states. Firstly, they 
 act as prospective initial states for the simulation: if the system is to be initialised in phase 1, then the phase-1 state will be used as the initial state.
 Secondly, they are used to determine the nature of the lattice switch move. We refer to these states as \emph{reference states}.
 Now, in \emph{monteswitch} only orthorhombic systems can be treated. Hence we only consider orthorhombic systems here. For such systems a state 
