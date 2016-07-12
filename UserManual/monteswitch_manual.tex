@@ -1,4 +1,4 @@
-\documentclass{report}
+ \documentclass{report}
 
 \usepackage[english]{babel}
 
@@ -244,11 +244,21 @@ space which allows $\Delta \mathcal{F}$ to be calculated relatively quickly. Suc
 In LSMC a new type of move, a \emph{lattice switch}, is introduced to supplement the traditional move set mentioned above. A lattice switch move takes
 the system \emph{directly} from one phase to the other, bypassing any free energy barriers separating the phases. Every time a lattice switch is accepted, 
 the system transitions to the `other' phase. The salient feature of the move is that the underlying `lattice' which characterises the current phase is 
-`switched' for a lattice which characterises the other phase. For example if the two phases in question are fcc and hcp, then a lattice switch from an
-fcc state involves switching the underlying fcc lattice for an hcp lattice, while preserving the \emph{displacements} of each particle from its associated
-lattice site. 
-%
-To elaborate, we can characterise a given state of the system as belonging to a solid phase $\alpha$ if the positions of the particles 
+`switched' for a lattice which characterises the other phase, while the \emph{displacements} of all particles from their associated lattice sites are
+preserved. This is illustrated in Fig. \ref{fig:switch_diagram} for the square and triangular phases of a notional two-dimensional system.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{switch_diagram}
+\caption
+{Schematic diagram illustrating a lattice switch from a state in the square phase of a notional two-dimensional system to a state in the triangular phase. 
+In the lattice switch the underlying square lattice (red crosses) is transformed into a triangular lattice (blue crosses), while the displacements of 
+the particles from their lattice sites (black arrows) is unchanged -- the displacement for each particle $n$ is the same before and after the lattice 
+switch. Note also that the lattice switch here transforms the shape of the system: the red box is transformed into the blue box.}
+\label{fig:switch_diagram}
+\end{figure}
+
+More formally, we can characterise a given state of the system as belonging to a solid phase $\alpha$ if the positions of the particles 
 `approximately' form a lattice characteristic of $\alpha$. Let $\lbrace\mathbf{R}^{(\alpha)}_i\rbrace$ denote the positions of the sites on this lattice, 
 and let $\lbrace\mathbf{r}_i\rbrace$ denote the positions of the particles, where $i$ ranges from 1 to the number of particles in the system. 
 The position $\mathbf{r}_i$ of particle $i$ can be expressed as follows:
@@ -259,8 +269,9 @@ where $\mathbf{u}_i$ is the displacement of $i$ from that lattice site. Note tha
 since the particle positions form an approximate $\alpha$ lattice (and we have chosen to label particles and lattice sites in a `sensible' manner: such 
 that $\mathbf{R}_i$ is the closest lattice site to $\mathbf{r}_i$). Now, in a lattice switch from phase $\alpha$ to the `other' phase $\alpha'$ we 
 transform the underlying lattice $\lbrace\mathbf{R}^{(\alpha)}_i\rbrace$ to $\lbrace\mathbf{R}^{(\alpha')}_i\rbrace$, 
-\emph{while keeping the particle displacements $\lbrace\mathbf{u}_i\rbrace$ unchanged}. The result is that the trial state belongs to phase 
+while keeping the particle displacements $\lbrace\mathbf{u}_i\rbrace$ unchanged. The result is that the trial state belongs to phase 
 $\alpha'$: the positions of the particles in the trial state form an approximate $\alpha'$ lattice.
+
 
 \subsection{Implementation in \emph{monteswitch}}
 Of course, the above description of a lattice switch is not a complete account of how lattice switches are implemented in \emph{monteswitch} -- which
@@ -356,7 +367,7 @@ The former is a straightforward generalisation of the latter in which, instead o
 \begin{equation}\label{MCMC_prob}
 \tilde{p}_{\sigma}=\frac{1}{\tilde{Z}}e^{-\beta \mathcal{E}_{\sigma}}e^{\eta_{\sigma}}, \quad \tilde{Z}\equiv\sum_{\sigma}e^{-\beta \mathcal{E}_{\sigma}}e^{\eta_{\sigma}},
 \end{equation}
-where $\eta_{\sigma}$, known as the \emph{weight function}, is chosen according to the aims of the simulation. 
+where $\eta_{\sigma}$, known as the \emph{weight function}, is \emph{chosen} according to the aims of the simulation. 
 Using Eqn. \eqref{MC_prob}, it can be shown that
 \begin{equation}\label{MCMC_prob_2}
 \tilde{p}_{\sigma}=\frac{1}{\tilde{Z}'}p_{\sigma}e^{\eta_{\sigma}}, \quad \tilde{Z}'=\sum_{\sigma}p_{\sigma}e^{\eta_{\sigma}},
@@ -364,18 +375,19 @@ Using Eqn. \eqref{MC_prob}, it can be shown that
 where note that $p_{\sigma}$ is the `true' probability of the system being in state $\sigma$. From the above it can be seen that if 
 $\eta_{\sigma}>0$ then state $\sigma$ is \emph{over-sampled} relative to the true distribution. On the other hand if $\eta_{\sigma}<0$ then 
 $\sigma$ is \emph{under-sampled}. 
-The strength of this approach is that, through judicious choice of the weight function, one can `choose' the path the system traverses 
+%
+The strength of this approach is that, through judicious choice of the weight function, one can `control' the path the system traverses 
 through phase space. To elaborate, a multicanonical Monte Carlo simulation can be regarded as a canonical Monte Carlo 
 simulation, but if the energy for each state $\sigma$ were 
 \begin{equation}
 \tilde{\mathcal{E}}_{\sigma}=\mathcal{E}_{\sigma}-\eta_{\sigma}/\beta
 \end{equation}
 instead of $\mathcal{E}_{\sigma}$. Hence a multicanonical Monte Carlo simulation samples states with probabilities corresponding to, say, an NVT ensemble,
-but if energy were $\tilde{\mathcal{E}}_{\sigma}$ instead of $E_{\sigma}$. Noting that since the modification to the `true' energy function, 
-$-\eta_{\sigma}/\beta$, is proportional to the weight function, it can be seen that the weight function defines an additional `force' on the system 
-which affects its trajectory through phase space. Therefore by choosing $\eta_{\sigma}$, one can choose the system's path through phase space. 
+but if energy were $\tilde{\mathcal{E}}_{\sigma}$ instead of $\tilde{E}_{\sigma}$. Noting that since the modification $-\eta_{\sigma}/\beta$ to the `true' 
+energy function $E_{\sigma}$ is proportional to the weight function, it can be seen that the weight function defines an additional contribution to the
+energy of the system which will affect its trajectory through phase space. Moreover by altering the weight function one can influence the trajectory.
 
-Of course, in a multicanonical simulation the states are not longer sampled with probabilities corresponding to the true ensemble in question -- 
+Of course, in a multicanonical simulation the states are no longer sampled with probabilities corresponding to the true ensemble in question -- 
 which \emph{is} the case for canonical Monte Carlo. Accordingly the time average of some physical quantity $X$ throughout a long multicanonical 
 Monte Carlo simulation is not equivalent to the equilibrium value of $X$ for the true ensemble, as it is in a canonical Monte Carlo
 simulation. Nevertheless one can obtain the equilibrium value of $X$ from a multicanonical simulation by exploiting the fact that, since the 
@@ -1852,8 +1864,8 @@ minimum in the $M<0$ region (the region associated with phase 1) and a single lo
 a maximum at $M\approx 0$ separating the two minima. Let $\eta_{\text{min},1}$ denote the value of the weight function at the minimum in the $M<0$
 region, and let $M_{\text{min},1}$ denote the location of this minimum. In the $M<0$ region the weight function is tapered by setting
 $\eta_M=\eta_{\text{min},1}$ for all $M<M_{\text{min},1}$. Similarly the weight function is tapered in the $M>0$ region by setting 
-$\eta_M=\eta_{\text{min},2}$ for all $M>M_{\text{min},2}$. Thus the weight function is 'flattened' for the regions in $M$-space `outwith' the two minima. 
-This prevents oversampling of these regions, something which is undesirable for LSMC.
+$\eta_M=\eta_{\text{min},2}$ for all $M>M_{\text{min},2}$. Thus the weight function is `flattened' for the regions in $M$-space `outwith' the two minima. 
+This prevents oversampling of these regions, which is unnecessary and inefficient.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
