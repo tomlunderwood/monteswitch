@@ -420,9 +420,12 @@ There are, however, a small number of states `close' to those realised at equili
 trial state $\sigma'$ which is of comparable energy to $\sigma$. From such states a lattice switch has a good chance of being accepted.
 We refer to such states as \emph{gateway states}, since they provide the key to jumping between both phases. It is these states which we wish to over-sample,
 and we set the weight function accordingly. The idea is that by over-sampling these states, lattice switches are accepted reasonably often, 
-enabling both phases to be explored in a reasonable simulation time. This in turn allows us to determine $t_1$ and $t_2$ (which recall are the time
-averages of $\theta_1$ and $\theta_2$ defined earlier, i.e., $t_1=\langle\theta_1\rangle$ and $t_2=\langle\theta_2\rangle$) via Eqn. \eqref{equilX_MCMC},
-and hence ultimately $\Delta \mathcal{F}$ via Eqn. \eqref{DeltaF_stat_mech}.
+enabling both phases to be explored in a reasonable simulation time. This in turn allows us to determine $p_1$ and $p_2$,
+and hence $\Delta \mathcal{F}$ via Eqn. \eqref{DeltaF_stat_mech}. Specifically, $p_1$ and $p_2$ are obtained via Eqn. \eqref{equilX_MCMC}:
+\begin{equation}
+p_{\alpha}=\langle\theta_{\alpha}\rangle \approx \frac{\displaystyle\sum_{t=1}^{\tau}e^{-\eta(t)}\theta_{\alpha}(t)}{\displaystyle\sum_{t=1}^{\tau}e^{-\eta(t)}},
+\end{equation}
+where $\theta_{\alpha}(t)$ takes the value 1 if the system is in phase $\alpha$ at timestep $t$ and 0 otherwise.
 
 How should the weight function be engineered such that gateway states are over-sampled? 
 Consider a state $\sigma$, and let $\sigma'$ denote the state which results from a lattice switch performed from $\sigma$. Let us define the 
