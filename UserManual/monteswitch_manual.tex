@@ -79,24 +79,21 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Introduction}
-Calculating free energies is one of the most fundamental problems in materials science.
-A plethora of different methods have been developed to this end, each designed with a particlular problem in mind (see, e.g., Ref. \cite{book:Frenkel}).
-Unfortunately, in many cases commonly-used methods for calculating free energy differences between two solid phases cannot
-achieve the accuracy required for many practical applications with reasonable computational effort.
-One consequence of this is that the location of coexistence curves between such phases, i.e., the `lines' on a phase diagram
-where the free energy difference between the two phases is zero, cannot be accurately resolved if the phases
-have `very similar' free energies. This problem is by no means limited to `realistic' models of particle interactions, but
-persists even when simple models are used. For instance it was only relatively recently that it was shown that the fcc crystal is
-favoured over the hcp crystal in the hard-sphere solid -- an archetype of a simple system \cite{Bruce_1997,Bruce_2000,Jackson_2002}.
+The stable phase under given conditions is that with the lowest free energy. For this reason, efficiently calculating free energies is one 
+of the most fundamental problems in theoretical materials science. A plethora of different methods have been developed to this end, 
+each designed with a particlular problem in mind (see, e.g., Ref. \cite{book:Frenkel}). Unfortunately however, commonly-used methods for 
+calculating free energies of solid phases often cannot achieve the accuracy required for practical applications: an intractable amount of computational 
+effort would be required. This problem is by no means limited to `complicated' models of particle interactions, but 
+persists even when simple models are used. For instance it was only relatively recently demonstrated that the fcc phase is
+favoured over the hcp phase in the hard-sphere solid -- an archetype of a simple system \cite{Bruce_1997,Bruce_2000,Jackson_2002}.
 
 \emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
 \footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo.}
 is a method which can be used to efficiently evaluate the free energy difference between two solid phases.
 It has been applied to a wide range of systems \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000,Jackson_2002,Jackson_2007,Yang_2008,
 Marechal_2008,Raiteri_2010,Wilms_2012,Quigley_2014,Bridgwater_2014,Underwood_2015},
-beginning with the hard-sphere solid, where it was used to resolve the aforementioned hcp--fcc problem \cite{Bruce_1997,Bruce_2000},
-as well as to evaluate the free energy cost associated with stacking faults \cite{Pronk_1999,Mau_1999}. 
-The method was later applied to soft interatomic potentials \cite{Jackson_2002,Wilms_2012,Underwood_2015}, 
+beginning with the hard-sphere solid \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000}, where it was used to resolve the aforementioned hcp--fcc problem 
+\cite{Bruce_1997,Bruce_2000}. The method was later applied to soft interatomic potentials \cite{Jackson_2002,Wilms_2012,Underwood_2015}, 
 systems containing multiple particle species \cite{Jackson_2007,Yang_2008}, and molecular systems 
 \cite{Marechal_2008,Raiteri_2010,Quigley_2014,Bridgwater_2014}.
 LSMC has also inspired \emph{phase switch Monte Carlo}, a method for calculating the free energy difference between a solid and a
@@ -105,7 +102,7 @@ fluid phase \cite{Wilding_2000}, which has also seen some use
 %
 As well as being versatile, LSMC is an accurate method: it is `exact' in the sense that it relies upon no approximations other than those present in 
 the model of particle interactions it is used in conjunction with. Moreover for the purposes of evaluating the free energy difference between 
-pairs of solid phases LSMC is ostensibly more efficient than all other existing methods \cite{Wilms_2012,Marechal_2008}. 
+pairs of solid phases LSMC is ostensibly more efficient than other existing methods \cite{Wilms_2012,Marechal_2008}. 
 \footnote{However it should be noted that this remains somewhat of an open question \cite{Pronk_1999,Sweatman_2015}. Nevertheless one can say that LSMC is 
 \emph{at least} as efficient as existing methods.}
 However, despite its strengths, LSMC has unfortunately yet to have gained widespread popularity. This stems in part from the lack of 
@@ -114,8 +111,11 @@ an LSMC code which is both widely available and applicable to a wide range of sy
 With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can
 be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
 package contains a version of the main executable which is parallelised using MPI for HPC applications.
-Note that the two `phases' under consideration need not be homogeneous crystals. For instance \emph{monteswitch} can be used to evaluate the
-free energy cost associated with crystallographic defects. Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
+Note that the two `phases' under consideration need not be homogeneous crystals. 
+For instance an interesting prospect is to use \emph{monteswitch} to evaluate free energy costs associated with crystallographic defects. This
+would involve one or both phases used in the LSMC calculation deliberately exhibiting defects, a `trick' which has previously been exploited to 
+evaluate the free energy cost of an fcc--hcp stacking fault in the hard-sphere solid via LSMC \cite{Pronk_1999}.
+Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
 However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent
 particles do not have rotational degrees of freedom), and pairs of phases which can be represented by orthorhombic unit cells.
 
