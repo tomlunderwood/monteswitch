@@ -81,14 +81,14 @@ the type of a \texttt{REAL} array of size \textbf{M\_grid\_size} is signified as
 \chapter{Introduction}
 The stable phase under given conditions is that with the lowest free energy. For this reason, efficiently calculating free energies is one 
 of the most fundamental problems in theoretical materials science. A plethora of different methods have been developed to this end, 
-each designed with a particlular problem in mind (see, e.g., Ref. \cite{book:Frenkel}). Unfortunately however, commonly-used methods for 
+each designed with a particular problem in mind (see, e.g., Ref. \cite{book:Frenkel}). Unfortunately however, commonly-used methods for 
 calculating free energies of solid phases often cannot achieve the accuracy required for practical applications: an intractable amount of computational 
 effort would be required. This problem is by no means limited to `complicated' models of particle interactions, but 
 persists even when simple models are used. For instance it was only relatively recently demonstrated that the fcc phase is
 favoured over the hcp phase in the hard-sphere solid -- an archetype of a simple system \cite{Bruce_1997,Bruce_2000,Jackson_2002}.
 
 \emph{Lattice-switch Monte Carlo} (LSMC) \cite{Bruce_1997,Bruce_2000} 
-\footnote{The reader should be aware that LSMC has also been refered to as lattice-\emph{switching} Monte Carlo.}
+\footnote{The reader should be aware that LSMC has also been referred to as lattice-\emph{switching} Monte Carlo.}
 is a method which can be used to efficiently evaluate the free energy difference between two solid phases.
 It has been applied to a wide range of systems \cite{Bruce_1997,Pronk_1999,Mau_1999,Bruce_2000,Jackson_2002,Jackson_2007,Yang_2008,
 Marechal_2008,Raiteri_2010,Wilms_2012,Quigley_2014,Bridgwater_2014,Underwood_2015},
@@ -121,7 +121,7 @@ particles do not have rotational degrees of freedom), and pairs of phases which 
 
 While steps have been recently been taken to implement LSMC in an existing general-purpose code,
 \footnote{Specifically, LSMC is earmarked for inclusion in the general-purpose Monte Carlo code \emph{DL\_MONTE} \cite{Purton_2013}.}
-we believe that \emph{monteswitch} will fulfill an important `gap in the market' for the foreseeable future because it was designed from 
+we believe that \emph{monteswitch} will fulfil an important `gap in the market' for the foreseeable future because it was designed from 
 the outset to be highly-customisable with regards to the interatomic potential. By contrast general-purpose codes tend to have a fixed set 
 of interatomic potentials to draw upon.
 In \emph{monteswitch} all of the procedures pertaining to the interatomic potential are housed within a single Fortran module. 
@@ -969,7 +969,7 @@ to use \texttt{monteswitch} to perform a conventional Monte Carlo simulation. \\
 enables canonical sampling. \\
 6 & \textbf{beta}  &  \texttt{REAL}  & Inverse temperature: $\beta=1/(k_BT)$, where $k_B$ is the Boltzmann constant.  \\
 7 & \textbf{P}  &  \texttt{REAL}  & Pressure (only relevant in NPT ensemble simulations).  \\
-8 & \textbf{enable\_lattice\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables lattice switch moves (performed after evey particle and volume move). \\
+8 & \textbf{enable\_lattice\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables lattice switch moves (performed after every particle and volume move). \\
 9 & \textbf{enable\_part\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables particle moves. This should probably be set to \texttt{T}; however disabling 
 particle moves and enabling volume moves may be useful for `relaxing' the volume of the system before simulations with particle moves are performed. \\
 10 & \textbf{enable\_vol\_moves}  &  \texttt{LOGICAL}  & \texttt{T} enables volume moves and selects the NPT ensemble; \texttt{F} selects the NVT ensemble. 
@@ -1013,7 +1013,7 @@ precision of the computer. Hence one should periodically recalculate the energy 
 \textbf{enable\_divergence\_checks} is set to \texttt{T}, then this is also done every \textbf{divergence\_sweeps} sweeps, after which the 
 recalculated energy 
 is compared to the 'current' energy, and the simulation is stopped with an exit status of 3 if they are different -- outwith a tolerence of 
-\textbf{divergence\_tol}. Note that the order parameter is also ammended after the energy (for phases 1 and 2) is recalculated. We recommend that this 
+\textbf{divergence\_tol}. Note that the order parameter is also amended after the energy (for phases 1 and 2) is recalculated. We recommend that this 
 feature is used in NVT simulations, since it forces the energy of the system to be recalculated from scratch every so often. For NPT simulations this 
 should not be an issue since the energy is calculated from scratch every accepted volume move. \\
 24 & \textbf{divergence\_sweeps}  &  \texttt{INTEGER}  & Period (sweeps) to check for `energy divergences' as just mentioned. 
@@ -1445,7 +1445,7 @@ determined by the \textbf{init\_lattice} variable in \texttt{params\_in} similar
 contained in the \texttt{state} file from which the simulation is to be resumed. We emphasise that \emph{all replicas of the system are initialised with 
 the same state} when the \texttt{-resume} argument is used with \texttt{monteswitch\_mpi}. 
 The files \texttt{data\_}$n$ are therefore always overwritten by \texttt{monteswitch\_mpi} when the \texttt{-resume} argument is
-invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The excpetion is replica `0',
+invoked since, given the nature of the parallelisation, there is no continuity between the replicas in subsequent simulations. The exception is replica `0',
 whose state is always stored in the file \texttt{state}, as well as \texttt{state\_0}.
 %
 Moreover in a resumed simulation only replica 0 -- the `master' replica -- inherits the counter variables from the previous 
@@ -1841,7 +1841,7 @@ each are of the same size). This argument can be used for pooling the results of
 \subsection{\texttt{-extract\_lattices\_in <vectors\_in\_1> <vectors\_in\_2>}}
 Output the geometrical properties of the system in the format of a \texttt{lattices\_in} file. The arguments \texttt{<vectors\_in\_1>}
 and \texttt{<vectors\_in\_2>} can be either \texttt{pos} or \texttt{R}. If \texttt{<vectors\_in\_1>} is \texttt{pos}, then
-the positions of the particles in phase 1 of the forthcomning \texttt{lattices\_in} file will be the positions of the particles in phase 1
+the positions of the particles in phase 1 of the forthcoming \texttt{lattices\_in} file will be the positions of the particles in phase 1
 in the \texttt{state} file; if \texttt{<vectors\_in\_1>} is \texttt{R}, then the positions of the particles in phase 1 of the 
 \texttt{lattices\_in} file will be the current lattice vectors (i.e., \textbf{R\_1}) corresponding to phase 1 in the \texttt{state} file.
 Similar applies for \texttt{<vectors\_in\_2>} with phase 2.
