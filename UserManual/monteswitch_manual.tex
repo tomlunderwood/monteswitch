@@ -111,10 +111,9 @@ an LSMC code which is both widely available and applicable to a wide range of sy
 With this in mind we have developed a package, \emph{monteswitch}, which implements the LSMC method. The package, written in Fortran 95, can
 be used to evaluate free energy differences between pairs of solid phases in the NVT and NPT ensembles. Furthermore the
 package contains a version of the main executable which is parallelised using MPI for HPC applications.
-Note that the two `phases' under consideration need not be homogeneous crystals. 
-For instance an interesting prospect is to use \emph{monteswitch} to evaluate free energy costs associated with crystallographic defects. This
-would involve one or both phases used in the LSMC calculation deliberately exhibiting defects, a `trick' which has previously been exploited to 
-evaluate the free energy cost of an fcc--hcp stacking fault in the hard-sphere solid via LSMC \cite{Pronk_1999}.
+Note that the two `phases' under consideration need not necessarily be homogeneous crystals; 
+an interesting prospect is to use \emph{monteswitch} to evaluate free energy costs associated with interfaces and defects -- the former is something which
+has been done previously using LSMC \cite{Pronk_1999}.
 Furthermore \emph{monteswitch} can treat systems containing multiple species of particles.
 However it should be noted that \emph{monteswitch} can only treat `atomic' systems (i.e., `non-molecular' systems: those in which the constituent
 particles do not have rotational degrees of freedom), and pairs of phases which can be represented by orthorhombic unit cells.
