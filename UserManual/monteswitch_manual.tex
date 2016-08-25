@@ -679,7 +679,7 @@ are unlikely to be visited in the canonical ensemble.
 \chapter{Preliminaries}\label{chapter:preliminaries}
 
 \section{Obtaining \emph{monteswitch}}
-\emph{monteswitch} is hosted on GitHub at \url{https://github.com/tomlunderwood/monteswitch}, where the package can be downloaded.
+\emph{monteswitch} is hosted on GitHub at \cite{website:monteswitch}, where the package can be downloaded.
 
 
 \section{Compiling \emph{monteswitch}}
@@ -699,7 +699,7 @@ $ make mpi
 to compile \emph{all} executables.
 
 
-\section{Transferability between platforms and compilers}
+\section{Transferability between platforms and compilers}\label{sec:transferability}
 \emph{monteswitch} has not yet been tested on many platforms, and hence there may be unforeseen problems when implementing \emph{monteswitch} on
 the user's platform. We have overwhelmingly used GFortran and Open MPI compilers with \emph{monteswitch}; hence these compilers can be considered 
 to be the most `safe'.
@@ -711,10 +711,10 @@ something other than GFortran.
 
 Another issue we have found is that the usage of the utility \texttt{sed} is platform-dependent. In particular we have found that appropriate command-line
 argument to \texttt{sed} to invoke in-place editing of a file, without saving a backup, is `\texttt{-i ''}' on OS X (note the `\texttt{''}'), 
-while it is simply `\texttt{-i}' on other Unix platforms (where adding `\texttt{''}' results in an error being returned by \texttt{sed} on these
-platforms). This has a bearing on the transferability of some of the \texttt{run.sh} shell scripts in the directory \texttt{Tests} -- which correspond to the
-OS X version of \texttt{sed} -- to the user's platform. Hence the user should ensure that these scripts are appropriate for their platform, and modify
-them accordingly if not.
+while it is simply `\texttt{-i}' on Linux (where adding `\texttt{''}' results in an error being returned by \texttt{sed} on Linux). 
+Accordingly the shell script to run each of the test cases in the directory \texttt{Tests} has two versions, an OS X version \texttt{run\_osx.sh} and
+a Linux veresion \texttt{run\_linux.sh}. The user should invoke the version appropriate to their platform (see Chapter \ref{chapter:tests}
+for further details regarding the test suite for \emph{monteswitch}).
 
 
 \section{Package overview}
@@ -1500,7 +1500,7 @@ E = \frac{1}{2}\sum_{i,j\neq i}\phi(r_{ij}) + \sum_iF(\rho_i),
 where $r_{ij}$ is the separation between particles $i$ and $j$, and $\phi$, $F$ and $\rho$ are functions which must be specified
 and constitute the parametrisation of the EAM potential. If \texttt{interactions\_EAM.f95} is used then the \texttt{interactions\_in}
 file must be a description of the potential in DYNAMO/LAMMPS `setfl' format. A file with this format is often indicated with the 
-suffix `\texttt{.eam.alloy}', and a description of the format can be found at \url{http://lammps.sandia.gov/doc/pair\_eam.html}. 
+suffix `\texttt{.eam.alloy}', and a description of the format can be found at \cite{website:LAMMPS_EAM}. 
 
 We emphasise that \texttt{interactions\_EAM.f95} currently only supports single-component systems, and hence \texttt{interactions\_in} must 
 not correspond to a multicomponent system. An error is returned if this is the case. Furthermore, at initialisation three additional files are 
@@ -2457,11 +2457,13 @@ to the thread index. The regions of order-parameter space corresponding to bcc a
 The directory \texttt{Tests} contains a suite of test cases for the main programs in \emph{monteswitch}. Of course, these tests can also be used as
 examples.
 
-Each test can be executed by executing the \texttt{run.sh} shell script in the corresponding directory after copying the
-appropriate \texttt{interactions.f95} file from \texttt{Interactions} to \texttt{interactions.f95}, and then compiling the
-package (see Chapter \ref{chapter:preliminaries}). Note that the \texttt{run.sh} scripts assume that the main programs \texttt{monteswitch}
-and \texttt{monteswitch\_mpi} are located in the same directory as the source code, which should be the case by default. Furthermore
-the \texttt{run.sh} files may require some modification to suit your platform (see Chapter \ref{chapter:preliminaries}).
+Each test can be executed by executing either the \texttt{run\_osx.sh} or \texttt{run\_linux.sh} shell script (choose the most appriate for your
+platform; see Section \ref{sec:transferability}) in the corresponding subdirectory of \texttt{Tests}, \emph{after copying the appropriate 
+\texttt{interactions.f95} file from \texttt{Interactions} to \texttt{interactions.f95} and then compiling the package}
+(see Chapter \ref{chapter:preliminaries}). Note that test case will fail if the version of \texttt{interactions.f95} to which the \emph{monteswitch}
+binaries (\texttt{monteswitch}, \texttt{monteswitch\_mpi} and \texttt{monteswitch\_post}) correspond is not that expected by the test.
+Note also that \texttt{run\_osx.sh} and \texttt{run\_linux.sh} assume that the  binaries are located in the same directory as the source code, 
+which should be the case by default. 
 
 
 \section{Einstein crystal (\texttt{EC})}
