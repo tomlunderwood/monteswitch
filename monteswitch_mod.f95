@@ -865,6 +865,16 @@ module monteswitch_mod
   !!  The value of the weight function for the current state.
   !!  </font> </td>
   !! </tr>
+  !! <tr>
+  !!  <td> <font color="red">  <code>M_const</code> </font> </td>
+  !!  <td> <font color="red">  <code>real(rk)</code> </font> </td>
+  !!  <td> <font color="red"> 
+  !!  The value of <code>log(V_1/V_2)/beta</code> determined at the beginning of the simulation, where
+  !!  <code>V_1</code> is the volume of box 1. Note that this is a constant throughout a simulation since <code>V_1/V_2</code> 
+  !!  is preserved by the lattice switch. This quantity is stored in memory for optimisation purposes - 
+  !!  to avoid calling the log function every move.
+  !!  </font> </td>
+  !! </tr>
   !! </table>
   integer(ik) :: n_part
   real(rk), dimension(2) :: Lx
@@ -885,6 +895,7 @@ module monteswitch_mod
   real(rk) :: M
   integer(ik) :: macro
   real(rk) :: eta
+  real(rk) :: M_const
 
   !! <h3> Variables describing the lattice switch </h3>
   !! <table border="1">
@@ -2763,6 +2774,7 @@ contains
        write(10,*) "M= ",M
        write(10,*) "macro= ",macro
        write(10,*) "eta= ",eta
+       write(10,*) "M_const= ",M_const
        write(10,*) "switchscalex= ",switchscalex
        write(10,*) "switchscaley= ",switchscaley
        write(10,*) "switchscalez= ",switchscalez
@@ -3525,6 +3537,11 @@ contains
     read(10,*,iostat=error) string, eta
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'eta' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, M_const
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'M_const' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, switchscalex
@@ -5142,7 +5159,7 @@ contains
     real(rk), intent(in) :: V_1
     real(rk), intent(in) :: V_2
     real(rk) :: calc_M
-    calc_M = E_1-E_2 + P*(V_1-V_2) - log(V_1/V_2)/beta
+    calc_M = E_1-E_2 + P*(V_1-V_2) - M_const
   end function calc_M
 
 
@@ -6508,8 +6525,8 @@ contains
   !! <p>
   !! This subroutine initialises <code>spec_1</code>, <code>spec_2</code>, <code>R_1</code>, <code>R_2</code>, <code>n_part</code>, 
   !! <code>Lx</code>, <code>Ly</code>, <code>Lz</code> by importing these variables from the specified file. This procedure also allocates 
-  !! <code>u</code>, <code>pos_1</code> and <code>pos_2</code>, and initialises <code>switchscalex</code>, <code>switchscaley</code> 
-  !! and <code>switchscalez</code>. 
+  !! <code>u</code>, <code>pos_1</code> and <code>pos_2</code>, and initialises <code>switchscalex</code>, <code>switchscaley</code>, 
+  !! <code>switchscalez</code> and <code>M_const</code> (assuming <code>beta</code> has already been initialised). 
   !! If any of the aforementioned arrays are already allocated, then this subroutine deallocates them before 
   !! initialising them (and the scalar variables) 'from scratch'. Be aware that this subroutine opens and closes unit 10.
   !! The format of the file <code>filename</code> must be as follows, where <code>n_part</code> is the number of particles in
@@ -6619,6 +6636,8 @@ contains
     switchscalex = Lx(2)/Lx(1)
     switchscaley = Ly(2)/Ly(1)
     switchscalez = Lz(2)/Lz(1)
+
+    M_const = log( Lx(1)*Ly(1)*Lz(1) / (Lx(2)*Ly(2)*Lz(2)) )/beta
 
   end subroutine initialise_lattices
 
