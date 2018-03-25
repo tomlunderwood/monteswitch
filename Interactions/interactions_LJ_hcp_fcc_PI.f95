@@ -596,7 +596,6 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     real(rk) :: calc_energy_scratch
 
 
-    ! Added for long-range interactions (including n_part)
     ! Constants for calculating the exact ground state for the hcp and fcc lattices
     ! at a given density (see Table 6.1 of Andrew Jackson's thesis mentioned above)
     real(rk), parameter :: A12_hcp=12.132293768
@@ -605,9 +604,6 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     real(rk), parameter :: A6_fcc=14.453920885
     real(rk) :: root2=sqrt(2.0_rk)
     real(rk) :: E_gs
-    integer(ik) :: n_part
-
-    n_part = size(pos,2)
     
     select case(lattice)
     case(1)
@@ -615,8 +611,8 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
        ! Calculate the ground state energy (for 0 particle displacements) for the volume of the input system (corresponding to Lx,
        ! Ly, Lz, r) (hcp)
        ! Note that this is the sum of the ground state energies over all time slices, i.e. over 'n_part' particles
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**4*A12_hcp &
-            -(lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**2*A6_hcp )
+       E_gs= slices * (  2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_hcp &
+                       -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_hcp )  )
        ! Calculate the difference relative to this ground state using truncation (1st 2 terms), and add it to the
        ! ground state for the input volume. Note that the 2nd term is the energy of the ground state for the input volume
        ! with a truncated potential. Note that 'system_potential_energy' calculates the energy using a truncated potential,
@@ -630,8 +626,8 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     case(2)
 
        ! As above, but for fcc
-       E_gs=2*n_part*lj_epsilon*( (lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**4*A12_fcc &
-            -(lj_sigma**3*n_part/(Lx*Ly*Lz*root2))**2*A6_fcc )
+       E_gs= slices * (  2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
+                       -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc )  )
        calc_energy_scratch = system_potential_energy(species,Lx,Ly,Lz,list_2,pos) &
                            - system_potential_energy(species,Lx,Ly,Lz,list_2,R) + E_gs
 
