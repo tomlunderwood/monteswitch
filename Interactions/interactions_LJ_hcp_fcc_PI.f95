@@ -50,16 +50,24 @@
 ! the EXACT energy of lattice L at density \rho, i.e., what Phi_{LJ,trunc}({R_L}) would be if there were no
 ! truncations.
 !
-! The system treated here is comprised of indistinguishable quantum particles over 'P' time slices (see, e.g.
-! 'A Guide to Monte Carlo Simulations in Statistical Physics', Kurt Binder, section 8.2, for more information
-! regarding path integral Monte Carlo), where particle i interacts with its corresponding particle in 'adjacent' time
+! The system treated here is comprised of N indistinguishable quantum particles over P time slices - a path
+! integral representation of a system of M=N/P particles (see below). (See, e.g. 'A Guide to Monte Carlo 
+! Simulations in Statistical Physics', Kurt Binder, section 8.2, for more information
+! regarding path integral Monte Carlo). Particle i interacts with its corresponding particle in 'adjacent' time
 ! slices by a harmonic potential with spring constant 'kappa', where:
 ! kappa=m*P*(k_B*T)^2/hbar^2,
 ! with 'm' the mass of the particle, 'k_B' Boltzmann's constant and 'hbar' the reduced Plank's constant.
-! Here, 'P' and 'kappa' are read as input. The system of 'N' particles specified in the 'lattices_in'
-! file is then assumed to consist of 'P' slices of M=N/P particles each, where M is the number of particles
+! Moreover particle i interacts with all particles in the same time slice via a Lennard-Jones potential in
+! the expected manner.
+! Here, 'P' and 'kappa' are read as input. The system of N particles specified in the 'lattices_in'
+! file is then assumed to consist of P slices of M=N/P particles each, where M is the number of particles
 ! in the 'real' system we are interested in. Of the N particles, the 1st M correspond to slice 1, the 2nd M
-! to slice 2, etc.
+! to slice 2, etc. In the code N, M and P are named 'n_part', 'n_part_slice' and 'slices', respectively.
+!
+! Note that all energies returned by the public procedures in this module correspond to M particles - 
+! the number of particles in the 'real' system under consideration. In other words all energies are 'per slice'. By
+! contrast there are N particles in the simulation, which is necessary to represent the real system of M particles
+! quantum mechanically, energies returned by public procedures do NOT pertain to N particles.
 !
 ! Fixed neighbour lists (that do not change throughout the simulation) are used for the truncated component
 ! of the LJ interactions for each particle.
@@ -277,7 +285,7 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
        ! Note that if there is only 1 slice then we have a classical system (no neighbours),
        ! and if there are 2 slices then we only have one neighbouring slice (i.e. the
        ! 'forward' slice). Only if there are 3 or more slices do we have both a 'forward'
-       ! and a 'backward' slice
+       ! and a 'backward' neighbouring slice
        if(slices>1) then
            interslice_list_1(1,i) = mod(i+n_part_slice,n_part)
            if(interslice_list_1(1,i)<=0) interslice_list_1(1,i)=interslice_list_1(1,i)+n_part
@@ -572,9 +580,10 @@ end subroutine after_all_interactions
 
 
 
-! Returns the energy for the specificed configuration of the specified lattice - 
-! includes intra- and inter-slice energies of ALL time slices, as well as the 'tail corrections'
-! to the intra-slice (Lennard-Jones) energy for all time slices
+! Returns the energy for the specificed configuration of the specified lattice. 
+! Note that the energy returned is 'per slice', i.e. the energy pertains to 'n_part_slice' particles.
+! Moreover the contribution to this due to the intra-slice (Lennard-Jones) energy includes 'tail
+! corrections'.
 function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
@@ -610,13 +619,15 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
 
        ! Calculate the ground state energy (for 0 particle displacements) for the volume of the input system (corresponding to Lx,
        ! Ly, Lz, r) (hcp)
-       ! Note that this is the sum of the ground state energies over all time slices, i.e. over 'n_part' particles
-       E_gs= slices * (  2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_hcp &
-                       -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_hcp )  )
+       ! Note that this is the ground state energy per 'n_part_slice' particles, which is the number of particles in the 'real'
+       ! system we are considering (see preamble to this module)
+       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_hcp &
+              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_hcp ) 
        ! Calculate the difference relative to this ground state using truncation (1st 2 terms), and add it to the
        ! ground state for the input volume. Note that the 2nd term is the energy of the ground state for the input volume
-       ! with a truncated potential. Note that 'system_potential_energy' calculates the energy using a truncated potential,
-       ! while the tail corrections are added here
+       ! with a truncated potential. Note that 'system_potential_energy' returns the energy using a truncated potential
+       ! PER TIME SLICE, i.e. the energy corresponds to 'n_part_slice' particles, which is the number in the 'real' system 
+       ! under consideration). Note also that 'E_gs' amounts to 'tail corrections'
        calc_energy_scratch = system_potential_energy(species,Lx,Ly,Lz,list_1,pos) &
                            - system_potential_energy(species,Lx,Ly,Lz,list_1,R) + E_gs
         
@@ -626,8 +637,8 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     case(2)
 
        ! As above, but for fcc
-       E_gs= slices * (  2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
-                       -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc )  )
+       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
+              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc ) 
        calc_energy_scratch = system_potential_energy(species,Lx,Ly,Lz,list_2,pos) &
                            - system_potential_energy(species,Lx,Ly,Lz,list_2,R) + E_gs
 
@@ -645,7 +656,8 @@ end function calc_energy_scratch
 
 
 ! Returns the energy for the specificed configuration of the specified lattice given
-! that particle i has moved - includes intra- and inter-slice contributions 
+! that particle i has moved - includes intra- and inter-slice contributions.
+! Note that the energy returned is 'per slice', i.e. the energy pertains to 'n_part_slice' particles
 function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, u_new, i)
     ! The lattice (1 or 2)
     integer(ik), intent(in) :: lattice
@@ -679,7 +691,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
 
     calc_energy_part_move=0.0_rk
 
-    ! Calculate the change in potential energy of the system (all time slices)
+    ! Calculate the change in potential energy of the system (per 'n_part' particles)
     n=1
     do
        select case(lattice)
@@ -706,12 +718,16 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
        n=n+1
     end do
 
+    ! Rescale to get the potential energy per 'n_part_slice' particles
+    calc_energy_part_move = calc_energy_part_move / slices
+
     
     ! Calculate the change in the inter-slice energy... (only necessary if there are >1 slices)
 
     if(slices>1) then
 
-        ! If we have >=2 slices then consider the interactions with the forward slice...
+        ! If we have >=2 slices then consider the interactions with the analogous particle in the 
+        ! forward slice...
 
         ! Forwards slice
         select case(lattice)
@@ -729,7 +745,8 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
         
     if(slices>2) then         
 
-        ! If we have >=3 slices then consider the interactions with the backwards slice...
+        ! If we have >=3 slices then also consider the interactions with the analogous particle in the
+        ! backwards slice...
 
         ! Backwards slice
         select case(lattice)
@@ -846,8 +863,9 @@ end function pair_potential_trunc
 
 
 
-! Returns the intra-slice potential energy of the system (over all time slices) calculated from scratch using the specified list
-! Note that this energy does NOT include the tail corrections, which is calculated in 'calc_energy_scratch'. 
+! Returns the intra-slice potential energy of the system PER TIME SLICE (i.e. 'n_part_slice' particles) calculated from 
+! scratch using the specified list. Note that this energy does NOT include the tail corrections, which are added
+! in 'calc_energy_scratch'. 
 function system_potential_energy(species, Lx, Ly, Lz, list, r)
     ! Species of all particles in the system
     integer(ik), dimension(:), intent(in) :: species
@@ -881,20 +899,23 @@ function system_potential_energy(species, Lx, Ly, Lz, list, r)
           n=n+1
        end do
     end do
-    system_potential_energy=0.5_rk*system_potential_energy
+
+    ! Multiply by 0.5 to eliminate double counting and divide by 'slices' to get the energy per 'n_part_slice' particles
+    ! (the above is the potential energy per 'n_part' particles)
+    system_potential_energy = 0.5_rk * system_potential_energy / slices
 
 end function system_potential_energy
 
 
 
 
-! Returns the inter-slice energy of the system (i.e. all time slices) calculated from scratch using the specified list
+! Returns the inter-slice energy of the system calculated from scratch using the specified list
 function system_interslice_energy(Lx, Ly, Lz, list, r)
     ! Dimensions of the cell
     real(rk), intent(in) :: Lx
     real(rk), intent(in) :: Ly
     real(rk), intent(in) :: Lz
-    ! List of interacting particles (for inter-slice energy calculations) - dimesnion(2,n_part)
+    ! List of interacting particles (for inter-slice energy calculations) - dimension(2,n_part)
     integer(ik), dimension(:,:), intent(in) :: list
     ! Positions of particles in the system
     real(rk), intent(in), dimension(:,:) :: r
@@ -924,7 +945,27 @@ function system_interslice_energy(Lx, Ly, Lz, list, r)
             system_interslice_energy = system_interslice_energy + 0.5_rk * kappa * sep2
 
         end do
-            
+
+        
+        ! A faster approach? Considers bonds between slices instead of double counting. A similar
+        ! approach could be used for 3 or more slices below
+        ! 
+        !         ! If we have 2 slices then consider the interactions with each particle in slice 1 with its analogue
+        !         ! in slice 2 (which is the 'forward slice' of slice 1). (Note that one could equivalently consider
+        !         ! the interactions with each particle in slice 2, whose forward slice is slice 1).
+        !         ! Note that particles with index 1 to n_part_slice belong to slice 1
+        ! 
+        !         do i=1,n_part_slice
+        ! 
+        !             ! j here is the index of the particle in slice 2
+        !             j=list(1,i)
+        !             sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+        !             system_interslice_energy = system_interslice_energy + kappa * sep2
+        ! 
+        !         end do
+
+
+
     else
 
         ! If we have 3 or more slices then consider the interactions with the forwards and backwards slices...
