@@ -1081,8 +1081,10 @@ module monteswitch_mod
   !!  <td> <code>trans</code> </td>
   !!  <td> <code>real(rk), dimension(:,:), allocatable</code> </td>
   !!  <td> 
-  !!  <code>trans(i,j)</code> is the number of infered transitions from macrostate 'i' to macrostate 'j'
-  !!  <code>trans</code> must have <code>M_grid_size</code> elements in each of its two dimensions.
+  !!  <code>trans(1,i)</code>, <code>trans(2,i)</code>, <code>trans(3,i)</code> and <code>trans(4,i)</code>
+  !!  are, respectively, the number of infered transitions from macrostate 'i' to macrostate 'i-1', 'i',
+  !!  'i+1', and any other macrostate.  <code>trans</code> must have 4 elements in its first and
+  !!  <code>M_grid_size</code> elements its second dimension.
   !!  </td>
   !! </tr>
   !! <tr>
@@ -4043,7 +4045,7 @@ contains
     if(allocated(trans)) then
        deallocate(trans)
     end if
-    allocate(trans(M_grid_size,M_grid_size))
+    allocate(trans(4,M_grid_size))
     read(10,*,iostat=error) string, trans
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'trans' from file '",trim(filename)
@@ -5001,60 +5003,23 @@ contains
   !! 'shooting' is started from the macrostate with the lowest order parameter.
   !! </p>
   subroutine update_eta_shooting()
-    ! 'frac_start' is the fractional position along the supported order parameter range
-    ! from which the 'shooting' will start. E.g. if frac_start=0 then shooting starts
-    ! from the bottom of the supported range; if frac_start=1 then it starts from the
-    ! top; if frac_start=0.5 then it starts from the centre.
-    real(rk) :: frac_start=0.0_rk
-    ! Pmac(M) is the (inferred) probability of the system being in macrostate M
-!    real(rk), dimension(:), allocatable :: Pmac
-    real(rk), dimension(M_grid_size) :: Pmac
-    ! 'i_start' is the element of Pmac to start the 'shooting' from
-    integer(ik) :: i_start
-    ! Integers used in loops
-    integer(ik) :: i
-    ! The macrostate transition probability matrix
-!    real(rk), dimension(:,:), allocatable :: MTPM
-    real(rk), dimension(M_grid_size,M_grid_size) :: MTPM
-    
-    ! Obtain the MTPM from 'trans'
-!    allocate(MTPM(M_grid_size,M_grid_size))
-    do i=1,M_grid_size
-       MTPM(i,:)=(trans(i,:)+1.0_rk)/sum(trans(i,:)+1.0_rk)
-    end do
-    
-    ! Calculate 'i_start'. Note that 
-    i_start=floor(frac_start*(M_grid_size-1))+1
-   
-    ! Determine 'Pmac' using the shooting method
-!    allocate(Pmac(M_grid_size))
-    ! First go downwards from 'i_start'
-    Pmac(i_start)=1.0_rk
-    i=i_start
-    do
-       if(i==1) then
-          exit
-       end if
-       Pmac(i-1)=Pmac(i)*MTPM(i,i-1)/MTPM(i-1,i)
-       i=i-1
-    end do
-    ! Now go upwards from 'i_start'
-    i=i_start
-    do
-       if(i==M_grid_size) then
-          exit
-       end if
-       Pmac(i+1)=Pmac(i)*MTPM(i,i+1)/MTPM(i+1,i)
-       i=i+1
-    end do
-    ! Now normalise 'Pmac'
-    Pmac=Pmac/sum(Pmac)
-    
-    ! Use 'Pmac' to determine (a good guess for) the weight function. Note that it is 
-    ! renormalised such that the elements in 'eta_grid' sum to 1, and has a minimum value of 0
-    eta_grid=-log(Pmac)
-    eta_grid=eta_grid-minval(eta_grid)
 
+    integer(ik) :: i
+    
+    eta_grid = 0.0_rk
+    
+    do i=1, M_grid_size-1
+
+        eta_grid(i+1) = eta_grid(i) - log( &
+	         ( (trans(3,i)+1.0_rk) / (trans(1,i+1)+1.0_rk)  ) * &
+                 ( (sum(trans(:,i+1))+1.0_rk*M_grid_size) / (sum(trans(:,i))+1.0_rk*M_grid_size) )   &
+                )
+        
+    end do
+
+    eta_grid = eta_grid - minval(eta_grid)
+
+    
   end subroutine update_eta_shooting
 
 
@@ -5257,19 +5222,77 @@ contains
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
           ! Update 'trans' using the Boltzmann probability of the transition
           prob_B=metropolis_prob_B(beta,E,E_trial)
-          trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
-          trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
+          call trans_update(macro,macro_trial,prob_B)
        end if
     else
        metropolis_prob=metropolis_prob_B(beta,E,E_trial)
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-          trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob
-          trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob
+          call trans_update(macro,macro_trial,metropolis_prob)
        end if
     end if
   end function metropolis_prob
 
 
+
+  !! <h4> <code> subroutine trans_update(macro,macro_trial,prob) </code> </h4>
+  !! <p>
+  !! This procedure updates <code>trans</code> given that we are currently in macrostate <code>macro</code>, and
+  !! have proposed a trial move to macrostate <code>macro_trial</code> whose Boltzman/canonical/unbiased
+  !! probability of it being accepted is <code>prob</code>.
+  !! </p>
+  !! <table border="1">
+  !!  <tr>
+  !!   <td> <b> Argument </b> </td>
+  !!   <td> <b> Type </b> </td>
+  !!   <td> <b> Description </b> </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> macro </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
+  !!   <td>
+  !!   The current macrostate
+  !!   </td>
+  !!  </tr>
+ !!  <tr>
+  !!   <td> <code> macro_trial </code> </td>
+  !!   <td> <code> integer(ik), intent(in) </code> </td>
+  !!   <td>
+  !!   The trial macrostate
+  !!   </td>
+  !!  </tr>
+  !!  <tr>
+  !!   <td> <code> prob </code> </td>
+  !!   <td> <code> real(rk), intent(in) </code> </td>
+  !!   <td>
+  !!   The probability of the transition being successful/accepted.
+  !!   </td>
+  !!  </tr>
+  !! </table>
+  subroutine trans_update(macro, macro_trial, prob)
+
+      integer(ik), intent(in) :: macro
+      integer(ik), intent(in) :: macro_trial
+      real(rk), intent(in) :: prob
+
+      integer(ik) :: macro_diff
+
+      macro_diff = macro_trial - macro
+
+      select case(macro_diff)
+      case(-1,0,1)
+         ! The trial macrostate is a nearest neighbour macro state, or the same state
+         macro_diff = macro_diff + 2
+         trans(macro_diff,macro) = trans(macro_diff,macro) + prob
+         trans(2,macro) = trans(2,macro) + 1.0_rk - prob
+      case default
+         ! The trial macrostate is something else
+         trans(4,macro) = trans(4,macro) + prob
+         trans(2,macro) = trans(2,macro) + 1.0_rk - prob
+      end select
+
+  end subroutine trans_update
+      
+  
 
 
   !! <h4> <code> function metropolis_prob_vol(E_trial,macro_trial,V_trial) </code> </h4>
@@ -5323,8 +5346,7 @@ contains
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
                 prob_B=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
-                trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
-                trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
+                call trans_update(macro,macro_trial,prob_B)
             end if
         case(vol_dynamics_UVM)
             metropolis_prob_vol = &
@@ -5332,8 +5354,7 @@ contains
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
                 prob_B=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
-                trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
-                trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
+                call trans_update(macro,macro_trial,prob_B)
             end if
         case default
             write(0,*) "monteswitch_mod: Error. 'vol_dynamics' value is not recognised."
@@ -5350,8 +5371,7 @@ contains
             stop 1
         end select
         if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-            trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob_vol
-            trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob_vol
+            call trans_update(macro,macro_trial,metropolis_prob_vol)
         end if
     end if
   end function metropolis_prob_vol
@@ -5410,14 +5430,12 @@ contains
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
               ! Update 'trans' using the Boltzmann probability of the transition
               prob_B=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
-              trans(macro,macro_trial)=trans(macro,macro_trial)+prob_B
-              trans(macro,macro)=trans(macro,macro)+1.0_rk-prob_B
+              call trans_update(macro,macro_trial,prob_B)
           end if
       else
           metropolis_prob_lattice=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
-              trans(macro,macro_trial)=trans(macro,macro_trial)+metropolis_prob_lattice
-              trans(macro,macro)=trans(macro,macro)+1.0_rk-metropolis_prob_lattice
+              call trans_update(macro,macro_trial,metropolis_prob_lattice)
           end if
       end if
   end function metropolis_prob_lattice
@@ -6369,7 +6387,7 @@ contains
     if(allocated(trans)) then
        deallocate(trans)
     end if
-    allocate(trans(M_grid_size,M_grid_size))
+    allocate(trans(4,M_grid_size))
     trans=0.0_rk
 
     if(allocated(eta_grid)) then
