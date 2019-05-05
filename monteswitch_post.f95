@@ -566,7 +566,7 @@ contains
 
         call import(trim(state_in_2))    
 
-        allocate(trans_toadd(M_grid_size,M_grid_size))
+        allocate(trans_toadd(4,M_grid_size))
         trans_toadd=trans
 
         call import(trim(state_in_1))
