@@ -229,6 +229,7 @@ module monteswitch_mod
 
   implicit none
 
+
   !! <h2> Variables </h2>
   
   !! <p>
@@ -889,9 +890,9 @@ module monteswitch_mod
   real(rk), dimension(:,:), allocatable :: R_2
   real(rk), dimension(:,:), allocatable :: u
   integer :: lattice
-  real(rk) :: E_1
-  real(rk) :: E_2
-  real(rk) :: E
+  real(rk), dimension(edim) :: E_1
+  real(rk), dimension(edim) :: E_2
+  real(rk), dimension(edim) :: E
   real(rk) :: M
   integer(ik) :: macro
   real(rk) :: eta
@@ -4636,20 +4637,20 @@ contains
     ! This nested subroutine checks whether or not the energy has diverged and resets the energies and order parameter
     ! to their 'exact' values. 
     subroutine check_for_divergence()
-      real(rk) :: E_exact_1, E_exact_2
+      real(rk), dimension(edim) :: E_exact_1, E_exact_2
       ! Calculate the exact energy for both lattice types
       E_exact_1=calc_energy_scratch(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,R_1,u)
       E_exact_2=calc_energy_scratch(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,R_2,u)
       ! Compare to the current energies and flag any errors
-      if(abs(E_1-E_exact_1)>divergence_tol) then
-         write(0,*) "monteswitch_mod: Error. Energy of lattice 1 has diverged from exact value by ",abs(E_1-E_exact_1),&
-              "; E_1= ",E_1,"; E_exact_1= ",E_exact_1
+      if(abs(E_1(1)-E_exact_1(1))>divergence_tol) then
+         write(0,*) "monteswitch_mod: Error. Energy of lattice 1 has diverged from exact value by ",abs(E_1(1)-E_exact_1(1)),&
+              "; E_1= ",E_1(1),"; E_exact_1= ",E_exact_1(1)
          call export("state_ERROR")
          stop 3
       end if
-      if(abs(E_2-E_exact_2)>divergence_tol) then
-         write(0,*) "monteswitch_mod: Error. Energy of lattice 2 has diverged from exact value by ",abs(E_2-E_exact_2),&
-              "; E_2= ",E_2,"; E_exact_2= ",E_exact_2
+      if(abs(E_2(1)-E_exact_2(1))>divergence_tol) then
+         write(0,*) "monteswitch_mod: Error. Energy of lattice 2 has diverged from exact value by ",abs(E_2(1)-E_exact_2(1)),&
+              "; E_2= ",E_2(1),"; E_exact_2= ",E_exact_2(1)
          call export("state_ERROR")
          stop 3
       end if
@@ -5119,12 +5120,12 @@ contains
   !! </table>
   !! <p><b>Returns:</b> <code> real(rk) </code> </p>
   function calc_M(E_1,E_2,V_1,V_2)
-    real(rk), intent(in) :: E_1
-    real(rk), intent(in) :: E_2
+    real(rk), dimension(edim), intent(in) :: E_1
+    real(rk), dimension(edim), intent(in) :: E_2
     real(rk), intent(in) :: V_1
     real(rk), intent(in) :: V_2
     real(rk) :: calc_M
-    calc_M = E_1-E_2 + P*(V_1-V_2) - M_const
+    calc_M = E_1(1)-E_2(1) + P*(V_1-V_2) - M_const
   end function calc_M
 
 
@@ -5218,14 +5219,14 @@ contains
     real(rk) :: metropolis_prob
     real(rk) :: prob_B
     if(enable_multicanonical) then
-       metropolis_prob=metropolis_prob_MC(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial))
+       metropolis_prob=metropolis_prob_MC(beta,E(1),E_trial,eta_grid(macro),eta_grid(macro_trial))
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
           ! Update 'trans' using the Boltzmann probability of the transition
-          prob_B=metropolis_prob_B(beta,E,E_trial)
+          prob_B=metropolis_prob_B(beta,E(1),E_trial)
           call trans_update(macro,macro_trial,prob_B)
        end if
     else
-       metropolis_prob=metropolis_prob_B(beta,E,E_trial)
+       metropolis_prob=metropolis_prob_B(beta,E(1),E_trial)
        if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
           call trans_update(macro,macro_trial,metropolis_prob)
        end if
@@ -5342,18 +5343,18 @@ contains
         select case(vol_dynamics)
         case(vol_dynamics_FVM)
             metropolis_prob_vol = &
-                metropolis_prob_MC_vol(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
+                metropolis_prob_MC_vol(beta,E(1),E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
-                prob_B=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
+                prob_B=metropolis_prob_B_vol(beta,E(1),E_trial,n_part,P,V,V_trial)
                 call trans_update(macro,macro_trial,prob_B)
             end if
         case(vol_dynamics_UVM)
             metropolis_prob_vol = &
-                metropolis_prob_MC_vol_uniaxial(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
+                metropolis_prob_MC_vol_uniaxial(beta,E(1),E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
             if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
                 ! Update 'trans' using the Boltzmann probability of the transition
-                prob_B=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
+                prob_B=metropolis_prob_B_vol_uniaxial(beta,E(1),E_trial,n_part,P,V,V_trial)
                 call trans_update(macro,macro_trial,prob_B)
             end if
         case default
@@ -5363,9 +5364,9 @@ contains
     else
         select case(vol_dynamics)
         case(vol_dynamics_FVM)
-            metropolis_prob_vol=metropolis_prob_B_vol(beta,E,E_trial,n_part,P,V,V_trial)
+            metropolis_prob_vol=metropolis_prob_B_vol(beta,E(1),E_trial,n_part,P,V,V_trial)
         case(vol_dynamics_UVM)
-            metropolis_prob_vol=metropolis_prob_B_vol_uniaxial(beta,E,E_trial,n_part,P,V,V_trial)
+            metropolis_prob_vol=metropolis_prob_B_vol_uniaxial(beta,E(1),E_trial,n_part,P,V,V_trial)
         case default
             write(0,*) "monteswitch_mod: Error. 'vol_dynamics' value is not recognised."
             stop 1
@@ -5426,14 +5427,14 @@ contains
       real(rk) :: prob_B
       if(enable_multicanonical) then
           metropolis_prob_lattice= &
-              metropolis_prob_MC_vol_unscaled_pos(beta,E,E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
+              metropolis_prob_MC_vol_unscaled_pos(beta,E(1),E_trial,eta_grid(macro),eta_grid(macro_trial),n_part,P,V,V_trial)
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
               ! Update 'trans' using the Boltzmann probability of the transition
-              prob_B=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
+              prob_B=metropolis_prob_B_vol_unscaled_pos(beta,E(1),E_trial,n_part,P,V,V_trial)
               call trans_update(macro,macro_trial,prob_B)
           end if
       else
-          metropolis_prob_lattice=metropolis_prob_B_vol_unscaled_pos(beta,E,E_trial,n_part,P,V,V_trial)
+          metropolis_prob_lattice=metropolis_prob_B_vol_unscaled_pos(beta,E(1),E_trial,n_part,P,V,V_trial)
           if(update_trans .and. sweeps>=sweep_equil_reference+equil_sweeps) then
               call trans_update(macro,macro_trial,metropolis_prob_lattice)
           end if
@@ -5585,10 +5586,10 @@ contains
           ! Update the energy/enthalpy sum
           if(enable_vol_moves) then
              ! Enthalpy for NPT ensemble
-             intrablock_sum_H_1=intrablock_sum_H_1+(E+P*V)*weight
+             intrablock_sum_H_1=intrablock_sum_H_1+(E(1)+P*V)*weight
           else
              ! Energy for NVT ensemble
-             intrablock_sum_H_1=intrablock_sum_H_1+E*weight
+             intrablock_sum_H_1=intrablock_sum_H_1+E(1)*weight
           end if
           ! Update the volume sum
           intrablock_sum_V_1=intrablock_sum_V_1+V*weight
@@ -5607,10 +5608,10 @@ contains
           ! Update the energy/enthalpy sum
           if(enable_vol_moves) then
              ! Enthalpy for NPT ensemble
-             intrablock_sum_H_2=intrablock_sum_H_2+(E+P*V)*weight
+             intrablock_sum_H_2=intrablock_sum_H_2+(E(1)+P*V)*weight
           else
              ! Energy for NVT ensemble
-             intrablock_sum_H_2=intrablock_sum_H_2+E*weight
+             intrablock_sum_H_2=intrablock_sum_H_2+E(1)*weight
           end if
           ! Update the volume sum
           intrablock_sum_V_2=intrablock_sum_V_2+V*weight
@@ -5906,9 +5907,9 @@ contains
     ! Calculate the probability of accepting a lattice switch
     select case(lattice)
     case(1)
-       prob=metropolis_prob_lattice(E_2, macro, Lx(2)*Ly(2)*Lz(2) )
+       prob=metropolis_prob_lattice(E_2(1), macro, Lx(2)*Ly(2)*Lz(2) )
     case(2)
-       prob=metropolis_prob_lattice(E_1, macro, Lx(1)*Ly(1)*Lz(1) )
+       prob=metropolis_prob_lattice(E_1(1), macro, Lx(1)*Ly(1)*Lz(1) )
     case default
        write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
        stop 1
@@ -5970,10 +5971,10 @@ contains
     real(rk), dimension(3) :: pos_new_2
     ! 'delta_E_1' and 'delta_E_2' are the energy differences between the trial move and the current energy
     ! lattice types 1 and 2.
-    real(rk) :: delta_E_1
-    real(rk) :: delta_E_2
+    real(rk), dimension(edim) :: delta_E_1
+    real(rk), dimension(edim) :: delta_E_2
     ! 'delta_E_trial' is the energy difference given the actual lattice type 'lattice'
-    real(rk) :: delta_E
+    real(rk), dimension(edim) :: delta_E
     ! The trial order parameter
     real(rk) :: M_trial
     ! The trial macrostate
@@ -6035,7 +6036,7 @@ contains
        ! Calculate the probability of accepting the move. Note that this procedure updates
        ! 'trans' if it is in use. Hence we necessarily reject the move if macro_trial is outwith the order
        ! parameter barriers AFTER this procedure.
-       prob=metropolis_prob(E+delta_E,macro_trial)
+       prob=metropolis_prob(E(1)+delta_E(1),macro_trial)
        ! Check if the move is within the barriers if the barriers are in use. If not then reject it on those grounds,
        ! i.e. set proceed to .false.
        if(enable_barriers) then
@@ -6116,10 +6117,10 @@ contains
     real(rk), dimension(3,n_part) :: pos_trial_1
     real(rk), dimension(3,n_part) :: pos_trial_2
     ! 'E_1_trial' and 'E_2_trial' are the trial energies for lattice types 1 and 2.
-    real(rk) :: E_1_trial
-    real(rk) :: E_2_trial
+    real(rk), dimension(edim) :: E_1_trial
+    real(rk), dimension(edim) :: E_2_trial
     ! 'E_trial; is the trial energy, given the actual lattice type 'lattice'
-    real(rk) :: E_trial
+    real(rk), dimension(edim) :: E_trial
     ! The trial order parameter
     real(rk) :: M_trial
     ! The trial macrostate
@@ -6181,7 +6182,7 @@ contains
        ! Calculate the probability of accepting the move. Note that this procedure updates
        ! 'trans' if it is in use. Hence we necessarily reject the move if macro_trial is outwith the order
        ! parameter barriers AFTER this procedure.
-       prob=metropolis_prob_vol(E_trial,macro_trial,V_trial)
+       prob=metropolis_prob_vol(E_trial(1),macro_trial,V_trial)
        ! Check if the move is within the barriers if the barriers are in use. If not then reject it on those grounds,
        ! i.e. set proceed to .false.
        if(enable_barriers) then

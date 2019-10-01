@@ -120,6 +120,9 @@ module interactions_mod
     
     implicit none
 
+    ! Number of energy types
+    integer, parameter :: edim = 3
+
     ! Lennard-Jones parameters
     real(rk) :: lj_epsilon
     real(rk) :: lj_sigma
@@ -159,7 +162,7 @@ module interactions_mod
     
     ! The below public procedures are called by 'monteswitch_mod' (in 'monteswitch_mod.f95')
     private
-    public :: initialise_interactions, export_interactions, import_interactions, &
+    public :: edim, initialise_interactions, export_interactions, import_interactions, &
         after_accepted_part_interactions, after_accepted_vol_interactions, &
         after_accepted_lattice_interactions, after_all_interactions, &
         calc_energy_scratch, calc_energy_part_move
@@ -602,7 +605,7 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! particle 1 from its lattice site, etc.
     real(rk) ,intent(in), dimension(:,:) :: u
     
-    real(rk) :: calc_energy_scratch
+    real(rk), dimension(edim) :: calc_energy_scratch
 
 
     ! Constants for calculating the exact ground state for the hcp and fcc lattices
@@ -613,6 +616,8 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     real(rk), parameter :: A6_fcc=14.453920885
     real(rk) :: root2=sqrt(2.0_rk)
     real(rk) :: E_gs
+
+    calc_energy_scratch = 0.0_rk
     
     select case(lattice)
     case(1)
@@ -628,22 +633,28 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
        ! with a truncated potential. Note that 'system_potential_energy' returns the energy using a truncated potential
        ! PER TIME SLICE, i.e. the energy corresponds to 'n_part_slice' particles, which is the number in the 'real' system 
        ! under consideration). Note also that 'E_gs' amounts to 'tail corrections'
-       calc_energy_scratch = system_potential_energy(species,Lx,Ly,Lz,list_1,pos) &
+       calc_energy_scratch(2) = system_potential_energy(species,Lx,Ly,Lz,list_1,pos) &
                            - system_potential_energy(species,Lx,Ly,Lz,list_1,R) + E_gs
         
-       ! Add the interslice energy
-       calc_energy_scratch = calc_energy_scratch + system_interslice_energy(Lx,Ly,Lz,interslice_list_1,pos)
+       ! Calculate the interslice energy
+       calc_energy_scratch(3) = system_interslice_energy(Lx,Ly,Lz,interslice_list_1,pos)
+
+       ! Total energy
+       calc_energy_scratch(1) = calc_energy_scratch(2) + calc_energy_scratch(3)
        
     case(2)
 
        ! As above, but for fcc
        E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
               -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc ) 
-       calc_energy_scratch = system_potential_energy(species,Lx,Ly,Lz,list_2,pos) &
+       calc_energy_scratch(2) = system_potential_energy(species,Lx,Ly,Lz,list_2,pos) &
                            - system_potential_energy(species,Lx,Ly,Lz,list_2,R) + E_gs
 
-       ! Add the interslice energy 
-       calc_energy_scratch = calc_energy_scratch  + system_interslice_energy(Lx,Ly,Lz,interslice_list_2,pos)
+       ! Calculate the interslice energy 
+       calc_energy_scratch(3) = system_interslice_energy(Lx,Ly,Lz,interslice_list_2,pos)
+
+       ! Total energy
+       calc_energy_scratch(1) = calc_energy_scratch(2) + calc_energy_scratch(3)
        
     case default
        write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
@@ -683,7 +694,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     ! Displacement of particle i AFTER the particle has been moved
     real(rk), dimension(3), intent(in) :: u_new
 
-    real(rk) :: calc_energy_part_move
+    real(rk), dimension(edim) :: calc_energy_part_move
 
     ! Squared separations between particles
     real(rk) :: sep2, sep_new2
@@ -710,7 +721,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
           if(j/=i) then
              sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
              sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
-             calc_energy_part_move = calc_energy_part_move + &
+             calc_energy_part_move(2) = calc_energy_part_move(2) + &
                  pair_potential_trunc(sep_new2,species(i),species(j)) - &
                  pair_potential_trunc(sep2,species(i),species(j))
           end if
@@ -719,7 +730,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
     end do
 
     ! Rescale to get the potential energy per 'n_part_slice' particles
-    calc_energy_part_move = calc_energy_part_move / slices
+    calc_energy_part_move(2) = calc_energy_part_move(2) / slices
 
     
     ! Calculate the change in the inter-slice energy... (only necessary if there are >1 slices)
@@ -738,7 +749,7 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
         end select
         sep2=min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
         sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
-        calc_energy_part_move = calc_energy_part_move + &
+        calc_energy_part_move(3) = calc_energy_part_move(3) + &
             0.5_rk * kappa * (sep_new2 - sep2)
 
     end if
@@ -757,11 +768,13 @@ function calc_energy_part_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u,
         end select
         sep2=min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
         sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
-        calc_energy_part_move = calc_energy_part_move + &
+        calc_energy_part_move(3) = calc_energy_part_move(3) + &
             0.5_rk * kappa * (sep_new2 - sep2)
 
     end if
 
+    ! Total energy
+    calc_energy_part_move(1) = calc_energy_part_move(2) +  calc_energy_part_move(3)
     
 end function calc_energy_part_move
 
