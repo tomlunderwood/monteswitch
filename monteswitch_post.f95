@@ -168,6 +168,21 @@
 !!   outwith the two minima. This prevents oversampling of these regions, something which is undesirable for LSMC.
 !!   </td>
 !!  </tr>
+!!  <tr>
+!!   <td> -extend_wf <i>bins_below<i> <i>bins_above<i></td>
+!!   <td>
+!!   Outputs to stdout the weight function, but with an 'extended' order parameter range. <i>bins_below</i> is
+!!   the number of order parameter bins to extend the order parameter range by below the 'old' lower bound
+!!   on the order parameter range, while <i>bins_above</i> is the number of bins to extend the range by above
+!!   the old upper bound. Note that the extended order parameter range has the same bin width as the
+!!   old range. The weight function in the newly created regions of order parameter space
+!!   are set to the edge values of the weight function in the old range. The new weight
+!!   function over this range is output to stdout in the usual format: order parameter
+!!   followed by weight function value (in 'wf_in' format). Note that the 'state' file is
+!!   not modified by this procedure; this procedure merely calculates and outputs the
+!!   weight function if the range were to be extended.
+!!   </td>
+!!  </tr>
 !! </table>
 !! </p>
 !! <p>
@@ -250,6 +265,11 @@ program monteswitch_post
     else if(trim(char)=="-taper_wf") then
 
         call taper_wf()
+
+    else if(trim(char)=="-extend_wf") then
+
+        call extend_wf()
+
 
     else
 
@@ -770,6 +790,76 @@ contains
         call export("state")
 
     end subroutine taper_wf
+
+
+
+
+    ! CODE FOR OUTPUTTING A WEIGHT FUNCTION WITH AN EXTENDED RANGE
+    subroutine extend_wf()
+
+        character(len=20) :: char
+        integer(ik) :: extendmin, extendmax
+        integer(ik) :: M_grid_size_old, i
+        real(rk), dimension(:), allocatable :: eta_grid_old, M_grid_old
+        real(rk) :: binwidth
+
+        call import("state")
+
+        call getarg(2,char)
+        if(char=="") then
+            write(0,*) "monteswitch_post: Error. No 2nd command line argument detected for '-extend_wf'"
+            stop 1
+        end if
+
+        read(char,*) extendmin
+
+        call getarg(3,char)
+        if(char=="") then
+            write(0,*) "monteswitch_post: Error. No 3rd command line argument detected for '-extend_wf'"
+            stop 1
+        end if
+
+        read(char,*) extendmax
+
+        allocate(eta_grid_old(M_grid_size))
+        allocate(M_grid_old(M_grid_size))
+        eta_grid_old = eta_grid
+        M_grid_old = M_grid
+        M_grid_size_old = M_grid_size
+        binwidth = M_grid(2)-M_grid(1)
+
+        deallocate(eta_grid)
+        deallocate(M_grid)
+
+        M_grid_size = M_grid_size + extendmin + extendmax
+
+        allocate(eta_grid(M_grid_size))
+        allocate(M_grid(M_grid_size))
+
+        eta_grid((extendmin+1):(extendmin+M_grid_size_old)) = eta_grid_old
+        M_grid((extendmin+1):(extendmin+M_grid_size_old)) = M_grid_old
+
+        do i=1, extendmin
+
+           M_grid(extendmin+1-i) = M_grid_old(1) - binwidth*i
+           eta_grid(extendmin+1-i) = eta_grid_old(1)
+
+        end do
+
+        do i=1, extendmax
+
+           M_grid(extendmin+M_grid_size_old+i) = M_grid_old(M_grid_size_old) + binwidth*i
+           eta_grid(extendmin+M_grid_size_old+i) = eta_grid_old(M_grid_size_old)
+
+        end do
+
+        ! Output
+        do i=1,M_grid_size
+            write(*,*) M_grid(i), eta_grid(i)
+        end do
+
+
+    end subroutine extend_wf
 
 
 

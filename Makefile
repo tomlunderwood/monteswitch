@@ -11,14 +11,14 @@
 # 2) Type 'make help' for a list and description of callable targets, and invoke the most
 #    appropriate one.
 
-# The fortran compiler
+# The fortran compiler for serial compilation
 FC = gfortran
-# The mpi fortran compiler
+# The fortran compiler for MPI compilation
 FC_MPI = mpif90
-# Extra flags to be used in the compiling using the mpi compiler
+# Extra flags to be used in serial compilation
 FC_FLAGS = -O3
-# Extra flags to be used in the compiling using the mpi fortran compiler
-FC_MPI_FLAGS = -O3
+# Extra flags to be used in MPI compilation
+FC_MPI_FLAGS = -O3 
 
 # ************ END OF README ***********
 
@@ -46,18 +46,22 @@ lattices_in_hcp_fcc_docs.html lattices_in_bcc_fcc_docs.html lattices_in_bcc_hcp_
 
 # UTILITY TARGETS
 
-.PHONY: all help clean
+.PHONY: all help clean switch_to_mpi
 
 # target: help - List targets (default target).
 help:
 	@echo "Here is a list of targets: "; egrep "^# target:" Makefile | sed "s/# target://"
+
+switch_to_mpi:
+	$(eval FC := $(FC_MPI))
+	$(eval FC_FLAGS := $(FC_MPI_FLAGS))
 
 # target: serial - Make serial (non-MPI) binaries only
 serial: $(BINS_SERIAL)
 	$(MAKE) clean
 
 # target: mpi - Make serial and MPI binaries
-mpi: $(BINS_MPI)
+mpi: switch_to_mpi $(BINS_MPI)
 	$(MAKE) clean
 
 # target: srcdocs - Make html source code documentation
