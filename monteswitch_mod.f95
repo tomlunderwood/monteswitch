@@ -1240,13 +1240,15 @@ module monteswitch_mod
   character(len=*), parameter :: barrier_dynamics_random="random"
   character(len=*), parameter :: barrier_dynamics_pong_up="pong_up"
   character(len=*), parameter :: barrier_dynamics_pong_down="pong_down"
+  character(len=*), parameter :: barrier_dynamics_target="target"
   integer(ik) :: lock_moves
   integer(ik) :: barrier_macro_low
   integer(ik) :: barrier_macro_high
   integer(ik) :: rejected_moves_M_barrier
   integer(ik) :: moves_since_lock
   integer(ik) :: barrier_to_lock
-
+  integer(ik) :: barrier_macro_low_target
+  integer(ik) :: barrier_macro_high_target
 
   !! <h3> Variables pertaining to equilibrium properties and their calculation </h3>
   !! <table border="1">
@@ -2615,7 +2617,19 @@ contains
          write(0,*) "monteswitch_mod: Error. Problem reading 'block_sweeps' from file '",filename_params,"'"
          stop 1
       end if
-
+      !init_params barrier_macro_low_target
+      read(10,*,iostat=error) string, barrier_macro_low_target
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_low_target' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params barrier_macro_high_target
+      read(10,*,iostat=error) string, barrier_macro_high_target
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_high_target' from file '",filename_params,"'"
+         stop 1
+      end if
+      
       close(unit=10)
 
     end subroutine import_params
@@ -2802,6 +2816,8 @@ contains
        write(10,*) "lock_moves= ",lock_moves
        write(10,*) "barrier_macro_low= ",barrier_macro_low
        write(10,*) "barrier_macro_high= ",barrier_macro_high
+       write(10,*) "barrier_macro_low_target= ",barrier_macro_low_target
+       write(10,*) "barrier_macro_high_target= ",barrier_macro_high_target
        write(10,*) "rejected_moves_M_barrier= ",rejected_moves_M_barrier
        write(10,*) "moves_since_lock= ",moves_since_lock
        write(10,*) "barrier_to_lock= ",barrier_to_lock
@@ -3665,6 +3681,16 @@ contains
     read(10,*,iostat=error) string, barrier_macro_high
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_high' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, barrier_macro_low_target
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_low_target' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, barrier_macro_high_target
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_high_target' from file '",trim(filename)
        stop 1
     end if
     read(10,*,iostat=error) string, rejected_moves_M_barrier
@@ -5638,89 +5664,100 @@ contains
     ! This nested subroutine updates the order parameter barriers. 
     ! It assumes that the current microstate is between the order parameter barriers.
     subroutine update_barriers()      
-      ! Ammend 'moves_since_lock'
-      moves_since_lock=moves_since_lock+1
-      
-      if(moves_since_lock>lock_moves) then
-         ! If we are waiting to lock into the new microstate, i.e. if moves_since_lock>lock_moves, then 
-         ! check whether the order parameter is within the newly available macrostate. If so then lock the 
-         ! system into the new macrostate.
-         select case(barrier_to_lock)
-         case(1)
-            ! If 'barrier_to_lock'=1 then the lower barrier needs to be shifted upwards once the system
-            ! enters the newly available macrostate 'barrier_macro_high' 
-            if(macro==barrier_macro_high) then
-               barrier_macro_low=barrier_macro_low+1
-               moves_since_lock=0
-            end if
-         case(2)
-            ! If 'barrier_to_lock'=2 then the higher barrier needs to be shifted downwards once the 
-            ! system enters the newly available macrostate 'barrier_macro_low'
-            if(macro==barrier_macro_low) then
-               barrier_macro_high=barrier_macro_high-1
-               moves_since_lock=0
-            end if
-         case default
-            write(0,*) "monteswitch_mod: Error. 'barrier_to_lock' is not 1 or 2."
-            stop 1
-         end select
+
+      if(barrier_dynamics==barrier_dynamics_target) then
+
+         barrier_macro_low = min(barrier_macro_low_target,macro)
+         barrier_macro_high = max(barrier_macro_high_target,macro)
          
-      else if(moves_since_lock==lock_moves) then
-         ! Move the barriers to open up a new macrostate if moves_since_lock=lock_moves. Note that if 
-         ! the upper barrier is as high as is possible then we automatically shift the lower barrier; and
-         ! if the lower barrier is as low as is possible then we automatically shift the higher barrier.
-         if(barrier_macro_low==1) then
-            barrier_macro_high=barrier_macro_high+1
-            ! We have just shifted the high barrier upwards. Set barrier_to_lock to 1 to reflect the
-            ! fact that the low barrier is now to be shifted upwards once we move into the newly
-            ! available macrostate
-            barrier_to_lock=1
-         else if(barrier_macro_high==M_grid_size) then
-            barrier_macro_low=barrier_macro_low-1
-            ! We have shifted the low barrier downwards. Set barrier_to_lock to 2 to reflect the
-            ! fact that the high barrier is now to be shifted downwards once we move into the newly
-            ! available macrostate
-            barrier_to_lock=2
-         else
-            !
-            ! If we are not in an 'edge' macrostate...
-            !
-            select case(barrier_dynamics)
-            case(barrier_dynamics_random)
-               ! Decide to shift either the high or low barrier at random
-               if(get_random_number()>0.5) then
-                  barrier_macro_high=barrier_macro_high+1
-                  barrier_to_lock=1
-               else
-                  barrier_macro_low=barrier_macro_low-1
-                  barrier_to_lock=2
+      else
+      
+         ! Ammend 'moves_since_lock'
+         moves_since_lock=moves_since_lock+1
+         
+         if(moves_since_lock>lock_moves) then
+            ! If we are waiting to lock into the new microstate, i.e. if moves_since_lock>lock_moves, then 
+            ! check whether the order parameter is within the newly available macrostate. If so then lock the 
+            ! system into the new macrostate.
+            select case(barrier_to_lock)
+            case(1)
+               ! If 'barrier_to_lock'=1 then the lower barrier needs to be shifted upwards once the system
+               ! enters the newly available macrostate 'barrier_macro_high' 
+               if(macro==barrier_macro_high) then
+                  barrier_macro_low=barrier_macro_low+1
+                  moves_since_lock=0
                end if
-            case(barrier_dynamics_pong_up, barrier_dynamics_pong_down)
-               ! Code for 'pong' barrier_dynamics
-               !
-               ! If barrier_to_lock=1 then we previously locked 'upwards' and we will open a new macrostate
-               ! upwards (and continue to do so until we reach the highest allowed macrostate). The opposite
-               ! applies for barrier_to_lock=2
-               !
-               ! Note that the code below only comes into effect if we are not in the highest or lowest supported
-               ! macrostate, in which case barrier_to_lock is set such that we will move away from the edge
-               ! of the supported macrostate range.
-               !
-               select case(barrier_to_lock)
-               case(1)
-                  barrier_macro_high=barrier_macro_high+1
-               case(2)
-                  barrier_macro_low=barrier_macro_low-1
-               case default
-                  write(0,*) "monteswitch_mod: Error. 'barrier_to_lock' is not 1 or 2."
-                  stop 1
-               end select
+            case(2)
+               ! If 'barrier_to_lock'=2 then the higher barrier needs to be shifted downwards once the 
+               ! system enters the newly available macrostate 'barrier_macro_low'
+               if(macro==barrier_macro_low) then
+                  barrier_macro_high=barrier_macro_high-1
+                  moves_since_lock=0
+               end if
             case default
-               write(0,*) "monteswitch_mod: Error. 'barrier_dynamics' value is not recognised."
+               write(0,*) "monteswitch_mod: Error. 'barrier_to_lock' is not 1 or 2."
                stop 1
             end select
+            
+         else if(moves_since_lock==lock_moves) then
+            ! Move the barriers to open up a new macrostate if moves_since_lock=lock_moves. Note that if 
+            ! the upper barrier is as high as is possible then we automatically shift the lower barrier; and
+            ! if the lower barrier is as low as is possible then we automatically shift the higher barrier.
+            if(barrier_macro_low==1) then
+               barrier_macro_high=barrier_macro_high+1
+               ! We have just shifted the high barrier upwards. Set barrier_to_lock to 1 to reflect the
+               ! fact that the low barrier is now to be shifted upwards once we move into the newly
+               ! available macrostate
+               barrier_to_lock=1
+            else if(barrier_macro_high==M_grid_size) then
+               barrier_macro_low=barrier_macro_low-1
+               ! We have shifted the low barrier downwards. Set barrier_to_lock to 2 to reflect the
+               ! fact that the high barrier is now to be shifted downwards once we move into the newly
+               ! available macrostate
+               barrier_to_lock=2
+            else
+               !
+               ! If we are not in an 'edge' macrostate...
+               !
+               select case(barrier_dynamics)
+               case(barrier_dynamics_random)
+                  ! Decide to shift either the high or low barrier at random
+                  if(get_random_number()>0.5) then
+                     barrier_macro_high=barrier_macro_high+1
+                     barrier_to_lock=1
+                  else
+                     barrier_macro_low=barrier_macro_low-1
+                     barrier_to_lock=2
+                  end if
+               case(barrier_dynamics_pong_up, barrier_dynamics_pong_down)
+                  ! Code for 'pong' barrier_dynamics
+                  !
+                  ! If barrier_to_lock=1 then we previously locked 'upwards' and we will open a new macrostate
+                  ! upwards (and continue to do so until we reach the highest allowed macrostate). The opposite
+                  ! applies for barrier_to_lock=2
+                  !
+                  ! Note that the code below only comes into effect if we are not in the highest or lowest supported
+                  ! macrostate, in which case barrier_to_lock is set such that we will move away from the edge
+                  ! of the supported macrostate range.
+                  !
+                  select case(barrier_to_lock)
+                  case(1)
+                     barrier_macro_high=barrier_macro_high+1
+                  case(2)
+                     barrier_macro_low=barrier_macro_low-1
+                  case default
+                     write(0,*) "monteswitch_mod: Error. 'barrier_to_lock' is not 1 or 2."
+                     stop 1
+                  end select
+               case default
+                  write(0,*) "monteswitch_mod: Error. 'barrier_dynamics' value is not recognised."
+                  stop 1
+               end select
+            end if
          end if
+         
       end if
+         
     end subroutine update_barriers
 
   end subroutine after_move
@@ -6738,16 +6775,22 @@ contains
   !! must be within the supported range.
   !! </p>
   subroutine initialise_barriers()
-    ! Set the barriers to encompass the current macrostate
-    barrier_macro_low=macro
-    barrier_macro_high=barrier_macro_low
-    ! Set the correct initial value of barrier_to_lock if 'pong' dynamics are to be used
-    select case(barrier_dynamics)
-    case(barrier_dynamics_pong_up)
-       barrier_to_lock=1
-    case(barrier_dynamics_pong_down)
-       barrier_to_lock=2
-    end select
+
+    if(barrier_dynamics==barrier_dynamics_target) then
+       barrier_macro_low = min(barrier_macro_low_target,macro)
+       barrier_macro_high = max(barrier_macro_high_target,macro)
+    else
+       ! Set the barriers to encompass the current macrostate
+       barrier_macro_low=macro
+       barrier_macro_high=barrier_macro_low
+       ! Set the correct initial value of barrier_to_lock if 'pong' dynamics are to be used
+       select case(barrier_dynamics)
+       case(barrier_dynamics_pong_up)
+          barrier_to_lock=1
+       case(barrier_dynamics_pong_down)
+          barrier_to_lock=2
+       end select
+    end if
     ! Zero the relevant counters
     rejected_moves_M_barrier=0
     moves_since_lock=0
