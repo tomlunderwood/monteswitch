@@ -23,6 +23,9 @@
 ! SOFTWARE.
 !
 !-----------------------------------------------------------------------
+
+!TU*: NEED TO UPDATE DOCUMENTATION!
+
 !
 ! 'interactions.f95' file for monteswitch for a path-integral lattice-switch Monte Carlo simulation of
 ! the fcc vs. hcp Lennard-Jones solids, in conjunction with a cut-off, fixed neighbour lists and 'tail corrections'
@@ -123,10 +126,20 @@ module interactions_mod
     ! Number of energy types
     integer, parameter :: edim = 3
 
-    ! Lennard-Jones parameters
-    real(rk) :: lj_epsilon
-    real(rk) :: lj_sigma
+!!$    ! Lennard-Jones parameters
+!!$    real(rk) :: lj_epsilon
+!!$    real(rk) :: lj_sigma
+    ! Silvera-Goldman potential parameters
+    real(rk) :: alpha
+    real(rk) :: beta
+    real(rk) :: gamma
+    real(rk) :: C6
+    real(rk) :: C8
+    real(rk) :: C9
+    real(rk) :: C10
+    real(rk) :: rm
 
+    
     ! Variables for the potential cutoff and lists of interacting particles (intra-slice
     ! interactions only)
     real(rk) :: cutoff
@@ -164,8 +177,8 @@ module interactions_mod
     private
     public :: edim, initialise_interactions, export_interactions, import_interactions, &
         after_accepted_part_interactions, after_accepted_vol_interactions, &
-        after_accepted_lattice_interactions, after_all_interactions, &
-        calc_energy_scratch, calc_energy_part_move
+        after_accepted_lattice_interactions, after_accepted_pol_interactions, after_all_interactions, &
+        calc_energy_scratch, calc_energy_part_move, calc_energy_pol_move
 
 
 contains
@@ -200,16 +213,57 @@ subroutine initialise_interactions(Lx1, Ly1, Lz1, species1, pos1, Lx2, Ly2, Lz2,
        stop 1
     end if
 
-    read(10,*,iostat=error) string, lj_epsilon
+    read(10,*,iostat=error) string, alpha
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'alpha' from file 'interactions_in'"
         stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, beta
     if(error/=0) then
-        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+        write(0,*) "interactions: Error. Problem reading 'beta' from file 'interactions_in'"
         stop 1
     end if
+    read(10,*,iostat=error) string, gamma
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'gamma' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C6
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C6' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C8
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C8' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C9
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C9' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C10
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C10' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, rm
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'rm' from file 'interactions_in'"
+        stop 1
+    end if
+
+!!$    read(10,*,iostat=error) string, lj_epsilon
+!!$    if(error/=0) then
+!!$        write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from file 'interactions_in'"
+!!$        stop 1
+!!$    end if
+!!$    read(10,*,iostat=error) string, lj_sigma
+!!$    if(error/=0) then
+!!$        write(0,*) "interactions: Error. Problem reading 'lj_sigma' from file 'interactions_in'"
+!!$        stop 1
+!!$    end if
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -335,8 +389,16 @@ end subroutine initialise_interactions
 ! Export all of the variables in this module - for the purposes of checkpointing.
 subroutine export_interactions()
 
-    write(10,*) "lj_epsilon= ",lj_epsilon
-    write(10,*) "lj_sigma= ",lj_sigma
+!!$    write(10,*) "lj_epsilon= ",lj_epsilon
+!!$    write(10,*) "lj_sigma= ",lj_sigma
+    write(10,*) "alpha= ",alpha
+    write(10,*) "beta= ",beta
+    write(10,*) "gamma= ",gamma
+    write(10,*) "C6= ",C6
+    write(10,*) "C8= ",C8
+    write(10,*) "C9= ",C9
+    write(10,*) "C10= ",C10
+    write(10,*) "rm= ",rm
 
     write(10,*) "cutoff= ",cutoff
     write(10,*) "list_cutoff= ",list_cutoff
@@ -378,16 +440,58 @@ subroutine import_interactions(Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2,
     character(len=20) string
     integer(ik) :: error, n_part
     
-    read(10,*,iostat=error) string, lj_epsilon
+
+    read(10,*,iostat=error) string, alpha
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
-       stop 1
+        write(0,*) "interactions: Error. Problem reading 'alpha' from file 'interactions_in'"
+        stop 1
     end if
-    read(10,*,iostat=error) string, lj_sigma
+    read(10,*,iostat=error) string, beta
     if(error/=0) then
-       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
-       stop 1
+        write(0,*) "interactions: Error. Problem reading 'beta' from file 'interactions_in'"
+        stop 1
     end if
+    read(10,*,iostat=error) string, gamma
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'gamma' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C6
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C6' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C8
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C8' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C9
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C9' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, C10
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'C10' from file 'interactions_in'"
+        stop 1
+    end if
+    read(10,*,iostat=error) string, rm
+    if(error/=0) then
+        write(0,*) "interactions: Error. Problem reading 'rm' from file 'interactions_in'"
+        stop 1
+    end if
+!!$
+!!$    read(10,*,iostat=error) string, lj_epsilon
+!!$    if(error/=0) then
+!!$       write(0,*) "interactions: Error. Problem reading 'lj_epsilon' from unit 10"
+!!$       stop 1
+!!$    end if
+!!$    read(10,*,iostat=error) string, lj_sigma
+!!$    if(error/=0) then
+!!$       write(0,*) "interactions: Error. Problem reading 'lj_sigma' from unit 10"
+!!$       stop 1
+!!$    end if
 
     read(10,*,iostat=error) string, cutoff
     if(error/=0) then
@@ -495,6 +599,34 @@ subroutine after_accepted_part_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1
 end subroutine after_accepted_part_interactions
 
 
+! Performs any tasks required for the variables in this module, after a polymer move for polymer i is accepted
+! Empty here - there are no such tasks
+subroutine after_accepted_pol_interactions(i, Lx1, Ly1, Lz1, species1, pos1, R1, Lx2, Ly2, Lz2, species2, pos2, R2, u)
+    ! The polymer which has just been moved (where the move has been accepted)
+    integer(ik), intent(in) :: i
+    ! Current dimensions of the initial (orthorhombic) supercell for lattices 1 and 2
+    ! in each Cartesian dimension (after the move has been accepted)
+    real(rk), intent(in) :: Lx1, Ly1, Lz1, Lx2, Ly2, Lz2
+    ! Array containing the species of each particle for each lattice: e.g., species1(i) is the
+    ! species of particle i in lattice 1
+    integer(ik), intent(in), dimension(:) :: species1, species2
+    ! Current positions (Cartesian) of the particles for lattices 1 and 2 (after the move has been
+    ! accepted): e.g., pos1(1,i) is the x-coordinate of particle i in lattice 1, pos1(2,i) is the 
+    ! y-coordinate, and pos1(3,i) is the z-coordinate
+    real(rk), intent(in), dimension(:,:) :: pos1, pos2
+    ! Positions (Cartesian) of the lattice sites for lattices 1 and 2: e.g., R1(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 1, ..., R2(1,i) is
+    ! the x-coordinate of the lattice site for particle i in lattice 2
+    real(rk), intent(in), dimension(:,:) :: R1, R2
+    ! Current displacement vectors for the particles (after the move has been accepted); e.g., 
+    ! u(1,i) is the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+
+    return
+
+end subroutine after_accepted_pol_interactions
+
+
 
 
 ! Performs any tasks required for the variables in this module, after a volume move is accepted
@@ -582,10 +714,12 @@ end subroutine after_all_interactions
 
 
 
+!TU*: Need to amend documentation here: the ground state is not in fact the ground state, but the ground state of
+!TU*: the long range contributions only!
 
 ! Returns the energy for the specificed configuration of the specified lattice. 
 ! Note that the energy returned is 'per slice', i.e. the energy pertains to 'n_part_slice' particles.
-! Moreover the contribution to this due to the intra-slice (Lennard-Jones) energy includes 'tail
+! Moreover the contribution to this due to the intra-slice (Lennard-Jones) energy includegs 'tail
 ! corrections'.
 function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     ! The lattice (1 or 2)
@@ -608,14 +742,28 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     real(rk), dimension(edim) :: calc_energy_scratch
 
 
-    ! Constants for calculating the exact ground state for the hcp and fcc lattices
-    ! at a given density (see Table 6.1 of Andrew Jackson's thesis mentioned above)
-    real(rk), parameter :: A12_hcp=12.132293768
-    real(rk), parameter :: A6_hcp=14.454897093
-    real(rk), parameter :: A12_fcc=12.131880196
-    real(rk), parameter :: A6_fcc=14.453920885
-    real(rk) :: root2=sqrt(2.0_rk)
-    real(rk) :: E_gs
+    !TU*: Need to modify this function for SG! Derive expression for long-range part
+    
+!!$    ! Constants for calculating the exact ground state for the hcp and fcc lattices
+!!$    ! at a given density (see Table 6.1 of Andrew Jackson's thesis mentioned above)
+!!$    real(rk), parameter :: A12_hcp=12.132293768
+!!$    real(rk), parameter :: A6_hcp=14.454897093
+!!$    real(rk), parameter :: A12_fcc=12.131880196
+!!$    real(rk), parameter :: A6_fcc=14.453920885
+!!$    real(rk) :: root2=sqrt(2.0_rk)
+
+    ! Lattice summations for hcp and fcc: Sn is the sum of 1/r^n for a particle in a hcp or fcc
+    ! with unit density
+    real(rk), parameter :: S6_hcp=7.2274484903407288
+    real(rk), parameter :: S6_fcc=7.2269604135327556
+    real(rk), parameter :: S8_hcp=5.0808032076962109
+    real(rk), parameter :: S8_fcc=5.0804521491102976
+    real(rk), parameter :: S10_hcp=3.8780043050741368
+    real(rk), parameter :: S10_fcc=3.8777993898368566
+    real(rk), parameter :: S9_hcp=4.4170562500686543
+    real(rk), parameter :: S9_fcc=4.4167822398294101
+    
+    real(rk) :: E_gs, rho
 
     calc_energy_scratch = 0.0_rk
     
@@ -626,15 +774,25 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
        ! Ly, Lz, r) (hcp)
        ! Note that this is the ground state energy per 'n_part_slice' particles, which is the number of particles in the 'real'
        ! system we are considering (see preamble to this module)
-       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_hcp &
-              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_hcp ) 
+!!$       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_hcp &
+!!$              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_hcp ) 
+
+       rho = n_part_slice / (Lx*Ly*Lz)
+       E_gs = - 0.5_rk * n_part_slice * (  C6  * S6_hcp  * rho**2 &
+                                         + C8  * S8_hcp  * rho**(8.0_rk/3.0_rk) &
+                                         + C10 * S10_hcp * rho**(10.0_rk/3.0_rk)  &
+                                         - C9  * S9_hcp  * rho**3 )  
+
+       !TU*: Need to amend the below for LR part only!
+
+       !write(0,*) 1,E_gs,rho,C6,C8,C9,C10
        ! Calculate the difference relative to this ground state using truncation (1st 2 terms), and add it to the
        ! ground state for the input volume. Note that the 2nd term is the energy of the ground state for the input volume
        ! with a truncated potential. Note that 'system_potential_energy' returns the energy using a truncated potential
        ! PER TIME SLICE, i.e. the energy corresponds to 'n_part_slice' particles, which is the number in the 'real' system 
        ! under consideration). Note also that 'E_gs' amounts to 'tail corrections'
        calc_energy_scratch(2) = system_potential_energy(species,Lx,Ly,Lz,list_1,pos) &
-                           - system_potential_energy(species,Lx,Ly,Lz,list_1,R) + E_gs
+                           - system_potential_energy_lr(species,Lx,Ly,Lz,list_1,R) + E_gs
         
        ! Calculate the interslice energy
        calc_energy_scratch(3) = system_interslice_energy(Lx,Ly,Lz,interslice_list_1,pos)
@@ -645,10 +803,20 @@ function calc_energy_scratch(lattice, Lx, Ly, Lz, species, pos, R, u)
     case(2)
 
        ! As above, but for fcc
-       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
-              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc ) 
+!!$       E_gs = 2*n_part_slice*lj_epsilon*( (lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**4*A12_fcc &
+!!$              -(lj_sigma**3*n_part_slice/(Lx*Ly*Lz*root2))**2*A6_fcc ) 
+
+       rho = n_part_slice / (Lx*Ly*Lz)
+       E_gs = - 0.5_rk * n_part_slice * (  C6  * S6_fcc  * rho**2 &
+                                         + C8  * S8_fcc  * rho**(8.0_rk/3.0_rk) &
+                                         + C10 * S10_fcc * rho**(10.0_rk/3.0_rk)  &
+                                         - C9  * S9_fcc  * rho**3 )  
+
+       !write(0,*) 2,E_gs,rho,C6,C8,C9,C10
+       !TU*: Need to amend the below for LR part only!
+
        calc_energy_scratch(2) = system_potential_energy(species,Lx,Ly,Lz,list_2,pos) &
-                           - system_potential_energy(species,Lx,Ly,Lz,list_2,R) + E_gs
+                           - system_potential_energy_lr(species,Lx,Ly,Lz,list_2,R) + E_gs
 
        ! Calculate the interslice energy 
        calc_energy_scratch(3) = system_interslice_energy(Lx,Ly,Lz,interslice_list_2,pos)
@@ -781,6 +949,91 @@ end function calc_energy_part_move
 
 
 
+! Returns the energy for the specificed configuration of the specified lattice given
+! that polymer i has moved. Here polymer i constitutes particles i, i+n_part_slice, i+2*n_part_slice, ...,
+! where n_part_slice is the number of particles per tiume slice, a variable which is
+! set at initialisation of this module.
+! Note that the energy returned is 'per slice', i.e. the energy pertains to 'n_part_slice' particles
+function calc_energy_pol_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, u_new, ipol)
+    ! The lattice (1 or 2)
+    integer(ik), intent(in) :: lattice
+    ! Dimensions of the (orthorhombic) supercell
+    real(rk), intent(in) :: Lx, Ly, Lz
+    ! Array containing the species of each particle for each lattice: e.g., species(i) is the
+    ! species of particle i
+    integer(ik), dimension(:), intent(in) :: species
+    ! Positions (Cartesian) of the particles BEFORE polymer i has been moved: e.g., pos(1,j) is 
+    ! the x-coordinate of particle j, pos(2,j) is the y-coordinate, and pos(3,j) is the
+    ! z-coordinate
+    real(rk), dimension(:,:), intent(in) :: pos
+    ! Positions of the particles AFTER the polymer has been moved. This has the same shape as
+    ! the 'pos' input array.
+    real(rk), dimension(:,:), intent(in) :: pos_new
+    ! Positions (Cartesian) of the lattice sites for the configuration: e.g., R(1,i) is
+    ! the x-coordinate of the lattice site for particle i, etc.
+    real(rk), intent(in), dimension(:,:) :: R
+    ! Displacement vectors for the particles BEFORE polymer i has been moved; e.g., u(1,j) is 
+    ! the x-displacement of particle 1 from its lattice site, etc.
+    real(rk) ,intent(in), dimension(:,:) :: u
+    ! Displacements of particle i AFTER the polymer has been moved. This has the same shape as
+    ! the 'u' input array.
+    real(rk), dimension(:,:), intent(in) :: u_new
+    ! The polymer which has just been moved. This should be between 1 and n_part_slice
+    ! (inclusive), which is equivalent to the number of particles in a polymer
+    integer(ik), intent(in) :: ipol
+
+    real(rk), dimension(edim) :: calc_energy_pol_move
+    
+    ! Squared separations between particles
+    real(rk) :: sep2, sep_new2
+    integer(ik) :: i,j,n
+
+    calc_energy_pol_move=0.0_rk
+
+    ! Calculate the change in potential energy of the system (per 'n_part' particles)
+
+    ! Loop over all atoms in the polymer (using size(species) as a proxy for the number of particles
+    ! in the system)
+    do i=ipol,size(species),n_part_slice
+       n=1
+       do 
+          select case(lattice)
+          case(1)
+             j=list_1(n,i)
+          case(2)
+             j=list_2(n,i)
+          case default
+             write(0,*) "interactions: Error. 'lattice' is not 1 or 2."
+             stop 1
+          end select
+
+          if(j==0) then
+             exit
+          else
+             if(j/=i) then
+                sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
+                sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
+                calc_energy_pol_move(2) = calc_energy_pol_move(2) + &
+                    pair_potential_trunc(sep_new2,species(i),species(j)) - &
+                    pair_potential_trunc(sep2,species(i),species(j))
+             end if
+          end if
+          n=n+1
+       end do
+    end do
+       
+    ! Rescale to get the potential energy per 'n_part_slice' particles
+    calc_energy_pol_move(2) = calc_energy_pol_move(2) / slices
+
+    ! Note that there is no change in the interslice energy so we keep calc_energy_pol_move(3)=0
+    
+    ! Total energy
+    calc_energy_pol_move(1) = calc_energy_pol_move(2)
+    
+end function calc_energy_pol_move
+
+
+
 ! Returns the separation between two positions within an orthorhombic
 ! cell with the specified dimensions
 function min_image_distance(r_1, r_2, Lx, Ly, Lz)
@@ -839,7 +1092,21 @@ end function min_image_distance2
 
 
 
-! The 'pure' Lennard-Jones pair potential, without truncation, between 2 particles belonging to
+!!$! The 'pure' Lennard-Jones pair potential, without truncation, between 2 particles belonging to
+!!$! the specified species and the specified squared separation
+!!$function pair_potential(r2, species1, species2)
+!!$    ! Squared separation between the particles
+!!$    real(rk), intent(in) :: r2
+!!$    ! Species of the two particles
+!!$    integer(ik), intent(in) :: species1, species2
+!!$
+!!$    real(rk) :: pair_potential
+!!$    pair_potential=4.0_rk*lj_epsilon*( (lj_sigma**12/r2**6) - (lj_sigma**6/r2**3) )
+!!$
+!!$end function pair_potential
+
+
+! The 'pure' Silvera-Goldman potential, without truncation, between 2 particles belonging to
 ! the specified species and the specified squared separation
 function pair_potential(r2, species1, species2)
     ! Squared separation between the particles
@@ -848,14 +1115,62 @@ function pair_potential(r2, species1, species2)
     integer(ik), intent(in) :: species1, species2
 
     real(rk) :: pair_potential
-    pair_potential=4.0_rk*lj_epsilon*( (lj_sigma**12/r2**6) - (lj_sigma**6/r2**3) )
+    
+    real(rk) :: r, r2inv, r6inv, r8inv, r10inv, r9inv, rmprime, fc
+
+    r = sqrt(r2)
+    r2inv = 1.0_rk/r2
+    r6inv = r2inv**3
+    r8inv = r6inv*r2inv
+    r10inv = r8inv*r2inv
+    r9inv = r10inv*r
+
+    rmprime = 1.28_rk * rm
+
+    ! Calculate value of f_C(r) (see Silvera-Goldman paper for notation)
+    fc = 1.0_rk
+    if(r<rmprime) then 
+       fc = exp( - (rmprime/r-1.0_rk)**2 )
+    end if
+
+    ! Calculate the value of the potential
+    ! Note that the negative sign on the C9 term is not a typo.
+    pair_potential = exp(alpha-beta*r-gamma*r2) &
+                     - fc*( C6*r6inv + C8*r8inv + C10*r10inv - C9*r9inv )
 
 end function pair_potential
 
 
 
+! The 'long-range' component of the Silvera-Goldman potential, without truncation, between 2 particles belonging to
+! the specified species and the specified squared separation
+function pair_potential_lr(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
+    ! Species of the two particles
+    integer(ik), intent(in) :: species1, species2
 
-! The Lennard-Jones potential truncated at 'cutoff'. Note that there is no shifting of the potential;
+    real(rk) :: pair_potential_lr
+    
+    real(rk) :: r, r2inv, r6inv, r8inv, r10inv, r9inv
+
+    r = sqrt(r2)
+    r2inv = 1.0_rk/r2
+    r6inv = r2inv**3
+    r8inv = r6inv*r2inv
+    r10inv = r8inv*r2inv
+    r9inv = r10inv*r
+
+    ! Calculate the value of the potential
+    ! Note that the negative sign on the C9 term is not a typo.
+    pair_potential_lr = - ( C6*r6inv + C8*r8inv + C10*r10inv - C9*r9inv )
+
+end function pair_potential_lr
+
+
+
+
+! The Silvera-Goldman potential truncated at 'cutoff'. Note that there is no shifting of the potential;
 ! there is a discontinuity at the cut-off.
 function pair_potential_trunc(r2, species1, species2)
     ! Squared separation between the particles
@@ -873,6 +1188,25 @@ function pair_potential_trunc(r2, species1, species2)
 
 end function pair_potential_trunc
 
+
+
+! The 'long-range' component of the Silvera-Goldman potential truncated at 'cutoff'. Note that there is no shifting of the potential;
+! there is a discontinuity at the cut-off.
+function pair_potential_lr_trunc(r2, species1, species2)
+    ! Squared separation between the particles
+    real(rk), intent(in) :: r2
+    ! Species of the two particles
+    integer(ik), intent(in) :: species1, species2
+
+    real(rk) :: pair_potential_lr_trunc
+    
+    if(r2<cutoff*cutoff) then
+        pair_potential_lr_trunc=pair_potential_lr(r2,species1,species2)
+    else
+        pair_potential_lr_trunc=0.0_rk
+    end if
+
+end function pair_potential_lr_trunc
 
 
 
@@ -920,7 +1254,50 @@ function system_potential_energy(species, Lx, Ly, Lz, list, r)
 end function system_potential_energy
 
 
+! Returns the intra-slice 'long-range' potential energy of the system PER TIME SLICE (i.e. 'n_part_slice' particles) calculated from 
+! scratch using the specified list.  Note that this energy does NOT include the tail corrections, which are added
+! in 'calc_energy_scratch'. 
+function system_potential_energy_lr(species, Lx, Ly, Lz, list, r)
+    ! Species of all particles in the system
+    integer(ik), dimension(:), intent(in) :: species
+    ! Dimensions of the cell
+    real(rk), intent(in) :: Lx
+    real(rk), intent(in) :: Ly
+    real(rk), intent(in) :: Lz
+    ! List of interacting particles
+    integer(ik), dimension(:,:), intent(in) :: list
+    ! Positions of particles in the system
+    real(rk), intent(in), dimension(:,:) :: r
 
+    real(rk) :: system_potential_energy_lr
+    
+    integer(ik) :: i,j,n
+    real(rk) :: sep2
+    
+    system_potential_energy_lr=0.0_rk
+    do i=1,ubound(r,2)
+       n=1
+       do
+          j=list(n,i)
+          if(j==0) then
+             exit
+          else
+             if(j/=i) then
+                sep2=min_image_distance2(r(:,i),r(:,j),Lx,Ly,Lz)
+                system_potential_energy_lr=system_potential_energy_lr+pair_potential_lr_trunc(sep2,species(i),species(j))
+             end if
+          end if
+          n=n+1
+       end do
+    end do
+
+    ! Multiply by 0.5 to eliminate double counting and divide by 'slices' to get the energy per 'n_part_slice' particles
+    ! (the above is the potential energy per 'n_part' particles)
+    system_potential_energy_lr = 0.5_rk * system_potential_energy_lr / slices
+
+  end function system_potential_energy_lr
+
+  
 
 ! Returns the inter-slice energy of the system calculated from scratch using the specified list
 function system_interslice_energy(Lx, Ly, Lz, list, r)

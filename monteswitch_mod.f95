@@ -365,7 +365,12 @@ module monteswitch_mod
   character(len=*), parameter :: vol_dynamics_UVM="UVM"
   integer(ik) :: vol_freq
   real(rk) :: vol_step
-
+  !TU*:
+  logical :: enable_pol_moves
+  real(rk) :: pol_freq
+  real(rk) :: pol_step
+  integer(ik) :: pol_size
+  
   !! <h3> Variables determining the length of the simulation and the equilibration time </h3>
   !! <p>
   !! <table border="1">
@@ -1056,6 +1061,8 @@ module monteswitch_mod
   integer(ik) :: accepted_moves_lattice
   integer(ik) :: moves_part
   integer(ik) :: accepted_moves_part
+  integer(ik) :: moves_pol
+  integer(ik) :: accepted_moves_pol
   integer(ik) :: moves_vol
   integer(ik) :: accepted_moves_vol
   integer(ik) :: rejected_moves_M_OOB
@@ -2617,18 +2624,45 @@ contains
          write(0,*) "monteswitch_mod: Error. Problem reading 'block_sweeps' from file '",filename_params,"'"
          stop 1
       end if
-      !init_params barrier_macro_low_target
+      !init_params barrier_macro_low_target= integer
       read(10,*,iostat=error) string, barrier_macro_low_target
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_low_target' from file '",filename_params,"'"
          stop 1
       end if
-      !init_params barrier_macro_high_target
+      !init_params barrier_macro_high_target= integer
       read(10,*,iostat=error) string, barrier_macro_high_target
       if(error/=0) then
          write(0,*) "monteswitch_mod: Error. Problem reading 'barrier_macro_high_target' from file '",filename_params,"'"
          stop 1
       end if
+
+      !TU*:
+      !init_params enable_pol_moves= logical
+      read(10,*,iostat=error) string, enable_pol_moves
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'enable_pol_moves' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params pol_freq= real
+      read(10,*,iostat=error) string, pol_freq
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'pol_freq' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params pol_step= real
+      read(10,*,iostat=error) string, pol_step
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'pol_step' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params pol_size= integer
+      read(10,*,iostat=error) string, pol_size
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'pol_size' from file '",filename_params,"'"
+         stop 1
+      end if
+
       
       close(unit=10)
 
@@ -2801,6 +2835,8 @@ contains
        write(10,*) "accepted_moves_lattice= ",accepted_moves_lattice
        write(10,*) "moves_part= ",moves_part
        write(10,*) "accepted_moves_part= ",accepted_moves_part
+       write(10,*) "moves_pol= ",moves_pol
+       write(10,*) "accepted_moves_pol= ",accepted_moves_pol
        write(10,*) "moves_vol= ",moves_vol
        write(10,*) "accepted_moves_vol= ",accepted_moves_vol
        write(10,*) "rejected_moves_M_OOB= ",rejected_moves_M_OOB
@@ -2870,6 +2906,13 @@ contains
        write(10,*) "block_counts_L_1= ",block_counts_L_1
        write(10,*) "block_counts_L_2= ",block_counts_L_2
        write(10,*) "sweep_equil_reference= ",sweep_equil_reference
+
+       !TU*:
+       write(10,*) "enable_pol_moves= ", enable_pol_moves
+       write(10,*) "pol_freq= ", pol_freq
+       write(10,*) "pol_step= ", pol_step
+       write(10,*) "pol_size= ", pol_size
+
        ! Output allocatable arrays
        write(10,*) "spec_1= ",spec_1
        write(10,*) "spec_2= ",spec_2
@@ -2893,7 +2936,7 @@ contains
        write(10,*) "interblock_sum_umsd_2= ",interblock_sum_umsd_2
        write(10,*) "interblock_sum_umsd_1_sqrd= ",interblock_sum_umsd_1_sqrd
        write(10,*) "interblock_sum_umsd_2_sqrd= ",interblock_sum_umsd_2_sqrd
-
+       
        ! Export 'interactions' variables
        call export_interactions()
 
@@ -3608,6 +3651,19 @@ contains
        write(0,*) "monteswitch_mod: Error. Problem reading 'accepted_moves_part' from file '",trim(filename)
        stop 1
     end if
+
+    read(10,*,iostat=error) string, moves_pol
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'moves_pol' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, accepted_moves_pol
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'accepted_moves_pol' from file '",trim(filename)
+       stop 1
+    end if
+
+
     read(10,*,iostat=error) string, moves_vol
     if(error/=0) then
        write(0,*) "monteswitch_mod: Error. Problem reading 'moves_vol' from file '",trim(filename)
@@ -3954,6 +4010,29 @@ contains
        stop 1
     end if
 
+    !TU*:
+    read(10,*,iostat=error) string, enable_pol_moves
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'enable_pol_moves' from file '",trim(filename),"'"
+       stop 1
+    end if
+    read(10,*,iostat=error) string, pol_freq
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'pol_freq' from file '",trim(filename),"'"
+       stop 1
+    end if
+    read(10,*,iostat=error) string, pol_step
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'pol_step' from file '",trim(filename),"'"
+       stop 1
+    end if
+    read(10,*,iostat=error) string, pol_size
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'pol_size' from file '",trim(filename),"'"
+       stop 1
+    end if
+
+    
     ! Read the array values from the file. Note that if the arrays are 'not in use' then
     ! we read only the first token (as a string) of each line - since there is no second, third etc.
     ! tokens.
@@ -4243,9 +4322,14 @@ contains
     integer(ik) :: n
     integer(ik) :: p
     real(rk) :: vol_move_prob
+    !TU*:
+    real(rk) :: pol_move_prob
+
     ! The time the simulation was started and the current time
     real :: time_start, time
 
+    if(enable_pol_moves) pol_move_prob = (pol_freq/pol_size)
+    
     vol_move_prob=(1.0_rk*vol_freq)/n_part
     ! Initialise a random seed for the random number generator
     if(present(seed)) then
@@ -4356,6 +4440,22 @@ contains
                    end if
                 end if
              end if
+             !TU*:
+             ! Ring polymer moves
+             if(enable_pol_moves) then
+                !
+                if(get_random_number()<pol_move_prob) then
+                   ! Move the polymer containing atom 'n'                   
+                   call move_polymer(n)
+                   call output_if_needed()
+                   ! Move the lattice
+                   if(enable_lattice_moves) then
+                      call move_lattice()
+                      call output_if_needed()
+                   end if
+                end if
+             end if
+
           end do
           
           sweeps=sweeps+1
@@ -6350,6 +6450,146 @@ contains
     end subroutine vol_trial_UVM
 
   end subroutine move_volume
+
+
+
+
+  !TU*:
+  subroutine move_polymer(i)
+    ! Particle index whose polymer is to be moved
+    integer(ik), intent(in) :: i
+    ! 'u_trial' are the trial displacements for all particles
+    real(rk), dimension(3,n_part) :: u_trial
+    ! Trial positions for both lattices
+    real(rk), dimension(3,n_part) :: pos_new_1
+    real(rk), dimension(3,n_part) :: pos_new_2
+    ! 'delta_E_1' and 'delta_E_2' are the energy differences between the trial move and the current energy
+    ! lattice types 1 and 2.
+    real(rk), dimension(edim) :: delta_E_1
+    real(rk), dimension(edim) :: delta_E_2
+    ! 'delta_E_trial' is the energy difference given the actual lattice type 'lattice'
+    real(rk), dimension(edim) :: delta_E
+    ! The trial order parameter
+    real(rk) :: M_trial
+    ! The trial macrostate
+    integer(ik) :: macro_trial
+    ! The trial value of the weight function
+    real(rk) :: eta_trial
+    ! The probability the move should be accepted
+    real(rk) :: prob
+    ! This is a boolean which determines whether or not the move is within the required range
+    ! of order parameters
+    logical :: proceed
+    ! The change in the displacements of the particles in the polymer, i.e. the change in the
+    ! centroid position of the polymer - which constitutes the move
+    real(rk), dimension(3) :: delta_u
+    ! The index of the polymer in the system which has to be moved. This is also the particle
+    ! in the polymer to be moved which has the lowest particle index
+    integer(ik) :: ipol
+    ! For use in loops
+    integer(ik) :: j
+    ! Number of particles in a single time slice
+    integer(ik) :: n_part_slice
+
+    n_part_slice = n_part / pol_size
+    
+    ! ipol is the lowest atom index which is part of the polymer containing atom i:
+    ipol = mod(i,n_part_slice)
+    if(ipol==0) ipol=n_part_slice
+    
+    ! Generate polymer centroid shift
+    delta_u(1)=top_hat_rand(pol_step)
+    delta_u(2)=top_hat_rand(pol_step)
+    delta_u(3)=top_hat_rand(pol_step)
+
+    !TU*: Generate the trial displacements for all particles corresponding to the polymer move
+    u_trial=u
+    pos_new_1=pos_1
+    pos_new_2=pos_2
+    do j=ipol,n_part,n_part_slice
+       u_trial(:,j) = u(:,j) + delta_u
+       pos_new_1(:,j) = pos_new_1(:,j) + delta_u
+       pos_new_2(:,j) = pos_new_2(:,j) + delta_u
+       call translate_position(pos_new_1(:,j),Lx(1),Ly(1),Lz(1))
+       call translate_position(pos_new_2(:,j),Lx(2),Ly(2),Lz(2))
+    end do
+
+    ! Calculate the change in energies for each lattice, using the new positions
+    delta_E_1=calc_energy_pol_move(1,Lx(1),Ly(1),Lz(1),spec_1,pos_1,pos_new_1,R_1,u,u_trial,ipol)
+    delta_E_2=calc_energy_pol_move(2,Lx(2),Ly(2),Lz(2),spec_2,pos_2,pos_new_2,R_2,u,u_trial,ipol)
+
+    ! Set delta_E depending on the lattice, and calculate M for the trial state
+    select case(lattice)
+    case(1)
+       delta_E=delta_E_1
+    case(2)
+       delta_E=delta_E_2
+    case default
+       write(0,*) "monteswitch_mod: Error. 'lattice' is not 1 or 2."
+       stop 1
+    end select
+
+    ! Calculate the trial order parameter and macrostate number
+    M_trial=calc_M(E_1+delta_E_1, E_2+delta_E_2, Lx(1)*Ly(1)*Lz(1), Lx(2)*Ly(2)*Lz(2))
+    macro_trial=get_macro(M_trial)
+    ! get_macro(M_trial) is -2 or -1 if M_trial is outwith the supported range. In this case the
+    ! move is rejected, and the OOB variables are updated.
+    proceed=.true.
+    if(macro_trial<1) then
+        proceed=.false.
+        call amend_OOB_variables(M_trial,macro_trial)
+    end if
+
+    if(proceed) then
+       
+       ! The trial move is within the supported order parameter range, and macro_trial is sensible...
+
+       eta_trial=eta_grid(macro_trial)
+
+       ! Calculate the probability of accepting the move. Note that this procedure updates
+       ! 'trans' if it is in use. Hence we necessarily reject the move if macro_trial is outwith the order
+       ! parameter barriers AFTER this procedure.
+       prob=metropolis_prob(E(1)+delta_E(1),macro_trial)
+       ! Check if the move is within the barriers if the barriers are in use. If not then reject it on those grounds,
+       ! i.e. set proceed to .false.
+       if(enable_barriers) then
+          proceed=is_macro_within_barriers(macro_trial)
+       end if
+       ! Finally, if proceed=.true. accept the move or not based on a random number
+       if(proceed .and. get_random_number()<prob) then
+
+           ! Accept the change to pos_1, pos_2 and u for particle i
+           pos_1=pos_new_1
+           pos_2=pos_new_2
+           u=u_trial
+           
+           ! Update the energies, M, macro and eta
+           E_1=E_1+delta_E_1
+           E_2=E_2+delta_E_2
+           E=E+delta_E
+           M=M_trial
+           macro=macro_trial
+           eta=eta_trial
+           
+           ! If we use the centre-of-mass frame...
+           if(enable_COM_frame) then
+              write(0,*) "monteswitch_mod: Error. Centre-of-mass frame not supported with polymer moves."
+              stop 1
+           end if
+           ! Ammend accepted counters
+           accepted_moves_pol=accepted_moves_pol+1
+           ! Perform 'interactions'-specific tasks after an accepted move
+           call after_accepted_pol_interactions(ipol, Lx(1), Ly(1), Lz(1), spec_1, pos_1, R_1, &
+               Lx(2), Ly(2), Lz(2), spec_2, pos_2, R_2, u)
+
+       end if
+    end if
+    ! Ammend counter
+    moves_pol=moves_pol+1
+    ! Perform other tasks
+    call after_move()
+
+  end subroutine move_polymer
 
 
 
