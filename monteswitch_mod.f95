@@ -359,17 +359,20 @@ module monteswitch_mod
   character(len=*), parameter :: part_select_cycle="cycle"
   character(len=*), parameter :: part_select_rand="rand"
   real(rk) :: part_step
+  logical :: optimise_part_step                                 !**** Not documented yet! ****
   logical :: enable_COM_frame
   character(len=30) :: vol_dynamics
   character(len=*), parameter :: vol_dynamics_FVM="FVM"
   character(len=*), parameter :: vol_dynamics_UVM="UVM"
   integer(ik) :: vol_freq
   real(rk) :: vol_step
-  !TU*:
+  logical :: optimise_vol_step                                 !**** Not documented yet! ****
+  !TU*:                                                        !**** Polymer move stuff not documented yet ****
   logical :: enable_pol_moves
   real(rk) :: pol_freq
   real(rk) :: pol_step
   integer(ik) :: pol_size
+  logical :: optimise_pol_step                                 !**** Not documented yet! ****
   
   !! <h3> Variables determining the length of the simulation and the equilibration time </h3>
   !! <p>
@@ -2663,6 +2666,25 @@ contains
          stop 1
       end if
 
+      !init_params optimise_part_step= logical
+      read(10,*,iostat=error) string, optimise_part_step
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_part_step' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params optimise_vol_step= logical
+      read(10,*,iostat=error) string, optimise_vol_step
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_vol_step' from file '",filename_params,"'"
+         stop 1
+      end if
+      !init_params optimise_pol_step= logical
+      read(10,*,iostat=error) string, optimise_pol_step
+      if(error/=0) then
+         write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_pol_step' from file '",filename_params,"'"
+         stop 1
+      end if
+
       
       close(unit=10)
 
@@ -2912,7 +2934,11 @@ contains
        write(10,*) "pol_freq= ", pol_freq
        write(10,*) "pol_step= ", pol_step
        write(10,*) "pol_size= ", pol_size
+       write(10,*) "optimise_part_step= ",optimise_part_step
+       write(10,*) "optimise_vol_step= ",optimise_vol_step
+       write(10,*) "optimise_pol_step= ",optimise_pol_step
 
+       
        ! Output allocatable arrays
        write(10,*) "spec_1= ",spec_1
        write(10,*) "spec_2= ",spec_2
@@ -4031,6 +4057,21 @@ contains
        write(0,*) "monteswitch_mod: Error. Problem reading 'pol_size' from file '",trim(filename),"'"
        stop 1
     end if
+    read(10,*,iostat=error) string, optimise_part_step
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_part_step' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, optimise_vol_step
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_vol_step' from file '",trim(filename)
+       stop 1
+    end if
+    read(10,*,iostat=error) string, optimise_pol_step
+    if(error/=0) then
+       write(0,*) "monteswitch_mod: Error. Problem reading 'optimise_pol_step' from file '",trim(filename)
+       stop 1
+    end if
 
     
     ! Read the array values from the file. Note that if the arrays are 'not in use' then
@@ -4455,7 +4496,7 @@ contains
                    end if
                 end if
              end if
-
+             
           end do
           
           sweeps=sweeps+1
@@ -4520,6 +4561,30 @@ contains
                    write(0,*) "monteswitch_mod: Error. 'update_eta_method' value is not recognised."
                    stop 1
                 end select
+             end if
+          end if
+
+          
+          ! Optimise the step size if appropriate
+          if(optimise_part_step) then
+             if( accepted_moves_part * 1.0_rk / moves_part > 0.37_rk ) then
+                part_step = min(0.5_rk*Lx(1), 0.5*rk*Ly(1), 0.5_rk*Lz(1), part_step * 1.01_rk)
+             else
+                part_step = part_step * 0.99_rk
+             end if
+          end if
+          if(optimise_vol_step) then
+             if( accepted_moves_vol * 1.0_rk / moves_vol > 0.37_rk ) then
+                vol_step = vol_step * 1.01_rk
+             else
+                vol_step = vol_step * 0.99_rk
+             end if
+          end if
+          if(optimise_pol_step) then
+             if( accepted_moves_pol * 1.0_rk / moves_pol > 0.37_rk ) then
+                pol_step = min(0.5_rk*Lx(1), 0.5*rk*Ly(1), 0.5_rk*Lz(1), pol_step * 1.01_rk)
+             else
+                pol_step = pol_step * 0.99_rk
              end if
           end if
           
