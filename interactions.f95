@@ -1012,12 +1012,14 @@ function calc_energy_pol_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, 
           else
              if(j/=i) then
                 sep2 = min_image_distance2(pos(:,i),pos(:,j),Lx,Ly,Lz)
-                sep_new2 = min_image_distance2(pos_new,pos(:,j),Lx,Ly,Lz)
+                sep_new2 = min_image_distance2(pos_new(:,i),pos(:,j),Lx,Ly,Lz)
                 calc_energy_pol_move(2) = calc_energy_pol_move(2) + &
                     pair_potential_trunc(sep_new2,species(i),species(j)) - &
                     pair_potential_trunc(sep2,species(i),species(j))
+
              end if
           end if
+
           n=n+1
        end do
     end do
@@ -1029,7 +1031,7 @@ function calc_energy_pol_move(lattice, Lx, Ly, Lz, species, pos, pos_new, R, u, 
     
     ! Total energy
     calc_energy_pol_move(1) = calc_energy_pol_move(2)
-    
+
 end function calc_energy_pol_move
 
 
